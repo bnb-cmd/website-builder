@@ -1,0 +1,46 @@
+{
+  "name": "pakistan-website-builder",
+  "version": "1.0.0",
+  "description": "Pakistan's most advanced AI-powered website builder",
+  "main": "index.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "cd backend && npm run dev",
+    "client:dev": "cd frontend && npm run dev",
+    "build": "npm run client:build && npm run server:build",
+    "client:build": "cd frontend && npm run build",
+    "server:build": "cd backend && npm run build",
+    "start": "cd backend && npm start",
+    "install-all": "npm install && cd backend && npm install && cd ../frontend && npm install",
+    "docker:dev": "docker-compose -f docker-compose.dev.yml up --build",
+    "docker:prod": "docker-compose -f docker-compose.prod.yml up --build",
+    "test": "npm run test:server && npm run test:client",
+    "test:server": "cd backend && npm test",
+    "test:client": "cd frontend && npm test",
+    "lint": "npm run lint:server && npm run lint:client",
+    "lint:server": "cd backend && npm run lint",
+    "lint:client": "cd frontend && npm run lint",
+    "db:migrate": "cd backend && npm run db:migrate",
+    "db:seed": "cd backend && npm run db:seed",
+    "db:reset": "cd backend && npm run db:reset"
+  },
+  "keywords": [
+    "website-builder",
+    "pakistan",
+    "ai",
+    "react",
+    "nextjs",
+    "nodejs",
+    "typescript"
+  ],
+  "author": "Pakistan Website Builder Team",
+  "license": "MIT",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "@types/node": "^20.10.5"
+  },
+  "engines": {
+    "node": ">=22.0.0",
+    "npm": ">=10.0.0"
+  }
+}

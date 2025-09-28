@@ -1,0 +1,380 @@
+import Fastify from 'fastify'
+import cors from '@fastify/cors'
+import jwt from '@fastify/jwt'
+import multipart from '@fastify/multipart'
+import rateLimit from '@fastify/rate-limit'
+import swagger from '@fastify/swagger'
+import swaggerUi from '@fastify/swagger-ui'
+import helmet from 'helmet'
+import compression from 'compression'
+
+import { config, serverConfig } from '@/config/environment'
+import { db } from '@/models/database'
+import { redis } from '@/models/redis'
+import { securityHeaders, requestLogger } from '@/middleware/auth'
+
+// Import routes
+import { authRoutes } from '@/routes/auth'
+import { websiteRoutes } from '@/routes/websites'
+import { templateRoutes } from '@/routes/templates'
+import { aiRoutes } from '@/routes/ai'
+import { userRoutes } from '@/routes/users'
+import { paymentRoutes } from '@/routes/payments'
+import { adminRoutes } from '@/routes/admin'
+import { domainRoutes } from '@/routes/domains'
+import { pwaRoutes } from '@/routes/pwa'
+import { analyticsRoutes } from '@/routes/analytics'
+import { marketingRoutes } from '@/routes/marketing'
+import { integrationRoutes } from '@/routes/integrations'
+import { mediaRoutes } from '@/routes/media'
+import { designSystemRoutes } from '@/routes/designSystems'
+import { agencyRoutes } from '@/routes/agency'
+import { advancedAIRoutes } from '@/routes/advancedAI'
+import { blockchainRoutes } from '@/routes/blockchain'
+import { notificationRoutes } from '@/routes/notifications'
+
+// Import error handlers
+import { errorHandler } from '@/utils/errorHandler'
+import { notFoundHandler } from '@/utils/notFoundHandler'
+
+export async function createServer() {
+  const fastify = Fastify({
+    logger: {
+      level: serverConfig.enableLogging ? 'info' : 'error',
+      prettyPrint: serverConfig.nodeEnv === 'development'
+    },
+    trustProxy: true,
+    bodyLimit: 10 * 1024 * 1024, // 10MB
+    maxParamLength: 200
+  })
+
+  // Register security middleware
+  await fastify.register(helmet, {
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+        connectSrc: ["'self'"],
+        fontSrc: ["'self'"],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"]
+      }
+    }
+  })
+
+  // Register compression
+  await fastify.register(compression)
+
+  // Register CORS
+  await fastify.register(cors, {
+    origin: serverConfig.enableCors ? [serverConfig.clientUrl] : false,
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
+  })
+
+  // Register JWT
+  await fastify.register(jwt, {
+    secret: config.auth.jwtSecret,
+    sign: {
+      expiresIn: config.auth.jwtExpiresIn,
+      issuer: 'pakistan-website-builder',
+      audience: 'pakistan-website-builder-users'
+    },
+    verify: {
+      issuer: 'pakistan-website-builder',
+      audience: 'pakistan-website-builder-users'
+    }
+  })
+
+  // Register multipart for file uploads
+  await fastify.register(multipart, {
+    limits: {
+      fileSize: config.fileUpload.maxFileSize,
+      files: 10
+    },
+    attachFieldsToBody: true
+  })
+
+  // Register rate limiting
+  await fastify.register(rateLimit, {
+    max: config.rateLimit.maxRequests,
+    timeWindow: config.rateLimit.windowMs,
+    skipOnError: true,
+    keyGenerator: (request) => {
+      // Use user ID if authenticated, otherwise IP
+      return (request as any).user?.id || request.ip
+    }
+  })
+
+  // Register Swagger documentation
+  if (serverConfig.enableSwagger) {
+    await fastify.register(swagger, {
+      openapi: {
+        openapi: '3.0.3',
+        info: {
+          title: 'Pakistan Website Builder API',
+          description: 'AI-powered website builder for Pakistani businesses',
+          version: '1.0.0',
+          contact: {
+            name: 'API Support',
+            email: 'support@pakistanbuilder.com',
+            url: 'https://pakistanbuilder.com'
+          },
+          license: {
+            name: 'MIT',
+            url: 'https://opensource.org/licenses/MIT'
+          }
+        },
+        servers: [
+          {
+            url: serverConfig.nodeEnv === 'production' 
+              ? 'https://api.pakistanbuilder.com/v1'
+              : `http://localhost:${serverConfig.port}/v1`,
+            description: serverConfig.nodeEnv === 'production' 
+              ? 'Production server'
+              : 'Development server'
+          }
+        ],
+        components: {
+          securitySchemes: {
+            bearerAuth: {
+              type: 'http',
+              scheme: 'bearer',
+              bearerFormat: 'JWT'
+            }
+          },
+          schemas: {
+            Error: {
+              type: 'object',
+              properties: {
+                success: { type: 'boolean', example: false },
+                error: {
+                  type: 'object',
+                  properties: {
+                    message: { type: 'string' },
+                    code: { type: 'string' },
+                    timestamp: { type: 'string', format: 'date-time' }
+                  }
+                }
+              }
+            },
+            Success: {
+              type: 'object',
+              properties: {
+                success: { type: 'boolean', example: true },
+                data: { type: 'object' },
+                timestamp: { type: 'string', format: 'date-time' }
+              }
+            },
+            Pagination: {
+              type: 'object',
+              properties: {
+                page: { type: 'number' },
+                limit: { type: 'number' },
+                total: { type: 'number' },
+                pages: { type: 'number' }
+              }
+            }
+          }
+        },
+        security: [
+          { bearerAuth: [] }
+        ]
+      }
+    })
+
+    await fastify.register(swaggerUi, {
+      routePrefix: '/docs',
+      uiConfig: {
+        docExpansion: 'list',
+        deepLinking: false
+      },
+      uiHooks: {
+        onRequest: function (request, reply, next) {
+          next()
+        },
+        preHandler: function (request, reply, next) {
+          next()
+        }
+      },
+      staticCSP: true,
+      transformStaticCSP: (header) => header,
+      transformSpecification: (swaggerObject, request, reply) => {
+        return swaggerObject
+      },
+      transformSpecificationClone: true
+    })
+  }
+
+  // Register global hooks
+  fastify.addHook('onRequest', securityHeaders)
+  fastify.addHook('onRequest', requestLogger)
+
+  // Register error handlers
+  fastify.setErrorHandler(errorHandler)
+  fastify.setNotFoundHandler(notFoundHandler)
+
+  // Health check endpoint
+  fastify.get('/health', {
+    schema: {
+      description: 'Health check endpoint',
+      tags: ['Health'],
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            status: { type: 'string', example: 'OK' },
+            timestamp: { type: 'string', format: 'date-time' },
+            uptime: { type: 'number' },
+            version: { type: 'string' },
+            environment: { type: 'string' },
+            services: {
+              type: 'object',
+              properties: {
+                database: { type: 'boolean' },
+                redis: { type: 'boolean' }
+              }
+            }
+          }
+        }
+      }
+    }
+  }, async (request, reply) => {
+    const [dbHealth, redisHealth] = await Promise.all([
+      db.healthCheck(),
+      redis.healthCheck()
+    ])
+
+    return {
+      status: 'OK',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      version: process.env.npm_package_version || '1.0.0',
+      environment: serverConfig.nodeEnv,
+      services: {
+        database: dbHealth,
+        redis: redisHealth
+      }
+    }
+  })
+
+  // API versioning
+  fastify.register(async function (fastify) {
+    // Register all API routes with /v1 prefix
+    await fastify.register(authRoutes, { prefix: '/auth' })
+    await fastify.register(websiteRoutes, { prefix: '/websites' })
+    await fastify.register(templateRoutes, { prefix: '/templates' })
+    await fastify.register(aiRoutes, { prefix: '/ai' })
+    await fastify.register(userRoutes, { prefix: '/users' })
+    await fastify.register(paymentRoutes, { prefix: '/payments' })
+    await fastify.register(adminRoutes, { prefix: '/admin' })
+    await fastify.register(domainRoutes, { prefix: '/domains' })
+    await fastify.register(pwaRoutes, { prefix: '/' })
+    await fastify.register(analyticsRoutes, { prefix: '/analytics' })
+    await fastify.register(marketingRoutes, { prefix: '/marketing' })
+    await fastify.register(integrationRoutes, { prefix: '/integrations' })
+    await fastify.register(mediaRoutes, { prefix: '/media' })
+    await fastify.register(designSystemRoutes, { prefix: '/design-systems' })
+    await fastify.register(agencyRoutes, { prefix: '/agency' })
+    await fastify.register(advancedAIRoutes, { prefix: '/advanced-ai' })
+    await fastify.register(blockchainRoutes, { prefix: '/blockchain' })
+    await fastify.register(notificationRoutes, { prefix: '/notifications' })
+  }, { prefix: '/v1' })
+
+  // Root endpoint
+  fastify.get('/', {
+    schema: {
+      description: 'API root endpoint',
+      tags: ['Root'],
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            message: { type: 'string' },
+            version: { type: 'string' },
+            documentation: { type: 'string' },
+            timestamp: { type: 'string', format: 'date-time' }
+          }
+        }
+      }
+    }
+  }, async (request, reply) => {
+    return {
+      message: 'Pakistan Website Builder API',
+      version: '1.0.0',
+      documentation: serverConfig.enableSwagger ? '/docs' : 'Documentation not available',
+      timestamp: new Date().toISOString()
+    }
+  })
+
+  // Graceful shutdown
+  const gracefulShutdown = async (signal: string) => {
+    console.log(`Received ${signal}, shutting down gracefully...`)
+    
+    try {
+      await fastify.close()
+      await db.disconnect()
+      await redis.disconnect()
+      console.log('Server closed successfully')
+      process.exit(0)
+    } catch (error) {
+      console.error('Error during shutdown:', error)
+      process.exit(1)
+    }
+  }
+
+  process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
+  process.on('SIGINT', () => gracefulShutdown('SIGINT'))
+
+  return fastify
+}
+
+export async function startServer() {
+  try {
+    // Validate configuration
+    if (serverConfig.nodeEnv === 'production') {
+      // Add production-specific validations
+      if (!config.auth.jwtSecret || config.auth.jwtSecret === 'your-super-secret-jwt-key') {
+        throw new Error('JWT secret must be set in production')
+      }
+    }
+
+    // Connect to database
+    await db.connect()
+    console.log('✅ Database connected')
+
+    // Test Redis connection
+    const redisHealth = await redis.healthCheck()
+    if (redisHealth) {
+      console.log('✅ Redis connected')
+    } else {
+      console.warn('⚠️ Redis connection failed')
+    }
+
+    // Create and start server
+    const server = await createServer()
+    
+    await server.listen({
+      port: serverConfig.port,
+      host: serverConfig.host
+    })
+
+    console.log(`🚀 Server running on http://${serverConfig.host}:${serverConfig.port}`)
+    console.log(`📚 API Documentation: http://${serverConfig.host}:${serverConfig.port}/docs`)
+    console.log(`🔍 Health Check: http://${serverConfig.host}:${serverConfig.port}/health`)
+
+    return server
+  } catch (error) {
+    console.error('❌ Failed to start server:', error)
+    process.exit(1)
+  }
+}
+
+// Start server if this file is run directly
+if (require.main === module) {
+  startServer()
+}
