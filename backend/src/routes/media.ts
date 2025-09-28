@@ -43,12 +43,34 @@ export async function mediaRoutes(fastify: FastifyInstance) {
 
   // POST /api/v1/media/:websiteId/assets
   fastify.post('/:websiteId/assets', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
       description: 'Upload a media asset',
       tags: ['Media'],
-      params: z.object({ websiteId: z.string() }),
-      body: mediaAssetSchema,
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['name','type','url','size'],
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 100 },
+          type: { type: 'string', enum: ['IMAGE','VIDEO','AUDIO','GIF','SVG','PDF'] },
+          url: { type: 'string' },
+          thumbnailUrl: { type: 'string' },
+          size: { type: 'number', minimum: 0 },
+          duration: { type: 'number', minimum: 0 },
+          width: { type: 'number', minimum: 0 },
+          height: { type: 'number', minimum: 0 },
+          metadata: {},
+          tags: { type: 'array', items: { type: 'string' } },
+          aiGenerated: { type: 'boolean' },
+          aiPrompt: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -69,14 +91,22 @@ export async function mediaRoutes(fastify: FastifyInstance) {
 
   // GET /api/v1/media/:websiteId/assets
   fastify.get('/:websiteId/assets', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
       description: 'Get media assets for a website',
       tags: ['Media'],
-      params: z.object({ websiteId: z.string() }),
-      querystring: z.object({
-        type: z.enum(['IMAGE', 'VIDEO', 'AUDIO', 'GIF', 'SVG', 'PDF']).optional(),
-      }),
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string' } }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          type: { type: 'string', enum: ['IMAGE','VIDEO','AUDIO','GIF','SVG','PDF'] }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -96,15 +126,24 @@ export async function mediaRoutes(fastify: FastifyInstance) {
 
   // POST /api/v1/media/:websiteId/ai-generate
   fastify.post('/:websiteId/ai-generate', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
       description: 'Generate AI media content',
       tags: ['Media'],
-      params: z.object({ websiteId: z.string() }),
-      body: z.object({
-        prompt: z.string().min(1).max(1000),
-        type: z.enum(['IMAGE', 'VIDEO', 'AUDIO']),
-      }),
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['prompt','type'],
+        properties: {
+          prompt: { type: 'string', minLength: 1, maxLength: 1000 },
+          type: { type: 'string', enum: ['IMAGE','VIDEO','AUDIO'] }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -125,12 +164,28 @@ export async function mediaRoutes(fastify: FastifyInstance) {
 
   // POST /api/v1/media/:websiteId/video-projects
   fastify.post('/:websiteId/video-projects', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
       description: 'Create a new video project',
       tags: ['Media'],
-      params: z.object({ websiteId: z.string() }),
-      body: videoProjectSchema,
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 100 },
+          description: { type: 'string', maxLength: 500 },
+          resolution: { type: 'string' },
+          frameRate: { type: 'number', minimum: 1, maximum: 120 },
+          timeline: {},
+          exportSettings: {}
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -151,11 +206,15 @@ export async function mediaRoutes(fastify: FastifyInstance) {
 
   // GET /api/v1/media/:websiteId/video-projects
   fastify.get('/:websiteId/video-projects', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
       description: 'Get video projects for a website',
       tags: ['Media'],
-      params: z.object({ websiteId: z.string() }),
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string' } }
+      },
       response: {
         200: {
           type: 'object',
@@ -178,8 +237,23 @@ export async function mediaRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Update a video project',
       tags: ['Media'],
-      params: z.object({ projectId: z.string() }),
-      body: videoProjectSchema.partial(),
+      params: {
+        type: 'object',
+        required: ['projectId'],
+        properties: { projectId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 100 },
+          description: { type: 'string', maxLength: 500 },
+          resolution: { type: 'string' },
+          frameRate: { type: 'number', minimum: 1, maximum: 120 },
+          timeline: {},
+          exportSettings: {}
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -203,8 +277,26 @@ export async function mediaRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Add a clip to a video project',
       tags: ['Media'],
-      params: z.object({ projectId: z.string() }),
-      body: videoClipSchema,
+      params: {
+        type: 'object',
+        required: ['projectId'],
+        properties: { projectId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 100 },
+          assetId: { type: 'string' },
+          startTime: { type: 'number', minimum: 0 },
+          endTime: { type: 'number', minimum: 0 },
+          position: { type: 'number', minimum: 0 },
+          effects: {},
+          filters: {},
+          transform: {}
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -228,8 +320,25 @@ export async function mediaRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Update a video clip',
       tags: ['Media'],
-      params: z.object({ clipId: z.string() }),
-      body: videoClipSchema.partial(),
+      params: {
+        type: 'object',
+        required: ['clipId'],
+        properties: { clipId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 100 },
+          assetId: { type: 'string' },
+          startTime: { type: 'number', minimum: 0 },
+          endTime: { type: 'number', minimum: 0 },
+          position: { type: 'number', minimum: 0 },
+          effects: {},
+          filters: {},
+          transform: {}
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -253,7 +362,11 @@ export async function mediaRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Delete a video clip',
       tags: ['Media'],
-      params: z.object({ clipId: z.string() }),
+      params: {
+        type: 'object',
+        required: ['clipId'],
+        properties: { clipId: { type: 'string' } }
+      },
       response: {
         200: {
           type: 'object',
@@ -275,10 +388,19 @@ export async function mediaRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Export a video project',
       tags: ['Media'],
-      params: z.object({ projectId: z.string() }),
-      body: z.object({
-        settings: z.any(),
-      }),
+      params: {
+        type: 'object',
+        required: ['projectId'],
+        properties: { projectId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['settings'],
+        properties: {
+          settings: {}
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',

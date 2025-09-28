@@ -22,11 +22,11 @@ import {
   Plus,
   Loader2,
   Sparkles,
-  Cube,
   Video,
   Image,
   Music
 } from 'lucide-react'
+import { CubeIcon } from '@/components/icons/custom-icons'
 import { api } from '@/lib/api'
 
 interface ARVRContent {
@@ -57,9 +57,9 @@ interface ARVRContentManagerProps {
 }
 
 const contentTypes = [
-  { value: 'AR_OVERLAY', label: 'AR Overlay', icon: Eye, color: 'bg-blue-500' },
+  { value: 'AR_OVERLAY', label: 'AR Overlay', icon: Eye, color: 'bg-blue-900' },
   { value: 'VR_EXPERIENCE', label: 'VR Experience', icon: Box, color: 'bg-purple-500' },
-  { value: '3D_MODEL', label: '3D Model', icon: Cube, color: 'bg-green-500' },
+  { value: '3D_MODEL', label: '3D Model', icon: CubeIcon, color: 'bg-green-500' },
   { value: 'ANIMATION', label: 'Animation', icon: Video, color: 'bg-orange-500' },
   { value: 'INTERACTIVE_SCENE', label: 'Interactive Scene', icon: Zap, color: 'bg-pink-500' }
 ]
@@ -207,12 +207,12 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
           <div className="space-y-2">
             {content.map((item) => {
               const contentType = contentTypes.find(t => t.value === item.type)
-              const Icon = contentType?.icon || Cube
+              const Icon = contentType?.icon || CubeIcon
               return (
                 <Card
                   key={item.id}
                   className={`cursor-pointer transition-colors ${
-                    selectedContent?.id === item.id ? 'ring-2 ring-blue-500' : ''
+                    selectedContent?.id === item.id ? 'ring-2 ring-blue-900' : ''
                   }`}
                   onClick={() => setSelectedContent(item)}
                 >
@@ -286,7 +286,7 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
                   </CardHeader>
                   <CardContent className="h-full flex items-center justify-center bg-gray-100 rounded-lg">
                     <div className="text-center">
-                      <Cube className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+                      <CubeIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                       <p className="text-gray-500">3D Preview Coming Soon</p>
                       <p className="text-sm text-gray-400">
                         WebGL-based 3D viewer will be implemented here
@@ -442,7 +442,7 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
         ) : (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
-              <Cube className="w-16 h-16 text-gray-400 mx-auto mb-4" />
+              <CubeIcon className="w-16 h-16 text-gray-400 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-gray-600 mb-2">
                 No Content Selected
               </h3>

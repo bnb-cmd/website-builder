@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
 
 export const api = axios.create({
   baseURL: `${API_URL}/v1`,
@@ -13,10 +13,11 @@ export const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('accessToken')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
-    }
+    // Skip auth headers during development (always disabled for now)
+    // const token = localStorage.getItem('accessToken')
+    // if (token) {
+    //   config.headers.Authorization = `Bearer ${token}`
+    // }
     return config
   },
   (error) => {

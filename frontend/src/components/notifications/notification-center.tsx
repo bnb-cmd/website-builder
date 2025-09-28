@@ -72,7 +72,7 @@ interface NotificationCenterProps {
 }
 
 const notificationTypes = {
-  INFO: { icon: Info, color: 'bg-blue-500', label: 'Info' },
+  INFO: { icon: Info, color: 'bg-blue-900', label: 'Info' },
   SUCCESS: { icon: CheckCircle, color: 'bg-green-500', label: 'Success' },
   WARNING: { icon: AlertCircle, color: 'bg-yellow-500', label: 'Warning' },
   ERROR: { icon: XCircle, color: 'bg-red-500', label: 'Error' },
@@ -82,14 +82,14 @@ const notificationTypes = {
   TEAM: { icon: Users, color: 'bg-pink-500', label: 'Team' },
   ORDER_STATUS: { icon: Package, color: 'bg-orange-500', label: 'Order' },
   INVENTORY_LOW: { icon: AlertTriangle, color: 'bg-red-600', label: 'Inventory' },
-  DOMAIN_EXPIRY: { icon: Globe, color: 'bg-blue-600', label: 'Domain' },
+  DOMAIN_EXPIRY: { icon: Globe, color: 'bg-blue-900', label: 'Domain' },
   AI_GENERATION_COMPLETE: { icon: Brain, color: 'bg-purple-600', label: 'AI' },
   COLLABORATION_INVITE: { icon: UserPlus, color: 'bg-green-600', label: 'Collaboration' },
   SECURITY_ALERT: { icon: Shield, color: 'bg-red-700', label: 'Security' },
   PERFORMANCE_ISSUE: { icon: Activity, color: 'bg-yellow-600', label: 'Performance' },
   BACKUP_COMPLETE: { icon: Database, color: 'bg-green-700', label: 'Backup' },
   INTEGRATION_ERROR: { icon: AlertCircle, color: 'bg-red-600', label: 'Integration' },
-  CAMPAIGN_RESULTS: { icon: BarChart3, color: 'bg-blue-700', label: 'Campaign' },
+  CAMPAIGN_RESULTS: { icon: BarChart3, color: 'bg-blue-900', label: 'Campaign' },
   ANALYTICS_INSIGHT: { icon: TrendingUp, color: 'bg-purple-700', label: 'Analytics' }
 }
 
@@ -351,7 +351,7 @@ export function NotificationCenter({ userId, onClose }: NotificationCenterProps)
                       <div
                         key={notification.id}
                         className={`p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors ${
-                          !notification.read ? 'bg-blue-50 border-l-4 border-l-blue-500' : ''
+                          !notification.read ? 'bg-slate-100 border-l-4 border-l-slate-900' : ''
                         }`}
                         onClick={() => markAsRead(notification.id)}
                       >
@@ -371,7 +371,7 @@ export function NotificationCenter({ userId, onClose }: NotificationCenterProps)
                                   {getTimeAgo(notification.createdAt)}
                                 </span>
                                 {!notification.read && (
-                                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                  <div className="w-2 h-2 bg-blue-900 rounded-full"></div>
                                 )}
                               </div>
                             </div>
@@ -429,7 +429,7 @@ export function NotificationCenter({ userId, onClose }: NotificationCenterProps)
                     return (
                       <div
                         key={notification.id}
-                        className="p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors bg-blue-50 border-l-4 border-l-blue-500"
+                        className="p-4 border-b hover:bg-gray-50 cursor-pointer transition-colors bg-slate-100 border-l-4 border-l-slate-900"
                         onClick={() => markAsRead(notification.id)}
                       >
                         <div className="flex items-start space-x-3">

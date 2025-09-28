@@ -12,7 +12,7 @@ export function QuickActions() {
       description: 'Start from scratch or use a template',
       icon: Plus,
       href: '/dashboard/websites/new',
-      color: 'bg-blue-500'
+    color: 'bg-blue-900'
     },
     {
       title: 'Browse Templates',

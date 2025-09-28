@@ -33,7 +33,6 @@ import {
   Star,
   Heart,
   Hexagon,
-  Pentagon,
   Download,
   Upload,
   Crop,
@@ -48,6 +47,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react'
+import { PentagonIcon } from '@/components/icons/custom-icons'
 import { Element } from '@/types/editor'
 import { cn } from '@/lib/utils'
 
@@ -84,7 +84,7 @@ const shapes = [
   { id: 'star', name: 'Star', icon: Star },
   { id: 'heart', name: 'Heart', icon: Heart },
   { id: 'hexagon', name: 'Hexagon', icon: Hexagon },
-  { id: 'pentagon', name: 'Pentagon', icon: Pentagon }
+  { id: 'pentagon', name: 'Pentagon', icon: PentagonIcon }
 ]
 
 const textEffects = [
@@ -187,7 +187,7 @@ export function DesignTools({ selectedElement, onUpdateElement, onAddElement }: 
       style: {
         width: '100px',
         height: '100px',
-        backgroundColor: '#3b82f6',
+        backgroundColor: '#0f172a',
         borderRadius: shapeId === 'circle' ? '50%' : '0',
         clipPath: getShapeClipPath(shapeId)
       },
@@ -296,7 +296,7 @@ export function DesignTools({ selectedElement, onUpdateElement, onAddElement }: 
                     onClick={() => applyFilter(filter.cssFilter)}
                   >
                     <div
-                      className="w-8 h-8 mx-auto mb-1 bg-gradient-to-br from-blue-500 to-purple-500 rounded"
+                      className="w-8 h-8 mx-auto mb-1 bg-gradient-to-br from-slate-900 to-purple-500 rounded"
                       style={{ filter: filter.preview }}
                     />
                     <span className="text-xs">{filter.name}</span>

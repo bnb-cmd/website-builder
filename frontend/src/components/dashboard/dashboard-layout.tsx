@@ -31,7 +31,9 @@ import {
   Bell,
   Smartphone,
   Brain,
-  Coins
+  Coins,
+  Plus,
+  Globe2
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
@@ -43,6 +45,7 @@ const navigation = [
   { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Websites', href: '/dashboard/websites', icon: Globe },
   { name: 'Templates', href: '/dashboard/templates', icon: Palette },
+  { name: 'Domains', href: '/dashboard/domains', icon: Globe2 },
   { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
   { name: 'AI Assistant', href: '/dashboard/ai', icon: Zap },
   { name: 'Advanced AI', href: '/dashboard/advanced-ai', icon: Brain },

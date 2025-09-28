@@ -34,9 +34,13 @@ export async function integrationRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Get all available integrations',
       tags: ['Integrations'],
-      querystring: z.object({
-        category: z.enum(['ANALYTICS', 'PAYMENT', 'EMAIL', 'SOCIAL_MEDIA', 'CRM', 'ECOMMERCE', 'MARKETING', 'CUSTOMER_SUPPORT', 'PRODUCTIVITY', 'OTHER']).optional(),
-      }),
+      querystring: {
+        type: 'object',
+        properties: {
+          category: { type: 'string', enum: ['ANALYTICS','PAYMENT','EMAIL','SOCIAL_MEDIA','CRM','ECOMMERCE','MARKETING','CUSTOMER_SUPPORT','PRODUCTIVITY','OTHER'] }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -59,7 +63,27 @@ export async function integrationRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Create a new integration (admin only)',
       tags: ['Integrations'],
-      body: integrationDataSchema,
+      body: {
+        type: 'object',
+        required: ['name','category','provider'],
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 100 },
+          description: { type: 'string', maxLength: 500 },
+          category: { type: 'string', enum: ['ANALYTICS','PAYMENT','EMAIL','SOCIAL_MEDIA','CRM','ECOMMERCE','MARKETING','CUSTOMER_SUPPORT','PRODUCTIVITY','OTHER'] },
+          provider: { type: 'string', minLength: 1, maxLength: 50 },
+          iconUrl: { type: 'string' },
+          websiteUrl: { type: 'string' },
+          apiVersion: { type: 'string' },
+          documentationUrl: { type: 'string' },
+          configSchema: {},
+          authType: { type: 'string', enum: ['API_KEY','OAUTH2','BASIC_AUTH','WEBHOOK','NO_AUTH'] },
+          isPremium: { type: 'boolean' },
+          price: { type: 'number', minimum: 0 },
+          features: { type: 'array', items: { type: 'string' } },
+          tags: { type: 'array', items: { type: 'string' } }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -78,11 +102,15 @@ export async function integrationRoutes(fastify: FastifyInstance) {
 
   // GET /api/v1/integrations/:websiteId/installed
   fastify.get('/:websiteId/installed', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
       description: 'Get installed integrations for a website',
       tags: ['Integrations'],
-      params: z.object({ websiteId: z.string() }),
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string' } }
+      },
       response: {
         200: {
           type: 'object',
@@ -101,12 +129,25 @@ export async function integrationRoutes(fastify: FastifyInstance) {
 
   // POST /api/v1/integrations/:websiteId/install
   fastify.post('/:websiteId/install', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
       description: 'Install an integration for a website',
       tags: ['Integrations'],
-      params: z.object({ websiteId: z.string() }),
-      body: installIntegrationSchema,
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['integrationId','config','credentials'],
+        properties: {
+          integrationId: { type: 'string' },
+          config: {},
+          credentials: {}
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -130,11 +171,20 @@ export async function integrationRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Update integration configuration',
       tags: ['Integrations'],
-      params: z.object({ websiteIntegrationId: z.string() }),
-      body: z.object({
-        config: z.any(),
-        credentials: z.any().optional(),
-      }),
+      params: {
+        type: 'object',
+        required: ['websiteIntegrationId'],
+        properties: { websiteIntegrationId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['config'],
+        properties: {
+          config: {},
+          credentials: {}
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -158,10 +208,19 @@ export async function integrationRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Enable/disable an integration',
       tags: ['Integrations'],
-      params: z.object({ websiteIntegrationId: z.string() }),
-      body: z.object({
-        isEnabled: z.boolean(),
-      }),
+      params: {
+        type: 'object',
+        required: ['websiteIntegrationId'],
+        properties: { websiteIntegrationId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['isEnabled'],
+        properties: {
+          isEnabled: { type: 'boolean' }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -185,7 +244,11 @@ export async function integrationRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Uninstall an integration',
       tags: ['Integrations'],
-      params: z.object({ websiteIntegrationId: z.string() }),
+      params: {
+        type: 'object',
+        required: ['websiteIntegrationId'],
+        properties: { websiteIntegrationId: { type: 'string' } }
+      },
       response: {
         200: {
           type: 'object',
@@ -207,7 +270,11 @@ export async function integrationRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Test an integration connection',
       tags: ['Integrations'],
-      params: z.object({ websiteIntegrationId: z.string() }),
+      params: {
+        type: 'object',
+        required: ['websiteIntegrationId'],
+        properties: { websiteIntegrationId: { type: 'string' } }
+      },
       response: {
         200: {
           type: 'object',

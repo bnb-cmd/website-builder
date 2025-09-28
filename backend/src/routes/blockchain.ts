@@ -84,16 +84,33 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
   // Wallet Management
   fastify.post('/wallets', {
     schema: {
-      body: walletSchema,
+      body: {
+        type: 'object',
+        required: ['address', 'network', 'walletType'],
+        properties: {
+          userId: { type: 'string' },
+          websiteId: { type: 'string' },
+          address: { type: 'string', minLength: 1 },
+          network: { type: 'string', enum: ['ETHEREUM', 'POLYGON', 'BINANCE_SMART_CHAIN', 'ARBITRUM', 'OPTIMISM', 'AVALANCHE', 'SOLANA', 'POLKADOT'] },
+          walletType: { type: 'string', enum: ['EXTERNAL', 'GENERATED', 'IMPORTED'] },
+          name: { type: 'string' },
+          description: { type: 'string' },
+          encryptionKey: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
-        201: z.object({
-          id: z.string(),
-          address: z.string(),
-          network: z.string(),
-          walletType: z.string(),
-          status: z.string(),
-          createdAt: z.string()
-        })
+        201: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            address: { type: 'string' },
+            network: { type: 'string' },
+            walletType: { type: 'string' },
+            status: { type: 'string' },
+            createdAt: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -107,21 +124,30 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
 
   fastify.get('/wallets', {
     schema: {
-      querystring: z.object({
-        userId: z.string().uuid().optional(),
-        websiteId: z.string().uuid().optional()
-      }),
+      querystring: {
+        type: 'object',
+        properties: {
+          userId: { type: 'string' },
+          websiteId: { type: 'string' }
+        }
+      },
       response: {
-        200: z.array(z.object({
-          id: z.string(),
-          address: z.string(),
-          network: z.string(),
-          walletType: z.string(),
-          status: z.string(),
-          balance: z.number(),
-          transactionCount: z.number(),
-          createdAt: z.string()
-        }))
+        200: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              address: { type: 'string' },
+              network: { type: 'string' },
+              walletType: { type: 'string' },
+              status: { type: 'string' },
+              balance: { type: 'number' },
+              transactionCount: { type: 'number' },
+              createdAt: { type: 'string' }
+            }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -136,18 +162,26 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
 
   fastify.put('/wallets/:walletId/balance', {
     schema: {
-      params: z.object({
-        walletId: z.string().uuid()
-      }),
-      body: z.object({
-        balance: z.number().min(0)
-      }),
+      params: {
+        type: 'object',
+        required: ['walletId'],
+        properties: { walletId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['balance'],
+        properties: { balance: { type: 'number', minimum: 0 } },
+        additionalProperties: false
+      },
       response: {
-        200: z.object({
-          id: z.string(),
-          balance: z.number(),
-          lastSyncAt: z.string()
-        })
+        200: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            balance: { type: 'number' },
+            lastSyncAt: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -164,17 +198,40 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
   // NFT Collection Management
   fastify.post('/nft-collections', {
     schema: {
-      body: nftCollectionSchema,
+      body: {
+        type: 'object',
+        required: ['name', 'contractAddress', 'network', 'standard'],
+        properties: {
+          userId: { type: 'string' },
+          websiteId: { type: 'string' },
+          name: { type: 'string', minLength: 1 },
+          description: { type: 'string' },
+          symbol: { type: 'string' },
+          contractAddress: { type: 'string', minLength: 1 },
+          network: { type: 'string', enum: ['ETHEREUM', 'POLYGON', 'BINANCE_SMART_CHAIN', 'ARBITRUM', 'OPTIMISM', 'AVALANCHE', 'SOLANA', 'POLKADOT'] },
+          standard: { type: 'string', enum: ['ERC721', 'ERC1155', 'ERC4907', 'SPL_TOKEN'] },
+          imageUrl: { type: 'string' },
+          bannerUrl: { type: 'string' },
+          websiteUrl: { type: 'string' },
+          totalSupply: { type: 'number', minimum: 1 },
+          royaltyPercentage: { type: 'number', minimum: 0, maximum: 100 },
+          royaltyRecipient: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
-        201: z.object({
-          id: z.string(),
-          name: z.string(),
-          contractAddress: z.string(),
-          network: z.string(),
-          standard: z.string(),
-          status: z.string(),
-          createdAt: z.string()
-        })
+        201: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            contractAddress: { type: 'string' },
+            network: { type: 'string' },
+            standard: { type: 'string' },
+            status: { type: 'string' },
+            createdAt: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -188,23 +245,32 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
 
   fastify.get('/nft-collections', {
     schema: {
-      querystring: z.object({
-        userId: z.string().uuid().optional(),
-        websiteId: z.string().uuid().optional()
-      }),
+      querystring: {
+        type: 'object',
+        properties: {
+          userId: { type: 'string' },
+          websiteId: { type: 'string' }
+        }
+      },
       response: {
-        200: z.array(z.object({
-          id: z.string(),
-          name: z.string(),
-          contractAddress: z.string(),
-          network: z.string(),
-          standard: z.string(),
-          status: z.string(),
-          totalSupply: z.number(),
-          mintedCount: z.number(),
-          floorPrice: z.number(),
-          createdAt: z.string()
-        }))
+        200: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              contractAddress: { type: 'string' },
+              network: { type: 'string' },
+              standard: { type: 'string' },
+              status: { type: 'string' },
+              totalSupply: { type: 'number' },
+              mintedCount: { type: 'number' },
+              floorPrice: { type: 'number' },
+              createdAt: { type: 'string' }
+            }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -219,19 +285,34 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
 
   fastify.post('/nft-collections/:collectionId/mint', {
     schema: {
-      params: z.object({
-        collectionId: z.string().uuid()
-      }),
-      body: mintNFTSchema,
+      params: {
+        type: 'object',
+        required: ['collectionId'],
+        properties: { collectionId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['tokenId', 'name'],
+        properties: {
+          tokenId: { type: 'string', minLength: 1 },
+          name: { type: 'string', minLength: 1 },
+          description: { type: 'string' },
+          imageUrl: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
-        201: z.object({
-          id: z.string(),
-          tokenId: z.string(),
-          name: z.string(),
-          description: z.string().optional(),
-          imageUrl: z.string().optional(),
-          createdAt: z.string()
-        })
+        201: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            tokenId: { type: 'string' },
+            name: { type: 'string' },
+            description: { type: 'string' },
+            imageUrl: { type: 'string' },
+            createdAt: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -253,16 +334,35 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
   // Smart Contract Management
   fastify.post('/smart-contracts', {
     schema: {
-      body: smartContractSchema,
+      body: {
+        type: 'object',
+        required: ['name', 'contractAddress', 'network', 'abi'],
+        properties: {
+          userId: { type: 'string' },
+          websiteId: { type: 'string' },
+          name: { type: 'string', minLength: 1 },
+          description: { type: 'string' },
+          contractAddress: { type: 'string', minLength: 1 },
+          network: { type: 'string', enum: ['ETHEREUM', 'POLYGON', 'BINANCE_SMART_CHAIN', 'ARBITRUM', 'OPTIMISM', 'AVALANCHE', 'SOLANA', 'POLKADOT'] },
+          abi: {},
+          sourceCode: { type: 'string' },
+          compilerVersion: { type: 'string' },
+          optimizationEnabled: { type: 'boolean' }
+        },
+        additionalProperties: false
+      },
       response: {
-        201: z.object({
-          id: z.string(),
-          name: z.string(),
-          contractAddress: z.string(),
-          network: z.string(),
-          status: z.string(),
-          createdAt: z.string()
-        })
+        201: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            contractAddress: { type: 'string' },
+            network: { type: 'string' },
+            status: { type: 'string' },
+            createdAt: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -276,20 +376,29 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
 
   fastify.get('/smart-contracts', {
     schema: {
-      querystring: z.object({
-        userId: z.string().uuid().optional(),
-        websiteId: z.string().uuid().optional()
-      }),
+      querystring: {
+        type: 'object',
+        properties: {
+          userId: { type: 'string' },
+          websiteId: { type: 'string' }
+        }
+      },
       response: {
-        200: z.array(z.object({
-          id: z.string(),
-          name: z.string(),
-          contractAddress: z.string(),
-          network: z.string(),
-          status: z.string(),
-          interactionCount: z.number(),
-          createdAt: z.string()
-        }))
+        200: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              contractAddress: { type: 'string' },
+              network: { type: 'string' },
+              status: { type: 'string' },
+              interactionCount: { type: 'number' },
+              createdAt: { type: 'string' }
+            }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -304,19 +413,35 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
 
   fastify.post('/smart-contracts/:contractId/interact', {
     schema: {
-      params: z.object({
-        contractId: z.string().uuid()
-      }),
-      body: contractInteractionSchema,
+      params: {
+        type: 'object',
+        required: ['contractId'],
+        properties: { contractId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['method', 'txHash', 'blockNumber'],
+        properties: {
+          method: { type: 'string', minLength: 1 },
+          parameters: {},
+          txHash: { type: 'string', minLength: 1 },
+          blockNumber: { type: 'number', minimum: 1 },
+          userAddress: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
-        201: z.object({
-          id: z.string(),
-          method: z.string(),
-          txHash: z.string(),
-          blockNumber: z.number(),
-          success: z.boolean(),
-          createdAt: z.string()
-        })
+        201: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            method: { type: 'string' },
+            txHash: { type: 'string' },
+            blockNumber: { type: 'number' },
+            success: { type: 'boolean' },
+            createdAt: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -341,15 +466,31 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
   // Web3 Integration Management
   fastify.post('/web3-integrations', {
     schema: {
-      body: web3IntegrationSchema,
+      body: {
+        type: 'object',
+        required: ['name', 'type', 'config'],
+        properties: {
+          userId: { type: 'string' },
+          websiteId: { type: 'string' },
+          name: { type: 'string', minLength: 1 },
+          description: { type: 'string' },
+          type: { type: 'string', enum: ['MARKETPLACE', 'PAYMENT_PROCESSOR', 'ANALYTICS', 'STORAGE', 'IDENTITY', 'DEFI'] },
+          config: {},
+          apiKeys: {}
+        },
+        additionalProperties: false
+      },
       response: {
-        201: z.object({
-          id: z.string(),
-          name: z.string(),
-          type: z.string(),
-          status: z.string(),
-          createdAt: z.string()
-        })
+        201: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            type: { type: 'string' },
+            status: { type: 'string' },
+            createdAt: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -363,20 +504,29 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
 
   fastify.get('/web3-integrations', {
     schema: {
-      querystring: z.object({
-        userId: z.string().uuid().optional(),
-        websiteId: z.string().uuid().optional()
-      }),
+      querystring: {
+        type: 'object',
+        properties: {
+          userId: { type: 'string' },
+          websiteId: { type: 'string' }
+        }
+      },
       response: {
-        200: z.array(z.object({
-          id: z.string(),
-          name: z.string(),
-          type: z.string(),
-          status: z.string(),
-          isEnabled: z.boolean(),
-          usageCount: z.number(),
-          createdAt: z.string()
-        }))
+        200: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              name: { type: 'string' },
+              type: { type: 'string' },
+              status: { type: 'string' },
+              isEnabled: { type: 'boolean' },
+              usageCount: { type: 'number' },
+              createdAt: { type: 'string' }
+            }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -392,19 +542,33 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
   // Transaction Management
   fastify.post('/transactions', {
     schema: {
-      body: z.object({
-        walletId: z.string().uuid(),
-        ...transactionSchema.shape
-      }),
+      body: {
+        type: 'object',
+        required: ['walletId', 'txHash', 'blockNumber', 'fromAddress', 'toAddress', 'value', 'type'],
+        properties: {
+          walletId: { type: 'string' },
+          txHash: { type: 'string', minLength: 1 },
+          blockNumber: { type: 'number', minimum: 1 },
+          fromAddress: { type: 'string', minLength: 1 },
+          toAddress: { type: 'string', minLength: 1 },
+          value: { type: 'number', minimum: 1 },
+          type: { type: 'string', enum: ['TRANSFER', 'CONTRACT_CALL', 'CONTRACT_DEPLOYMENT', 'NFT_MINT', 'NFT_TRANSFER', 'SWAP', 'STAKE', 'UNSTAKE'] },
+          status: { type: 'string', enum: ['PENDING', 'CONFIRMED', 'FAILED', 'CANCELLED'] }
+        },
+        additionalProperties: false
+      },
       response: {
-        201: z.object({
-          id: z.string(),
-          txHash: z.string(),
-          blockNumber: z.number(),
-          type: z.string(),
-          status: z.string(),
-          createdAt: z.string()
-        })
+        201: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            txHash: { type: 'string' },
+            blockNumber: { type: 'number' },
+            type: { type: 'string' },
+            status: { type: 'string' },
+            createdAt: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -430,24 +594,33 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
 
   fastify.get('/wallets/:walletId/transactions', {
     schema: {
-      params: z.object({
-        walletId: z.string().uuid()
-      }),
-      querystring: z.object({
-        limit: z.number().positive().optional()
-      }),
+      params: {
+        type: 'object',
+        required: ['walletId'],
+        properties: { walletId: { type: 'string' } }
+      },
+      querystring: {
+        type: 'object',
+        properties: { limit: { type: 'number', minimum: 1 } }
+      },
       response: {
-        200: z.array(z.object({
-          id: z.string(),
-          txHash: z.string(),
-          blockNumber: z.number(),
-          fromAddress: z.string(),
-          toAddress: z.string(),
-          value: z.number(),
-          type: z.string(),
-          status: z.string(),
-          createdAt: z.string()
-        }))
+        200: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              txHash: { type: 'string' },
+              blockNumber: { type: 'number' },
+              fromAddress: { type: 'string' },
+              toAddress: { type: 'string' },
+              value: { type: 'number' },
+              type: { type: 'string' },
+              status: { type: 'string' },
+              createdAt: { type: 'string' }
+            }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -464,21 +637,32 @@ export async function blockchainRoutes(fastify: FastifyInstance) {
   // Analytics
   fastify.get('/wallets/:walletId/analytics', {
     schema: {
-      params: z.object({
-        walletId: z.string().uuid()
-      }),
+      params: {
+        type: 'object',
+        required: ['walletId'],
+        properties: { walletId: { type: 'string' } }
+      },
       response: {
-        200: z.object({
-          totalTransactions: z.number(),
-          totalVolume: z.number(),
-          averageGasPrice: z.number(),
-          successRate: z.number(),
-          topContracts: z.array(z.object({
-            address: z.string(),
-            interactions: z.number(),
-            volume: z.number()
-          }))
-        })
+        200: {
+          type: 'object',
+          properties: {
+            totalTransactions: { type: 'number' },
+            totalVolume: { type: 'number' },
+            averageGasPrice: { type: 'number' },
+            successRate: { type: 'number' },
+            topContracts: {
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  address: { type: 'string' },
+                  interactions: { type: 'number' },
+                  volume: { type: 'number' }
+                }
+              }
+            }
+          }
+        }
       }
     }
   }, async (request, reply) => {

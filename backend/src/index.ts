@@ -5,8 +5,7 @@ import multipart from '@fastify/multipart'
 import rateLimit from '@fastify/rate-limit'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
-import helmet from 'helmet'
-import compression from 'compression'
+import compress from '@fastify/compress'
 
 import { config, serverConfig } from '@/config/environment'
 import { db } from '@/models/database'
@@ -41,32 +40,64 @@ export async function createServer() {
   const fastify = Fastify({
     logger: {
       level: serverConfig.enableLogging ? 'info' : 'error',
-      prettyPrint: serverConfig.nodeEnv === 'development'
+      transport: serverConfig.nodeEnv === 'development' ? {
+        target: 'pino-pretty',
+        options: {
+          colorize: true
+        }
+      } : undefined
     },
     trustProxy: true,
     bodyLimit: 10 * 1024 * 1024, // 10MB
     maxParamLength: 200
   })
 
-  // Register security middleware
-  await fastify.register(helmet, {
-    contentSecurityPolicy: {
-      directives: {
-        defaultSrc: ["'self'"],
-        styleSrc: ["'self'", "'unsafe-inline'"],
-        scriptSrc: ["'self'"],
-        imgSrc: ["'self'", "data:", "https:"],
-        connectSrc: ["'self'"],
-        fontSrc: ["'self'"],
-        objectSrc: ["'none'"],
-        mediaSrc: ["'self'"],
-        frameSrc: ["'none'"]
+  // Register shared schemas for $ref usage in route schemas
+  fastify.addSchema({
+    $id: 'Error',
+    type: 'object',
+    properties: {
+      success: { type: 'boolean', example: false },
+      error: {
+        type: 'object',
+        properties: {
+          message: { type: 'string' },
+          code: { type: 'string' },
+          timestamp: { type: 'string', format: 'date-time' }
+        }
       }
     }
   })
 
+  fastify.addSchema({
+    $id: 'Success',
+    type: 'object',
+    properties: {
+      success: { type: 'boolean', example: true },
+      data: { type: 'object' },
+      timestamp: { type: 'string', format: 'date-time' }
+    }
+  })
+
+  fastify.addSchema({
+    $id: 'Pagination',
+    type: 'object',
+    properties: {
+      page: { type: 'number' },
+      limit: { type: 'number' },
+      total: { type: 'number' },
+      pages: { type: 'number' }
+    }
+  })
+
+  // Register security middleware
+  await fastify.register(securityHeaders)
+
+  // Register request logger
+  await fastify.register(requestLogger)
+
   // Register compression
-  await fastify.register(compression)
+  await fastify.register(compress)
 
   // Register CORS
   await fastify.register(cors, {
@@ -211,8 +242,7 @@ export async function createServer() {
   }
 
   // Register global hooks
-  fastify.addHook('onRequest', securityHeaders)
-  fastify.addHook('onRequest', requestLogger)
+  // Hooks are registered within plugins above
 
   // Register error handlers
   fastify.setErrorHandler(errorHandler)
@@ -264,25 +294,33 @@ export async function createServer() {
 
   // API versioning
   fastify.register(async function (fastify) {
-    // Register all API routes with /v1 prefix
-    await fastify.register(authRoutes, { prefix: '/auth' })
-    await fastify.register(websiteRoutes, { prefix: '/websites' })
-    await fastify.register(templateRoutes, { prefix: '/templates' })
-    await fastify.register(aiRoutes, { prefix: '/ai' })
-    await fastify.register(userRoutes, { prefix: '/users' })
-    await fastify.register(paymentRoutes, { prefix: '/payments' })
-    await fastify.register(adminRoutes, { prefix: '/admin' })
-    await fastify.register(domainRoutes, { prefix: '/domains' })
-    await fastify.register(pwaRoutes, { prefix: '/' })
-    await fastify.register(analyticsRoutes, { prefix: '/analytics' })
-    await fastify.register(marketingRoutes, { prefix: '/marketing' })
-    await fastify.register(integrationRoutes, { prefix: '/integrations' })
-    await fastify.register(mediaRoutes, { prefix: '/media' })
-    await fastify.register(designSystemRoutes, { prefix: '/design-systems' })
-    await fastify.register(agencyRoutes, { prefix: '/agency' })
-    await fastify.register(advancedAIRoutes, { prefix: '/advanced-ai' })
-    await fastify.register(blockchainRoutes, { prefix: '/blockchain' })
-    await fastify.register(notificationRoutes, { prefix: '/notifications' })
+    const routePlugins: Array<[string, any, string]> = [
+      ['authRoutes', authRoutes, '/auth'],
+      ['websiteRoutes', websiteRoutes, '/websites'],
+      ['templateRoutes', templateRoutes, '/templates'],
+      ['aiRoutes', aiRoutes, '/ai'],
+      ['userRoutes', userRoutes, '/users'],
+      ['paymentRoutes', paymentRoutes, '/payments'],
+      ['adminRoutes', adminRoutes, '/admin'],
+      ['domainRoutes', domainRoutes, '/domains'],
+      ['pwaRoutes', pwaRoutes, '/'],
+      ['analyticsRoutes', analyticsRoutes, '/analytics'],
+      ['marketingRoutes', marketingRoutes, '/marketing'],
+      ['integrationRoutes', integrationRoutes, '/integrations'],
+      ['mediaRoutes', mediaRoutes, '/media'],
+      ['designSystemRoutes', designSystemRoutes, '/design-systems'],
+      ['agencyRoutes', agencyRoutes, '/agency'],
+      ['advancedAIRoutes', advancedAIRoutes, '/advanced-ai'],
+      ['blockchainRoutes', blockchainRoutes, '/blockchain'],
+      ['notificationRoutes', notificationRoutes, '/notifications']
+    ]
+
+    for (const [name, plugin, prefix] of routePlugins) {
+      if (typeof plugin !== 'function') {
+        throw new Error(`Route plugin ${name} is undefined or not a function`)
+      }
+      await fastify.register(plugin, { prefix })
+    }
   }, { prefix: '/v1' })
 
   // Root endpoint

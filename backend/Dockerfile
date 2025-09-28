@@ -1,9 +1,15 @@
 # Multi-stage Dockerfile for Pakistan Website Builder Backend
 
 # Stage 1: Development
-FROM node:22-alpine AS development
+FROM node:22-slim AS development
 
 WORKDIR /app
+
+# Install dependencies for Prisma
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
 COPY package*.json ./
@@ -22,9 +28,15 @@ EXPOSE 3001
 CMD ["npm", "run", "dev"]
 
 # Stage 2: Build
-FROM node:22-alpine AS build
+FROM node:22-slim AS build
 
 WORKDIR /app
+
+# Install dependencies for Prisma
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install dependencies
 COPY package*.json ./
@@ -40,9 +52,15 @@ RUN npx prisma generate
 RUN npm run build
 
 # Stage 3: Production
-FROM node:22-alpine AS production
+FROM node:22-slim AS production
 
 WORKDIR /app
+
+# Install dependencies for Prisma
+RUN apt-get update && apt-get install -y \
+    openssl \
+    ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install only production dependencies
 COPY package*.json ./

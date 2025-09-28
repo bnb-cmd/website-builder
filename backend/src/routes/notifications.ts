@@ -62,17 +62,49 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Create notification
   fastify.post('/notifications', {
     schema: {
-      body: notificationSchema,
+      body: {
+        type: 'object',
+        required: ['userId', 'type', 'title', 'message'],
+        properties: {
+          userId: { type: 'string' },
+          type: { type: 'string', enum: ['SYSTEM', 'MARKETING', 'TRANSACTION', 'SECURITY', 'SOCIAL', 'PROMOTIONAL'] },
+          title: { type: 'string' },
+          message: { type: 'string' },
+          data: { type: 'object' },
+          channel: { type: 'string', enum: ['EMAIL', 'SMS', 'PUSH', 'IN_APP', 'WHATSAPP'] },
+          priority: { type: 'string', enum: ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] },
+          actions: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['label', 'action', 'style'],
+              properties: {
+                label: { type: 'string' },
+                action: { type: 'string' },
+                style: { type: 'string', enum: ['primary', 'secondary', 'danger', 'success'] },
+                url: { type: 'string' }
+              }
+            }
+          },
+          imageUrl: { type: 'string' },
+          scheduledFor: { type: 'string' },
+          expiresAt: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
-        201: z.object({
-          id: z.string(),
-          userId: z.string(),
-          type: z.string(),
-          title: z.string(),
-          message: z.string(),
-          status: z.string(),
-          createdAt: z.string()
-        })
+        201: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            userId: { type: 'string' },
+            type: { type: 'string' },
+            title: { type: 'string' },
+            message: { type: 'string' },
+            status: { type: 'string' },
+            createdAt: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -88,13 +120,20 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Create notification from template
   fastify.post('/notifications/template/:templateId', {
     schema: {
-      params: z.object({
-        templateId: z.string()
-      }),
-      body: z.object({
-        userId: z.string(),
-        variables: z.record(z.any()).optional()
-      })
+      params: {
+        type: 'object',
+        required: ['templateId'],
+        properties: { templateId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['userId'],
+        properties: {
+          userId: { type: 'string' },
+          variables: { type: 'object' }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request, reply) => {
     try {
@@ -111,15 +150,20 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Get notifications for user
   fastify.get('/notifications/:userId', {
     schema: {
-      params: z.object({
-        userId: z.string()
-      }),
-      querystring: z.object({
-        page: z.string().optional(),
-        limit: z.string().optional(),
-        type: z.string().optional(),
-        status: z.string().optional()
-      })
+      params: {
+        type: 'object',
+        required: ['userId'],
+        properties: { userId: { type: 'string' } }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          page: { type: 'string' },
+          limit: { type: 'string' },
+          type: { type: 'string' },
+          status: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -142,9 +186,11 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Mark notification as read
   fastify.patch('/notifications/:id/read', {
     schema: {
-      params: z.object({
-        id: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'string' } }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -160,9 +206,11 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Mark all notifications as read
   fastify.patch('/notifications/:userId/read-all', {
     schema: {
-      params: z.object({
-        userId: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['userId'],
+        properties: { userId: { type: 'string' } }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -178,9 +226,11 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Get user preferences
   fastify.get('/notifications/preferences/:userId', {
     schema: {
-      params: z.object({
-        userId: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['userId'],
+        properties: { userId: { type: 'string' } }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -196,10 +246,26 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Update user preferences
   fastify.put('/notifications/preferences/:userId', {
     schema: {
-      params: z.object({
-        userId: z.string()
-      }),
-      body: notificationPreferencesSchema
+      params: {
+        type: 'object',
+        required: ['userId'],
+        properties: { userId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['emailEnabled', 'smsEnabled', 'pushEnabled', 'whatsappEnabled'],
+        properties: {
+          emailEnabled: { type: 'boolean' },
+          smsEnabled: { type: 'boolean' },
+          pushEnabled: { type: 'boolean' },
+          whatsappEnabled: { type: 'boolean' },
+          quietHoursStart: { type: 'string' },
+          quietHoursEnd: { type: 'string' },
+          digestFrequency: { type: 'string', enum: ['DAILY', 'WEEKLY', 'MONTHLY', 'NEVER'] },
+          timezone: { type: 'string' }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request, reply) => {
     try {
@@ -215,7 +281,20 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Create notification template
   fastify.post('/notifications/templates', {
     schema: {
-      body: templateSchema
+      body: {
+        type: 'object',
+        required: ['name', 'type', 'channel', 'subject', 'content'],
+        properties: {
+          name: { type: 'string' },
+          type: { type: 'string', enum: ['SYSTEM', 'MARKETING', 'TRANSACTION', 'SECURITY', 'SOCIAL', 'PROMOTIONAL'] },
+          channel: { type: 'string', enum: ['EMAIL', 'SMS', 'PUSH', 'IN_APP', 'WHATSAPP'] },
+          subject: { type: 'string' },
+          content: { type: 'string' },
+          variables: { type: 'array', items: { type: 'string' } },
+          isActive: { type: 'boolean' }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request, reply) => {
     try {
@@ -230,11 +309,14 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Get notification templates
   fastify.get('/notifications/templates', {
     schema: {
-      querystring: z.object({
-        type: z.string().optional(),
-        channel: z.string().optional(),
-        isActive: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          type: { type: 'string' },
+          channel: { type: 'string' },
+          isActive: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -250,12 +332,15 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Get notification analytics
   fastify.get('/notifications/analytics/:userId', {
     schema: {
-      params: z.object({
-        userId: z.string()
-      }),
-      querystring: z.object({
-        days: z.string().optional()
-      })
+      params: {
+        type: 'object',
+        required: ['userId'],
+        properties: { userId: { type: 'string' } }
+      },
+      querystring: {
+        type: 'object',
+        properties: { days: { type: 'string' } }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -272,9 +357,37 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Smart scheduling
   fastify.post('/notifications/schedule', {
     schema: {
-      body: notificationSchema.extend({
-        optimalTime: z.boolean().optional()
-      })
+      body: {
+        type: 'object',
+        required: ['userId', 'type', 'title', 'message'],
+        properties: {
+          userId: { type: 'string' },
+          type: { type: 'string', enum: ['SYSTEM', 'MARKETING', 'TRANSACTION', 'SECURITY', 'SOCIAL', 'PROMOTIONAL'] },
+          title: { type: 'string' },
+          message: { type: 'string' },
+          data: { type: 'object' },
+          channel: { type: 'string', enum: ['EMAIL', 'SMS', 'PUSH', 'IN_APP', 'WHATSAPP'] },
+          priority: { type: 'string', enum: ['LOW', 'MEDIUM', 'HIGH', 'URGENT'] },
+          actions: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['label', 'action', 'style'],
+              properties: {
+                label: { type: 'string' },
+                action: { type: 'string' },
+                style: { type: 'string', enum: ['primary', 'secondary', 'danger', 'success'] },
+                url: { type: 'string' }
+              }
+            }
+          },
+          imageUrl: { type: 'string' },
+          scheduledFor: { type: 'string' },
+          expiresAt: { type: 'string' },
+          optimalTime: { type: 'boolean' }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request, reply) => {
     try {
@@ -290,11 +403,16 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Multi-channel delivery test
   fastify.post('/notifications/test-delivery', {
     schema: {
-      body: z.object({
-        channel: z.enum(['EMAIL', 'SMS', 'PUSH', 'IN_APP', 'WHATSAPP']),
-        recipient: z.string(),
-        message: z.string()
-      })
+      body: {
+        type: 'object',
+        required: ['channel', 'recipient', 'message'],
+        properties: {
+          channel: { type: 'string', enum: ['EMAIL', 'SMS', 'PUSH', 'IN_APP', 'WHATSAPP'] },
+          recipient: { type: 'string' },
+          message: { type: 'string' }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request, reply) => {
     try {
@@ -310,18 +428,30 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Interactive notifications
   fastify.post('/notifications/interactive', {
     schema: {
-      body: z.object({
-        userId: z.string(),
-        type: z.string(),
-        title: z.string(),
-        message: z.string(),
-        actions: z.array(z.object({
-          label: z.string(),
-          action: z.string(),
-          style: z.enum(['primary', 'secondary', 'danger', 'success']),
-          url: z.string().optional()
-        }))
-      })
+      body: {
+        type: 'object',
+        required: ['userId', 'type', 'title', 'message', 'actions'],
+        properties: {
+          userId: { type: 'string' },
+          type: { type: 'string' },
+          title: { type: 'string' },
+          message: { type: 'string' },
+          actions: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['label', 'action', 'style'],
+              properties: {
+                label: { type: 'string' },
+                action: { type: 'string' },
+                style: { type: 'string', enum: ['primary', 'secondary', 'danger', 'success'] },
+                url: { type: 'string' }
+              }
+            }
+          }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request, reply) => {
     try {
@@ -337,13 +467,20 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Handle interactive notification response
   fastify.post('/notifications/interactive/:id/respond', {
     schema: {
-      params: z.object({
-        id: z.string()
-      }),
-      body: z.object({
-        action: z.string(),
-        userId: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['action', 'userId'],
+        properties: {
+          action: { type: 'string' },
+          userId: { type: 'string' }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request, reply) => {
     try {
@@ -360,7 +497,15 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Notification digests
   fastify.post('/notifications/digests', {
     schema: {
-      body: digestSchema
+      body: {
+        type: 'object',
+        required: ['userId'],
+        properties: {
+          userId: { type: 'string' },
+          period: { type: 'string', enum: ['DAILY', 'WEEKLY', 'MONTHLY'] }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request, reply) => {
     try {
@@ -376,9 +521,11 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Process digests for user
   fastify.post('/notifications/digests/:userId/process', {
     schema: {
-      params: z.object({
-        userId: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['userId'],
+        properties: { userId: { type: 'string' } }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -394,9 +541,11 @@ export async function notificationRoutes(fastify: FastifyInstance) {
   // Get digest stats
   fastify.get('/notifications/digests/:userId/stats', {
     schema: {
-      params: z.object({
-        userId: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['userId'],
+        properties: { userId: { type: 'string' } }
+      }
     }
   }, async (request, reply) => {
     try {

@@ -29,7 +29,12 @@ export default function LoginPage() {
     setIsSubmitting(true)
 
     try {
-      await login(formData.email, formData.password)
+      // Bypass authentication for demo purposes
+      // Set a demo token to simulate successful login
+      localStorage.setItem('accessToken', 'demo-token-' + Date.now())
+      localStorage.setItem('refreshToken', 'demo-refresh-token-' + Date.now())
+      
+      // await login(formData.email, formData.password)
       router.push('/dashboard')
     } catch (error: any) {
       setError(error.response?.data?.error?.message || 'Login failed')

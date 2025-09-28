@@ -68,7 +68,7 @@ export function AnalyticsDashboard({ websiteId }: AnalyticsDashboardProps) {
   ]
 
   const deviceData = [
-    { name: 'Desktop', value: 45, color: '#3b82f6' },
+    { name: 'Desktop', value: 45, color: '#0f172a' },
     { name: 'Mobile', value: 38, color: '#10b981' },
     { name: 'Tablet', value: 17, color: '#f59e0b' }
   ]
@@ -262,8 +262,8 @@ export function AnalyticsDashboard({ websiteId }: AnalyticsDashboardProps) {
                       type="monotone" 
                       dataKey="visitors" 
                       stackId="1"
-                      stroke="#3b82f6" 
-                      fill="#3b82f6" 
+                      stroke="#0f172a" 
+                      fill="#0f172a" 
                       fillOpacity={0.6}
                     />
                     <Area 
@@ -364,7 +364,7 @@ export function AnalyticsDashboard({ websiteId }: AnalyticsDashboardProps) {
                     <XAxis dataKey="source" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="visits" fill="#3b82f6" />
+                    <Bar dataKey="visits" fill="#0f172a" />
                   </BarChart>
                 </ResponsiveContainer>
               </CardContent>

@@ -12,7 +12,7 @@ export function HeroElement({ element, onUpdate, viewMode, style }: HeroElementP
   return (
     <div 
       style={style}
-      className="relative bg-gradient-to-r from-blue-600 to-purple-600 text-white py-20 px-6"
+      className="relative bg-gradient-to-r from-blue-900 to-purple-600 text-white py-20 px-6"
     >
       <div className="max-w-4xl mx-auto text-center">
         <h1 
@@ -26,7 +26,7 @@ export function HeroElement({ element, onUpdate, viewMode, style }: HeroElementP
         />
         
         <p 
-          className="text-xl md:text-2xl mb-8 text-blue-100 outline-none"
+          className="text-xl md:text-2xl mb-8 text-slate-200 outline-none"
           contentEditable
           suppressContentEditableWarning
           onBlur={(e) => onUpdate(element.id, {
@@ -37,7 +37,7 @@ export function HeroElement({ element, onUpdate, viewMode, style }: HeroElementP
         
         <Button 
           size="lg" 
-          className="bg-white text-blue-600 hover:bg-blue-50"
+          className="bg-white text-blue-900 hover:bg-blue-100"
           onClick={(e) => e.preventDefault()}
         >
           <span

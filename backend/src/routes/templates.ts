@@ -17,10 +17,10 @@ interface UseTemplateBody {
   websiteName: string
 }
 
-export default async function templateRoutes(fastify: FastifyInstance) {
+export async function templateRoutes(fastify: FastifyInstance) {
   // Get all website templates
   fastify.get<{ Querystring: GetTemplatesQuery }>(
-    '/templates',
+    '/',
     {
       schema: {
         querystring: {
@@ -78,7 +78,7 @@ export default async function templateRoutes(fastify: FastifyInstance) {
   )
 
   // Get template categories
-  fastify.get('/templates/categories', async (request, reply) => {
+  fastify.get('/categories', async (request, reply) => {
     const categories = [...new Set(websiteTemplates.map(t => t.category))]
     const categoriesWithCount = categories.map(cat => ({
       name: cat,
@@ -90,7 +90,7 @@ export default async function templateRoutes(fastify: FastifyInstance) {
 
   // Get single template details
   fastify.get<{ Params: { id: string } }>(
-    '/templates/:id',
+    '/:id',
     async (request, reply) => {
       const template = websiteTemplates.find(t => t.id === request.params.id)
       
@@ -195,7 +195,7 @@ export default async function templateRoutes(fastify: FastifyInstance) {
   )
 
   // Get popular templates
-  fastify.get('/templates/popular', async (request, reply) => {
+  fastify.get('/popular', async (request, reply) => {
     // In a real app, this would query actual usage data
     const popular = websiteTemplates
       .slice(0, 6)
@@ -209,7 +209,7 @@ export default async function templateRoutes(fastify: FastifyInstance) {
   })
 
   // Get templates by industry
-  fastify.get('/templates/industries', async (request, reply) => {
+  fastify.get('/industries', async (request, reply) => {
     const industries = {
       'Business & Corporate': ['business-1'],
       'E-commerce & Retail': ['ecommerce-1'],

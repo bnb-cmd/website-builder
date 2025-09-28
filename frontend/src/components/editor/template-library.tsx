@@ -119,7 +119,7 @@ const mockTemplates: Template[] = [
     colors: {
       primary: '#1e40af',
       secondary: '#1e3a8a',
-      accent: '#3b82f6'
+      accent: '#0f172a'
     },
     sections: [],
     features: ['Services Section', 'Team Profiles', 'Case Studies', 'Contact Form']
@@ -377,7 +377,7 @@ export function TemplateLibrary({ onSelectTemplate, onSelectBlock }: TemplateLib
                         <Card key={template.id} className="group hover:shadow-lg transition-all">
                           <div className="relative aspect-video bg-muted">
                             {/* Template Preview */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-500 opacity-20" />
+                            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-purple-500 opacity-20" />
                             
                             {/* Hover Actions */}
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">

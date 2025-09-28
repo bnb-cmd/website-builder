@@ -22,22 +22,41 @@ export async function pwaRoutes(fastify: FastifyInstance) {
   const websiteService = new WebsiteService()
 
   fastify.post('/:websiteId/pwa', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
-      description: 'Create or update PWA settings for a website',
-      tags: ['PWA'],
-      params: z.object({ websiteId: z.string() }),
-      body: pwaSettingsSchema,
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 100 },
+          shortName: { type: 'string', minLength: 1, maxLength: 50 },
+          description: { type: 'string', maxLength: 500 },
+          themeColor: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' },
+          backgroundColor: { type: 'string', pattern: '^#[0-9a-fA-F]{6}$' },
+          display: { type: 'string', enum: ['standalone', 'fullscreen', 'minimal-ui'] },
+          orientation: { type: 'string', enum: ['portrait', 'landscape'] },
+          startUrl: { type: 'string' },
+          icon512: { type: 'string' },
+          icon192: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
           properties: {
             success: { type: 'boolean' },
-            data: { type: 'object' },
-          },
-        },
-      },
-    },
+            data: { type: 'object' }
+          }
+        }
+      }
+    }
   }, async (request, reply) => {
     const { websiteId } = request.params as { websiteId: string }
     const settings = request.body as z.infer<typeof pwaSettingsSchema>
@@ -46,11 +65,15 @@ export async function pwaRoutes(fastify: FastifyInstance) {
   })
 
   fastify.get('/:websiteId/manifest.json', {
-      schema: {
-      description: 'Get PWA manifest for a website',
-      tags: ['PWA'],
-      params: z.object({ websiteId: z.string() }),
-    },
+    schema: {
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      }
+    }
   }, async (request, reply) => {
     const { websiteId } = request.params as { websiteId: string }
     const website = await websiteService.findById(websiteId)
@@ -67,10 +90,14 @@ export async function pwaRoutes(fastify: FastifyInstance) {
 
   fastify.get('/:websiteId/sw.js', {
     schema: {
-      description: 'Get PWA service worker for a website',
-      tags: ['PWA'],
-      params: z.object({ websiteId: z.string() }),
-    },
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      }
+    }
   }, async (request, reply) => {
     const { websiteId } = request.params as { websiteId: string }
     const serviceWorker = pwaService.generateServiceWorker(websiteId)

@@ -44,7 +44,7 @@ export function Hero() {
 
             {/* CTA Buttons */}
             <div className="flex flex-col sm:flex-row gap-4">
-              <Link href="/register">
+              <Link href="/dashboard">
                 <Button size="lg" className="w-full sm:w-auto">
                   Start Building Free
                   <ArrowRight className="ml-2 h-4 w-4" />

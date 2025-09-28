@@ -478,7 +478,7 @@ export function VideoEditor({ websiteId }: VideoEditorProps) {
               {selectedProject?.clips.map((clip) => (
                 <div
                   key={clip.id}
-                  className="inline-block bg-blue-600 rounded m-1 p-2 text-xs cursor-pointer hover:bg-blue-700"
+                  className="inline-block bg-blue-900 rounded m-1 p-2 text-xs cursor-pointer hover:bg-blue-950"
                   style={{ width: `${(clip.endTime - clip.startTime) * 20}px` }}
                 >
                   {clip.name}

@@ -252,7 +252,7 @@ export function AnimationEditor({ element, onUpdateElement, onClose }: Animation
                         ${anim.type === 'entrance' ? 'bg-green-500' :
                           anim.type === 'exit' ? 'bg-red-500' :
                           anim.type === 'emphasis' ? 'bg-yellow-500' :
-                          'bg-blue-500'
+                          'bg-blue-900'
                         }
                       `} />
                       <span className="font-medium text-sm">{anim.name}</span>

@@ -134,7 +134,7 @@ export function MarketingDashboard({ websiteId }: MarketingDashboardProps) {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'DRAFT': return 'bg-gray-100 text-gray-800'
-      case 'SCHEDULED': return 'bg-blue-100 text-blue-800'
+      case 'SCHEDULED': return 'bg-slate-100 text-slate-900'
       case 'RUNNING': return 'bg-green-100 text-green-800'
       case 'PAUSED': return 'bg-yellow-100 text-yellow-800'
       case 'COMPLETED': return 'bg-purple-100 text-purple-800'
@@ -341,7 +341,7 @@ export function MarketingDashboard({ websiteId }: MarketingDashboardProps) {
               <Card>
                 <CardContent className="p-4">
                   <div className="flex items-center gap-2">
-                    <Send className="h-4 w-4 text-blue-600" />
+                    <Send className="h-4 w-4 text-slate-900" />
                     <div>
                       <p className="text-sm text-muted-foreground">Sent</p>
                       <p className="text-2xl font-bold">{metrics.sentCount}</p>

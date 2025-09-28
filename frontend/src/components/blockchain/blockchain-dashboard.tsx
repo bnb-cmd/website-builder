@@ -93,7 +93,7 @@ export function BlockchainDashboard({ websiteId, userId }: BlockchainDashboardPr
 
   const getNetworkColor = (network: string) => {
     const colors: { [key: string]: string } = {
-      ETHEREUM: 'bg-blue-500',
+      ETHEREUM: 'bg-blue-900',
       POLYGON: 'bg-purple-500',
       BINANCE_SMART_CHAIN: 'bg-yellow-500',
       ARBITRUM: 'bg-cyan-500',
@@ -109,7 +109,7 @@ export function BlockchainDashboard({ websiteId, userId }: BlockchainDashboardPr
     switch (status) {
       case 'ACTIVE': return 'bg-green-500'
       case 'DRAFT': return 'bg-yellow-500'
-      case 'DEPLOYED': return 'bg-blue-500'
+      case 'DEPLOYED': return 'bg-blue-900'
       case 'VERIFIED': return 'bg-purple-500'
       default: return 'bg-gray-500'
     }
@@ -130,14 +130,14 @@ export function BlockchainDashboard({ websiteId, userId }: BlockchainDashboardPr
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-slate-900 to-purple-600 bg-clip-text text-transparent">
             Blockchain Dashboard
           </h1>
           <p className="text-gray-600 mt-1">
             Manage wallets, NFTs, smart contracts, and Web3 integrations
           </p>
         </div>
-        <Badge variant="secondary" className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
+        <Badge variant="secondary" className="bg-gradient-to-r from-slate-900 to-purple-500 text-white">
           <Zap className="w-4 h-4 mr-1" />
           Web3 Enabled
         </Badge>
@@ -329,7 +329,7 @@ export function BlockchainDashboard({ websiteId, userId }: BlockchainDashboardPr
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Blockchain Wallets</CardTitle>
-              <Button className="bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
+              <Button className="bg-gradient-to-r from-slate-900 to-purple-500 hover:from-slate-950 hover:to-purple-600">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Wallet
               </Button>
@@ -430,7 +430,7 @@ export function BlockchainDashboard({ websiteId, userId }: BlockchainDashboardPr
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle>Smart Contracts</CardTitle>
-              <Button className="bg-gradient-to-r from-green-500 to-blue-500 hover:from-green-600 hover:to-blue-600">
+              <Button className="bg-gradient-to-r from-green-500 to-slate-900 hover:from-green-600 hover:to-slate-950">
                 <Plus className="w-4 h-4 mr-2" />
                 Deploy Contract
               </Button>

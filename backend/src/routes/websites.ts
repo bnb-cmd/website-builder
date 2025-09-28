@@ -46,6 +46,74 @@ const websiteQuerySchema = z.object({
 export async function websiteRoutes(fastify: FastifyInstance) {
   const websiteService = new WebsiteService()
 
+  const mockWebsites = [
+    {
+      id: 'demo-website-1',
+      name: 'Lahore Bites Restaurant',
+      description: 'Modern restaurant website with online menu and reservations',
+      status: 'PUBLISHED',
+      subdomain: 'lahorebites',
+      customDomain: 'lahorebites.pk',
+      businessType: 'RESTAURANT',
+      language: 'ENGLISH',
+      createdAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(),
+      publishedAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'demo-website-2',
+      name: 'Karachi Fashion Hub',
+      description: 'E-commerce storefront with EasyPaisa and JazzCash integration',
+      status: 'PUBLISHED',
+      subdomain: 'karachifashion',
+      customDomain: 'karachifashion.pk',
+      businessType: 'ECOMMERCE',
+      language: 'ENGLISH',
+      createdAt: new Date(Date.now() - 14 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      publishedAt: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'demo-website-3',
+      name: 'Islamabad Tech Conference',
+      description: 'Event landing page with speaker profiles and registration',
+      status: 'DRAFT',
+      subdomain: 'islamabadtech',
+      customDomain: null,
+      businessType: 'TECHNOLOGY',
+      language: 'ENGLISH',
+      createdAt: new Date(Date.now() - 4 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(),
+      publishedAt: null
+    },
+    {
+      id: 'demo-website-4',
+      name: 'Peshawar Fitness Club',
+      description: 'Gym and fitness studio website with class schedules and trainer bios',
+      status: 'PUBLISHED',
+      subdomain: 'peshawarfitness',
+      customDomain: null,
+      businessType: 'SERVICE',
+      language: 'ENGLISH',
+      createdAt: new Date(Date.now() - 21 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 6 * 24 * 60 * 60 * 1000).toISOString(),
+      publishedAt: new Date(Date.now() - 18 * 24 * 60 * 60 * 1000).toISOString()
+    },
+    {
+      id: 'demo-website-5',
+      name: 'Quetta Study Circle',
+      description: 'Educational site offering course outlines and enrollment forms',
+      status: 'DRAFT',
+      subdomain: 'quettastudy',
+      customDomain: null,
+      businessType: 'EDUCATION',
+      language: 'ENGLISH',
+      createdAt: new Date(Date.now() - 9 * 24 * 60 * 60 * 1000).toISOString(),
+      updatedAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
+      publishedAt: null
+    }
+  ]
+
   // GET /api/v1/websites
   fastify.get('/', {
     preHandler: [authenticate],
@@ -100,14 +168,32 @@ export async function websiteRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const query = websiteQuerySchema.parse(request.query)
-      
+
+      if (process.env.NODE_ENV === 'development' || process.env.USE_MOCK_DATA === 'true') {
+        const offset = (query.page - 1) * query.limit
+        const data = mockWebsites.slice(offset, offset + query.limit)
+
+        reply.send({
+          success: true,
+          data,
+          pagination: {
+            page: query.page,
+            limit: query.limit,
+            total: mockWebsites.length,
+            pages: Math.ceil(mockWebsites.length / query.limit)
+          },
+          timestamp: new Date().toISOString()
+        })
+        return
+      }
+
       const websites = await websiteService.findAll({
         ...query,
         userId: request.user!.id
       })
-      
+
       const total = await websiteService.count({ userId: request.user!.id })
-      
+
       reply.send({
         success: true,
         data: websites,

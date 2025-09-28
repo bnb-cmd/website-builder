@@ -24,7 +24,7 @@ export function CTA() {
           </div>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/register">
+            <Link href="/dashboard">
               <Button 
                 size="lg" 
                 variant="secondary"

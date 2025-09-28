@@ -104,7 +104,7 @@ export function ABTestingPanel({ onClose }: ABTestingPanelProps) {
     switch (status) {
       case 'running': return 'bg-green-500'
       case 'paused': return 'bg-yellow-500'
-      case 'completed': return 'bg-blue-500'
+      case 'completed': return 'bg-blue-900'
       default: return 'bg-gray-500'
     }
   }

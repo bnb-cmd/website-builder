@@ -38,7 +38,7 @@ export function ActivityFeed({ activities }: ActivityFeedProps) {
   const getActivityColor = (type: string) => {
     switch (type) {
       case 'website_created':
-        return 'bg-blue-500'
+        return 'bg-blue-900'
       case 'website_published':
         return 'bg-green-500'
       case 'ai_generation':

@@ -45,7 +45,7 @@ interface AIChatInterfaceProps {
 }
 
 const sessionTypes = [
-  { value: 'CHAT', label: 'General Chat', icon: MessageCircle, color: 'bg-blue-500' },
+  { value: 'CHAT', label: 'General Chat', icon: MessageCircle, color: 'bg-blue-900' },
   { value: 'CODE_GENERATION', label: 'Code Generation', icon: Code, color: 'bg-green-500' },
   { value: 'CONTENT_CREATION', label: 'Content Creation', icon: FileText, color: 'bg-purple-500' },
   { value: 'DESIGN_ASSISTANCE', label: 'Design Help', icon: Palette, color: 'bg-pink-500' },
@@ -214,7 +214,7 @@ export function AIChatInterface({ websiteId, userId }: AIChatInterfaceProps) {
                 <Card
                   key={session.id}
                   className={`cursor-pointer transition-colors ${
-                    activeSession?.id === session.id ? 'ring-2 ring-blue-500' : ''
+                    activeSession?.id === session.id ? 'ring-2 ring-blue-900' : ''
                   }`}
                   onClick={() => {
                     setActiveSession(session)
@@ -278,9 +278,9 @@ export function AIChatInterface({ websiteId, userId }: AIChatInterfaceProps) {
                       }`}
                     >
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                  className={`w-8 h-8 rounded-full flex items-center justify-center ${
                           message.role === 'user' 
-                            ? 'bg-blue-500 text-white' 
+                            ? 'bg-blue-900 text-white' 
                             : 'bg-gray-200 text-gray-600'
                         }`}
                       >
@@ -291,9 +291,9 @@ export function AIChatInterface({ websiteId, userId }: AIChatInterfaceProps) {
                         )}
                       </div>
                       <div
-                        className={`rounded-lg p-3 ${
+                      className={`rounded-lg p-3 ${
                           message.role === 'user'
-                            ? 'bg-blue-500 text-white'
+                            ? 'bg-blue-900 text-white'
                             : 'bg-gray-100 text-gray-900'
                         }`}
                       >

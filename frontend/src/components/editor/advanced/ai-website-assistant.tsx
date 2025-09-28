@@ -343,7 +343,7 @@ export function AIWebsiteAssistant({ onSuggestion, websiteId }: AIAssistantProps
         id: 'color-1',
         type: 'color',
         title: 'Update Color Scheme',
-        description: 'Try a modern blue and white color scheme for a professional look',
+        description: 'Try a modern navy and white color scheme for a professional look',
         confidence: 0.9,
         action: () => {
           updateTheme({
@@ -394,7 +394,7 @@ export function AIWebsiteAssistant({ onSuggestion, websiteId }: AIAssistantProps
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <div className="p-2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-lg text-white">
+            <div className="p-2 bg-gradient-to-r from-purple-500 to-slate-900 rounded-lg text-white">
               <Brain className="h-5 w-5" />
             </div>
             <div>

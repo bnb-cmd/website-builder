@@ -236,7 +236,7 @@ export function CustomDomainPanel({ onClose }: CustomDomainPanelProps) {
       case 'active': return 'bg-green-500'
       case 'pending': return 'bg-yellow-500'
       case 'expired': return 'bg-red-500'
-      case 'transferring': return 'bg-blue-500'
+      case 'transferring': return 'bg-blue-900'
       default: return 'bg-gray-500'
     }
   }

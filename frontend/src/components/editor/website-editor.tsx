@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { DndContext, DragEndEvent, DragStartEvent } from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Sidebar } from './sidebar'
 import { Canvas } from './canvas'
@@ -47,9 +47,7 @@ import {
   GitBranch,
   Terminal,
   Webhook,
-  Palette,
   Shield,
-  Code,
   Globe
 } from 'lucide-react'
 import toast from 'react-hot-toast'

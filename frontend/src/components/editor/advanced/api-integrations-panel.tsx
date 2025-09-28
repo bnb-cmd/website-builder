@@ -152,7 +152,7 @@ export function APIIntegrationsPanel({ element, onUpdateElement, onClose }: APII
 
   const getIntegrationColor = (type: APIIntegration['type']) => {
     switch (type) {
-      case 'webhook': return 'bg-blue-500'
+      case 'webhook': return 'bg-blue-900'
       case 'api': return 'bg-green-500'
       case 'payment': return 'bg-purple-500'
       case 'email': return 'bg-red-500'

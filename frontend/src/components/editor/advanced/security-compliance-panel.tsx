@@ -220,7 +220,7 @@ export function SecurityCompliancePanel({ onClose }: SecurityCompliancePanelProp
                 </Card>
                 <Card>
                   <CardContent className="p-4 text-center">
-                    <div className="text-2xl font-bold text-blue-600">2</div>
+                    <div className="text-2xl font-bold text-slate-900">2</div>
                     <div className="text-sm text-muted-foreground">Active Standards</div>
                   </CardContent>
                 </Card>

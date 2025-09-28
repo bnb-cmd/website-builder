@@ -39,7 +39,24 @@ export async function agencyRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Create a new agency',
       tags: ['Agency'],
-      body: agencyDataSchema,
+      body: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 100 },
+          description: { type: 'string', maxLength: 500 },
+          website: { type: 'string' },
+          logo: { type: 'string' },
+          brandName: { type: 'string', maxLength: 100 },
+          brandColors: {},
+          customDomain: { type: 'string' },
+          customLogo: { type: 'string' },
+          features: {},
+          plan: { type: 'string', enum: ['STARTER','PROFESSIONAL','ENTERPRISE'] },
+          billingEmail: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -85,8 +102,28 @@ export async function agencyRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Update agency settings',
       tags: ['Agency'],
-      params: z.object({ agencyId: z.string() }),
-      body: agencyDataSchema.partial(),
+      params: {
+        type: 'object',
+        required: ['agencyId'],
+        properties: { agencyId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 100 },
+          description: { type: 'string', maxLength: 500 },
+          website: { type: 'string' },
+          logo: { type: 'string' },
+          brandName: { type: 'string', maxLength: 100 },
+          brandColors: {},
+          customDomain: { type: 'string' },
+          customLogo: { type: 'string' },
+          features: {},
+          plan: { type: 'string', enum: ['STARTER','PROFESSIONAL','ENTERPRISE'] },
+          billingEmail: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -110,7 +147,11 @@ export async function agencyRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Get agency clients',
       tags: ['Agency'],
-      params: z.object({ agencyId: z.string() }),
+      params: {
+        type: 'object',
+        required: ['agencyId'],
+        properties: { agencyId: { type: 'string' } }
+      },
       response: {
         200: {
           type: 'object',
@@ -133,7 +174,23 @@ export async function agencyRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Add a new client to agency',
       tags: ['Agency'],
-      body: clientDataSchema,
+      body: {
+        type: 'object',
+        required: ['agencyId','websiteId','clientName','clientEmail'],
+        properties: {
+          agencyId: { type: 'string' },
+          websiteId: { type: 'string' },
+          clientName: { type: 'string', minLength: 1, maxLength: 100 },
+          clientEmail: { type: 'string' },
+          clientPhone: { type: 'string' },
+          companyName: { type: 'string', maxLength: 100 },
+          projectType: { type: 'string' },
+          budget: { type: 'number', minimum: 0 },
+          timeline: { type: 'string' },
+          notes: { type: 'string', maxLength: 1000 }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -156,8 +213,27 @@ export async function agencyRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Update client information',
       tags: ['Agency'],
-      params: z.object({ clientId: z.string() }),
-      body: clientDataSchema.partial(),
+      params: {
+        type: 'object',
+        required: ['clientId'],
+        properties: { clientId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          agencyId: { type: 'string' },
+          websiteId: { type: 'string' },
+          clientName: { type: 'string', minLength: 1, maxLength: 100 },
+          clientEmail: { type: 'string' },
+          clientPhone: { type: 'string' },
+          companyName: { type: 'string', maxLength: 100 },
+          projectType: { type: 'string' },
+          budget: { type: 'number', minimum: 0 },
+          timeline: { type: 'string' },
+          notes: { type: 'string', maxLength: 1000 }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -181,7 +257,11 @@ export async function agencyRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Remove client from agency',
       tags: ['Agency'],
-      params: z.object({ clientId: z.string() }),
+      params: {
+        type: 'object',
+        required: ['clientId'],
+        properties: { clientId: { type: 'string' } }
+      },
       response: {
         200: {
           type: 'object',
@@ -203,7 +283,11 @@ export async function agencyRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Get agency statistics',
       tags: ['Agency'],
-      params: z.object({ agencyId: z.string() }),
+      params: {
+        type: 'object',
+        required: ['agencyId'],
+        properties: { agencyId: { type: 'string' } }
+      },
       response: {
         200: {
           type: 'object',
@@ -225,7 +309,11 @@ export async function agencyRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Get white-label configuration for agency',
       tags: ['Agency'],
-      params: z.object({ agencyId: z.string() }),
+      params: {
+        type: 'object',
+        required: ['agencyId'],
+        properties: { agencyId: { type: 'string' } }
+      },
       response: {
         200: {
           type: 'object',
@@ -248,10 +336,19 @@ export async function agencyRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Upgrade agency plan',
       tags: ['Agency'],
-      params: z.object({ agencyId: z.string() }),
-      body: z.object({
-        plan: z.enum(['STARTER', 'PROFESSIONAL', 'ENTERPRISE']),
-      }),
+      params: {
+        type: 'object',
+        required: ['agencyId'],
+        properties: { agencyId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['plan'],
+        properties: {
+          plan: { type: 'string', enum: ['STARTER','PROFESSIONAL','ENTERPRISE'] }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',

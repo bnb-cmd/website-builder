@@ -49,17 +49,33 @@ export async function advancedAIRoutes(fastify: FastifyInstance) {
   // AI Session Management
   fastify.post('/ai-sessions', {
     schema: {
-      body: aiSessionSchema,
+      body: {
+        type: 'object',
+        required: ['websiteId', 'type'],
+        properties: {
+          websiteId: { type: 'string' },
+          userId: { type: 'string' },
+          type: { type: 'string', enum: ['CHAT', 'CODE_GENERATION', 'CONTENT_CREATION', 'DESIGN_ASSISTANCE', 'ANALYSIS'] },
+          context: {},
+          model: { type: 'string' },
+          temperature: { type: 'number', minimum: 0, maximum: 2 },
+          maxTokens: { type: 'number', minimum: 1 }
+        },
+        additionalProperties: false
+      },
       response: {
-        201: z.object({
-          id: z.string(),
-          sessionId: z.string(),
-          websiteId: z.string(),
-          userId: z.string().optional(),
-          type: z.string(),
-          status: z.string(),
-          createdAt: z.string()
-        })
+        201: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            sessionId: { type: 'string' },
+            websiteId: { type: 'string' },
+            userId: { type: 'string' },
+            type: { type: 'string' },
+            status: { type: 'string' },
+            createdAt: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -73,23 +89,31 @@ export async function advancedAIRoutes(fastify: FastifyInstance) {
 
   fastify.get('/ai-sessions/:websiteId', {
     schema: {
-      params: z.object({
-        websiteId: z.string().uuid()
-      }),
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string' } }
+      },
       response: {
-        200: z.array(z.object({
-          id: z.string(),
-          sessionId: z.string(),
-          websiteId: z.string(),
-          userId: z.string().optional(),
-          type: z.string(),
-          status: z.string(),
-          messageCount: z.number(),
-          tokenUsage: z.number(),
-          cost: z.number(),
-          createdAt: z.string(),
-          updatedAt: z.string()
-        }))
+        200: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              sessionId: { type: 'string' },
+              websiteId: { type: 'string' },
+              userId: { type: 'string' },
+              type: { type: 'string' },
+              status: { type: 'string' },
+              messageCount: { type: 'number' },
+              tokenUsage: { type: 'number' },
+              cost: { type: 'number' },
+              createdAt: { type: 'string' },
+              updatedAt: { type: 'string' }
+            }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -104,18 +128,26 @@ export async function advancedAIRoutes(fastify: FastifyInstance) {
 
   fastify.post('/ai-sessions/:sessionId/message', {
     schema: {
-      params: z.object({
-        sessionId: z.string()
-      }),
-      body: z.object({
-        message: z.string().min(1)
-      }),
+      params: {
+        type: 'object',
+        required: ['sessionId'],
+        properties: { sessionId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['message'],
+        properties: { message: { type: 'string', minLength: 1 } },
+        additionalProperties: false
+      },
       response: {
-        200: z.object({
-          response: z.string(),
-          tokensUsed: z.number(),
-          cost: z.number()
-        })
+        200: {
+          type: 'object',
+          properties: {
+            response: { type: 'string' },
+            tokensUsed: { type: 'number' },
+            cost: { type: 'number' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -132,17 +164,38 @@ export async function advancedAIRoutes(fastify: FastifyInstance) {
   // AR/VR Content Management
   fastify.post('/arvr-content', {
     schema: {
-      body: arvrContentSchema,
+      body: {
+        type: 'object',
+        required: ['websiteId', 'name', 'type'],
+        properties: {
+          websiteId: { type: 'string' },
+          userId: { type: 'string' },
+          name: { type: 'string', minLength: 1 },
+          type: { type: 'string', enum: ['AR_OVERLAY', 'VR_EXPERIENCE', '3D_MODEL', 'ANIMATION', 'INTERACTIVE_SCENE'] },
+          description: { type: 'string' },
+          modelUrl: { type: 'string' },
+          textureUrl: { type: 'string' },
+          animationUrl: { type: 'string' },
+          scale: {},
+          position: {},
+          rotation: {},
+          interactions: {}
+        },
+        additionalProperties: false
+      },
       response: {
-        201: z.object({
-          id: z.string(),
-          websiteId: z.string(),
-          userId: z.string().optional(),
-          name: z.string(),
-          type: z.string(),
-          status: z.string(),
-          createdAt: z.string()
-        })
+        201: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            websiteId: { type: 'string' },
+            userId: { type: 'string' },
+            name: { type: 'string' },
+            type: { type: 'string' },
+            status: { type: 'string' },
+            createdAt: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -156,24 +209,32 @@ export async function advancedAIRoutes(fastify: FastifyInstance) {
 
   fastify.get('/arvr-content/:websiteId', {
     schema: {
-      params: z.object({
-        websiteId: z.string().uuid()
-      }),
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string' } }
+      },
       response: {
-        200: z.array(z.object({
-          id: z.string(),
-          websiteId: z.string(),
-          userId: z.string().optional(),
-          name: z.string(),
-          type: z.string(),
-          description: z.string().optional(),
-          status: z.string(),
-          polygonCount: z.number().optional(),
-          textureSize: z.number().optional(),
-          fileSize: z.number().optional(),
-          createdAt: z.string(),
-          updatedAt: z.string()
-        }))
+        200: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              id: { type: 'string' },
+              websiteId: { type: 'string' },
+              userId: { type: 'string' },
+              name: { type: 'string' },
+              type: { type: 'string' },
+              description: { type: 'string' },
+              status: { type: 'string' },
+              polygonCount: { type: 'number' },
+              textureSize: { type: 'number' },
+              fileSize: { type: 'number' },
+              createdAt: { type: 'string' },
+              updatedAt: { type: 'string' }
+            }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -188,15 +249,20 @@ export async function advancedAIRoutes(fastify: FastifyInstance) {
 
   fastify.post('/arvr-content/:contentId/process', {
     schema: {
-      params: z.object({
-        contentId: z.string().uuid()
-      }),
+      params: {
+        type: 'object',
+        required: ['contentId'],
+        properties: { contentId: { type: 'string' } }
+      },
       response: {
-        200: z.object({
-          id: z.string(),
-          status: z.string(),
-          message: z.string()
-        })
+        200: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            status: { type: 'string' },
+            message: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -215,15 +281,28 @@ export async function advancedAIRoutes(fastify: FastifyInstance) {
 
   fastify.post('/arvr-content/generate', {
     schema: {
-      body: generateARVRContentSchema,
+      body: {
+        type: 'object',
+        required: ['prompt', 'type', 'websiteId'],
+        properties: {
+          prompt: { type: 'string', minLength: 1 },
+          type: { type: 'string', enum: ['AR_OVERLAY', 'VR_EXPERIENCE', '3D_MODEL', 'ANIMATION', 'INTERACTIVE_SCENE'] },
+          websiteId: { type: 'string' },
+          userId: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
-        201: z.object({
-          id: z.string(),
-          name: z.string(),
-          type: z.string(),
-          status: z.string(),
-          message: z.string()
-        })
+        201: {
+          type: 'object',
+          properties: {
+            id: { type: 'string' },
+            name: { type: 'string' },
+            type: { type: 'string' },
+            status: { type: 'string' },
+            message: { type: 'string' }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -250,13 +329,24 @@ export async function advancedAIRoutes(fastify: FastifyInstance) {
   // Advanced AI Features
   fastify.post('/generate-code', {
     schema: {
-      body: codeGenerationSchema,
+      body: {
+        type: 'object',
+        required: ['description', 'language'],
+        properties: {
+          description: { type: 'string', minLength: 1 },
+          language: { type: 'string', minLength: 1 }
+        },
+        additionalProperties: false
+      },
       response: {
-        200: z.object({
-          code: z.string(),
-          explanation: z.string(),
-          suggestions: z.array(z.string())
-        })
+        200: {
+          type: 'object',
+          properties: {
+            code: { type: 'string' },
+            explanation: { type: 'string' },
+            suggestions: { type: 'array', items: { type: 'string' } }
+          }
+        }
       }
     }
   }, async (request, reply) => {
@@ -274,19 +364,32 @@ export async function advancedAIRoutes(fastify: FastifyInstance) {
 
   fastify.post('/analyze-website', {
     schema: {
-      body: websiteAnalysisSchema,
+      body: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
-        200: z.object({
-          score: z.number(),
-          recommendations: z.array(z.string()),
-          metrics: z.object({
-            pageLoadTime: z.number(),
-            firstContentfulPaint: z.number(),
-            largestContentfulPaint: z.number(),
-            cumulativeLayoutShift: z.number(),
-            firstInputDelay: z.number()
-          })
-        })
+        200: {
+          type: 'object',
+          properties: {
+            score: { type: 'number' },
+            recommendations: { type: 'array', items: { type: 'string' } },
+            metrics: {
+              type: 'object',
+              properties: {
+                pageLoadTime: { type: 'number' },
+                firstContentfulPaint: { type: 'number' },
+                largestContentfulPaint: { type: 'number' },
+                cumulativeLayoutShift: { type: 'number' },
+                firstInputDelay: { type: 'number' }
+              }
+            }
+          }
+        }
       }
     }
   }, async (request, reply) => {

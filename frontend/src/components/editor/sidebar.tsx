@@ -14,9 +14,7 @@ import {
   Image, 
   Square, 
   Layout, 
-  Form, 
   Video, 
-  Gallery, 
   Map, 
   Minus, 
   Space, 
@@ -28,14 +26,13 @@ import {
   Mail, 
   Clock, 
   ChevronDown, 
-  Tabs as TabsIcon, 
-  Slider, 
   Grid, 
   Sparkles,
   Search,
   Layers,
   Palette
 } from 'lucide-react'
+import { FormIcon, GalleryIcon, SliderIcon, TabsIcon } from '@/components/icons/custom-icons'
 
 const componentCategories: ComponentCategory[] = [
   {
@@ -104,12 +101,12 @@ const componentCategories: ComponentCategory[] = [
   {
     id: 'forms',
     name: 'Forms',
-    icon: Form,
+    icon: FormIcon,
     elements: [
       {
         type: 'form',
         name: 'Contact Form',
-        icon: Form,
+        icon: FormIcon,
         description: 'Create contact and lead forms',
         defaultProps: { 
           title: 'Contact Us',
@@ -150,7 +147,7 @@ const componentCategories: ComponentCategory[] = [
       {
         type: 'gallery',
         name: 'Gallery',
-        icon: Gallery,
+        icon: GalleryIcon,
         description: 'Image galleries and carousels',
         defaultProps: { images: [], layout: 'grid' },
         category: 'media'
@@ -158,7 +155,7 @@ const componentCategories: ComponentCategory[] = [
       {
         type: 'slider',
         name: 'Slider',
-        icon: Slider,
+        icon: SliderIcon,
         description: 'Image and content sliders',
         defaultProps: { slides: [], autoplay: true },
         category: 'media'

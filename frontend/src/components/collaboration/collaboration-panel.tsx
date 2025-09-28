@@ -174,7 +174,7 @@ export function CollaborationPanel({ websiteId, currentUser }: CollaborationPane
 
   const roleColors = {
     owner: 'bg-purple-500',
-    admin: 'bg-blue-500',
+    admin: 'bg-blue-900',
     editor: 'bg-green-500',
     viewer: 'bg-gray-500'
   }
@@ -466,7 +466,7 @@ export function CollaborationPanel({ websiteId, currentUser }: CollaborationPane
                 <div key={activity.id} className="flex items-start gap-3">
                   <div className={`
                     w-8 h-8 rounded-full flex items-center justify-center
-                    ${activity.type === 'edit' ? 'bg-blue-100 text-blue-600' :
+                    ${activity.type === 'edit' ? 'bg-slate-100 text-slate-900' :
                       activity.type === 'comment' ? 'bg-green-100 text-green-600' :
                       activity.type === 'share' ? 'bg-purple-100 text-purple-600' :
                       'bg-orange-100 text-orange-600'

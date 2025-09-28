@@ -12,7 +12,6 @@ import {
   Palette, 
   BarChart3,
   FileText,
-  Cube,
   Zap,
   Sparkles,
   TrendingUp,
@@ -20,6 +19,7 @@ import {
   DollarSign,
   Activity
 } from 'lucide-react'
+import { CubeIcon } from '@/components/icons/custom-icons'
 import { AIChatInterface } from '@/components/ai/ai-chat-interface'
 import { ARVRContentManager } from '@/components/arvr/arvr-content-manager'
 
@@ -192,7 +192,7 @@ export function AdvancedAIDashboard({ websiteId, userId }: AdvancedAIDashboardPr
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">AR/VR Content</CardTitle>
-                <Cube className="h-4 w-4 text-muted-foreground" />
+                <CubeIcon className="h-4 w-4 text-muted-foreground" />
               </CardHeader>
               <CardContent>
                 <div className="text-2xl font-bold">{arvrStats.totalContent}</div>
@@ -253,7 +253,7 @@ export function AdvancedAIDashboard({ websiteId, userId }: AdvancedAIDashboardPr
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Cube className="w-5 h-5 mr-2" />
+                  <CubeIcon className="w-5 h-5 mr-2" />
                   Recent AR/VR Content
                 </CardTitle>
               </CardHeader>
@@ -262,8 +262,8 @@ export function AdvancedAIDashboard({ websiteId, userId }: AdvancedAIDashboardPr
                   {recentContent.map((item) => (
                     <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="flex items-center space-x-3">
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 flex items-center justify-center">
-                          <Cube className="w-4 h-4 text-white" />
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-r from-slate-900 to-purple-500 flex items-center justify-center">
+                          <CubeIcon className="w-4 h-4 text-white" />
                         </div>
                         <div>
                           <p className="text-sm font-medium">{item.name}</p>
@@ -381,7 +381,7 @@ export function AdvancedAIDashboard({ websiteId, userId }: AdvancedAIDashboardPr
 
                 <div className="flex items-center justify-between p-4 border rounded-lg">
                   <div className="flex items-center space-x-3">
-                    <Cube className="w-8 h-8 text-blue-500" />
+                    <CubeIcon className="w-8 h-8 text-slate-900" />
                     <div>
                       <p className="font-medium">Custom 3D Model AI</p>
                       <p className="text-sm text-gray-500">AR/VR Content Generation</p>

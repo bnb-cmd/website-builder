@@ -37,12 +37,36 @@ export async function designSystemRoutes(fastify: FastifyInstance) {
 
   // POST /api/v1/design-systems/:websiteId
   fastify.post('/:websiteId', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
       description: 'Create a new design system',
       tags: ['Design Systems'],
-      params: z.object({ websiteId: z.string() }),
-      body: designSystemSchema,
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 100 },
+          description: { type: 'string', maxLength: 500 },
+          brandName: { type: 'string', maxLength: 100 },
+          brandValues: { type: 'array', items: { type: 'string' } },
+          brandPersonality: { type: 'string' },
+          primaryColors: { type: 'array', items: {} },
+          secondaryColors: { type: 'array', items: {} },
+          neutralColors: { type: 'array', items: {} },
+          fontFamilies: { type: 'array', items: {} },
+          fontSizes: { type: 'array', items: {} },
+          spacingScale: { type: 'array', items: {} },
+          borderRadius: { type: 'array', items: {} },
+          shadows: { type: 'array', items: {} },
+          components: {}
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -63,11 +87,15 @@ export async function designSystemRoutes(fastify: FastifyInstance) {
 
   // GET /api/v1/design-systems/:websiteId
   fastify.get('/:websiteId', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
       description: 'Get design systems for a website',
       tags: ['Design Systems'],
-      params: z.object({ websiteId: z.string() }),
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string' } }
+      },
       response: {
         200: {
           type: 'object',
@@ -86,12 +114,35 @@ export async function designSystemRoutes(fastify: FastifyInstance) {
 
   // POST /api/v1/design-systems/:websiteId/ai-generate
   fastify.post('/:websiteId/ai-generate', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
       description: 'Generate AI design system',
       tags: ['Design Systems'],
-      params: z.object({ websiteId: z.string() }),
-      body: aiGenerationSchema,
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['prompt'],
+        properties: {
+          prompt: { type: 'string', minLength: 1, maxLength: 1000 },
+          settings: {
+            type: 'object',
+            properties: {
+              industry: { type: 'string' },
+              targetAudience: { type: 'string' },
+              brandPersonality: { type: 'string' },
+              colorPreferences: { type: 'array', items: { type: 'string' } },
+              stylePreferences: { type: 'array', items: { type: 'string' } },
+              mood: { type: 'string' }
+            },
+            additionalProperties: true
+          }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -116,8 +167,31 @@ export async function designSystemRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Update a design system',
       tags: ['Design Systems'],
-      params: z.object({ designSystemId: z.string() }),
-      body: designSystemSchema.partial(),
+      params: {
+        type: 'object',
+        required: ['designSystemId'],
+        properties: { designSystemId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 100 },
+          description: { type: 'string', maxLength: 500 },
+          brandName: { type: 'string', maxLength: 100 },
+          brandValues: { type: 'array', items: { type: 'string' } },
+          brandPersonality: { type: 'string' },
+          primaryColors: { type: 'array', items: {} },
+          secondaryColors: { type: 'array', items: {} },
+          neutralColors: { type: 'array', items: {} },
+          fontFamilies: { type: 'array', items: {} },
+          fontSizes: { type: 'array', items: {} },
+          spacingScale: { type: 'array', items: {} },
+          borderRadius: { type: 'array', items: {} },
+          shadows: { type: 'array', items: {} },
+          components: {}
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
@@ -141,10 +215,19 @@ export async function designSystemRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Apply a design system to a website',
       tags: ['Design Systems'],
-      params: z.object({ designSystemId: z.string() }),
-      body: z.object({
-        websiteId: z.string(),
-      }),
+      params: {
+        type: 'object',
+        required: ['designSystemId'],
+        properties: { designSystemId: { type: 'string' } }
+      },
+      body: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',

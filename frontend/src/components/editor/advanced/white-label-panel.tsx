@@ -176,7 +176,7 @@ export function WhiteLabelPanel({ onClose }: WhiteLabelPanelProps) {
 
   const getPlanColor = (plan: WhiteLabelConfig['pricing']['plan']) => {
     switch (plan) {
-      case 'basic': return 'bg-blue-500'
+      case 'basic': return 'bg-blue-900'
       case 'pro': return 'bg-purple-500'
       case 'enterprise': return 'bg-gold-500'
       default: return 'bg-gray-500'

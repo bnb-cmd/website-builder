@@ -33,7 +33,17 @@ export async function domainRoutes(fastify: FastifyInstance) {
   // Search available domains
   fastify.get('/api/domains/search', {
     schema: {
-      querystring: domainSearchSchema
+      querystring: {
+        type: 'object',
+        required: ['query'],
+        properties: {
+          query: { type: 'string', minLength: 1, maxLength: 255 },
+          extensions: {
+            type: 'array',
+            items: { type: 'string' }
+          }
+        }
+      }
     }
   }, async (request: FastifyRequest<{ Querystring: z.infer<typeof domainSearchSchema> }>, reply: FastifyReply) => {
     try {
@@ -76,7 +86,17 @@ export async function domainRoutes(fastify: FastifyInstance) {
   fastify.post('/api/domains/register', {
     preHandler: authenticate,
     schema: {
-      body: registerDomainSchema
+      body: {
+        type: 'object',
+        required: ['domain', 'extension'],
+        properties: {
+          domain: { type: 'string', minLength: 3, maxLength: 255 },
+          extension: { type: 'string', minLength: 2, maxLength: 10 },
+          websiteId: { type: 'string', format: 'uuid' },
+          autoRenew: { type: 'boolean', default: true },
+          privacyProtection: { type: 'boolean', default: true }
+        }
+      }
     }
   }, async (request: FastifyRequest<{ Body: z.infer<typeof registerDomainSchema> }>, reply: FastifyReply) => {
     try {
@@ -152,11 +172,15 @@ export async function domainRoutes(fastify: FastifyInstance) {
   fastify.put('/api/domains/:id', {
     preHandler: authenticate,
     schema: {
-      body: z.object({
-        autoRenew: z.boolean().optional(),
-        privacyProtection: z.boolean().optional(),
-        websiteId: z.string().uuid().optional()
-      })
+      body: {
+        type: 'object',
+        properties: {
+          autoRenew: { type: 'boolean' },
+          privacyProtection: { type: 'boolean' },
+          websiteId: { type: 'string', format: 'uuid' }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request: FastifyRequest<{ 
     Params: { id: string },
@@ -185,9 +209,14 @@ export async function domainRoutes(fastify: FastifyInstance) {
   fastify.post('/api/domains/:id/connect', {
     preHandler: authenticate,
     schema: {
-      body: z.object({
-        websiteId: z.string().uuid()
-      })
+      body: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string', format: 'uuid' }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request: FastifyRequest<{ 
     Params: { id: string },
@@ -239,7 +268,18 @@ export async function domainRoutes(fastify: FastifyInstance) {
   fastify.post('/api/domains/:id/dns', {
     preHandler: authenticate,
     schema: {
-      body: dnsRecordSchema
+      body: {
+        type: 'object',
+        required: ['type', 'name', 'value'],
+        properties: {
+          type: { type: 'string', enum: ['A','AAAA','CNAME','MX','TXT','NS'] },
+          name: { type: 'string', minLength: 1, maxLength: 255 },
+          value: { type: 'string', minLength: 1, maxLength: 255 },
+          ttl: { type: 'number', minimum: 300, maximum: 86400, default: 3600 },
+          priority: { type: 'number' }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request: FastifyRequest<{ 
     Params: { id: string },
@@ -268,7 +308,17 @@ export async function domainRoutes(fastify: FastifyInstance) {
   fastify.put('/api/domains/:id/dns/:recordId', {
     preHandler: authenticate,
     schema: {
-      body: dnsRecordSchema.partial()
+      body: {
+        type: 'object',
+        properties: {
+          type: { type: 'string', enum: ['A','AAAA','CNAME','MX','TXT','NS'] },
+          name: { type: 'string', minLength: 1, maxLength: 255 },
+          value: { type: 'string', minLength: 1, maxLength: 255 },
+          ttl: { type: 'number', minimum: 300, maximum: 86400 },
+          priority: { type: 'number' }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request: FastifyRequest<{ 
     Params: { id: string, recordId: string },
@@ -321,9 +371,13 @@ export async function domainRoutes(fastify: FastifyInstance) {
   fastify.post('/api/domains/:id/renew', {
     preHandler: authenticate,
     schema: {
-      body: z.object({
-        years: z.number().min(1).max(10).default(1)
-      })
+      body: {
+        type: 'object',
+        properties: {
+          years: { type: 'number', minimum: 1, maximum: 10, default: 1 }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request: FastifyRequest<{ 
     Params: { id: string },
@@ -353,9 +407,14 @@ export async function domainRoutes(fastify: FastifyInstance) {
   fastify.post('/api/domains/:id/transfer', {
     preHandler: authenticate,
     schema: {
-      body: z.object({
-        authCode: z.string().min(1).max(255)
-      })
+      body: {
+        type: 'object',
+        required: ['authCode'],
+        properties: {
+          authCode: { type: 'string', minLength: 1, maxLength: 255 }
+        },
+        additionalProperties: false
+      }
     }
   }, async (request: FastifyRequest<{ 
     Params: { id: string },

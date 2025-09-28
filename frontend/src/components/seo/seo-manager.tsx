@@ -226,7 +226,7 @@ export function SEOManager({ websiteData, onUpdateSEO }: SEOManagerProps) {
                         ) : issue.type === 'warning' ? (
                           <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5" />
                         ) : (
-                          <CheckCircle className="h-5 w-5 text-blue-500 mt-0.5" />
+                          <CheckCircle className="h-5 w-5 text-slate-900 mt-0.5" />
                         )}
                         <div className="flex-1">
                           <p className="text-sm font-medium">{issue.message}</p>

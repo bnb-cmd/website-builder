@@ -167,7 +167,7 @@ export function ElementRenderer({
       className={cn(
         'relative group transition-all duration-200',
         isSelected && 'ring-2 ring-primary ring-offset-2',
-        isHovered && !isSelected && 'ring-1 ring-blue-300',
+        isHovered && !isSelected && 'ring-1 ring-slate-300',
         isDragHovered && 'ring-2 ring-green-400'
       )}
       onMouseEnter={() => setIsHovered(true)}

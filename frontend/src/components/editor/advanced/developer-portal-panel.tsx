@@ -181,7 +181,7 @@ export function DeveloperPortalPanel({ onClose }: DeveloperPortalPanelProps) {
   const getMethodColor = (method: APIDocumentation['method']) => {
     switch (method) {
       case 'GET': return 'bg-green-100 text-green-800'
-      case 'POST': return 'bg-blue-100 text-blue-800'
+      case 'POST': return 'bg-slate-100 text-slate-900'
       case 'PUT': return 'bg-yellow-100 text-yellow-800'
       case 'DELETE': return 'bg-red-100 text-red-800'
       default: return 'bg-gray-100 text-gray-800'
@@ -400,8 +400,8 @@ export function DeveloperPortalPanel({ onClose }: DeveloperPortalPanelProps) {
                 <Card>
                   <CardContent className="p-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center">
-                        <Code className="h-5 w-5 text-blue-600" />
+                      <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+                        <Code className="h-5 w-5 text-slate-900" />
                       </div>
                       <div className="flex-1">
                         <p className="font-medium">JavaScript SDK</p>

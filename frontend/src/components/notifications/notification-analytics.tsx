@@ -46,7 +46,7 @@ const channelIcons = {
 }
 
 const channelColors = {
-  IN_APP: 'bg-blue-500',
+  IN_APP: 'bg-blue-900',
   EMAIL: 'bg-green-500',
   SMS: 'bg-yellow-500',
   WHATSAPP: 'bg-green-600',
@@ -263,7 +263,7 @@ export function NotificationAnalytics({ userId }: NotificationAnalyticsProps) {
                       <p className="font-medium">{percentage.toFixed(1)}%</p>
                       <div className="w-24 bg-gray-200 rounded-full h-2">
                         <div 
-                          className="h-2 rounded-full bg-blue-500"
+                          className="h-2 rounded-full bg-blue-900"
                           style={{ width: `${percentage}%` }}
                         ></div>
                       </div>
@@ -307,7 +307,7 @@ export function NotificationAnalytics({ userId }: NotificationAnalyticsProps) {
             )}
 
             {analytics.totalSent < 10 && (
-              <div className="flex items-center space-x-2 text-blue-600">
+              <div className="flex items-center space-x-2 text-blue-900">
                 <Bell className="w-4 h-4" />
                 <p>You're just getting started! Send more notifications to gather meaningful data.</p>
               </div>

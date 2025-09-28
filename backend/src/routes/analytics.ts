@@ -34,26 +34,67 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
 
   // POST /api/v1/analytics/:websiteId
   fastify.post('/:websiteId', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
-      description: 'Create analytics data for a website',
-      tags: ['Analytics'],
-      params: z.object({ websiteId: z.string() }),
-      body: z.object({
-        data: analyticsDataSchema,
-        period: z.enum(['HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']),
-        date: z.string().datetime(),
-      }),
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['data','period','date'],
+        properties: {
+          data: {
+            type: 'object',
+            properties: {
+              pageViews: { type: 'number', minimum: 0 },
+              uniqueVisitors: { type: 'number', minimum: 0 },
+              bounceRate: { type: 'number', minimum: 0, maximum: 1 },
+              avgSessionDuration: { type: 'number', minimum: 0 },
+              conversionRate: { type: 'number', minimum: 0, maximum: 1 },
+              revenue: { type: 'number', minimum: 0 },
+              orders: { type: 'number', minimum: 0 },
+              avgOrderValue: { type: 'number', minimum: 0 },
+              organicTraffic: { type: 'number', minimum: 0 },
+              socialTraffic: { type: 'number', minimum: 0 },
+              directTraffic: { type: 'number', minimum: 0 },
+              referralTraffic: { type: 'number', minimum: 0 },
+              mobileTraffic: { type: 'number', minimum: 0 },
+              desktopTraffic: { type: 'number', minimum: 0 },
+              tabletTraffic: { type: 'number', minimum: 0 },
+              topCountries: { type: 'object', additionalProperties: { type: 'number' } },
+              topCities: { type: 'object', additionalProperties: { type: 'number' } },
+              pageLoadTime: { type: 'number', minimum: 0 },
+              coreWebVitals: {
+                type: 'object',
+                required: ['lcp','fid','cls'],
+                properties: {
+                  lcp: { type: 'number' },
+                  fid: { type: 'number' },
+                  cls: { type: 'number' }
+                }
+              }
+            },
+            additionalProperties: false
+          },
+          period: { type: 'string', enum: ['HOURLY','DAILY','WEEKLY','MONTHLY','YEARLY'] },
+          date: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
           properties: {
             success: { type: 'boolean' },
-            data: { type: 'object' },
-          },
-        },
-      },
-    },
+            data: { type: 'object' }
+          }
+        }
+      }
+    }
   }, async (request, reply) => {
     const { websiteId } = request.params as { websiteId: string }
     const { data, period, date } = request.body as any
@@ -63,26 +104,35 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
 
   // GET /api/v1/analytics/:websiteId
   fastify.get('/:websiteId', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
-      description: 'Get analytics data for a website',
-      tags: ['Analytics'],
-      params: z.object({ websiteId: z.string() }),
-      querystring: z.object({
-        period: z.enum(['HOURLY', 'DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']).default('DAILY'),
-        startDate: z.string().datetime(),
-        endDate: z.string().datetime(),
-      }),
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        required: ['startDate','endDate'],
+        properties: {
+          period: { type: 'string', enum: ['HOURLY','DAILY','WEEKLY','MONTHLY','YEARLY'], default: 'DAILY' },
+          startDate: { type: 'string' },
+          endDate: { type: 'string' }
+        },
+        additionalProperties: false
+      },
       response: {
         200: {
           type: 'object',
           properties: {
             success: { type: 'boolean' },
-            data: { type: 'array' },
-          },
-        },
-      },
-    },
+            data: { type: 'array' }
+          }
+        }
+      }
+    }
   }, async (request, reply) => {
     const { websiteId } = request.params as { websiteId: string }
     const { period, startDate, endDate } = request.query as any
@@ -92,21 +142,25 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
 
   // GET /api/v1/analytics/:websiteId/insights
   fastify.get('/:websiteId/insights', {
-    preHandler: [authenticate, requireOwnership('website')],
+    preHandler: [authenticate, requireOwnership('websiteId')],
     schema: {
-      description: 'Get predictive insights for a website',
-      tags: ['Analytics'],
-      params: z.object({ websiteId: z.string() }),
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      },
       response: {
         200: {
           type: 'object',
           properties: {
             success: { type: 'boolean' },
-            data: { type: 'object' },
-          },
-        },
-      },
-    },
+            data: { type: 'object' }
+          }
+        }
+      }
+    }
   }, async (request, reply) => {
     const { websiteId } = request.params as { websiteId: string }
     const insights = await analyticsService.getPredictiveInsights(websiteId)

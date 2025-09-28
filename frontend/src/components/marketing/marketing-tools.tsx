@@ -154,10 +154,10 @@ export function MarketingTools({ websiteId, onCampaignCreate }: MarketingToolsPr
   ])
 
   const socialPlatforms = [
-    { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'bg-blue-600' },
+    { id: 'facebook', name: 'Facebook', icon: Facebook, color: 'bg-blue-900' },
     { id: 'twitter', name: 'Twitter', icon: Twitter, color: 'bg-sky-500' },
     { id: 'instagram', name: 'Instagram', icon: Instagram, color: 'bg-pink-600' },
-    { id: 'linkedin', name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-700' },
+    { id: 'linkedin', name: 'LinkedIn', icon: Linkedin, color: 'bg-blue-900' },
     { id: 'youtube', name: 'YouTube', icon: Youtube, color: 'bg-red-600' }
   ]
 
@@ -508,7 +508,7 @@ export function MarketingTools({ websiteId, onCampaignCreate }: MarketingToolsPr
                           campaign.status === 'active' ? 'bg-green-500' :
                           campaign.status === 'scheduled' ? 'bg-yellow-500' :
                           campaign.status === 'draft' ? 'bg-gray-500' :
-                          'bg-blue-500'
+                          'bg-blue-900'
                         }`} />
                         <div>
                           <p className="font-medium">{campaign.name}</p>
