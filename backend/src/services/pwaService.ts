@@ -103,19 +103,19 @@ export class PwaService extends BaseService<PwaSettings> {
   }
 
   // Required abstract methods from BaseService
-  async create(data: any): Promise<PwaSettings> {
+  override async create(data: any): Promise<PwaSettings> {
     return this.prisma.pwaSettings.create({ data })
   }
-  async findById(id: string): Promise<PwaSettings | null> {
+  override async findById(id: string): Promise<PwaSettings | null> {
     return this.prisma.pwaSettings.findUnique({ where: { id } })
   }
-  async findAll(filters?: any): Promise<PwaSettings[]> {
+  override async findAll(filters?: any): Promise<PwaSettings[]> {
     return this.prisma.pwaSettings.findMany({ where: filters })
   }
-  async update(id: string, data: Partial<PwaSettings>): Promise<PwaSettings> {
+  override async update(id: string, data: Partial<PwaSettings>): Promise<PwaSettings> {
     return this.prisma.pwaSettings.update({ where: { id }, data })
   }
-  async delete(id: string): Promise<boolean> {
+  override async delete(id: string): Promise<boolean> {
     await this.prisma.pwaSettings.delete({ where: { id } })
     return true
   }

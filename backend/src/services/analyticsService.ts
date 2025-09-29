@@ -173,23 +173,23 @@ export class AnalyticsService extends BaseService<WebsiteAnalytics> {
   }
 
   // Required abstract methods from BaseService
-  async create(data: any): Promise<WebsiteAnalytics> {
+  override async create(data: any): Promise<WebsiteAnalytics> {
     return this.prisma.websiteAnalytics.create({ data })
   }
   
-  async findById(id: string): Promise<WebsiteAnalytics | null> {
+  override async findById(id: string): Promise<WebsiteAnalytics | null> {
     return this.prisma.websiteAnalytics.findUnique({ where: { id } })
   }
   
-  async findAll(filters?: any): Promise<WebsiteAnalytics[]> {
+  override async findAll(filters?: any): Promise<WebsiteAnalytics[]> {
     return this.prisma.websiteAnalytics.findMany({ where: filters })
   }
   
-  async update(id: string, data: Partial<WebsiteAnalytics>): Promise<WebsiteAnalytics> {
+  override async update(id: string, data: Partial<WebsiteAnalytics>): Promise<WebsiteAnalytics> {
     return this.prisma.websiteAnalytics.update({ where: { id }, data })
   }
   
-  async delete(id: string): Promise<boolean> {
+  override async delete(id: string): Promise<boolean> {
     await this.prisma.websiteAnalytics.delete({ where: { id } })
     return true
   }

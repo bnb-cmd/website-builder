@@ -205,23 +205,23 @@ export class MarketingService extends BaseService<MarketingCampaign> {
   }
 
   // Required abstract methods from BaseService
-  async create(data: any): Promise<MarketingCampaign> {
+  override async create(data: any): Promise<MarketingCampaign> {
     return this.prisma.marketingCampaign.create({ data })
   }
   
-  async findById(id: string): Promise<MarketingCampaign | null> {
+  override async findById(id: string): Promise<MarketingCampaign | null> {
     return this.prisma.marketingCampaign.findUnique({ where: { id } })
   }
   
-  async findAll(filters?: any): Promise<MarketingCampaign[]> {
+  override async findAll(filters?: any): Promise<MarketingCampaign[]> {
     return this.prisma.marketingCampaign.findMany({ where: filters })
   }
   
-  async update(id: string, data: Partial<MarketingCampaign>): Promise<MarketingCampaign> {
+  override async update(id: string, data: Partial<MarketingCampaign>): Promise<MarketingCampaign> {
     return this.prisma.marketingCampaign.update({ where: { id }, data })
   }
   
-  async delete(id: string): Promise<boolean> {
+  override async delete(id: string): Promise<boolean> {
     await this.prisma.marketingCampaign.delete({ where: { id } })
     return true
   }

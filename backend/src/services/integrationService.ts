@@ -248,7 +248,24 @@ export class IntegrationService extends BaseService<Integration> {
     return this.prisma.integration.update({ where: { id }, data })
   }
   
-  async delete(id: string): Promise<boolean> {
+  // Required abstract methods from BaseService
+  override async create(data: any): Promise<Integration> {
+    return this.prisma.integration.create({ data })
+  }
+  
+  override async findById(id: string): Promise<Integration | null> {
+    return this.prisma.integration.findUnique({ where: { id } })
+  }
+  
+  override async findAll(filters?: any): Promise<Integration[]> {
+    return this.prisma.integration.findMany({ where: filters })
+  }
+  
+  override async update(id: string, data: Partial<Integration>): Promise<Integration> {
+    return this.prisma.integration.update({ where: { id }, data })
+  }
+  
+  override async delete(id: string): Promise<boolean> {
     await this.prisma.integration.delete({ where: { id } })
     return true
   }

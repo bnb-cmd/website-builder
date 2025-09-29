@@ -603,4 +603,22 @@ export class OrderService extends BaseService<Order> {
       this.handleError(error)
     }
   }
+
+  // Required abstract methods from BaseService
+  override async create(data: any): Promise<Order> {
+    return this.prisma.order.create({ data })
+  }
+  
+  override async findById(id: string): Promise<Order | null> {
+    return this.prisma.order.findUnique({ where: { id } })
+  }
+  
+  override async update(id: string, data: Partial<Order>): Promise<Order> {
+    return this.prisma.order.update({ where: { id }, data })
+  }
+  
+  override async delete(id: string): Promise<boolean> {
+    await this.prisma.order.delete({ where: { id } })
+    return true
+  }
 }

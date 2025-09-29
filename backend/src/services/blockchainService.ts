@@ -415,23 +415,23 @@ export class BlockchainService extends BaseService<BlockchainWallet> {
   }
 
   // Required abstract methods from BaseService
-  async create(data: any): Promise<BlockchainWallet> {
+  override async create(data: any): Promise<BlockchainWallet> {
     return this.prisma.blockchainWallet.create({ data })
   }
   
-  async findById(id: string): Promise<BlockchainWallet | null> {
+  override async findById(id: string): Promise<BlockchainWallet | null> {
     return this.prisma.blockchainWallet.findUnique({ where: { id } })
   }
   
-  async findAll(filters?: any): Promise<BlockchainWallet[]> {
+  override async findAll(filters?: any): Promise<BlockchainWallet[]> {
     return this.prisma.blockchainWallet.findMany({ where: filters })
   }
   
-  async update(id: string, data: Partial<BlockchainWallet>): Promise<BlockchainWallet> {
+  override async update(id: string, data: Partial<BlockchainWallet>): Promise<BlockchainWallet> {
     return this.prisma.blockchainWallet.update({ where: { id }, data })
   }
   
-  async delete(id: string): Promise<boolean> {
+  override async delete(id: string): Promise<boolean> {
     await this.prisma.blockchainWallet.delete({ where: { id } })
     return true
   }

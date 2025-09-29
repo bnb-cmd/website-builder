@@ -620,4 +620,26 @@ export class PaymentService extends BaseService<any> {
       this.handleError(error)
     }
   }
+
+  // Required abstract methods from BaseService
+  override async create(data: any): Promise<any> {
+    return this.prisma.payment.create({ data })
+  }
+  
+  override async findById(id: string): Promise<any | null> {
+    return this.prisma.payment.findUnique({ where: { id } })
+  }
+  
+  override async findAll(filters?: any): Promise<any[]> {
+    return this.prisma.payment.findMany({ where: filters })
+  }
+  
+  override async update(id: string, data: Partial<any>): Promise<any> {
+    return this.prisma.payment.update({ where: { id }, data })
+  }
+  
+  override async delete(id: string): Promise<boolean> {
+    await this.prisma.payment.delete({ where: { id } })
+    return true
+  }
 }

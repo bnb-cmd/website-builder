@@ -42,8 +42,8 @@ export class NotificationService extends BaseService<Notification> {
   private eventEmitter: EventEmitter
   private webSocketConnections: Map<string, any> = new Map()
 
-  constructor(prisma: any) {
-    super(prisma)
+  constructor() {
+    super()
     this.eventEmitter = new EventEmitter()
   }
 

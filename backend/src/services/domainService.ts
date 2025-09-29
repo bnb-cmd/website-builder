@@ -489,4 +489,26 @@ export class DomainService extends BaseService {
     // In a real implementation, this would send email notifications
     console.log(`Sending renewal reminder for domain: ${domain.domain} to ${domain.user.email}`)
   }
+
+  // Required abstract methods from BaseService
+  override async create(data: any): Promise<any> {
+    return this.prisma.domain.create({ data })
+  }
+  
+  override async findById(id: string): Promise<any | null> {
+    return this.prisma.domain.findUnique({ where: { id } })
+  }
+  
+  override async findAll(filters?: any): Promise<any[]> {
+    return this.prisma.domain.findMany({ where: filters })
+  }
+  
+  override async update(id: string, data: Partial<any>): Promise<any> {
+    return this.prisma.domain.update({ where: { id }, data })
+  }
+  
+  override async delete(id: string): Promise<boolean> {
+    await this.prisma.domain.delete({ where: { id } })
+    return true
+  }
 }

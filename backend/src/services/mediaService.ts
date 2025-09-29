@@ -260,23 +260,23 @@ export class MediaService extends BaseService<MediaAsset> {
   }
 
   // Required abstract methods from BaseService
-  async create(data: any): Promise<MediaAsset> {
+  override async create(data: any): Promise<MediaAsset> {
     return this.prisma.mediaAsset.create({ data })
   }
   
-  async findById(id: string): Promise<MediaAsset | null> {
+  override async findById(id: string): Promise<MediaAsset | null> {
     return this.prisma.mediaAsset.findUnique({ where: { id } })
   }
   
-  async findAll(filters?: any): Promise<MediaAsset[]> {
+  override async findAll(filters?: any): Promise<MediaAsset[]> {
     return this.prisma.mediaAsset.findMany({ where: filters })
   }
   
-  async update(id: string, data: Partial<MediaAsset>): Promise<MediaAsset> {
+  override async update(id: string, data: Partial<MediaAsset>): Promise<MediaAsset> {
     return this.prisma.mediaAsset.update({ where: { id }, data })
   }
   
-  async delete(id: string): Promise<boolean> {
+  override async delete(id: string): Promise<boolean> {
     await this.prisma.mediaAsset.delete({ where: { id } })
     return true
   }

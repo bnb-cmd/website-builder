@@ -368,23 +368,23 @@ export class DesignSystemService extends BaseService<DesignSystem> {
   }
 
   // Required abstract methods from BaseService
-  async create(data: any): Promise<DesignSystem> {
+  override async create(data: any): Promise<DesignSystem> {
     return this.prisma.designSystem.create({ data })
   }
   
-  async findById(id: string): Promise<DesignSystem | null> {
+  override async findById(id: string): Promise<DesignSystem | null> {
     return this.prisma.designSystem.findUnique({ where: { id } })
   }
   
-  async findAll(filters?: any): Promise<DesignSystem[]> {
+  override async findAll(filters?: any): Promise<DesignSystem[]> {
     return this.prisma.designSystem.findMany({ where: filters })
   }
   
-  async update(id: string, data: Partial<DesignSystem>): Promise<DesignSystem> {
+  override async update(id: string, data: Partial<DesignSystem>): Promise<DesignSystem> {
     return this.prisma.designSystem.update({ where: { id }, data })
   }
   
-  async delete(id: string): Promise<boolean> {
+  override async delete(id: string): Promise<boolean> {
     await this.prisma.designSystem.delete({ where: { id } })
     return true
   }

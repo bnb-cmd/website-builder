@@ -7,7 +7,7 @@ export interface InteractiveNotificationData {
   title: string
   message: string
   actions: NotificationAction[]
-  priority?: 'low' | 'normal' | 'high' | 'urgent'
+  priority?: 'LOW' | 'NORMAL' | 'HIGH' | 'URGENT'
   expiresIn?: number // minutes
   requiresResponse?: boolean
 }
