@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { contentService } from '../services/contentService.js'
+import { contentService } from '../services/contentService'
 
 export async function contentRoutes(fastify: FastifyInstance) {
   // Content CRUD

@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { performanceOptimizationService } from '../services/performanceOptimizationService.js'
+import { performanceOptimizationService } from '../services/performanceOptimizationService'
 import multer from 'fastify-multer'
 import { promises as fs } from 'fs'
 import path from 'path'

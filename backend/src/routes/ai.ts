@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { AIService } from '@/services/aiService'
+import { AdvancedAIService } from '@/services/advancedAIService'
 import { authenticate } from '@/middleware/auth'
 
 // Validation schemas
@@ -38,8 +39,51 @@ const suggestTemplatesSchema = z.object({
   budget: z.enum(['free', 'premium']).optional()
 })
 
+// Advanced AI schemas
+const aiSessionSchema = z.object({
+  websiteId: z.string().uuid(),
+  userId: z.string().uuid().optional(),
+  type: z.enum(['CHAT', 'CODE_GENERATION', 'CONTENT_CREATION', 'DESIGN_ASSISTANCE', 'ANALYSIS']),
+  context: z.any().optional(),
+  model: z.string().optional(),
+  temperature: z.number().min(0).max(2).optional(),
+  maxTokens: z.number().positive().optional()
+})
+
+const arvrContentSchema = z.object({
+  websiteId: z.string().uuid(),
+  userId: z.string().uuid().optional(),
+  name: z.string().min(1),
+  type: z.enum(['AR_OVERLAY', 'VR_EXPERIENCE', '3D_MODEL', 'ANIMATION', 'INTERACTIVE_SCENE']),
+  description: z.string().optional(),
+  modelUrl: z.string().url().optional(),
+  textureUrl: z.string().url().optional(),
+  animationUrl: z.string().url().optional(),
+  scale: z.any().optional(),
+  position: z.any().optional(),
+  rotation: z.any().optional(),
+  interactions: z.any().optional()
+})
+
+const generateARVRContentSchema = z.object({
+  prompt: z.string().min(1),
+  type: z.enum(['AR_OVERLAY', 'VR_EXPERIENCE', '3D_MODEL', 'ANIMATION', 'INTERACTIVE_SCENE']),
+  websiteId: z.string().uuid(),
+  userId: z.string().uuid().optional()
+})
+
+const codeGenerationSchema = z.object({
+  description: z.string().min(1),
+  language: z.string().min(1)
+})
+
+const websiteAnalysisSchema = z.object({
+  websiteId: z.string().uuid()
+})
+
 export async function aiRoutes(fastify: FastifyInstance) {
   const aiService = new AIService()
+  const advancedAIService = new AdvancedAIService(fastify.prisma)
 
   // POST /api/v1/ai/generate-content
   fastify.post('/generate-content', {
@@ -412,6 +456,218 @@ export async function aiRoutes(fastify: FastifyInstance) {
         error: {
           message: 'Failed to get AI stats',
           code: 'AI_STATS_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // Advanced AI endpoints
+  // POST /api/v1/ai/sessions
+  fastify.post('/sessions', {
+    preHandler: [authenticate],
+    schema: {
+      description: 'Create AI session',
+      tags: ['AI', 'Advanced'],
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: 'object',
+        required: ['websiteId', 'type'],
+        properties: {
+          websiteId: { type: 'string', format: 'uuid' },
+          userId: { type: 'string', format: 'uuid' },
+          type: { type: 'string', enum: ['CHAT', 'CODE_GENERATION', 'CONTENT_CREATION', 'DESIGN_ASSISTANCE', 'ANALYSIS'] },
+          context: {},
+          model: { type: 'string' },
+          temperature: { type: 'number', minimum: 0, maximum: 2 },
+          maxTokens: { type: 'number', minimum: 1 }
+        }
+      },
+      response: {
+        201: { $ref: 'Success' },
+        400: { $ref: 'Error' },
+        401: { $ref: 'Error' }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const data = aiSessionSchema.parse(request.body)
+      const session = await advancedAIService.createAISession(data)
+      
+      reply.code(201).send({
+        success: true,
+        data: session,
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        reply.status(400).send({
+          success: false,
+          error: {
+            message: 'Validation error',
+            code: 'VALIDATION_ERROR',
+            details: error.errors,
+            timestamp: new Date().toISOString()
+          }
+        })
+        return
+      }
+      
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to create AI session',
+          code: 'AI_SESSION_CREATION_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // GET /api/v1/ai/sessions/:websiteId
+  fastify.get('/sessions/:websiteId', {
+    preHandler: [authenticate],
+    schema: {
+      description: 'Get AI sessions for website',
+      tags: ['AI', 'Advanced'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: { websiteId: { type: 'string', format: 'uuid' } }
+      },
+      response: {
+        200: { $ref: 'Success' },
+        401: { $ref: 'Error' }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { websiteId } = request.params as { websiteId: string }
+      const sessions = await advancedAIService.getAISessions(websiteId)
+      
+      reply.send({
+        success: true,
+        data: sessions,
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to get AI sessions',
+          code: 'AI_SESSIONS_FETCH_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // POST /api/v1/ai/generate-code
+  fastify.post('/generate-code', {
+    preHandler: [authenticate],
+    schema: {
+      description: 'Generate code using AI',
+      tags: ['AI', 'Advanced'],
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: 'object',
+        required: ['description', 'language'],
+        properties: {
+          description: { type: 'string', minLength: 1 },
+          language: { type: 'string', minLength: 1 }
+        }
+      },
+      response: {
+        200: { $ref: 'Success' },
+        400: { $ref: 'Error' },
+        401: { $ref: 'Error' }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const data = codeGenerationSchema.parse(request.body)
+      const code = await advancedAIService.generateCode(data.description, data.language)
+      
+      reply.send({
+        success: true,
+        data: { code },
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        reply.status(400).send({
+          success: false,
+          error: {
+            message: 'Validation error',
+            code: 'VALIDATION_ERROR',
+            details: error.errors,
+            timestamp: new Date().toISOString()
+          }
+        })
+        return
+      }
+      
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to generate code',
+          code: 'CODE_GENERATION_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // POST /api/v1/ai/analyze-website
+  fastify.post('/analyze-website', {
+    preHandler: [authenticate],
+    schema: {
+      description: 'Analyze website using AI',
+      tags: ['AI', 'Advanced'],
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string', format: 'uuid' }
+        }
+      },
+      response: {
+        200: { $ref: 'Success' },
+        400: { $ref: 'Error' },
+        401: { $ref: 'Error' }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const data = websiteAnalysisSchema.parse(request.body)
+      const analysis = await advancedAIService.analyzeWebsite(data.websiteId)
+      
+      reply.send({
+        success: true,
+        data: analysis,
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        reply.status(400).send({
+          success: false,
+          error: {
+            message: 'Validation error',
+            code: 'VALIDATION_ERROR',
+            details: error.errors,
+            timestamp: new Date().toISOString()
+          }
+        })
+        return
+      }
+      
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to analyze website',
+          code: 'WEBSITE_ANALYSIS_FAILED',
           timestamp: new Date().toISOString()
         }
       })

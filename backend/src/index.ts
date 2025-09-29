@@ -30,15 +30,12 @@ import { integrationRoutes } from '@/routes/integrations'
 import { mediaRoutes } from '@/routes/media'
 import { designSystemRoutes } from '@/routes/designSystems'
 import { agencyRoutes } from '@/routes/agency'
-import { advancedAIRoutes } from '@/routes/advancedAI'
 import { blockchainRoutes } from '@/routes/blockchain'
 import { notificationRoutes } from '@/routes/notifications'
 import { subscriptionRoutes } from '@/routes/subscriptions'
 import { aiOnboardingRoutes } from '@/routes/aiOnboarding'
 import { contentRoutes } from '@/routes/content'
-import { integrationMarketplaceRoutes } from '@/routes/integrationMarketplace'
 import { performanceOptimizationRoutes } from '@/routes/performanceOptimization'
-import { advancedTemplateEngineRoutes } from '@/routes/advancedTemplateEngine'
 
 // Import error handlers
 import { errorHandler } from '@/utils/errorHandler'
@@ -320,15 +317,12 @@ export async function createServer() {
       ['mediaRoutes', mediaRoutes, '/media'],
       ['designSystemRoutes', designSystemRoutes, '/design-systems'],
       ['agencyRoutes', agencyRoutes, '/agency'],
-      ['advancedAIRoutes', advancedAIRoutes, '/advanced-ai'],
       ['blockchainRoutes', blockchainRoutes, '/blockchain'],
       ['notificationRoutes', notificationRoutes, '/notifications'],
       ['subscriptionRoutes', subscriptionRoutes, '/subscriptions'],
       ['aiOnboardingRoutes', aiOnboardingRoutes, '/ai-onboarding'],
       ['contentRoutes', contentRoutes, '/'],
-      ['integrationMarketplaceRoutes', integrationMarketplaceRoutes, '/marketplace'],
-      ['performanceOptimizationRoutes', performanceOptimizationRoutes, '/'],
-      ['advancedTemplateEngineRoutes', advancedTemplateEngineRoutes, '/advanced-templates']
+      ['performanceOptimizationRoutes', performanceOptimizationRoutes, '/']
     ]
 
     for (const [name, plugin, prefix] of routePlugins) {

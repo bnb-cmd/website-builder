@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify'
 import { authenticate } from '../middleware/auth'
 import { websiteTemplates, blockTemplates } from '../data/templates'
 import { db } from '../models/database'
+import { advancedTemplateService } from '../services/advancedTemplateService'
 
 interface GetTemplatesQuery {
   category?: string
@@ -231,5 +232,152 @@ export async function templateRoutes(fastify: FastifyInstance) {
     }))
 
     return { industries: industriesWithTemplates }
+  })
+
+  // Advanced Template Engine endpoints
+  // GET /api/v1/templates/catalog
+  fastify.get('/catalog', {
+    schema: {
+      description: 'List advanced templates for catalog browsing',
+      tags: ['Templates', 'Advanced'],
+      querystring: {
+        type: 'object',
+        properties: {
+          category: { type: 'string' },
+          search: { type: 'string' },
+          featured: { type: 'boolean' },
+          pricingModel: { type: 'string', enum: ['free', 'premium', 'subscription'] },
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+          offset: { type: 'integer', minimum: 0, default: 0 }
+        }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { category, search, featured, pricingModel, limit = 20, offset = 0 } = request.query as any
+
+      const result = await advancedTemplateService.getTemplates({
+        category,
+        search,
+        featured,
+        pricingModel,
+        limit,
+        offset
+      })
+
+      reply.send({
+        success: true,
+        data: result,
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to get template catalog',
+          code: 'TEMPLATE_CATALOG_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // POST /api/v1/templates/advanced
+  fastify.post('/advanced', {
+    preHandler: [authenticate],
+    schema: {
+      description: 'Create a new advanced template',
+      tags: ['Templates', 'Advanced'],
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          description: { type: 'string' },
+          category: { type: 'string' },
+          configuration: { type: 'object' },
+          previewUrl: { type: 'string' },
+          thumbnailUrl: { type: 'string' },
+          pricingModel: { type: 'string', enum: ['free', 'premium', 'subscription'] },
+          price: { type: 'number' },
+          features: { type: 'array', items: { type: 'string' } },
+          tags: { type: 'array', items: { type: 'string' } },
+          isActive: { type: 'boolean' }
+        }
+      },
+      response: {
+        201: { $ref: 'Success' },
+        400: { $ref: 'Error' },
+        401: { $ref: 'Error' }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const template = await advancedTemplateService.createTemplate(request.body as any)
+      
+      reply.code(201).send({
+        success: true,
+        data: template,
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to create advanced template',
+          code: 'ADVANCED_TEMPLATE_CREATION_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // GET /api/v1/templates/advanced/:id
+  fastify.get('/advanced/:id', {
+    schema: {
+      description: 'Get advanced template by ID',
+      tags: ['Templates', 'Advanced'],
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'string' } }
+      },
+      response: {
+        200: { $ref: 'Success' },
+        404: { $ref: 'Error' }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { id } = request.params as { id: string }
+      const template = await advancedTemplateService.getTemplateById(id)
+      
+      if (!template) {
+        reply.status(404).send({
+          success: false,
+          error: {
+            message: 'Template not found',
+            code: 'TEMPLATE_NOT_FOUND',
+            timestamp: new Date().toISOString()
+          }
+        })
+        return
+      }
+      
+      reply.send({
+        success: true,
+        data: template,
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to get advanced template',
+          code: 'ADVANCED_TEMPLATE_FETCH_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
   })
 }
