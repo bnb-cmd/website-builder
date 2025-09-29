@@ -69,18 +69,13 @@ export default function RegisterPage() {
     setIsSubmitting(true)
 
     try {
-      // Bypass authentication for demo purposes
-      // Set a demo token to simulate successful registration
-      localStorage.setItem('accessToken', 'demo-token-' + Date.now())
-      localStorage.setItem('refreshToken', 'demo-refresh-token-' + Date.now())
-      
-      // await register({
-      //   ...formData,
-      //   businessType: formData.businessType || undefined,
-      //   city: formData.city || undefined,
-      //   companyName: formData.companyName || undefined
-      // })
-      router.push('/dashboard')
+      await register({
+        ...formData,
+        businessType: formData.businessType || undefined,
+        city: formData.city || undefined,
+        companyName: formData.companyName || undefined
+      })
+      router.push('/dashboard?onboarding=true')
     } catch (error: any) {
       setError(error.response?.data?.error?.message || 'Registration failed')
     } finally {

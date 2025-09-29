@@ -205,6 +205,8 @@ export class DatabaseService {
 // Export singleton instance
 export const db = DatabaseService.getInstance()
 
+export const prisma = db.getClient()
+
 // Graceful shutdown handler
 process.on('SIGINT', async () => {
   console.log('🔄 Gracefully shutting down database connection...')

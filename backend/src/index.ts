@@ -11,6 +11,8 @@ import { config, serverConfig } from '@/config/environment'
 import { db } from '@/models/database'
 import { redis } from '@/models/redis'
 import { securityHeaders, requestLogger } from '@/middleware/auth'
+import type { FastifyServerOptions, FastifyPluginAsync } from 'fastify'
+import type { FastifyJWTOptions } from '@fastify/jwt'
 
 // Import routes
 import { authRoutes } from '@/routes/auth'
@@ -31,21 +33,29 @@ import { agencyRoutes } from '@/routes/agency'
 import { advancedAIRoutes } from '@/routes/advancedAI'
 import { blockchainRoutes } from '@/routes/blockchain'
 import { notificationRoutes } from '@/routes/notifications'
+import { subscriptionRoutes } from '@/routes/subscriptions'
+import { aiOnboardingRoutes } from '@/routes/aiOnboarding'
+import { contentRoutes } from '@/routes/content'
+import { integrationMarketplaceRoutes } from '@/routes/integrationMarketplace'
+import { performanceOptimizationRoutes } from '@/routes/performanceOptimization'
+import { advancedTemplateEngineRoutes } from '@/routes/advancedTemplateEngine'
 
 // Import error handlers
 import { errorHandler } from '@/utils/errorHandler'
 import { notFoundHandler } from '@/utils/notFoundHandler'
 
 export async function createServer() {
-  const fastify = Fastify({
+  const fastify = Fastify<FastifyServerOptions>({
     logger: {
       level: serverConfig.enableLogging ? 'info' : 'error',
-      transport: serverConfig.nodeEnv === 'development' ? {
-        target: 'pino-pretty',
-        options: {
-          colorize: true
-        }
-      } : undefined
+      transport: serverConfig.nodeEnv === 'development'
+        ? {
+            target: 'pino-pretty',
+            options: {
+              colorize: true
+            }
+          }
+        : undefined
     },
     trustProxy: true,
     bodyLimit: 10 * 1024 * 1024, // 10MB
@@ -108,7 +118,7 @@ export async function createServer() {
   })
 
   // Register JWT
-  await fastify.register(jwt, {
+  await fastify.register(jwt as FastifyPluginAsync<FastifyJWTOptions>, {
     secret: config.auth.jwtSecret,
     sign: {
       expiresIn: config.auth.jwtExpiresIn,
@@ -293,7 +303,7 @@ export async function createServer() {
   })
 
   // API versioning
-  fastify.register(async function (fastify) {
+  await fastify.register(async (scope) => {
     const routePlugins: Array<[string, any, string]> = [
       ['authRoutes', authRoutes, '/auth'],
       ['websiteRoutes', websiteRoutes, '/websites'],
@@ -312,14 +322,20 @@ export async function createServer() {
       ['agencyRoutes', agencyRoutes, '/agency'],
       ['advancedAIRoutes', advancedAIRoutes, '/advanced-ai'],
       ['blockchainRoutes', blockchainRoutes, '/blockchain'],
-      ['notificationRoutes', notificationRoutes, '/notifications']
+      ['notificationRoutes', notificationRoutes, '/notifications'],
+      ['subscriptionRoutes', subscriptionRoutes, '/subscriptions'],
+      ['aiOnboardingRoutes', aiOnboardingRoutes, '/ai-onboarding'],
+      ['contentRoutes', contentRoutes, '/'],
+      ['integrationMarketplaceRoutes', integrationMarketplaceRoutes, '/marketplace'],
+      ['performanceOptimizationRoutes', performanceOptimizationRoutes, '/'],
+      ['advancedTemplateEngineRoutes', advancedTemplateEngineRoutes, '/advanced-templates']
     ]
 
     for (const [name, plugin, prefix] of routePlugins) {
       if (typeof plugin !== 'function') {
         throw new Error(`Route plugin ${name} is undefined or not a function`)
       }
-      await fastify.register(plugin, { prefix })
+      await scope.register(plugin, { prefix })
     }
   }, { prefix: '/v1' })
 

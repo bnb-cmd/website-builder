@@ -36,8 +36,8 @@ export interface PredictiveInsights {
 }
 
 export class AnalyticsService extends BaseService<WebsiteAnalytics> {
-  
-  protected getModelName(): string {
+
+  protected override getModelName(): string {
     return 'websiteAnalytics'
   }
 

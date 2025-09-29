@@ -2,6 +2,13 @@ import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Providers } from '@/components/providers'
+import { ProgressiveEnhancer } from '@/components/ui/progressive-enhancer'
+import { SkipLinks } from '@/components/ui/skip-links'
+import { AccessibilitySettings } from '@/components/ui/accessibility-settings'
+import { I18nProvider } from '@/components/ui/i18n-provider'
+import { LanguageSwitcher } from '@/components/ui/language-switcher'
+import { GestureProvider } from '@/components/ui/gesture-manager'
+import { PWAInitializer } from '@/components/ui/pwa-initializer'
 import { Toaster } from 'react-hot-toast'
 
 const inter = Inter({ subsets: ['latin'] })
@@ -94,18 +101,41 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Providers>
-          {children}
-          <Toaster
-            position="top-right"
-            toastOptions={{
-              duration: 4000,
-              style: {
-                background: 'hsl(var(--card))',
-                color: 'hsl(var(--card-foreground))',
-                border: '1px solid hsl(var(--border))',
-              },
-            }}
-          />
+          <I18nProvider defaultLanguage="en">
+            <GestureProvider>
+              {/* PWA Initialization */}
+              <PWAInitializer />
+
+              {/* Skip Links for Accessibility */}
+              <SkipLinks />
+
+              <ProgressiveEnhancer>
+                {children}
+
+                {/* Language Switcher */}
+                <div className="fixed top-4 right-4 z-40">
+                  <LanguageSwitcher variant="minimal" />
+                </div>
+
+                {/* Accessibility Settings Panel */}
+                <div className="fixed bottom-4 right-4 z-40">
+                  <AccessibilitySettings compact />
+                </div>
+              </ProgressiveEnhancer>
+
+              <Toaster
+                position="top-right"
+                toastOptions={{
+                  duration: 4000,
+                  style: {
+                    background: 'hsl(var(--card))',
+                    color: 'hsl(var(--card-foreground))',
+                    border: '1px solid hsl(var(--border))',
+                  },
+                }}
+              />
+            </GestureProvider>
+          </I18nProvider>
         </Providers>
       </body>
     </html>

@@ -20,7 +20,7 @@ export interface CreateProductData {
 
 export interface UpdateProductData {
   name?: string
-  description?: string
+  description?: string | null
   price?: number
   comparePrice?: number
   sku?: string
@@ -52,19 +52,26 @@ export class ProductService extends BaseService<Product> {
     return 'product'
   }
 
-  async create(data: CreateProductData): Promise<Product> {
+  override async create(data: CreateProductData): Promise<Product> {
     try {
       this.validateRequired(data, ['websiteId', 'name', 'price'])
       
       const product = await this.prisma.product.create({
         data: {
-          ...data,
+          websiteId: data.websiteId,
+          name: data.name,
+          description: data.description || null,
+          price: data.price,
+          comparePrice: data.comparePrice || null,
+          sku: data.sku || null,
+          images: data.images || [],
           trackInventory: data.trackInventory || false,
           inventory: data.inventory || 0,
           lowStockThreshold: data.lowStockThreshold || 5,
-          status: data.status || ProductStatus.ACTIVE,
-          images: data.images || [],
+          metaTitle: data.metaTitle || null,
+          metaDescription: data.metaDescription || null,
           metaKeywords: data.metaKeywords || [],
+          status: data.status || ProductStatus.ACTIVE,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -78,7 +85,7 @@ export class ProductService extends BaseService<Product> {
     }
   }
 
-  async findById(id: string): Promise<Product | null> {
+  override async findById(id: string): Promise<Product | null> {
     try {
       this.validateId(id)
       
@@ -110,7 +117,7 @@ export class ProductService extends BaseService<Product> {
     }
   }
 
-  async findAll(filters: ProductFilters = {}): Promise<Product[]> {
+  override async findAll(filters: ProductFilters = {}): Promise<Product[]> {
     try {
       const {
         page = 1,
@@ -166,7 +173,7 @@ export class ProductService extends BaseService<Product> {
         where,
         skip,
         take,
-        orderBy: this.buildSortQuery(sortBy, sortOrder),
+        orderBy: { [sortBy]: sortOrder },
         include: {
           website: {
             select: {
@@ -185,14 +192,26 @@ export class ProductService extends BaseService<Product> {
     }
   }
 
-  async update(id: string, data: UpdateProductData): Promise<Product> {
+  override async update(id: string, data: UpdateProductData): Promise<Product> {
     try {
       this.validateId(id)
       
       const product = await this.prisma.product.update({
         where: { id },
         data: {
-          ...data,
+          name: data.name,
+          description: data.description || null,
+          price: data.price,
+          comparePrice: data.comparePrice || null,
+          sku: data.sku || null,
+          images: data.images || [],
+          trackInventory: data.trackInventory,
+          inventory: data.inventory,
+          lowStockThreshold: data.lowStockThreshold,
+          metaTitle: data.metaTitle || null,
+          metaDescription: data.metaDescription || null,
+          metaKeywords: data.metaKeywords || [],
+          status: data.status,
           updatedAt: new Date()
         }
       })
@@ -206,7 +225,7 @@ export class ProductService extends BaseService<Product> {
     }
   }
 
-  async delete(id: string): Promise<boolean> {
+  override async delete(id: string): Promise<boolean> {
     try {
       this.validateId(id)
       
@@ -445,17 +464,24 @@ export class ProductService extends BaseService<Product> {
   }
 
   // Bulk Operations
-  async bulkCreate(products: CreateProductData[]): Promise<Product[]> {
+  override async bulkCreate(products: CreateProductData[]): Promise<Product[]> {
     try {
       const result = await this.prisma.product.createMany({
         data: products.map(product => ({
-          ...product,
+          websiteId: product.websiteId,
+          name: product.name,
+          description: product.description || null,
+          price: product.price,
+          comparePrice: product.comparePrice || null,
+          sku: product.sku || null,
+          images: product.images || [],
           trackInventory: product.trackInventory || false,
           inventory: product.inventory || 0,
           lowStockThreshold: product.lowStockThreshold || 5,
-          status: product.status || ProductStatus.ACTIVE,
-          images: product.images || [],
+          metaTitle: product.metaTitle || null,
+          metaDescription: product.metaDescription || null,
           metaKeywords: product.metaKeywords || [],
+          status: product.status || ProductStatus.ACTIVE,
           createdAt: new Date(),
           updatedAt: new Date()
         })),
@@ -474,7 +500,7 @@ export class ProductService extends BaseService<Product> {
     }
   }
 
-  async bulkUpdate(updates: Array<{ id: string; data: UpdateProductData }>): Promise<Product[]> {
+  override async bulkUpdate(updates: Array<{ id: string; data: UpdateProductData }>): Promise<Product[]> {
     try {
       const results: Product[] = []
       
@@ -489,7 +515,7 @@ export class ProductService extends BaseService<Product> {
     }
   }
 
-  async bulkDelete(ids: string[]): Promise<number> {
+  override async bulkDelete(ids: string[]): Promise<number> {
     try {
       const result = await this.prisma.product.updateMany({
         where: { id: { in: ids } },

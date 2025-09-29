@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import { User, UserRole, UserStatus, Prisma } from '@prisma/client'
+import { User, UserRole, UserStatus, BusinessType, Prisma } from '@prisma/client'
 import { BaseService } from './baseService'
 import { authConfig } from '@/config/environment'
 
@@ -8,7 +8,7 @@ export interface CreateUserData {
   name: string
   password: string
   phone?: string
-  businessType?: string
+  businessType?: BusinessType
   city?: string
   companyName?: string
   role?: UserRole
@@ -18,7 +18,7 @@ export interface UpdateUserData {
   name?: string
   phone?: string
   avatar?: string
-  businessType?: string
+  businessType?: BusinessType
   city?: string
   companyName?: string
   status?: UserStatus
@@ -27,7 +27,7 @@ export interface UpdateUserData {
 export interface UserFilters {
   role?: UserRole
   status?: UserStatus
-  businessType?: string
+  businessType?: BusinessType
   city?: string
   search?: string
   page?: number
@@ -47,7 +47,7 @@ export class UserService extends BaseService<User> {
     return 'user'
   }
 
-  async create(data: CreateUserData): Promise<User> {
+  override async create(data: CreateUserData): Promise<User> {
     try {
       this.validateRequired(data, ['email', 'name', 'password'])
       
@@ -66,8 +66,13 @@ export class UserService extends BaseService<User> {
       // Create user
       const user = await this.prisma.user.create({
         data: {
-          ...data,
+          email: data.email,
+          name: data.name,
           password: hashedPassword,
+          phone: data.phone || null,
+          businessType: data.businessType || null,
+          city: data.city || null,
+          companyName: data.companyName || null,
           role: data.role || UserRole.USER,
           status: UserStatus.ACTIVE
         }
@@ -82,7 +87,7 @@ export class UserService extends BaseService<User> {
     }
   }
 
-  async findById(id: string): Promise<User | null> {
+  override async findById(id: string): Promise<User | null> {
     try {
       this.validateId(id)
       
@@ -151,7 +156,7 @@ export class UserService extends BaseService<User> {
     }
   }
 
-  async findAll(filters: UserFilters = {}): Promise<User[]> {
+  override async findAll(filters: UserFilters = {}): Promise<User[]> {
     try {
       const {
         page = 1,
@@ -182,7 +187,7 @@ export class UserService extends BaseService<User> {
         where,
         skip,
         take,
-        orderBy: this.buildSortQuery(sortBy, sortOrder),
+        orderBy: { [sortBy]: sortOrder },
         select: {
           id: true,
           email: true,
@@ -206,7 +211,7 @@ export class UserService extends BaseService<User> {
     }
   }
 
-  async update(id: string, data: UpdateUserData): Promise<User> {
+  override async update(id: string, data: UpdateUserData): Promise<User> {
     try {
       this.validateId(id)
       
@@ -219,7 +224,13 @@ export class UserService extends BaseService<User> {
       const user = await this.prisma.user.update({
         where: { id },
         data: {
-          ...data,
+          name: data.name,
+          phone: data.phone || null,
+          avatar: data.avatar || null,
+          businessType: data.businessType || null,
+          city: data.city || null,
+          companyName: data.companyName || null,
+          status: data.status,
           updatedAt: new Date()
         }
       })
@@ -235,7 +246,7 @@ export class UserService extends BaseService<User> {
     }
   }
 
-  async delete(id: string): Promise<boolean> {
+  override async delete(id: string): Promise<boolean> {
     try {
       this.validateId(id)
       
@@ -417,7 +428,7 @@ export class UserService extends BaseService<User> {
   }
 
   // Bulk operations
-  async bulkCreate(users: CreateUserData[]): Promise<User[]> {
+  override async bulkCreate(users: CreateUserData[]): Promise<User[]> {
     try {
       const hashedUsers = await Promise.all(
         users.map(async (user) => ({
@@ -429,7 +440,17 @@ export class UserService extends BaseService<User> {
       )
       
       const result = await this.prisma.user.createMany({
-        data: hashedUsers,
+        data: hashedUsers.map(user => ({
+          email: user.email,
+          name: user.name,
+          password: user.password,
+          phone: user.phone || null,
+          businessType: user.businessType || null,
+          city: user.city || null,
+          companyName: user.companyName || null,
+          role: user.role || UserRole.USER,
+          status: UserStatus.ACTIVE
+        })),
         skipDuplicates: true
       })
       
@@ -446,7 +467,7 @@ export class UserService extends BaseService<User> {
     }
   }
 
-  async bulkUpdate(updates: Array<{ id: string; data: UpdateUserData }>): Promise<User[]> {
+  override async bulkUpdate(updates: Array<{ id: string; data: UpdateUserData }>): Promise<User[]> {
     try {
       const results: User[] = []
       
@@ -461,7 +482,7 @@ export class UserService extends BaseService<User> {
     }
   }
 
-  async bulkDelete(ids: string[]): Promise<number> {
+  override async bulkDelete(ids: string[]): Promise<number> {
     try {
       const result = await this.prisma.user.updateMany({
         where: { id: { in: ids } },

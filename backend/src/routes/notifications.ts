@@ -53,7 +53,7 @@ const digestSchema = z.object({
 })
 
 export async function notificationRoutes(fastify: FastifyInstance) {
-  const notificationService = new NotificationService(fastify.prisma)
+  const notificationService = new NotificationService()
   const schedulerService = new SmartNotificationScheduler(notificationService)
   const deliveryService = new MultiChannelDeliveryService()
   const interactiveService = new InteractiveNotificationService(notificationService)

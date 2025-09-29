@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient, Prisma } from '@prisma/client'
 import { db } from '@/models/database'
 import { redis } from '@/models/redis'
 
@@ -88,9 +88,10 @@ export abstract class BaseService<T> {
 
   // Transaction helper
   protected async withTransaction<R>(
-    fn: (prisma: PrismaClient) => Promise<R>
+    fn: (tx: Prisma.TransactionClient) => Promise<R>,
+    options?: { maxWait?: number; timeout?: number; isolationLevel?: Prisma.TransactionIsolationLevel }
   ): Promise<R> {
-    return await this.prisma.$transaction(fn)
+    return this.prisma.$transaction(async (tx) => fn(tx), options)
   }
 
   // Soft delete helper
@@ -110,7 +111,7 @@ export abstract class BaseService<T> {
   }
 
   // Bulk operations
-  protected async bulkCreate(data: Partial<T>[]): Promise<T[]> {
+  protected async bulkCreate(_data: Partial<T>[]): Promise<T[]> {
     try {
       // This would need to be implemented by each service
       // as it depends on the specific model
@@ -121,7 +122,7 @@ export abstract class BaseService<T> {
   }
 
   protected async bulkUpdate(
-    updates: Array<{ id: string; data: Partial<T> }>
+    _updates: Array<{ id: string; data: Partial<T> }>
   ): Promise<T[]> {
     try {
       // This would need to be implemented by each service
@@ -132,7 +133,7 @@ export abstract class BaseService<T> {
     }
   }
 
-  protected async bulkDelete(ids: string[]): Promise<number> {
+  protected async bulkDelete(_ids: string[]): Promise<number> {
     try {
       // This would need to be implemented by each service
       // as it depends on the specific model

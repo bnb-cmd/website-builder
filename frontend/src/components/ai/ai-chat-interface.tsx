@@ -12,14 +12,14 @@ import {
   Send, 
   Bot, 
   User, 
-  Code, 
+  Code,
   Palette, 
   BarChart3,
   FileText,
   Sparkles,
   Loader2
 } from 'lucide-react'
-import { api } from '@/lib/api'
+import { apiHelpers } from '@/lib/api'
 
 interface AISession {
   id: string
@@ -66,7 +66,8 @@ export function AIChatInterface({ websiteId, userId }: AIChatInterfaceProps) {
 
   const loadSessions = async () => {
     try {
-      const data = await api.advancedAI.getAISessions(websiteId)
+      const response = await apiHelpers.getAISessions(websiteId)
+      const data = response.data
       setSessions(data)
       if (data.length > 0 && !activeSession) {
         setActiveSession(data[0])
@@ -98,11 +99,12 @@ export function AIChatInterface({ websiteId, userId }: AIChatInterfaceProps) {
   const createNewSession = async () => {
     try {
       setIsLoading(true)
-      const session = await api.advancedAI.createAISession({
+      const response = await apiHelpers.createAISession({
         websiteId,
         userId,
         type: selectedType as any
       })
+      const session = response.data
       setSessions(prev => [session, ...prev])
       setActiveSession(session)
       setMessages([
@@ -133,11 +135,11 @@ export function AIChatInterface({ websiteId, userId }: AIChatInterfaceProps) {
     setIsLoading(true)
 
     try {
-      const response = await api.advancedAI.sendAIMessage(activeSession.sessionId, newMessage)
+      const response = await apiHelpers.sendAIMessage(activeSession.sessionId, newMessage)
       
       const assistantMessage: ChatMessage = {
         role: 'assistant',
-        content: response.response,
+        content: response.data.response || response.data.message || 'No response received',
         timestamp: new Date()
       }
 
@@ -146,7 +148,7 @@ export function AIChatInterface({ websiteId, userId }: AIChatInterfaceProps) {
       // Update session stats
       setSessions(prev => prev.map(s => 
         s.sessionId === activeSession.sessionId 
-          ? { ...s, messageCount: s.messageCount + 1, tokenUsage: s.tokenUsage + response.tokensUsed, cost: s.cost + response.cost }
+          ? { ...s, messageCount: s.messageCount + 1, tokenUsage: s.tokenUsage + (response.data.tokensUsed || 0), cost: s.cost + (response.data.cost || 0) }
           : s
       ))
     } catch (error) {

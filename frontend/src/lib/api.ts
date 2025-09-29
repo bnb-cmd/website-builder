@@ -13,11 +13,11 @@ export const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    // Skip auth headers during development (always disabled for now)
-    // const token = localStorage.getItem('accessToken')
-    // if (token) {
-    //   config.headers.Authorization = `Bearer ${token}`
-    // }
+    // Enable auth headers for real authentication
+    const token = localStorage.getItem('accessToken')
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`
+    }
     return config
   },
   (error) => {
@@ -87,6 +87,10 @@ export const endpoints = {
   templates: {
     list: '/templates',
     get: (id: string) => `/templates/${id}`,
+  },
+  advancedTemplates: {
+    list: '/advanced-templates/catalog',
+    get: (id: string) => `/advanced-templates/templates/${id}`,
   },
   ai: {
     generateContent: '/ai/generate-content',
@@ -208,6 +212,72 @@ export const endpoints = {
     createDigest: '/digests',
     getAnalytics: (userId: string) => `/analytics/${userId}`,
   },
+
+  content: {
+    createContent: (websiteId: string) => `/websites/${websiteId}/contents`,
+    getContents: (websiteId: string) => `/websites/${websiteId}/contents`,
+    updateContent: (contentId: string) => `/contents/${contentId}`,
+    deleteContent: (contentId: string) => `/contents/${contentId}`,
+    getCategories: (websiteId: string) => `/websites/${websiteId}/content-categories`,
+    createCategory: (websiteId: string) => `/websites/${websiteId}/content-categories`,
+    scheduleContent: (contentId: string) => `/contents/${contentId}/schedule`,
+    optimizeSEO: (contentId: string) => `/contents/${contentId}/optimize-seo`,
+    getTemplates: '/content-templates',
+    createTemplate: '/content-templates',
+    useTemplate: (templateId: string) => `/content-templates/${templateId}/use`,
+    getAnalytics: (contentId: string) => `/contents/${contentId}/analytics`,
+    updateAnalytics: (contentId: string) => `/contents/${contentId}/analytics`,
+    getInsights: (websiteId: string) => `/websites/${websiteId}/content-insights`,
+  },
+
+  integrations: {
+    list: '/integrations',
+    get: (id: string) => `/integrations/${id}`,
+    install: (websiteId: string) => `/websites/${websiteId}/integrations`,
+    configure: (id: string) => `/website-integrations/${id}`,
+    uninstall: (id: string) => `/website-integrations/${id}`,
+    getWebsite: (websiteId: string) => `/websites/${websiteId}/integrations`,
+    sync: (id: string) => `/website-integrations/${id}/sync`,
+    createWebhook: (integrationId: string) => `/website-integrations/${integrationId}/webhooks`,
+    getLogs: (integrationId: string) => `/website-integrations/${integrationId}/logs`,
+    createReview: (integrationId: string) => `/integrations/${integrationId}/reviews`,
+    getCategories: '/integration-categories',
+    getAnalytics: (integrationId: string) => `/website-integrations/${integrationId}/analytics`,
+  },
+
+  performance: {
+    optimizeImage: '/optimize-image',
+    generateVariants: '/generate-image-variants',
+    minifyJS: '/minify/javascript',
+    minifyCSS: '/minify/css',
+    bundleAnalysis: (websiteId: string) => `/websites/${websiteId}/bundle-analysis`,
+    coreWebVitals: (websiteId: string) => `/websites/${websiteId}/core-web-vitals`,
+    recommendations: (websiteId: string) => `/websites/${websiteId}/performance-recommendations`,
+    lazyLoading: (websiteId: string) => `/websites/${websiteId}/implement-lazy-loading`,
+    criticalCSS: '/extract-critical-css',
+    resourceHints: (websiteId: string) => `/websites/${websiteId}/resource-hints`,
+    monitoring: (websiteId: string) => `/websites/${websiteId}/setup-monitoring`,
+    autoOptimize: (websiteId: string) => `/websites/${websiteId}/auto-optimize`,
+    cdnUpload: '/cdn/upload',
+    cdnPurge: '/cdn/purge-cache',
+  },
+
+  templates: {
+    create: '/templates',
+    list: '/templates',
+    get: (id: string) => `/templates/${id}`,
+    update: (id: string) => `/templates/${id}`,
+    delete: (id: string) => `/templates/${id}`,
+    generateAI: '/templates/generate-ai',
+    getGenerationStatus: (generationId: string) => `/templates/ai-generations/${generationId}`,
+    createCustomization: (templateId: string) => `/templates/${templateId}/customizations`,
+    applyCustomization: (customizationId: string) => `/template-customizations/${customizationId}/apply`,
+    createReview: (templateId: string) => `/templates/${templateId}/reviews`,
+    purchase: (templateId: string) => `/templates/${templateId}/purchase`,
+    getAnalytics: (templateId: string) => `/templates/${templateId}/analytics`,
+    getCategories: '/template-categories',
+    search: '/templates/search',
+  },
 }
 
 // API helper functions
@@ -259,6 +329,12 @@ export const apiHelpers = {
   
   getTemplate: (id: string) =>
     api.get(endpoints.templates.get(id)),
+
+  getAdvancedTemplates: (params?: any) =>
+    api.get(endpoints.advancedTemplates.list, { params }),
+
+  getAdvancedTemplate: (id: string) =>
+    api.get(endpoints.advancedTemplates.get(id)),
 
   // AI helpers
   generateContent: (data: any) =>
@@ -516,6 +592,178 @@ export const apiHelpers = {
     
   getAnalytics: (userId: string, options?: any) =>
     api.get(endpoints.notifications.getAnalytics(userId), { params: options }),
+
+  // Content Management helpers
+  createContent: (websiteId: string, data: any) =>
+    api.post(endpoints.content.createContent(websiteId), data),
+
+  getContents: (websiteId: string, params?: any) =>
+    api.get(endpoints.content.getContents(websiteId), { params }),
+
+  updateContent: (contentId: string, data: any) =>
+    api.put(endpoints.content.updateContent(contentId), data),
+
+  deleteContent: (contentId: string) =>
+    api.delete(endpoints.content.deleteContent(contentId)),
+
+  getContentCategories: (websiteId: string) =>
+    api.get(endpoints.content.getCategories(websiteId)),
+
+  createContentCategory: (websiteId: string, data: any) =>
+    api.post(endpoints.content.createCategory(websiteId), data),
+
+  scheduleContent: (contentId: string, data: any) =>
+    api.post(endpoints.content.scheduleContent(contentId), data),
+
+  optimizeContentSEO: (contentId: string) =>
+    api.post(endpoints.content.optimizeSEO(contentId)),
+
+  getContentTemplates: (params?: any) =>
+    api.get(endpoints.content.getTemplates, { params }),
+
+  createContentTemplate: (data: any) =>
+    api.post(endpoints.content.createTemplate, data),
+
+  useContentTemplate: (templateId: string) =>
+    api.post(endpoints.content.useTemplate(templateId)),
+
+  getContentAnalytics: (contentId: string) =>
+    api.get(endpoints.content.getAnalytics(contentId)),
+
+  updateContentAnalytics: (contentId: string, data: any) =>
+    api.put(endpoints.content.updateAnalytics(contentId), data),
+
+  getContentInsights: (websiteId: string, params?: any) =>
+    api.get(endpoints.content.getInsights(websiteId), { params }),
+
+  // Integration Marketplace helpers
+  getIntegrations: (params?: any) =>
+    api.get(endpoints.integrations.list, { params }),
+
+  getIntegration: (id: string) =>
+    api.get(endpoints.integrations.get(id)),
+
+  installIntegration: (websiteId: string, data: any) =>
+    api.post(endpoints.integrations.install(websiteId), data),
+
+  configureIntegration: (id: string, data: any) =>
+    api.put(endpoints.integrations.configure(id), data),
+
+  uninstallIntegration: (id: string) =>
+    api.delete(endpoints.integrations.uninstall(id)),
+
+  getWebsiteIntegrations: (websiteId: string) =>
+    api.get(endpoints.integrations.getWebsite(websiteId)),
+
+  syncIntegration: (id: string) =>
+    api.post(endpoints.integrations.sync(id)),
+
+  createWebhook: (integrationId: string, data: any) =>
+    api.post(endpoints.integrations.createWebhook(integrationId), data),
+
+  getIntegrationLogs: (integrationId: string, params?: any) =>
+    api.get(endpoints.integrations.getLogs(integrationId), { params }),
+
+  createIntegrationReview: (integrationId: string, data: any) =>
+    api.post(endpoints.integrations.createReview(integrationId), data),
+
+  getIntegrationCategories: () =>
+    api.get(endpoints.integrations.getCategories),
+
+  getIntegrationAnalytics: (integrationId: string, params?: any) =>
+    api.get(endpoints.integrations.getAnalytics(integrationId), { params }),
+
+  // Performance Optimization helpers
+  optimizeImage: (formData: FormData) =>
+    api.post(endpoints.performance.optimizeImage, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+
+  generateImageVariants: (formData: FormData) =>
+    api.post(endpoints.performance.generateVariants, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+
+  minifyJavaScript: (data: { code: string }) =>
+    api.post(endpoints.performance.minifyJS, data),
+
+  minifyCSS: (data: { css: string }) =>
+    api.post(endpoints.performance.minifyCSS, data),
+
+  getBundleAnalysis: (websiteId: string) =>
+    api.get(endpoints.performance.bundleAnalysis(websiteId)),
+
+  getCoreWebVitals: (websiteId: string, params?: any) =>
+    api.get(endpoints.performance.coreWebVitals(websiteId), { params }),
+
+  getPerformanceRecommendations: (websiteId: string) =>
+    api.get(endpoints.performance.recommendations(websiteId)),
+
+  implementLazyLoading: (websiteId: string) =>
+    api.post(endpoints.performance.lazyLoading(websiteId)),
+
+  extractCriticalCSS: (data: { html: string; css: string }) =>
+    api.post(endpoints.performance.criticalCSS, data),
+
+  getResourceHints: (websiteId: string) =>
+    api.get(endpoints.performance.resourceHints(websiteId)),
+
+  setupPerformanceMonitoring: (websiteId: string) =>
+    api.post(endpoints.performance.monitoring(websiteId)),
+
+  runAutomatedOptimization: (websiteId: string) =>
+    api.post(endpoints.performance.autoOptimize(websiteId)),
+
+  uploadToCDN: (formData: FormData) =>
+    api.post(endpoints.performance.cdnUpload, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+
+  purgeCDNCache: (data: { urls: string[] }) =>
+    api.post(endpoints.performance.cdnPurge, data),
+
+  // Advanced Template Engine helpers
+  createAdvancedTemplate: (data: any) =>
+    api.post(endpoints.templates.create, data),
+
+  getAdvancedTemplates: (params?: any) =>
+    api.get(endpoints.templates.list, { params }),
+
+  getAdvancedTemplate: (id: string) =>
+    api.get(endpoints.templates.get(id)),
+
+  updateAdvancedTemplate: (id: string, data: any) =>
+    api.put(endpoints.templates.update(id), data),
+
+  deleteAdvancedTemplate: (id: string) =>
+    api.delete(endpoints.templates.delete(id)),
+
+  generateTemplateWithAI: (data: any) =>
+    api.post(endpoints.templates.generateAI, data),
+
+  getAIGenerationStatus: (generationId: string) =>
+    api.get(endpoints.templates.getGenerationStatus(generationId)),
+
+  createTemplateCustomization: (templateId: string, data: any) =>
+    api.post(endpoints.templates.createCustomization(templateId), data),
+
+  applyTemplateCustomization: (customizationId: string) =>
+    api.post(endpoints.templates.applyCustomization(customizationId)),
+
+  createTemplateReview: (templateId: string, data: any) =>
+    api.post(endpoints.templates.createReview(templateId), data),
+
+  purchaseTemplate: (templateId: string) =>
+    api.post(endpoints.templates.purchase(templateId)),
+
+  getTemplateAnalytics: (templateId: string) =>
+    api.get(endpoints.templates.getAnalytics(templateId)),
+
+  getTemplateCategories: () =>
+    api.get(endpoints.templates.getCategories),
+
+  searchTemplates: (params?: any) =>
+    api.get(endpoints.templates.search, { params }),
 
   // Admin helpers
   getAdminStats: () =>

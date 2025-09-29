@@ -100,7 +100,7 @@ export default function DomainsPage() {
           domain: `${searchQuery}${selectedExtension}`,
           available: Math.random() > 0.5,
           price: domainExtensions.find(ext => ext.value === selectedExtension)?.price || 2500,
-          currency: domainExtensions.find(ext => ext.value === selectedExtension)?.currency || 'PKR'
+          currency: (domainExtensions.find(ext => ext.value === selectedExtension)?.currency as 'PKR' | 'USD') || 'PKR'
         },
         {
           domain: `${searchQuery}2024.pk`,

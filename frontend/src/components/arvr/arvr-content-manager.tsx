@@ -13,7 +13,7 @@ import {
   Play, 
   Pause, 
   RotateCcw, 
-  Move3D, 
+  Move3d, 
   Zap,
   Eye,
   EyeOff,
@@ -27,7 +27,7 @@ import {
   Music
 } from 'lucide-react'
 import { CubeIcon } from '@/components/icons/custom-icons'
-import { api } from '@/lib/api'
+import { apiHelpers } from '@/lib/api'
 
 interface ARVRContent {
   id: string
@@ -78,7 +78,8 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
 
   const loadContent = async () => {
     try {
-      const data = await api.advancedAI.getARVRContent(websiteId)
+      const response = await apiHelpers.getARVRContent(websiteId)
+      const data = response.data
       setContent(data)
     } catch (error) {
       console.error('Failed to load AR/VR content:', error)
@@ -90,12 +91,13 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
 
     try {
       setIsLoading(true)
-      const newContent = await api.advancedAI.generateARVRContent(
-        generationPrompt,
-        selectedType as any,
+      const response = await apiHelpers.generateARVRContent({
+        prompt: generationPrompt,
+        type: selectedType as any,
         websiteId,
         userId
-      )
+      })
+      const newContent = response.data
       setContent(prev => [newContent, ...prev])
       setSelectedContent(newContent)
       setGenerationPrompt('')
@@ -109,7 +111,7 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
   const processContent = async (contentId: string) => {
     try {
       setIsLoading(true)
-      await api.advancedAI.processARVRContent(contentId)
+      await apiHelpers.processARVRContent(contentId)
       // Reload content to get updated status
       await loadContent()
     } catch (error) {
@@ -142,7 +144,7 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold">AR/VR Content</h3>
           <Button
-            size="sm"
+            className="text-xs h-8"
             onClick={() => setShowPreview(!showPreview)}
             variant="outline"
           >
@@ -165,7 +167,6 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
                     <Button
                       key={type.value}
                       variant={selectedType === type.value ? "default" : "outline"}
-                      size="sm"
                       onClick={() => setSelectedType(type.value)}
                       className={`h-auto p-2 flex flex-col items-center text-xs ${
                         selectedType === type.value ? type.color : ''
@@ -190,7 +191,7 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
               onClick={generateContent}
               disabled={!generationPrompt.trim() || isLoading}
               className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-              size="sm"
+              className="text-xs h-8"
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -255,7 +256,7 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
                 </div>
                 <div className="flex space-x-2">
                   <Button
-                    size="sm"
+                    className="text-xs h-8"
                     variant="outline"
                     onClick={() => processContent(selectedContent.id)}
                     disabled={isLoading || selectedContent.status === 'PROCESSING'}
@@ -267,10 +268,10 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
                     )}
                     Process
                   </Button>
-                  <Button size="sm" variant="outline">
+                  <Button className="text-xs h-8" variant="outline">
                     <Download className="w-4 h-4" />
                   </Button>
-                  <Button size="sm" variant="outline">
+                  <Button className="text-xs h-8" variant="outline">
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </div>
@@ -349,21 +350,18 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
                           <div className="space-y-1">
                             <Input 
                               placeholder="X" 
-                              size="sm" 
+                              className="text-xs h-8"
                               value={selectedContent.position?.x || 0}
-                              className="text-xs"
                             />
                             <Input 
                               placeholder="Y" 
-                              size="sm" 
+                              className="text-xs h-8"
                               value={selectedContent.position?.y || 0}
-                              className="text-xs"
                             />
                             <Input 
                               placeholder="Z" 
-                              size="sm" 
+                              className="text-xs h-8"
                               value={selectedContent.position?.z || 0}
-                              className="text-xs"
                             />
                           </div>
                         </div>
@@ -372,19 +370,19 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
                           <div className="space-y-1">
                             <Input 
                               placeholder="X" 
-                              size="sm" 
+                              className="text-xs h-8" 
                               value={selectedContent.rotation?.x || 0}
                               className="text-xs"
                             />
                             <Input 
                               placeholder="Y" 
-                              size="sm" 
+                              className="text-xs h-8" 
                               value={selectedContent.rotation?.y || 0}
                               className="text-xs"
                             />
                             <Input 
                               placeholder="Z" 
-                              size="sm" 
+                              className="text-xs h-8" 
                               value={selectedContent.rotation?.z || 0}
                               className="text-xs"
                             />
@@ -395,19 +393,19 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
                           <div className="space-y-1">
                             <Input 
                               placeholder="X" 
-                              size="sm" 
+                              className="text-xs h-8" 
                               value={selectedContent.scale?.x || 1}
                               className="text-xs"
                             />
                             <Input 
                               placeholder="Y" 
-                              size="sm" 
+                              className="text-xs h-8" 
                               value={selectedContent.scale?.y || 1}
                               className="text-xs"
                             />
                             <Input 
                               placeholder="Z" 
-                              size="sm" 
+                              className="text-xs h-8" 
                               value={selectedContent.scale?.z || 1}
                               className="text-xs"
                             />

@@ -5,51 +5,49 @@ import { useAuth } from '@/components/auth/auth-provider'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Separator } from '@/components/ui/separator'
-import { Globe, Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react'
+import { SmartFormField } from '@/components/ui/smart-form-field'
+import { useSmartForm } from '@/hooks/use-smart-form'
+import { Globe, AlertCircle } from 'lucide-react'
 
 export default function LoginPage() {
   const { login, isLoading } = useAuth()
   const router = useRouter()
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  })
-  const [showPassword, setShowPassword] = useState(false)
   const [error, setError] = useState('')
-  const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setError('')
-    setIsSubmitting(true)
+  const smartForm = useSmartForm({
+    config: {
+      email: {
+        initialValue: '',
+        validationRules: [
+          { type: 'email', message: 'Please enter a valid email address' }
+        ],
+        required: true
+      },
+      password: {
+        initialValue: '',
+        validationRules: [
+          { type: 'minLength', value: 6, message: 'Password must be at least 6 characters' }
+        ],
+        required: true
+      }
+    },
+    onSubmit: async (values) => {
+      setError('')
+      try {
+        await login(values.email, values.password)
+        router.push('/dashboard')
+      } catch (error: any) {
+        setError(error.response?.data?.error?.message || 'Login failed')
+        throw error // Re-throw to keep form in submitting state
+      }
+    },
+    validateOnChange: true,
+    validateOnBlur: true
+  })
 
-    try {
-      // Bypass authentication for demo purposes
-      // Set a demo token to simulate successful login
-      localStorage.setItem('accessToken', 'demo-token-' + Date.now())
-      localStorage.setItem('refreshToken', 'demo-refresh-token-' + Date.now())
-      
-      // await login(formData.email, formData.password)
-      router.push('/dashboard')
-    } catch (error: any) {
-      setError(error.response?.data?.error?.message || 'Login failed')
-    } finally {
-      setIsSubmitting(false)
-    }
-  }
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData(prev => ({
-      ...prev,
-      [e.target.name]: e.target.value
-    }))
-    setError('')
-  }
+  const { handleSubmit, isSubmitting, getFieldProps } = smartForm
 
   if (isLoading) {
     return (
@@ -87,53 +85,29 @@ export default function LoginPage() {
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Email */}
-              <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="john@example.com"
-                    className="pl-10"
-                    required
-                  />
-                </div>
-              </div>
+              <SmartFormField
+                label="Email"
+                type="email"
+                placeholder="john@example.com"
+                aiSuggestions={true}
+                context={['login', 'pakistan']}
+                showValidation={true}
+                realTimeValidation={true}
+                helpText="We'll never share your email with anyone else."
+                {...getFieldProps('email')}
+              />
 
               {/* Password */}
-              <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="Enter your password"
-                    className="pl-10 pr-10"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
-                    )}
-                  </Button>
-                </div>
-              </div>
+              <SmartFormField
+                label="Password"
+                type="password"
+                placeholder="Enter your password"
+                showPasswordToggle={true}
+                showValidation={true}
+                realTimeValidation={true}
+                helpText="Minimum 6 characters required."
+                {...getFieldProps('password')}
+              />
 
               {/* Error Message */}
               {error && (
@@ -147,7 +121,7 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full"
-                disabled={isSubmitting || !formData.email || !formData.password}
+                disabled={isSubmitting}
               >
                 {isSubmitting ? 'Signing in...' : 'Sign In'}
               </Button>
@@ -191,10 +165,8 @@ export default function LoginPage() {
               variant="outline"
               size="sm"
               onClick={() => {
-                setFormData({
-                  email: 'demo@pakistanbuilder.com',
-                  password: 'demo123'
-                })
+                smartForm.setFieldValue('email', 'demo@pakistanbuilder.com')
+                smartForm.setFieldValue('password', 'demo123')
               }}
               className="w-full border-amber-300 text-amber-700 hover:bg-amber-100"
             >

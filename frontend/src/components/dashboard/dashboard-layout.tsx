@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/components/auth/auth-provider'
-import { useRouter } from 'next/navigation'
+import { useRouter, usePathname } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -14,15 +14,15 @@ import {
   DropdownMenuSeparator, 
   DropdownMenuTrigger 
 } from '@/components/ui/dropdown-menu'
-import { 
-  Globe, 
-  LayoutDashboard, 
-  Settings, 
-  CreditCard, 
-  Users, 
-  BarChart3, 
-  Palette, 
-  Zap, 
+import {
+  Globe,
+  LayoutDashboard,
+  Settings,
+  CreditCard,
+  Users,
+  BarChart3,
+  Palette,
+  Zap,
   HelpCircle,
   Menu,
   X,
@@ -33,50 +33,110 @@ import {
   Brain,
   Coins,
   Plus,
-  Globe2
+  Globe2,
+  ChevronDown,
+  ChevronRight,
+  Home,
+  FileText,
+  Search
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { ContextualBreadcrumbs } from './contextual-breadcrumbs'
+import { CommandPalette } from './command-palette'
+import { PerformanceMonitor } from '@/components/ui/performance-monitor'
+import { FeatureGate } from '@/components/ui/progressive-enhancer'
+import { PWAManager } from '@/components/ui/pwa-manager'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
 }
 
-const navigation = [
-  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-  { name: 'Websites', href: '/dashboard/websites', icon: Globe },
-  { name: 'Templates', href: '/dashboard/templates', icon: Palette },
-  { name: 'Domains', href: '/dashboard/domains', icon: Globe2 },
-  { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
-  { name: 'AI Assistant', href: '/dashboard/ai', icon: Zap },
-  { name: 'Advanced AI', href: '/dashboard/advanced-ai', icon: Brain },
-  { name: 'Blockchain', href: '/dashboard/blockchain', icon: Coins },
-  { name: 'Notifications', href: '/dashboard/notifications', icon: Bell },
-  { name: 'PWA Settings', href: '/dashboard/pwa', icon: Smartphone },
-  { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
-  { name: 'Settings', href: '/dashboard/settings', icon: Settings },
-  { name: 'Help', href: '/dashboard/help', icon: HelpCircle }
+const navigationGroups = [
+  {
+    title: 'Core',
+    icon: LayoutDashboard,
+    items: [
+      { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
+      { name: 'Websites', href: '/dashboard/websites', icon: Globe },
+      { name: 'Templates', href: '/dashboard/templates', icon: Palette }
+    ]
+  },
+  {
+    title: 'Marketing',
+    icon: BarChart3,
+    items: [
+      { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
+      { name: 'AI Marketing', href: '/dashboard/ai-marketing', icon: Zap },
+      { name: 'Social Media', href: '/dashboard/social-media', icon: Users },
+      { name: 'Notifications', href: '/dashboard/notifications', icon: Bell }
+    ]
+  },
+  {
+    title: 'Advanced',
+    icon: Brain,
+    items: [
+      { name: 'Advanced AI', href: '/dashboard/advanced-ai', icon: Brain },
+      { name: 'Blockchain', href: '/dashboard/blockchain', icon: Coins },
+      { name: 'Integrations', href: '/dashboard/integrations', icon: Zap },
+      { name: 'PWA Settings', href: '/dashboard/pwa', icon: Smartphone }
+    ]
+  },
+  {
+    title: 'Business',
+    icon: Settings,
+    items: [
+      { name: 'Domains', href: '/dashboard/domains', icon: Globe2 },
+      { name: 'Billing', href: '/dashboard/billing', icon: CreditCard },
+      { name: 'Settings', href: '/dashboard/settings', icon: Settings },
+      { name: 'Help', href: '/dashboard/help', icon: HelpCircle }
+    ]
+  }
 ]
 
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout } = useAuth()
   const router = useRouter()
+  const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['Core']))
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
 
   const handleLogout = async () => {
     await logout()
     router.push('/')
   }
 
+  const toggleGroup = (groupTitle: string) => {
+    setExpandedGroups(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(groupTitle)) {
+        newSet.delete(groupTitle)
+      } else {
+        newSet.add(groupTitle)
+      }
+      return newSet
+    })
+  }
+
   return (
     <div className="h-screen flex overflow-hidden bg-background">
+      {/* Screen Reader Announcements */}
+      <div aria-live="polite" aria-atomic="true" className="sr-only" id="sr-announcements" />
+
+      {/* Skip Links Target */}
+      <div id="main-content" /> {/* Skip link target */}
       {/* Sidebar */}
-      <div className={cn(
-        'fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
-        sidebarOpen ? 'translate-x-0' : '-translate-x-full'
-      )}>
+      <nav
+        className={cn(
+          'fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        )}
+        aria-label="Main navigation"
+        id="navigation"
+      >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-border">
+          <header className="flex items-center justify-between p-4 border-b border-border">
             <Link href="/dashboard" className="flex items-center space-x-2">
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <Globe className="h-5 w-5 text-primary-foreground" />
@@ -94,21 +154,50 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </div>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-2">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className={cn(
-                  'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                  'hover:bg-accent hover:text-accent-foreground',
-                  router.pathname === item.href && 'bg-accent text-accent-foreground'
+          <nav className="flex-1 p-4 space-y-1">
+            {navigationGroups.map((group) => (
+              <div key={group.title} className="space-y-1">
+                {/* Group Header */}
+                <button
+                  onClick={() => toggleGroup(group.title)}
+                  className={cn(
+                    'flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                    'hover:bg-accent hover:text-accent-foreground',
+                    'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  <div className="flex items-center space-x-3">
+                    <group.icon className="h-4 w-4" />
+                    <span>{group.title}</span>
+                  </div>
+                  {expandedGroups.has(group.title) ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </button>
+
+                {/* Group Items */}
+                {expandedGroups.has(group.title) && (
+                  <div className="ml-4 space-y-1">
+                    {group.items.map((item) => (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        className={cn(
+                          'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                          'hover:bg-accent hover:text-accent-foreground',
+                          pathname === item.href && 'bg-accent text-accent-foreground'
+                        )}
+                        onClick={() => setSidebarOpen(false)}
+                      >
+                        <item.icon className="h-4 w-4" />
+                        <span>{item.name}</span>
+                      </Link>
+                    ))}
+                  </div>
                 )}
-                onClick={() => setSidebarOpen(false)}
-              >
-                <item.icon className="h-4 w-4" />
-                <span>{item.name}</span>
-              </Link>
+              </div>
             ))}
           </nav>
 
@@ -157,38 +246,42 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        {/* Top Bar */}
-        <header className="bg-background border-b border-border px-4 py-3 lg:px-6">
+        {/* Mobile Header */}
+        <header className="bg-background border-b border-border px-4 py-3 lg:hidden">
           <div className="flex items-center justify-between">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden"
             >
               <Menu className="h-4 w-4" />
             </Button>
 
-            <div className="flex items-center space-x-4">
-              {/* Notifications */}
+            <div className="flex items-center space-x-2">
+              {/* Quick Actions */}
               <Button variant="ghost" size="sm">
                 <Bell className="h-4 w-4" />
               </Button>
-
-              {/* Quick Create */}
               <Button onClick={handleCreateWebsite} size="sm">
-                <Plus className="h-4 w-4 mr-2" />
-                New Website
+                <Plus className="h-4 w-4" />
               </Button>
             </div>
           </div>
         </header>
 
+        {/* Contextual Breadcrumbs */}
+        <ContextualBreadcrumbs />
+
         {/* Page Content */}
-        <main className="flex-1 overflow-auto p-4 lg:p-6">
+        <main
+          className="flex-1 overflow-auto pb-20 md:pb-0"
+          role="main"
+          aria-label="Main content"
+        >
           {children}
         </main>
       </div>
+      </nav>
 
       {/* Mobile Overlay */}
       {sidebarOpen && (
@@ -197,6 +290,57 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           onClick={() => setSidebarOpen(false)}
         />
       )}
+
+      {/* Command Palette */}
+      <CommandPalette open={commandPaletteOpen} onOpenChange={setCommandPaletteOpen} />
+
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border">
+        <div className="flex items-center justify-around py-2 px-4">
+          {[
+            { name: 'Dashboard', href: '/dashboard', icon: Home, active: pathname === '/dashboard' },
+            { name: 'Templates', href: '/dashboard/templates', icon: Palette, active: pathname === '/dashboard/templates' },
+            { name: 'Websites', href: '/dashboard/websites', icon: Globe, active: pathname === '/dashboard/websites' },
+            { name: 'Search', href: '#', icon: Search, active: commandPaletteOpen, onClick: () => setCommandPaletteOpen(true) }
+          ].map((item) => (
+            <button
+              key={item.name}
+              onClick={item.onClick || (() => router.push(item.href))}
+              className={cn(
+                'flex flex-col items-center justify-center p-2 rounded-lg transition-colors min-w-0 flex-1',
+                item.active
+                  ? 'text-primary bg-primary/10'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+              )}
+            >
+              <item.icon className="h-5 w-5 mb-1" />
+              <span className="text-xs font-medium truncate">{item.name}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Safe area for devices with home indicator */}
+        <div className="h-safe-area-inset-bottom bg-background" />
+      </div>
+
+      {/* Adjust main content for mobile bottom nav */}
+      <style jsx global>{`
+        @supports (padding-bottom: env(safe-area-inset-bottom)) {
+          .mobile-bottom-nav {
+            padding-bottom: calc(80px + env(safe-area-inset-bottom));
+          }
+        }
+      `}</style>
+
+      {/* Progressive Enhancement - Performance Monitor */}
+      <FeatureGate feature="backgroundProcessing">
+        <PerformanceMonitor showRecommendations={true} />
+      </FeatureGate>
+
+      {/* PWA Manager */}
+      <div className="fixed bottom-20 right-4 z-40">
+        <PWAManager compact />
+      </div>
     </div>
   )
 

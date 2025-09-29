@@ -65,7 +65,7 @@ export class WebsiteService extends BaseService<Website> {
     return 'website'
   }
 
-  async create(data: CreateWebsiteData): Promise<Website> {
+  override async create(data: CreateWebsiteData): Promise<Website> {
     try {
       this.validateRequired(data, ['name'])
       
@@ -74,10 +74,22 @@ export class WebsiteService extends BaseService<Website> {
       
       const website = await this.prisma.website.create({
         data: {
-          ...data,
+          name: data.name,
+          description: data.description || null,
+          templateId: data.templateId || null,
+          businessType: data.businessType || null,
+          language: data.language || Language.ENGLISH,
+          userId: data.userId || null,
+          teamId: data.teamId || null,
+          content: data.content || null,
+          settings: data.settings || null,
+          customCSS: data.customCSS || null,
+          customJS: data.customJS || null,
+          metaTitle: data.metaTitle || null,
+          metaDescription: data.metaDescription || null,
+          metaKeywords: data.metaKeywords || [],
           subdomain,
           status: WebsiteStatus.DRAFT,
-          language: data.language || Language.ENGLISH,
           createdAt: new Date(),
           updatedAt: new Date()
         }
@@ -98,7 +110,7 @@ export class WebsiteService extends BaseService<Website> {
     }
   }
 
-  async findById(id: string): Promise<Website | null> {
+  override async findById(id: string): Promise<Website | null> {
     try {
       this.validateId(id)
       
@@ -246,7 +258,7 @@ export class WebsiteService extends BaseService<Website> {
     }
   }
 
-  async findAll(filters: WebsiteFilters = {}): Promise<Website[]> {
+  override async findAll(filters: WebsiteFilters = {}): Promise<Website[]> {
     try {
       const {
         page = 1,
@@ -286,7 +298,7 @@ export class WebsiteService extends BaseService<Website> {
         where,
         skip,
         take,
-        orderBy: this.buildSortQuery(sortBy, sortOrder),
+        orderBy: { [sortBy]: sortOrder },
         include: {
           user: {
             select: {
@@ -326,7 +338,7 @@ export class WebsiteService extends BaseService<Website> {
     }
   }
 
-  async update(id: string, data: UpdateWebsiteData): Promise<Website> {
+  override async update(id: string, data: UpdateWebsiteData): Promise<Website> {
     try {
       this.validateId(id)
       
@@ -339,7 +351,16 @@ export class WebsiteService extends BaseService<Website> {
       const website = await this.prisma.website.update({
         where: { id },
         data: {
-          ...data,
+          name: data.name,
+          description: data.description || null,
+          content: data.content || null,
+          settings: data.settings || null,
+          customCSS: data.customCSS || null,
+          customJS: data.customJS || null,
+          metaTitle: data.metaTitle || null,
+          metaDescription: data.metaDescription || null,
+          metaKeywords: data.metaKeywords || [],
+          customDomain: data.customDomain || null,
           updatedAt: new Date()
         }
       })
@@ -360,7 +381,7 @@ export class WebsiteService extends BaseService<Website> {
     }
   }
 
-  async delete(id: string): Promise<boolean> {
+  override async delete(id: string): Promise<boolean> {
     try {
       this.validateId(id)
       
@@ -597,8 +618,8 @@ export class WebsiteService extends BaseService<Website> {
             websiteId: duplicatedWebsite.id,
             name: page.name,
             slug: page.slug,
-            content: page.content,
-            settings: page.settings,
+            content: page.content as Prisma.InputJsonValue,
+            settings: page.settings as Prisma.InputJsonValue,
             isHome: page.isHome,
             order: page.order,
             metaTitle: page.metaTitle,
@@ -696,7 +717,7 @@ export class WebsiteService extends BaseService<Website> {
   }
 
   // Bulk operations
-  async bulkCreate(websites: CreateWebsiteData[]): Promise<Website[]> {
+  override async bulkCreate(websites: CreateWebsiteData[]): Promise<Website[]> {
     try {
       const websitesWithSubdomains = await Promise.all(
         websites.map(async (website) => ({
@@ -710,7 +731,26 @@ export class WebsiteService extends BaseService<Website> {
       )
       
       const result = await this.prisma.website.createMany({
-        data: websitesWithSubdomains,
+        data: websitesWithSubdomains.map(website => ({
+          name: website.name,
+          description: website.description || null,
+          templateId: website.templateId || null,
+          businessType: website.businessType || null,
+          language: website.language || Language.ENGLISH,
+          userId: website.userId || null,
+          teamId: website.teamId || null,
+          content: website.content || null,
+          settings: website.settings || null,
+          customCSS: website.customCSS || null,
+          customJS: website.customJS || null,
+          metaTitle: website.metaTitle || null,
+          metaDescription: website.metaDescription || null,
+          metaKeywords: website.metaKeywords || [],
+          subdomain: website.subdomain,
+          status: WebsiteStatus.DRAFT,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        })),
         skipDuplicates: true
       })
       
@@ -727,7 +767,7 @@ export class WebsiteService extends BaseService<Website> {
     }
   }
 
-  async bulkUpdate(updates: Array<{ id: string; data: UpdateWebsiteData }>): Promise<Website[]> {
+  override async bulkUpdate(updates: Array<{ id: string; data: UpdateWebsiteData }>): Promise<Website[]> {
     try {
       const results: Website[] = []
       
@@ -742,7 +782,7 @@ export class WebsiteService extends BaseService<Website> {
     }
   }
 
-  async bulkDelete(ids: string[]): Promise<number> {
+  override async bulkDelete(ids: string[]): Promise<number> {
     try {
       const result = await this.prisma.website.updateMany({
         where: { id: { in: ids } },

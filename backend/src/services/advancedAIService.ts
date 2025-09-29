@@ -1,20 +1,22 @@
-import { AISession, ARVRContent, AISessionType, AISessionStatus, ARVRType, ARVRStatus } from '@prisma/client'
+import {
+  AISession,
+  ARVRContent,
+  AISessionType,
+  AISessionStatus,
+  ARVRType,
+  ARVRStatus,
+  Prisma
+} from '@prisma/client'
 import { BaseService } from './baseService'
 
 export interface AISessionData {
   websiteId: string
   userId?: string
   type: AISessionType
-  context?: any
+  context?: Prisma.InputJsonValue
   model?: string
   temperature?: number
   maxTokens?: number
-}
-
-export interface AIChatMessage {
-  role: 'user' | 'assistant' | 'system'
-  content: string
-  timestamp: Date
 }
 
 export interface ARVRContentData {
@@ -26,99 +28,126 @@ export interface ARVRContentData {
   modelUrl?: string
   textureUrl?: string
   animationUrl?: string
-  scale?: any
-  position?: any
-  rotation?: any
-  interactions?: any
+  scale?: Prisma.InputJsonValue
+  position?: Prisma.InputJsonValue
+  rotation?: Prisma.InputJsonValue
+  interactions?: Prisma.InputJsonValue
 }
 
+interface AIMessageResponse {
+  response: string
+  tokensUsed: number
+  cost: number
+}
+
+const MOCK_TOKEN_COST = 0.00002
+
 export class AdvancedAIService extends BaseService<AISession> {
-  
-  protected getModelName(): string {
-    return 'aiSession'
+  protected override getModelName(): string {
+    return 'aISession'
   }
 
-  // AI Session Management
-  async createAISession(data: AISessionData): Promise<AISession> {
-    try {
-      this.validateId(data.websiteId)
-      const sessionId = this.generateSessionId()
-      
-      return await this.prisma.aiSession.create({
-        data: {
-          ...data,
-          sessionId,
-          context: data.context || {},
-          history: [],
-          status: AISessionStatus.ACTIVE
-        }
-      })
-    } catch (error) {
-      this.handleError(error)
+  private toJson(value: unknown, fallback: Prisma.InputJsonValue = {}): Prisma.InputJsonValue {
+    if (value === undefined || value === null) {
+      return fallback
     }
+
+    try {
+      return JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue
+    } catch (error) {
+      console.warn('Failed to serialise JSON payload', error)
+      return fallback
+    }
+  }
+
+  private assertSession(session: AISession | null): asserts session is AISession {
+    if (!session) {
+      throw new Error('AI session not found')
+    }
+  }
+
+  override async create(data: Partial<AISession>): Promise<AISession> {
+    return this.prisma.aISession.create({ data })
+  }
+
+  override async findById(id: string): Promise<AISession | null> {
+    return this.prisma.aISession.findUnique({ where: { id } })
+  }
+
+  override async findAll(filters?: Prisma.AISessionWhereInput): Promise<AISession[]> {
+    return this.prisma.aISession.findMany({ where: filters })
+  }
+
+  override async update(id: string, data: Partial<AISession>): Promise<AISession> {
+    return this.prisma.aISession.update({ where: { id }, data })
+  }
+
+  override async delete(id: string): Promise<boolean> {
+    await this.prisma.aISession.delete({ where: { id } })
+    return true
+  }
+
+  async createAISession(data: AISessionData): Promise<AISession> {
+    this.validateId(data.websiteId)
+
+    const sessionId = this.generateSessionId()
+
+    return this.prisma.aISession.create({
+      data: {
+        websiteId: data.websiteId,
+        userId: data.userId,
+        type: data.type,
+        sessionId,
+        context: this.toJson(data.context),
+        history: this.toJson([], []),
+        model: data.model ?? 'gpt-4',
+        temperature: data.temperature ?? 0.7,
+        maxTokens: data.maxTokens ?? 2000,
+        status: AISessionStatus.ACTIVE
+      }
+    })
   }
 
   async getAISessions(websiteId: string): Promise<AISession[]> {
-    try {
-      this.validateId(websiteId)
-      return await this.prisma.aiSession.findMany({
-        where: { websiteId },
-        orderBy: { updatedAt: 'desc' }
-      })
-    } catch (error) {
-      this.handleError(error)
-    }
+    this.validateId(websiteId)
+
+    return this.prisma.aISession.findMany({
+      where: { websiteId },
+      orderBy: { updatedAt: 'desc' }
+    })
   }
 
-  async sendAIMessage(sessionId: string, message: string): Promise<{
-    response: string
-    tokensUsed: number
-    cost: number
-  }> {
-    try {
-      this.validateId(sessionId)
-      
-      const session = await this.prisma.aiSession.findUnique({
-        where: { sessionId }
-      })
+  async sendAIMessage(sessionId: string, message: string): Promise<AIMessageResponse> {
+    this.validateId(sessionId)
 
-      if (!session) {
-        throw new Error('AI session not found')
+    const session = await this.prisma.aISession.findUnique({ where: { sessionId } })
+    this.assertSession(session)
+
+    const aiResponse = await this.generateAIResponse(session, message)
+
+    const history = Array.isArray(session.history)
+      ? [...(session.history as Prisma.JsonArray)]
+      : []
+
+    history.push({ role: 'user', content: message, timestamp: new Date().toISOString() })
+    history.push({ role: 'assistant', content: aiResponse.response, timestamp: new Date().toISOString() })
+
+    await this.prisma.aISession.update({
+      where: { sessionId },
+      data: {
+        history,
+        messageCount: session.messageCount + 1,
+        tokenUsage: session.tokenUsage + aiResponse.tokensUsed,
+        cost: session.cost.plus(aiResponse.cost),
+        updatedAt: new Date()
       }
+    })
 
-      // Mock AI response - in reality, you'd integrate with OpenAI, Anthropic, etc.
-      const aiResponse = await this.generateAIResponse(session, message)
-      
-      // Update session with new message and response
-      const updatedHistory = [
-        ...(session.history as any[]),
-        { role: 'user', content: message, timestamp: new Date() },
-        { role: 'assistant', content: aiResponse.response, timestamp: new Date() }
-      ]
-
-      await this.prisma.aiSession.update({
-        where: { sessionId },
-        data: {
-          history: updatedHistory,
-          messageCount: session.messageCount + 1,
-          tokenUsage: session.tokenUsage + aiResponse.tokensUsed,
-          cost: session.cost.toNumber() + aiResponse.cost
-        }
-      })
-
-      return aiResponse
-    } catch (error) {
-      this.handleError(error)
-    }
+    return aiResponse
   }
 
-  private async generateAIResponse(session: AISession, message: string): Promise<{
-    response: string
-    tokensUsed: number
-    cost: number
-  }> {
-    // Mock AI response generation based on session type
-    const responses = {
+  private async generateAIResponse(session: AISession, message: string): Promise<AIMessageResponse> {
+    const responses: Record<AISessionType, string[]> = {
       CHAT: [
         "I understand you're looking for help with your website. Let me assist you with that.",
         "Based on your requirements, I can suggest several approaches to improve your website's performance.",
@@ -146,204 +175,162 @@ export class AdvancedAIService extends BaseService<AISession> {
       ]
     }
 
-    const sessionResponses = responses[session.type] || responses.CHAT
+    const sessionResponses = responses[session.type] ?? responses.CHAT
     const randomResponse = sessionResponses[Math.floor(Math.random() * sessionResponses.length)]
-    
-    // Mock token usage and cost calculation
+
     const tokensUsed = Math.floor(Math.random() * 500) + 100
-    const cost = tokensUsed * 0.00002 // Mock cost per token
+    const cost = Number((tokensUsed * MOCK_TOKEN_COST).toFixed(4))
 
     return {
-      response: randomResponse,
+      response: `${randomResponse}\n\nUser message: ${message}`,
       tokensUsed,
       cost
     }
   }
 
   private generateSessionId(): string {
-    return `ai_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    return `ai_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`
   }
 
-  // AR/VR Content Management
   async createARVRContent(data: ARVRContentData): Promise<ARVRContent> {
-    try {
-      this.validateId(data.websiteId)
-      return await this.prisma.aRVRContent.create({
-        data: {
-          ...data,
-          status: ARVRStatus.DRAFT
-        }
-      })
-    } catch (error) {
-      this.handleError(error)
-    }
+    this.validateId(data.websiteId)
+
+    return this.prisma.aRVRContent.create({
+      data: {
+        websiteId: data.websiteId,
+        userId: data.userId,
+        name: data.name,
+        type: data.type,
+        description: data.description,
+        modelUrl: data.modelUrl,
+        textureUrl: data.textureUrl,
+        animationUrl: data.animationUrl,
+        scale: this.toJson(data.scale, null),
+        position: this.toJson(data.position, null),
+        rotation: this.toJson(data.rotation, null),
+        interactions: this.toJson(data.interactions, null),
+        status: ARVRStatus.DRAFT
+      }
+    })
   }
 
   async getARVRContent(websiteId: string): Promise<ARVRContent[]> {
-    try {
-      this.validateId(websiteId)
-      return await this.prisma.aRVRContent.findMany({
-        where: { websiteId },
-        orderBy: { updatedAt: 'desc' }
-      })
-    } catch (error) {
-      this.handleError(error)
-    }
+    this.validateId(websiteId)
+
+    return this.prisma.aRVRContent.findMany({
+      where: { websiteId },
+      orderBy: { updatedAt: 'desc' }
+    })
   }
 
   async processARVRContent(contentId: string): Promise<ARVRContent> {
-    try {
-      this.validateId(contentId)
-      
-      // Update status to processing
-      await this.prisma.aRVRContent.update({
-        where: { id: contentId },
-        data: { status: ARVRStatus.PROCESSING }
-      })
+    this.validateId(contentId)
 
-      // Mock AR/VR processing - in reality, you'd process 3D models, optimize textures, etc.
-      setTimeout(async () => {
-        try {
-          await this.prisma.aRVRContent.update({
-            where: { id: contentId },
-            data: { 
-              status: ARVRStatus.READY,
-              polygonCount: Math.floor(Math.random() * 10000) + 1000,
-              textureSize: Math.floor(Math.random() * 2048) + 512,
-              fileSize: Math.floor(Math.random() * 50000000) + 1000000 // 1-50MB
-            }
-          })
-        } catch (error) {
-          await this.prisma.aRVRContent.update({
-            where: { id: contentId },
-            data: { status: ARVRStatus.ERROR }
-          })
-        }
-      }, 5000) // 5 second delay
+    await this.prisma.aRVRContent.update({
+      where: { id: contentId },
+      data: { status: ARVRStatus.PROCESSING }
+    })
 
-      return await this.prisma.aRVRContent.findUnique({
-        where: { id: contentId }
-      }) as ARVRContent
-    } catch (error) {
-      this.handleError(error)
+    setTimeout(async () => {
+      try {
+        await this.prisma.aRVRContent.update({
+          where: { id: contentId },
+          data: {
+            status: ARVRStatus.READY,
+            polygonCount: Math.floor(Math.random() * 10000) + 1000,
+            textureSize: Math.floor(Math.random() * 2048) + 512,
+            fileSize: Math.floor(Math.random() * 50000000) + 1000000
+          }
+        })
+      } catch (error) {
+        await this.prisma.aRVRContent.update({
+          where: { id: contentId },
+          data: { status: ARVRStatus.ERROR }
+        })
+      }
+    }, 5000)
+
+    const content = await this.prisma.aRVRContent.findUnique({ where: { id: contentId } })
+    if (!content) {
+      throw new Error('AR/VR content not found')
     }
+
+    return content
   }
 
   async generateARVRContent(prompt: string, type: ARVRType, websiteId: string, userId?: string): Promise<ARVRContent> {
-    try {
-      this.validateId(websiteId)
-      
-      // Mock AR/VR content generation - in reality, you'd use AI to generate 3D models
-      const generatedContent = {
-        name: `AI Generated ${type.replace('_', ' ')}`,
-        type,
-        description: `Generated from prompt: ${prompt}`,
-        modelUrl: `https://api.example.com/generated/3d/${Date.now()}.glb`,
-        textureUrl: `https://api.example.com/generated/textures/${Date.now()}.jpg`,
-        scale: { x: 1, y: 1, z: 1 },
-        position: { x: 0, y: 0, z: 0 },
-        rotation: { x: 0, y: 0, z: 0 },
-        interactions: {
-          touch: 'rotate',
-          click: 'animate',
-          gesture: 'scale'
-        }
-      }
+    this.validateId(websiteId)
 
-      return await this.createARVRContent({
-        websiteId,
-        userId,
-        ...generatedContent
-      })
-    } catch (error) {
-      this.handleError(error)
+    const generated = {
+      name: `AI Generated ${type.replace('_', ' ')}`,
+      type,
+      description: `Generated from prompt: ${prompt}`,
+      modelUrl: `https://api.example.com/generated/3d/${Date.now()}.glb`,
+      textureUrl: `https://api.example.com/generated/textures/${Date.now()}.jpg`,
+      animationUrl: undefined,
+      scale: { x: 1, y: 1, z: 1 },
+      position: { x: 0, y: 0, z: 0 },
+      rotation: { x: 0, y: 0, z: 0 },
+      interactions: {
+        touch: 'rotate',
+        click: 'animate',
+        gesture: 'scale'
+      }
+    }
+
+    return this.createARVRContent({
+      websiteId,
+      userId,
+      name: generated.name,
+      type,
+      description: generated.description,
+      modelUrl: generated.modelUrl,
+      textureUrl: generated.textureUrl,
+      animationUrl: generated.animationUrl,
+      scale: generated.scale,
+      position: generated.position,
+      rotation: generated.rotation,
+      interactions: generated.interactions
+    })
+  }
+
+  async generateCodeFromDescription(description: string, language: string): Promise<AIMessageResponse & { code: string; explanation: string; suggestions: string[] }> {
+    const code = `// Generated code for: ${description}\nfunction sample${language.replace(/[^a-zA-Z]/g, '')}Function() {\n  console.log('Hello from AI-generated code!');\n  return 'success';\n}`
+
+    return {
+      response: 'Generated code successfully',
+      tokensUsed: 200,
+      cost: Number((200 * MOCK_TOKEN_COST).toFixed(4)),
+      code,
+      explanation: `Generated a ${language} function based on your description. Includes basic logging and return value.`,
+      suggestions: [
+        'Add input validation',
+        'Implement error handling',
+        'Add unit tests',
+        'Consider performance optimization'
+      ]
     }
   }
 
-  // Advanced AI Features
-  async generateCodeFromDescription(description: string, language: string): Promise<{
-    code: string
-    explanation: string
-    suggestions: string[]
-  }> {
-    try {
-      // Mock code generation - in reality, you'd use AI models like Codex, Claude, etc.
-      const mockCode = `// Generated code for: ${description}
-function ${language.toLowerCase()}Function() {
-  // Implementation based on description
-  console.log('Hello from AI-generated code!');
-  return 'success';
-}
+  async analyzeWebsitePerformance(websiteId: string) {
+    this.validateId(websiteId)
 
-module.exports = ${language.toLowerCase()}Function;`
-
-      return {
-        code: mockCode,
-        explanation: `I've generated a ${language} function based on your description. The code includes proper error handling and follows best practices.`,
-        suggestions: [
-          'Add input validation',
-          'Implement error handling',
-          'Add unit tests',
-          'Consider performance optimization'
-        ]
+    return {
+      score: Math.floor(Math.random() * 40) + 60,
+      recommendations: [
+        'Optimize images for faster loading',
+        'Implement lazy loading for below-the-fold content',
+        'Minify CSS and JavaScript files',
+        'Enable browser caching',
+        'Use a CDN for static assets'
+      ],
+      metrics: {
+        pageLoadTime: Number((Math.random() * 3 + 1).toFixed(2)),
+        firstContentfulPaint: Number((Math.random() * 2 + 0.5).toFixed(2)),
+        largestContentfulPaint: Number((Math.random() * 4 + 1).toFixed(2)),
+        cumulativeLayoutShift: Number((Math.random() * 0.1).toFixed(3)),
+        firstInputDelay: Math.floor(Math.random() * 100)
       }
-    } catch (error) {
-      this.handleError(error)
     }
-  }
-
-  async analyzeWebsitePerformance(websiteId: string): Promise<{
-    score: number
-    recommendations: string[]
-    metrics: any
-  }> {
-    try {
-      this.validateId(websiteId)
-      
-      // Mock website analysis - in reality, you'd analyze real performance data
-      const mockAnalysis = {
-        score: Math.floor(Math.random() * 40) + 60, // 60-100
-        recommendations: [
-          'Optimize images for faster loading',
-          'Implement lazy loading for below-the-fold content',
-          'Minify CSS and JavaScript files',
-          'Enable browser caching',
-          'Use a CDN for static assets'
-        ],
-        metrics: {
-          pageLoadTime: Math.floor(Math.random() * 3) + 1,
-          firstContentfulPaint: Math.floor(Math.random() * 2) + 0.5,
-          largestContentfulPaint: Math.floor(Math.random() * 4) + 1,
-          cumulativeLayoutShift: Math.random() * 0.1,
-          firstInputDelay: Math.random() * 100
-        }
-      }
-
-      return mockAnalysis
-    } catch (error) {
-      this.handleError(error)
-    }
-  }
-
-  // Required abstract methods from BaseService
-  async create(data: any): Promise<AISession> {
-    return this.prisma.aiSession.create({ data })
-  }
-  
-  async findById(id: string): Promise<AISession | null> {
-    return this.prisma.aiSession.findUnique({ where: { id } })
-  }
-  
-  async findAll(filters?: any): Promise<AISession[]> {
-    return this.prisma.aiSession.findMany({ where: filters })
-  }
-  
-  async update(id: string, data: Partial<AISession>): Promise<AISession> {
-    return this.prisma.aiSession.update({ where: { id }, data })
-  }
-  
-  async delete(id: string): Promise<boolean> {
-    await this.prisma.aiSession.delete({ where: { id } })
-    return true
   }
 }

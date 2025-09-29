@@ -63,26 +63,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         return
       }
 
-      // Bypass API call for demo purposes
-      // const response = await api.get('/auth/me')
-      // setUser(response.data.data.user)
-      
-      // Demo user data
-      setUser({
-        id: 'demo-user-1',
-        name: 'Demo User',
-        email: 'demo@pakistanbuilder.com',
-        phone: '+92-300-1234567',
-        avatar: '',
-        businessType: 'TECHNOLOGY',
-        city: 'Karachi',
-        companyName: 'Demo Company',
-        role: 'USER',
-        status: 'ACTIVE',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        lastLoginAt: new Date().toISOString()
-      })
+      // Use real API call to get user data
+      const response = await api.get('/auth/me')
+      setUser(response.data.data.user)
     } catch (error) {
       console.error('Auth check failed:', error)
       localStorage.removeItem('accessToken')

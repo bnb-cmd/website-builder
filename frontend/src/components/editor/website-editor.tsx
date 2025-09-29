@@ -11,6 +11,7 @@ import { LayerPanel } from './advanced/layer-panel'
 import { DesignTools } from './advanced/design-tools'
 import { AIWebsiteAssistant } from './advanced/ai-website-assistant'
 import { TemplateLibrary } from './template-library'
+import { ComponentLibrary } from './component-library'
 import { AnimationEditor } from './advanced/animation-editor'
 import { InteractionsPanel } from './advanced/interactions-panel'
 import { CustomCSSEditor } from './advanced/custom-css-editor'
@@ -25,6 +26,17 @@ import { DeveloperPortalPanel } from './advanced/developer-portal-panel'
 import { CustomDomainPanel } from './advanced/custom-domain-panel'
 import { ElementType, Element, WebsiteData } from '@/types/editor'
 import { useWebsiteStore } from '@/store/website-store'
+import { useAutoSave } from '@/hooks/use-auto-save'
+import { AutoSaveIndicator } from '@/components/ui/auto-save-indicator'
+import { DraftRecovery } from '@/components/ui/draft-recovery'
+import { useGuidedEditor } from '@/hooks/use-guided-editor'
+import { GuidedTour } from '@/components/ui/guided-tour'
+import { GuidedWorkflowsPanel } from '@/components/ui/guided-workflows-panel'
+import { useCollaboration } from '@/hooks/use-collaboration'
+import { CollaborationCursors, CollaborationSelections, CollaborationPresence } from '@/components/ui/collaboration-cursors'
+import { CollaborationPanel } from '@/components/ui/collaboration-panel'
+import { useTouchInteractions } from '@/hooks/use-touch-interactions'
+import { GestureZone, SwipeAction } from '@/components/ui/gesture-manager'
 import { Button } from '@/components/ui/button'
 import { 
   Save, 
@@ -48,7 +60,10 @@ import {
   Terminal,
   Webhook,
   Shield,
-  Globe
+  Globe,
+  GraduationCap,
+  BookOpen,
+  Users
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -97,15 +112,186 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
   const [showDeveloperPortal, setShowDeveloperPortal] = useState(false)
   const [showCustomDomain, setShowCustomDomain] = useState(false)
   const [showProperties, setShowProperties] = useState(true)
+  const [showComponentLibrary, setShowComponentLibrary] = useState(true)
+  const [showDraftRecovery, setShowDraftRecovery] = useState(false)
+  const [showGuidedLearning, setShowGuidedLearning] = useState(false)
+  const [showCollaboration, setShowCollaboration] = useState(false)
+  const [collaborationVisible, setCollaborationVisible] = useState(true)
+
+  // Touch interaction refs
+  const canvasRef = useRef<HTMLDivElement>(null)
+  const editorRef = useRef<HTMLDivElement>(null)
+
+  // Auto-save functionality
+  const {
+    saveState,
+    draftVersions,
+    onDataChange,
+    manualSave,
+    recoverDraft,
+    deleteDraft,
+    toggleAutoSave,
+    createDraft
+  } = useAutoSave({
+    websiteId,
+    autoSaveInterval: 30000, // 30 seconds
+    onSaveSuccess: (data) => {
+      toast.success('Website saved successfully!')
+    },
+    onSaveError: (error) => {
+      toast.error(`Save failed: ${error.message}`)
+    },
+    onDraftRecovered: (draft) => {
+      toast.success('Draft recovered successfully!')
+    }
+  })
+
+  // Manual save handler
+  const handleManualSave = useCallback(async () => {
+    try {
+      await manualSave({ elements, viewMode })
+      toast.success('Website saved manually!')
+    } catch (error) {
+      toast.error('Failed to save website')
+    }
+  }, [manualSave, elements, viewMode])
+
+  // Handle draft recovery
+  const handleRecoverDraft = useCallback((draftId: string) => {
+    const recoveredData = recoverDraft(draftId)
+    if (recoveredData) {
+      // Update the website store with recovered data
+      // This would need to be implemented based on how the store works
+      toast.success('Draft recovered successfully!')
+    }
+  }, [recoverDraft])
+
+  // Clear all drafts
+  const handleClearAllDrafts = useCallback(() => {
+    draftVersions.forEach(draft => deleteDraft(draft.id))
+    toast.success('All drafts cleared!')
+  }, [draftVersions, deleteDraft])
+
+  // Guided editor functionality
+  const {
+    workflows,
+    currentWorkflow,
+    progress,
+    isActive: isGuidedTourActive,
+    startWorkflow,
+    completeStep,
+    skipStep,
+    completeWorkflow,
+    getAvailableWorkflows,
+    getWorkflowProgress
+  } = useGuidedEditor({
+    userId: 'demo-user', // In real app, this would be the actual user ID
+    autoStart: true,
+    showHints: true,
+    enableTutorials: true
+  })
+
+  // Collaboration functionality
+  const {
+    collaborators,
+    currentUser,
+    activeCollaborators,
+    isConnected,
+    connectionStatus,
+    events,
+    updateCursor,
+    updateSelection,
+    updateAction
+  } = useCollaboration({
+    websiteId,
+    currentUserId: 'demo-user', // In real app, this would be the actual user ID
+    currentUserName: 'You', // In real app, this would be the actual user name
+    enabled: true,
+    onCollaboratorUpdate: (updatedCollaborators) => {
+      console.log('Collaborators updated:', updatedCollaborators)
+    },
+    onEvent: (event) => {
+      console.log('Collaboration event:', event)
+    }
+  })
+
+  // Touch interactions for canvas
+  useTouchInteractions(
+    canvasRef,
+    {
+      enableSwipe: true,
+      enablePinch: true,
+      enableDoubleTap: true,
+      swipeThreshold: 50
+    },
+    {
+      onSwipe: (gesture) => {
+        // Swipe to navigate between panels on mobile
+        if (gesture.direction === 'left' && showComponentLibrary) {
+          setShowComponentLibrary(false)
+          setShowProperties(true)
+        } else if (gesture.direction === 'right' && showProperties) {
+          setShowProperties(false)
+          setShowComponentLibrary(true)
+        }
+      },
+      onPinch: (pinch) => {
+        // Pinch to zoom canvas (future enhancement)
+        console.log('Pinch gesture:', pinch)
+      },
+      onDoubleTap: () => {
+        // Double tap to reset zoom or center canvas
+        console.log('Double tap on canvas')
+      }
+    }
+  )
+
+  // Touch interactions for editor layout
+  useTouchInteractions(
+    editorRef,
+    { enableSwipe: true, swipeThreshold: 100 },
+    {
+      onSwipe: (gesture) => {
+        // Swipe between different editor modes
+        if (gesture.direction === 'up') {
+          // Swipe up to show/hide panels
+          setShowComponentLibrary(!showComponentLibrary)
+        }
+      }
+    }
+  )
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
     const { active } = event
     setDraggedElement(active.data.current?.type || null)
   }, [])
 
+  // Handle mouse movement for collaboration cursors
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    if (isConnected && collaborationVisible) {
+      const canvasElement = document.querySelector('[data-canvas]')
+      if (canvasElement) {
+        const rect = canvasElement.getBoundingClientRect()
+        const x = e.clientX - rect.left
+        const y = e.clientY - rect.top
+
+        if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+          updateCursor(x, y)
+        }
+      }
+    }
+  }, [isConnected, collaborationVisible, updateCursor])
+
+  const handleElementSelect = useCallback((elementId: string) => {
+    if (isConnected) {
+      updateSelection([elementId])
+      updateAction('selecting element')
+    }
+  }, [isConnected, updateSelection, updateAction])
+
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event
-    
+
     if (!over) {
       setDraggedElement(null)
       return
@@ -126,11 +312,16 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
           position: { x: 0, y: 0 }
         }
         addElement(newElement)
+
+        // Track data change for auto-save
+        setTimeout(() => {
+          onDataChange({ elements: [...elements, newElement], viewMode })
+        }, 100)
       }
     }
 
     setDraggedElement(null)
-  }, [addElement])
+  }, [addElement, elements, viewMode, onDataChange])
 
   const getDefaultProps = (type: ElementType): Record<string, any> => {
     switch (type) {
@@ -171,9 +362,9 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
 
   return (
     <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div className="h-screen flex flex-col bg-background">
+      <div ref={editorRef} className="h-screen flex flex-col bg-background">
         {/* Header Toolbar */}
-        <Toolbar>
+        <Toolbar data-toolbar>
           <div className="flex items-center space-x-4">
             {/* Undo/Redo */}
             <div className="flex items-center space-x-2">
@@ -196,25 +387,34 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
             </div>
 
             {/* View Mode */}
-            <div className="flex items-center space-x-1 bg-muted rounded-lg p-1">
+            <div className="flex items-center space-x-1 bg-muted rounded-lg p-1" data-view-modes>
               <Button
                 variant={viewMode === 'desktop' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => setViewMode('desktop')}
+                onClick={() => {
+                  setViewMode('desktop')
+                  onDataChange({ elements, viewMode: 'desktop' })
+                }}
               >
                 <Monitor className="h-4 w-4" />
               </Button>
               <Button
                 variant={viewMode === 'tablet' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => setViewMode('tablet')}
+                onClick={() => {
+                  setViewMode('tablet')
+                  onDataChange({ elements, viewMode: 'tablet' })
+                }}
               >
                 <Tablet className="h-4 w-4" />
               </Button>
               <Button
                 variant={viewMode === 'mobile' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => setViewMode('mobile')}
+                onClick={() => {
+                  setViewMode('mobile')
+                  onDataChange({ elements, viewMode: 'mobile' })
+                }}
               >
                 <Smartphone className="h-4 w-4" />
               </Button>
@@ -239,12 +439,42 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
                 <Wand2 className="h-4 w-4" />
               </Button>
               <Button
+                variant={showComponentLibrary ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => {
+                  setShowComponentLibrary(true)
+                  setShowTemplates(false)
+                }}
+                title="Component Library"
+              >
+                <MousePointer className="h-4 w-4" />
+              </Button>
+              <Button
                 variant={showTemplates ? 'default' : 'outline'}
                 size="sm"
-                onClick={() => setShowTemplates(!showTemplates)}
+                onClick={() => {
+                  setShowTemplates(true)
+                  setShowComponentLibrary(false)
+                }}
                 title="Templates"
               >
                 <Palette className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={showGuidedLearning ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setShowGuidedLearning(!showGuidedLearning)}
+                title="Guided Learning"
+              >
+                <GraduationCap className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={showCollaboration ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setShowCollaboration(!showCollaboration)}
+                title="Collaboration"
+              >
+                <Users className="h-4 w-4" />
               </Button>
               <Button
                 variant={showProperties ? 'default' : 'outline'}
@@ -353,22 +583,64 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
             </div>
           </div>
 
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-4">
+            {/* Collaboration presence */}
+            <CollaborationPresence
+              collaborators={activeCollaborators}
+              compact
+            />
+
+            {/* Auto-save indicator */}
+            <AutoSaveIndicator saveState={saveState} compact />
+
+            {/* Draft recovery button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowDraftRecovery(!showDraftRecovery)}
+              title="Draft Recovery"
+            >
+              <History className="h-4 w-4" />
+            </Button>
+
+            {/* Manual save button */}
+            <Button
+              variant="outline"
+              onClick={handleManualSave}
+              disabled={saveState.status === 'saving'}
+            >
+              <Save className="h-4 w-4 mr-2" />
+              {saveState.status === 'saving' ? 'Saving...' : 'Save Now'}
+            </Button>
+
             <Button variant="outline" onClick={handlePreview}>
               <Eye className="h-4 w-4 mr-2" />
               Preview
-            </Button>
-            <Button onClick={handleSave} disabled={isLoading}>
-              <Save className="h-4 w-4 mr-2" />
-              {isLoading ? 'Saving...' : 'Save'}
             </Button>
           </div>
         </Toolbar>
 
         {/* Editor Layout */}
         <div className="flex-1 flex">
-          {/* Left Panel - Components or Templates */}
-          {showTemplates ? (
+          {/* Left Panel - Components, Templates, or Default Sidebar */}
+          {showComponentLibrary ? (
+            <ComponentLibrary
+              data-component-library
+              onComponentSelect={(component) => {
+                console.log('Selected component:', component)
+                // Add component to canvas logic here
+                addElement({
+                  id: `${component.id}-${Date.now()}`,
+                  type: component.id as ElementType,
+                  content: component.defaultProps || {},
+                  styles: {},
+                  position: { x: 0, y: 0 },
+                  size: { width: 300, height: 200 }
+                })
+              }}
+              currentContext={['landing-page', 'content']} // This could be dynamic based on current page context
+            />
+          ) : showTemplates ? (
             <TemplateLibrary
               onSelectTemplate={(template) => {
                 console.log('Selected template:', template)
@@ -398,8 +670,13 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
             )}
 
             {/* Main Canvas */}
-            <div className="flex-1 flex flex-col">
+            <div
+              ref={canvasRef}
+              className="flex-1 flex flex-col"
+              onMouseMove={handleMouseMove}
+            >
               <Canvas
+                data-canvas
                 elements={elements}
                 selectedElement={selectedElement}
                 viewMode={viewMode}
@@ -470,6 +747,42 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
               <CustomDomainPanel
                 onClose={() => setShowCustomDomain(false)}
               />
+            ) : showDraftRecovery ? (
+              <div className="w-80 border-l bg-card">
+                <DraftRecovery
+                  draftVersions={draftVersions}
+                  onRecoverDraft={handleRecoverDraft}
+                  onDeleteDraft={deleteDraft}
+                  onClearAllDrafts={handleClearAllDrafts}
+                />
+              </div>
+            ) : showCollaboration ? (
+              <CollaborationPanel
+                collaborators={collaborators}
+                currentUser={currentUser}
+                isConnected={isConnected}
+                connectionStatus={connectionStatus}
+                events={events}
+                onToggleVisibility={() => setCollaborationVisible(!collaborationVisible)}
+                onShareLink={() => {
+                  navigator.clipboard.writeText(window.location.href)
+                  toast.success('Collaboration link copied!')
+                }}
+                onCopyLink={() => {
+                  navigator.clipboard.writeText(window.location.href)
+                  toast.success('Link copied!')
+                }}
+              />
+            ) : showGuidedLearning ? (
+              <div className="w-80 border-l bg-card p-4">
+                <GuidedWorkflowsPanel
+                  workflows={workflows}
+                  availableWorkflows={getAvailableWorkflows()}
+                  getWorkflowProgress={getWorkflowProgress}
+                  onStartWorkflow={startWorkflow}
+                  currentWorkflow={progress.currentWorkflow}
+                />
+              </div>
             ) : showDesignTools ? (
               <DesignTools
                 selectedElement={selectedElement}
@@ -507,6 +820,33 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
           </div>
         )}
       </DragOverlay>
+
+      {/* Guided Tour Overlay */}
+      <GuidedTour
+        workflow={currentWorkflow}
+        currentStep={progress.currentStep}
+        isActive={isGuidedTourActive}
+        onComplete={completeStep}
+        onSkip={skipStep}
+        onClose={() => {
+          // Close the current workflow
+          completeWorkflow()
+        }}
+      />
+
+      {/* Collaboration Overlays */}
+      {collaborationVisible && (
+        <>
+          <CollaborationCursors
+            collaborators={activeCollaborators}
+            containerRef={{ current: document.querySelector('[data-canvas]') as HTMLElement }}
+          />
+          <CollaborationSelections
+            collaborators={activeCollaborators}
+            containerRef={{ current: document.querySelector('[data-canvas]') as HTMLElement }}
+          />
+        </>
+      )}
     </DndContext>
   )
 }

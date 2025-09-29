@@ -1,4 +1,4 @@
-import { Agency, AgencyClient, AgencyPlan, AgencyStatus, ClientStatus } from '@prisma/client'
+import { Agency, AgencyClient, AgencyPlan, AgencyStatus, ClientStatus, Prisma } from '@prisma/client'
 import { BaseService } from './baseService'
 
 export interface AgencyData {
@@ -40,8 +40,14 @@ export class AgencyService extends BaseService<Agency> {
       return await this.prisma.agency.create({
         data: {
           userId,
-          ...data,
-          status: AgencyStatus.ACTIVE,
+          name: data.name,
+          description: data.description || null,
+          website: data.website || null,
+          logo: data.logo || null,
+          brandName: data.brandName || null,
+          brandColors: data.brandColors || null,
+          customDomain: data.customDomain || null,
+          customLogo: data.customLogo || null,
           features: data.features || {
             websiteBuilder: true,
             ecommerce: true,
@@ -50,7 +56,10 @@ export class AgencyService extends BaseService<Agency> {
             integrations: false,
             videoEditor: false,
             designSystem: false
-          }
+          },
+          plan: data.plan || AgencyPlan.STARTER,
+          billingEmail: data.billingEmail || null,
+          status: AgencyStatus.ACTIVE
         }
       })
     } catch (error) {
@@ -211,8 +220,8 @@ export class AgencyService extends BaseService<Agency> {
           primary: '#3B82F6',
           secondary: '#1E40AF'
         },
-        customDomain: agency.customDomain,
-        customLogo: agency.customLogo,
+        customDomain: agency.customDomain || '',
+        customLogo: agency.customLogo || '',
         features: agency.features
       }
     } catch (error) {
@@ -286,7 +295,13 @@ export class AgencyService extends BaseService<Agency> {
   }
   
   async update(id: string, data: Partial<Agency>): Promise<Agency> {
-    return this.prisma.agency.update({ where: { id }, data })
+    const { userId, brandColors, features, ...updateData } = data
+    const processedData = {
+      ...updateData,
+      brandColors: brandColors ? JSON.stringify(brandColors) : Prisma.DbNull,
+      features: features ? JSON.stringify(features) : undefined
+    }
+    return this.prisma.agency.update({ where: { id }, data: processedData })
   }
   
   async delete(id: string): Promise<boolean> {
