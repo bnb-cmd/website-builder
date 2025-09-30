@@ -85,7 +85,7 @@ import {
   FlipHorizontal,
   FlipVertical,
   Move,
-  Resize,
+  Maximize2,
   Crop,
   Wand2,
   Palette,

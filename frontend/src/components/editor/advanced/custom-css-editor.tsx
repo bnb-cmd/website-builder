@@ -26,7 +26,7 @@ interface CustomCSSEditorProps {
 }
 
 export function CustomCSSEditor({ element, onUpdateElement, onClose }: CustomCSSEditorProps) {
-  const [css, setCss] = useState(element.customCss || `/* Custom CSS for element #${element.id} */\nselector {\n  \n}`)
+  const [css, setCss] = useState((element as any).customCss || `/* Custom CSS for element #${element.id} */\nselector {\n  \n}`)
   const [aiPrompt, setAiPrompt] = useState('')
   const [aiSuggestions, setAiSuggestions] = useState<string[]>([])
   const [isGenerating, setIsGenerating] = useState(false)
@@ -36,7 +36,7 @@ export function CustomCSSEditor({ element, onUpdateElement, onClose }: CustomCSS
   }
 
   const applyCss = () => {
-    onUpdateElement(element.id, { customCss: css })
+    onUpdateElement(element.id, { customCss: css } as any)
   }
 
   const generateAISuggestions = () => {
@@ -54,7 +54,7 @@ export function CustomCSSEditor({ element, onUpdateElement, onClose }: CustomCSS
   }
 
   const applySuggestion = (suggestion: string) => {
-    setCss(prev => prev.replace('selector', `/* Suggestion Applied */\n${suggestion.replace(/selector/g, `[data-element-id="${element.id}"]`)}`))
+    setCss((prev: string) => prev.replace('selector', `/* Suggestion Applied */\n${suggestion.replace(/selector/g, `[data-element-id="${element.id}"]`)}`))
   }
 
   return (

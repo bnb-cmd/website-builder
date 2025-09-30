@@ -1,153 +1,143 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
   Activity,
   Globe,
-  Zap,
+  Edit,
+  Trash2,
+  Eye,
   Users,
-  TrendingUp,
-  AlertCircle,
-  CheckCircle,
+  Zap,
   Clock,
-  ExternalLink,
-  RefreshCw
+  CheckCircle,
+  AlertCircle,
+  Info
 } from 'lucide-react'
-import { useAuth } from '@/components/auth/auth-provider'
-import { apiHelpers } from '@/lib/api'
 
 interface ActivityItem {
   id: string
-  type: 'website_published' | 'website_created' | 'visitor_increase' | 'conversion' | 'error' | 'system_update'
-  title: string
-  description: string
-  timestamp: Date
-  priority: 'low' | 'medium' | 'high' | 'urgent'
-  metadata?: {
-    websiteId?: string
-    websiteName?: string
-    value?: number
-    change?: number
-    url?: string
+  type: 'website_created' | 'website_updated' | 'website_published' | 'website_deleted' | 'page_created' | 'page_updated' | 'ai_generated' | 'user_login' | 'payment_received' | 'domain_connected'
+  message: string
+  timestamp: string
+  user?: {
+    name: string
+    avatar?: string
   }
-  actions?: Array<{
-    label: string
-    action: () => void
-    primary?: boolean
-  }>
+  metadata?: {
+    websiteName?: string
+    pageName?: string
+    amount?: number
+    domain?: string
+  }
+  status?: 'success' | 'warning' | 'error' | 'info'
 }
 
 interface RealTimeActivityFeedProps {
   maxItems?: number
   showHeader?: boolean
   compact?: boolean
+  userId?: string
 }
 
-export function RealTimeActivityFeed({
-  maxItems = 10,
-  showHeader = true,
-  compact = false
+export function RealTimeActivityFeed({ 
+  maxItems = 10, 
+  showHeader = true, 
+  compact = false,
+  userId 
 }: RealTimeActivityFeedProps) {
   const [activities, setActivities] = useState<ActivityItem[]>([])
-  const [isConnected, setIsConnected] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
-  const scrollAreaRef = useRef<HTMLDivElement>(null)
-  const { user } = useAuth()
 
   useEffect(() => {
-    loadInitialActivities()
-    connectToRealtimeFeed()
-  }, [])
+    loadActivities()
+    // Set up real-time updates (in a real app, this would be WebSocket or SSE)
+    const interval = setInterval(loadActivities, 30000) // Refresh every 30 seconds
+    return () => clearInterval(interval)
+  }, [userId])
 
-  const loadInitialActivities = async () => {
+  const loadActivities = async () => {
     try {
-      // In a real app, this would fetch from your API
-      // For now, we'll generate mock data
+      // Mock data for now - in a real app, this would fetch from API
       const mockActivities: ActivityItem[] = [
         {
           id: '1',
-          type: 'website_published',
-          title: 'Website Published',
-          description: 'Your restaurant website has been successfully published',
-          timestamp: new Date(Date.now() - 5 * 60 * 1000), // 5 minutes ago
-          priority: 'high',
-          metadata: {
-            websiteId: 'website-1',
-            websiteName: 'My Restaurant'
-          },
-          actions: [
-            {
-              label: 'View Site',
-              action: () => window.open('https://example.com', '_blank'),
-              primary: true
-            }
-          ]
+          type: 'website_created',
+          message: 'Created new website "My Business Site"',
+          timestamp: new Date(Date.now() - 5 * 60 * 1000).toISOString(),
+          user: { name: 'John Doe', avatar: '/avatars/john.jpg' },
+          metadata: { websiteName: 'My Business Site' },
+          status: 'success'
         },
         {
           id: '2',
-          type: 'visitor_increase',
-          title: 'Traffic Spike',
-          description: 'Visitor count increased by 45% in the last hour',
-          timestamp: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
-          priority: 'medium',
-          metadata: {
-            value: 234,
-            change: 45
-          }
+          type: 'ai_generated',
+          message: 'AI generated content for homepage',
+          timestamp: new Date(Date.now() - 15 * 60 * 1000).toISOString(),
+          user: { name: 'John Doe', avatar: '/avatars/john.jpg' },
+          metadata: { websiteName: 'My Business Site' },
+          status: 'info'
         },
         {
           id: '3',
-          type: 'conversion',
-          title: 'New Lead',
-          description: 'Someone submitted your contact form',
-          timestamp: new Date(Date.now() - 30 * 60 * 1000), // 30 minutes ago
-          priority: 'high',
-          metadata: {
-            websiteName: 'Business Website'
-          },
-          actions: [
-            {
-              label: 'View Details',
-              action: () => console.log('View lead details')
-            }
-          ]
+          type: 'website_published',
+          message: 'Published website "Portfolio Site"',
+          timestamp: new Date(Date.now() - 30 * 60 * 1000).toISOString(),
+          user: { name: 'John Doe', avatar: '/avatars/john.jpg' },
+          metadata: { websiteName: 'Portfolio Site' },
+          status: 'success'
         },
         {
           id: '4',
-          type: 'system_update',
-          title: 'AI Content Generated',
-          description: 'New blog post created using AI assistant',
-          timestamp: new Date(Date.now() - 45 * 60 * 1000), // 45 minutes ago
-          priority: 'low',
-          metadata: {
-            websiteName: 'Blog Site'
-          }
+          type: 'page_created',
+          message: 'Added new page "About Us"',
+          timestamp: new Date(Date.now() - 45 * 60 * 1000).toISOString(),
+          user: { name: 'John Doe', avatar: '/avatars/john.jpg' },
+          metadata: { websiteName: 'My Business Site', pageName: 'About Us' },
+          status: 'success'
         },
         {
           id: '5',
-          type: 'error',
-          title: 'SSL Certificate Expiring',
-          description: 'SSL certificate for your domain expires in 7 days',
-          timestamp: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
-          priority: 'urgent',
-          metadata: {
-            url: 'https://example.com'
-          },
-          actions: [
-            {
-              label: 'Renew Now',
-              action: () => console.log('Renew SSL'),
-              primary: true
-            }
-          ]
+          type: 'domain_connected',
+          message: 'Connected custom domain "mybusiness.com"',
+          timestamp: new Date(Date.now() - 60 * 60 * 1000).toISOString(),
+          user: { name: 'John Doe', avatar: '/avatars/john.jpg' },
+          metadata: { websiteName: 'My Business Site', domain: 'mybusiness.com' },
+          status: 'success'
+        },
+        {
+          id: '6',
+          type: 'payment_received',
+          message: 'Received payment of Rs 2,999',
+          timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString(),
+          user: { name: 'John Doe', avatar: '/avatars/john.jpg' },
+          metadata: { amount: 2999 },
+          status: 'success'
+        },
+        {
+          id: '7',
+          type: 'website_updated',
+          message: 'Updated website "E-commerce Store"',
+          timestamp: new Date(Date.now() - 3 * 60 * 60 * 1000).toISOString(),
+          user: { name: 'John Doe', avatar: '/avatars/john.jpg' },
+          metadata: { websiteName: 'E-commerce Store' },
+          status: 'info'
+        },
+        {
+          id: '8',
+          type: 'user_login',
+          message: 'Logged in successfully',
+          timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString(),
+          user: { name: 'John Doe', avatar: '/avatars/john.jpg' },
+          status: 'info'
         }
       ]
 
-      setActivities(mockActivities)
+      setActivities(mockActivities.slice(0, maxItems))
     } catch (error) {
       console.error('Failed to load activities:', error)
     } finally {
@@ -155,260 +145,174 @@ export function RealTimeActivityFeed({
     }
   }
 
-  const connectToRealtimeFeed = () => {
-    // Simulate WebSocket connection
-    setTimeout(() => {
-      setIsConnected(true)
-    }, 1000)
-
-    // Mock real-time updates
-    const interval = setInterval(() => {
-      if (Math.random() > 0.7) { // 30% chance of new activity
-        addNewActivity()
-      }
-    }, 30000) // Check every 30 seconds
-
-    return () => clearInterval(interval)
-  }
-
-  const addNewActivity = () => {
-    const newActivities: ActivityItem[] = [
-      {
-        id: Date.now().toString(),
-        type: 'visitor_increase',
-        title: 'New Visitor',
-        description: 'Someone is browsing your website right now',
-        timestamp: new Date(),
-        priority: 'low',
-        metadata: {
-          websiteName: 'Portfolio Site'
-        }
-      },
-      {
-        id: Date.now().toString(),
-        type: 'system_update',
-        title: 'Backup Completed',
-        description: 'Automatic backup of your websites completed successfully',
-        timestamp: new Date(),
-        priority: 'low'
-      }
-    ]
-
-    const randomActivity = newActivities[Math.floor(Math.random() * newActivities.length)]
-
-    setActivities(prev => [randomActivity, ...prev.slice(0, maxItems - 1)])
-  }
-
   const getActivityIcon = (type: ActivityItem['type']) => {
     switch (type) {
-      case 'website_published':
-        return CheckCircle
       case 'website_created':
+      case 'website_updated':
+      case 'website_published':
         return Globe
-      case 'visitor_increase':
-        return Users
-      case 'conversion':
-        return TrendingUp
-      case 'error':
-        return AlertCircle
-      case 'system_update':
+      case 'website_deleted':
+        return Trash2
+      case 'page_created':
+      case 'page_updated':
+        return Edit
+      case 'ai_generated':
         return Zap
+      case 'user_login':
+        return Users
+      case 'payment_received':
+        return CheckCircle
+      case 'domain_connected':
+        return Globe
       default:
         return Activity
     }
   }
 
-  const getPriorityColor = (priority: ActivityItem['priority']) => {
-    switch (priority) {
-      case 'urgent':
-        return 'bg-red-500'
-      case 'high':
-        return 'bg-orange-500'
-      case 'medium':
-        return 'bg-yellow-500'
-      case 'low':
-        return 'bg-blue-500'
+  const getStatusIcon = (status?: ActivityItem['status']) => {
+    switch (status) {
+      case 'success':
+        return CheckCircle
+      case 'warning':
+        return AlertCircle
+      case 'error':
+        return AlertCircle
+      case 'info':
+        return Info
       default:
-        return 'bg-gray-500'
+        return Activity
     }
   }
 
-  const formatTimestamp = (timestamp: Date) => {
+  const getStatusColor = (status?: ActivityItem['status']) => {
+    switch (status) {
+      case 'success':
+        return 'text-green-600'
+      case 'warning':
+        return 'text-yellow-600'
+      case 'error':
+        return 'text-red-600'
+      case 'info':
+        return 'text-blue-600'
+      default:
+        return 'text-gray-600'
+    }
+  }
+
+  const formatTimestamp = (timestamp: string) => {
+    const date = new Date(timestamp)
     const now = new Date()
-    const diff = now.getTime() - timestamp.getTime()
-    const minutes = Math.floor(diff / (1000 * 60))
-    const hours = Math.floor(diff / (1000 * 60 * 60))
-    const days = Math.floor(diff / (1000 * 60 * 60 * 24))
+    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60))
 
-    if (minutes < 1) return 'Just now'
-    if (minutes < 60) return `${minutes}m ago`
-    if (hours < 24) return `${hours}h ago`
-    return `${days}d ago`
+    if (diffInMinutes < 1) return 'Just now'
+    if (diffInMinutes < 60) return `${diffInMinutes}m ago`
+    if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`
+    return `${Math.floor(diffInMinutes / 1440)}d ago`
   }
 
-  const refreshActivities = () => {
-    setIsLoading(true)
-    loadInitialActivities()
-  }
-
-  if (compact) {
+  if (isLoading) {
     return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between text-base">
-            <div className="flex items-center space-x-2">
-              <Activity className="h-4 w-4" />
-              <span>Recent Activity</span>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-              <Button variant="ghost" size="sm" onClick={refreshActivities}>
-                <RefreshCw className="h-3 w-3" />
-              </Button>
-            </div>
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <ScrollArea className="h-64">
-            <div className="space-y-3">
-              {activities.slice(0, 5).map((activity) => {
-                const Icon = getActivityIcon(activity.type)
-                return (
-                  <div key={activity.id} className="flex items-start space-x-3 p-2 rounded-lg hover:bg-accent/50">
-                    <div className={`p-1 rounded-full ${getPriorityColor(activity.priority)}`}>
-                      <Icon className="h-3 w-3 text-white" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium truncate">{activity.title}</p>
-                      <p className="text-xs text-muted-foreground truncate">{activity.description}</p>
-                      <p className="text-xs text-muted-foreground">{formatTimestamp(activity.timestamp)}</p>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </ScrollArea>
+      <Card className={compact ? 'p-4' : ''}>
+        {showHeader && (
+          <CardHeader className={compact ? 'p-0 pb-4' : ''}>
+            <CardTitle className={compact ? 'text-base' : ''}>Activity Feed</CardTitle>
+          </CardHeader>
+        )}
+        <CardContent className={compact ? 'p-0' : ''}>
+          <div className="space-y-3">
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-muted animate-pulse rounded-full" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
+                  <div className="h-3 bg-muted animate-pulse rounded w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <Card>
+    <Card className={compact ? 'p-4' : ''}>
       {showHeader && (
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <Activity className="h-5 w-5" />
-              <span>Activity Feed</span>
-              <Badge variant="outline" className="ml-2">
-                Live
-              </Badge>
-            </div>
-            <div className="flex items-center space-x-2">
-              <div className={`flex items-center space-x-1 text-xs ${isConnected ? 'text-green-600' : 'text-red-600'}`}>
-                <div className={`w-2 h-2 rounded-full ${isConnected ? 'bg-green-500' : 'bg-red-500'}`} />
-                <span>{isConnected ? 'Connected' : 'Disconnected'}</span>
-              </div>
-              <Button variant="outline" size="sm" onClick={refreshActivities}>
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Refresh
-              </Button>
-            </div>
+        <CardHeader className={compact ? 'p-0 pb-4' : ''}>
+          <CardTitle className={`flex items-center space-x-2 ${compact ? 'text-base' : ''}`}>
+            <Activity className="h-5 w-5" />
+            <span>Activity Feed</span>
+            <Badge variant="secondary" className="ml-auto">
+              {activities.length}
+            </Badge>
           </CardTitle>
         </CardHeader>
       )}
-
-      <CardContent>
-        <ScrollArea className="h-96" ref={scrollAreaRef}>
-          {isLoading ? (
-            <div className="space-y-4">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <div key={i} className="flex items-start space-x-4 p-4">
-                  <div className="w-8 h-8 bg-muted animate-pulse rounded-full" />
-                  <div className="flex-1 space-y-2">
-                    <div className="h-4 bg-muted animate-pulse rounded w-3/4" />
-                    <div className="h-3 bg-muted animate-pulse rounded w-1/2" />
-                    <div className="h-3 bg-muted animate-pulse rounded w-1/4" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {activities.map((activity) => {
-                const Icon = getActivityIcon(activity.type)
-                return (
-                  <div
-                    key={activity.id}
-                    className={`flex items-start space-x-4 p-4 rounded-lg border-l-4 ${
-                      activity.priority === 'urgent'
-                        ? 'border-l-red-500 bg-red-50 dark:bg-red-950/20'
-                        : activity.priority === 'high'
-                        ? 'border-l-orange-500 bg-orange-50 dark:bg-orange-950/20'
-                        : activity.priority === 'medium'
-                        ? 'border-l-yellow-500 bg-yellow-50 dark:bg-yellow-950/20'
-                        : 'border-l-blue-500 bg-blue-50 dark:bg-blue-950/20'
-                    }`}
-                  >
-                    <div className={`p-2 rounded-full ${getPriorityColor(activity.priority)}`}>
-                      <Icon className="h-4 w-4 text-white" />
+      <CardContent className={compact ? 'p-0' : ''}>
+        <ScrollArea className={compact ? 'h-64' : 'h-80'}>
+          <div className="space-y-3">
+            {activities.map((activity) => {
+              const ActivityIcon = getActivityIcon(activity.type)
+              const StatusIcon = getStatusIcon(activity.status)
+              
+              return (
+                <div
+                  key={activity.id}
+                  className={`flex items-start space-x-3 p-3 rounded-lg border transition-colors hover:bg-accent/50 ${
+                    compact ? 'p-2' : ''
+                  }`}
+                >
+                  <div className="flex-shrink-0">
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                      activity.status === 'success' ? 'bg-green-100' :
+                      activity.status === 'warning' ? 'bg-yellow-100' :
+                      activity.status === 'error' ? 'bg-red-100' :
+                      'bg-blue-100'
+                    }`}>
+                      <ActivityIcon className={`h-4 w-4 ${
+                        activity.status === 'success' ? 'text-green-600' :
+                        activity.status === 'warning' ? 'text-yellow-600' :
+                        activity.status === 'error' ? 'text-red-600' :
+                        'text-blue-600'
+                      }`} />
                     </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <h4 className="font-medium text-sm">{activity.title}</h4>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {activity.description}
-                          </p>
-
-                          {activity.metadata?.websiteName && (
-                            <Badge variant="outline" className="mt-2 text-xs">
-                              {activity.metadata.websiteName}
-                            </Badge>
+                  </div>
+                  
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className={`text-sm font-medium ${compact ? 'text-xs' : ''}`}>
+                          {activity.message}
+                        </p>
+                        <div className="flex items-center space-x-2 mt-1">
+                          <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+                            <Clock className="h-3 w-3" />
+                            <span>{formatTimestamp(activity.timestamp)}</span>
+                          </div>
+                          {activity.user && (
+                            <div className="flex items-center space-x-1 text-xs text-muted-foreground">
+                              <Users className="h-3 w-3" />
+                              <span>{activity.user.name}</span>
+                            </div>
                           )}
-
-                          <div className="flex items-center space-x-2 mt-2">
-                            <Clock className="h-3 w-3 text-muted-foreground" />
-                            <span className="text-xs text-muted-foreground">
-                              {formatTimestamp(activity.timestamp)}
-                            </span>
-                          </div>
                         </div>
-
-                        {activity.actions && activity.actions.length > 0 && (
-                          <div className="flex space-x-2 ml-4">
-                            {activity.actions.map((action, index) => (
-                              <Button
-                                key={index}
-                                variant={action.primary ? "default" : "outline"}
-                                size="sm"
-                                onClick={action.action}
-                                className="text-xs"
-                              >
-                                {action.label}
-                                {action.primary && <ExternalLink className="h-3 w-3 ml-1" />}
-                              </Button>
-                            ))}
-                          </div>
-                        )}
+                      </div>
+                      
+                      <div className="flex-shrink-0 ml-2">
+                        <StatusIcon className={`h-4 w-4 ${getStatusColor(activity.status)}`} />
                       </div>
                     </div>
                   </div>
-                )
-              })}
-            </div>
-          )}
+                </div>
+              )
+            })}
+          </div>
         </ScrollArea>
-
-        {activities.length === 0 && !isLoading && (
-          <div className="flex flex-col items-center justify-center py-12 text-center">
-            <Activity className="h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No activity yet</h3>
-            <p className="text-muted-foreground text-sm">
-              Activity from your websites will appear here as it happens.
-            </p>
+        
+        {activities.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            <Activity className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No recent activity</p>
           </div>
         )}
       </CardContent>

@@ -48,11 +48,11 @@ const actionOptions = [
 ]
 
 export function InteractionsPanel({ element, onUpdateElement, onClose }: InteractionsPanelProps) {
-  const interactions = element.interactions || []
-  const animations = element.animations || []
+  const interactions = (element as any).interactions || []
+  const animations = (element as any).animations || []
 
   const updateInteractions = (updatedInteractions: Interaction[]) => {
-    onUpdateElement(element.id, { interactions: updatedInteractions })
+    onUpdateElement(element.id, { interactions: updatedInteractions } as any)
   }
 
   const addInteraction = () => {
@@ -65,18 +65,18 @@ export function InteractionsPanel({ element, onUpdateElement, onClose }: Interac
   }
 
   const updateInteraction = (id: string, updates: Partial<Interaction>) => {
-    const updated = interactions.map(inter => 
+    const updated = interactions.map((inter: Interaction) => 
       inter.id === id ? { ...inter, ...updates } : inter
     )
     updateInteractions(updated)
   }
 
   const deleteInteraction = (id: string) => {
-    updateInteractions(interactions.filter(inter => inter.id !== id))
+    updateInteractions(interactions.filter((inter: Interaction) => inter.id !== id))
   }
 
   const duplicateInteraction = (id: string) => {
-    const interToDuplicate = interactions.find(i => i.id === id)
+    const interToDuplicate = interactions.find((i: Interaction) => i.id === id)
     if (interToDuplicate) {
       const newInteraction = {
         ...interToDuplicate,
@@ -114,7 +114,7 @@ export function InteractionsPanel({ element, onUpdateElement, onClose }: Interac
         <ScrollArea className="flex-1 p-4">
           <TabsContent value="interactions" className="mt-0">
             <div className="space-y-4">
-              {interactions.map((interaction) => (
+              {interactions.map((interaction: Interaction) => (
                 <Card key={interaction.id}>
                   <CardContent className="p-4 space-y-3">
                     <div className="flex items-start justify-between">
@@ -186,7 +186,7 @@ export function InteractionsPanel({ element, onUpdateElement, onClose }: Interac
                             <SelectValue placeholder="Select an animation" />
                           </SelectTrigger>
                           <SelectContent>
-                            {animations.map(anim => (
+                            {animations.map((anim: any) => (
                               <SelectItem key={anim.id} value={anim.id}>
                                 {anim.name}
                               </SelectItem>

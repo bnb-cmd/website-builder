@@ -128,9 +128,9 @@ export function DashboardChecklist({ userId, onStepClick, onStartOnboarding }: D
     return 'bg-gray-50 border-gray-200'
   }
 
-  const handleStepClick = (step: ChecklistStep) => {
+  const handleStepClick = (stepId: string) => {
     if (onStepClick) {
-      onStepClick(step.id)
+      onStepClick(stepId)
     }
   }
 
@@ -249,7 +249,7 @@ export function DashboardChecklist({ userId, onStepClick, onStartOnboarding }: D
               <div
                 key={step.id}
                 className={`p-4 border rounded-lg cursor-pointer transition-all hover:shadow-md ${getStepBgColor(step)}`}
-                onClick={() => handleStepClick(step)}
+                onClick={() => handleStepClick(step.id)}
               >
                 <div className="flex items-center space-x-3">
                   <div className={getStepColor(step)}>

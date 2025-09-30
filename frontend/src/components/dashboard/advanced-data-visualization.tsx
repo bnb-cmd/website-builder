@@ -9,163 +9,200 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import {
   BarChart3,
   TrendingUp,
+  TrendingDown,
   Users,
   Eye,
-  Clock,
+  MousePointer,
   Globe,
   Smartphone,
   Monitor,
-  ChevronDown,
-  ChevronRight,
+  Calendar,
   Download,
-  Share,
-  Filter
+  RefreshCw
 } from 'lucide-react'
-import { SmartSkeleton } from '@/components/ui/smart-skeleton'
-
-interface DataPoint {
-  date: string
-  value: number
-  label: string
-  category?: string
-}
 
 interface ChartData {
-  visitors: DataPoint[]
-  pageViews: DataPoint[]
-  bounceRate: DataPoint[]
-  conversionRate: DataPoint[]
-  devices: { name: string; value: number; color: string }[]
-  topPages: { path: string; views: number; change: number }[]
-  topSources: { source: string; visitors: number; percentage: number }[]
-  realtime: { timestamp: string; visitors: number }[]
+  labels: string[]
+  datasets: {
+    label: string
+    data: number[]
+    backgroundColor?: string
+    borderColor?: string
+  }[]
+}
+
+interface AnalyticsData {
+  overview: {
+    totalVisitors: number
+    totalPageViews: number
+    bounceRate: number
+    avgSessionDuration: string
+    conversionRate: number
+    newVisitors: number
+    returningVisitors: number
+  }
+  traffic: {
+    daily: ChartData
+    weekly: ChartData
+    monthly: ChartData
+  }
+  devices: {
+    desktop: number
+    mobile: number
+    tablet: number
+  }
+  sources: {
+    direct: number
+    search: number
+    social: number
+    referral: number
+  }
+  topPages: Array<{
+    page: string
+    views: number
+    bounceRate: number
+  }>
+  countries: Array<{
+    country: string
+    visitors: number
+    percentage: number
+  }>
 }
 
 interface AdvancedDataVisualizationProps {
-  websiteId?: string
   compact?: boolean
+  websiteId?: string
 }
 
-const timeRanges = [
-  { value: '7d', label: 'Last 7 days' },
-  { value: '30d', label: 'Last 30 days' },
-  { value: '90d', label: 'Last 90 days' },
-  { value: '1y', label: 'Last year' }
-]
-
-const chartTypes = [
-  { value: 'line', label: 'Line Chart' },
-  { value: 'bar', label: 'Bar Chart' },
-  { value: 'area', label: 'Area Chart' },
-  { value: 'pie', label: 'Pie Chart' }
-]
-
-export function AdvancedDataVisualization({ websiteId, compact = false }: AdvancedDataVisualizationProps) {
-  const [data, setData] = useState<ChartData | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [selectedTimeRange, setSelectedTimeRange] = useState('30d')
-  const [selectedChartType, setSelectedChartType] = useState('line')
-  const [drillDownLevel, setDrillDownLevel] = useState<'overview' | 'page' | 'source'>('overview')
-  const [selectedDrillDown, setSelectedDrillDown] = useState<string | null>(null)
+export function AdvancedDataVisualization({ compact = false, websiteId }: AdvancedDataVisualizationProps) {
+  const [data, setData] = useState<AnalyticsData | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [timeRange, setTimeRange] = useState('7d')
+  const [activeTab, setActiveTab] = useState('overview')
 
   useEffect(() => {
     loadAnalyticsData()
-  }, [selectedTimeRange, websiteId])
+  }, [websiteId, timeRange])
 
   const loadAnalyticsData = async () => {
-    setLoading(true)
     try {
-      // Simulate API call with mock data
-      await new Promise(resolve => setTimeout(resolve, 1000))
-
-      const mockData: ChartData = {
-        visitors: Array.from({ length: 30 }, (_, i) => ({
-          date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          value: Math.floor(Math.random() * 500) + 100,
-          label: `Day ${i + 1}`
-        })),
-        pageViews: Array.from({ length: 30 }, (_, i) => ({
-          date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          value: Math.floor(Math.random() * 1000) + 200,
-          label: `Day ${i + 1}`
-        })),
-        bounceRate: Array.from({ length: 30 }, (_, i) => ({
-          date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          value: Math.floor(Math.random() * 30) + 20,
-          label: `Day ${i + 1}`
-        })),
-        conversionRate: Array.from({ length: 30 }, (_, i) => ({
-          date: new Date(Date.now() - (29 - i) * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-          value: Math.floor(Math.random() * 10) + 1,
-          label: `Day ${i + 1}`
-        })),
-        devices: [
-          { name: 'Desktop', value: 45, color: '#3b82f6' },
-          { name: 'Mobile', value: 35, color: '#10b981' },
-          { name: 'Tablet', value: 20, color: '#f59e0b' }
-        ],
+      setIsLoading(true)
+      
+      // Mock data for demonstration
+      const mockData: AnalyticsData = {
+        overview: {
+          totalVisitors: 1234,
+          totalPageViews: 5678,
+          bounceRate: 34.5,
+          avgSessionDuration: '2m 34s',
+          conversionRate: 3.2,
+          newVisitors: 856,
+          returningVisitors: 378
+        },
+        traffic: {
+          daily: {
+            labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+            datasets: [
+              {
+                label: 'Visitors',
+                data: [120, 150, 180, 200, 190, 160, 140],
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderColor: 'rgba(59, 130, 246, 1)'
+              },
+              {
+                label: 'Page Views',
+                data: [450, 520, 680, 750, 720, 580, 490],
+                backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                borderColor: 'rgba(16, 185, 129, 1)'
+              }
+            ]
+          },
+          weekly: {
+            labels: ['Week 1', 'Week 2', 'Week 3', 'Week 4'],
+            datasets: [
+              {
+                label: 'Visitors',
+                data: [800, 950, 1100, 1234],
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderColor: 'rgba(59, 130, 246, 1)'
+              }
+            ]
+          },
+          monthly: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [
+              {
+                label: 'Visitors',
+                data: [3200, 3800, 4200, 4500, 4800, 5200],
+                backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                borderColor: 'rgba(59, 130, 246, 1)'
+              }
+            ]
+          }
+        },
+        devices: {
+          desktop: 45,
+          mobile: 40,
+          tablet: 15
+        },
+        sources: {
+          direct: 35,
+          search: 40,
+          social: 15,
+          referral: 10
+        },
         topPages: [
-          { path: '/home', views: 1250, change: 12 },
-          { path: '/products', views: 890, change: -5 },
-          { path: '/about', views: 650, change: 8 },
-          { path: '/contact', views: 420, change: 15 },
-          { path: '/blog', views: 380, change: -2 }
+          { page: '/', views: 1200, bounceRate: 25 },
+          { page: '/about', views: 800, bounceRate: 30 },
+          { page: '/products', views: 600, bounceRate: 45 },
+          { page: '/contact', views: 400, bounceRate: 20 },
+          { page: '/blog', views: 300, bounceRate: 60 }
         ],
-        topSources: [
-          { source: 'Google', visitors: 450, percentage: 35 },
-          { source: 'Direct', visitors: 320, percentage: 25 },
-          { source: 'Facebook', visitors: 180, percentage: 14 },
-          { source: 'Twitter', visitors: 120, percentage: 9 },
-          { source: 'Other', visitors: 155, percentage: 12 }
-        ],
-        realtime: Array.from({ length: 60 }, (_, i) => ({
-          timestamp: new Date(Date.now() - (59 - i) * 60 * 1000).toISOString(),
-          visitors: Math.floor(Math.random() * 20) + 1
-        }))
+        countries: [
+          { country: 'Pakistan', visitors: 800, percentage: 65 },
+          { country: 'India', visitors: 200, percentage: 16 },
+          { country: 'USA', visitors: 100, percentage: 8 },
+          { country: 'UK', visitors: 80, percentage: 6 },
+          { country: 'Canada', visitors: 54, percentage: 4 }
+        ]
       }
 
       setData(mockData)
     } catch (error) {
       console.error('Failed to load analytics data:', error)
     } finally {
-      setLoading(false)
+      setIsLoading(false)
     }
   }
 
-  const handleDrillDown = (type: 'page' | 'source', value: string) => {
-    setDrillDownLevel(type === 'page' ? 'page' : 'source')
-    setSelectedDrillDown(value)
+  const getTrendIcon = (value: number, threshold: number = 0) => {
+    if (value > threshold) return <TrendingUp className="h-4 w-4 text-green-500" />
+    if (value < threshold) return <TrendingDown className="h-4 w-4 text-red-500" />
+    return <TrendingUp className="h-4 w-4 text-gray-500" />
   }
 
-  const handleDrillUp = () => {
-    setDrillDownLevel('overview')
-    setSelectedDrillDown(null)
+  const getTrendColor = (value: number, threshold: number = 0) => {
+    if (value > threshold) return 'text-green-600'
+    if (value < threshold) return 'text-red-600'
+    return 'text-gray-600'
   }
 
-  const exportData = (format: 'csv' | 'pdf' | 'png') => {
-    // Mock export functionality
-    console.log(`Exporting data as ${format}`)
-  }
-
-  const renderChart = (chartData: DataPoint[], type: string) => {
-    const maxValue = Math.max(...chartData.map(d => d.value))
-    const minValue = Math.min(...chartData.map(d => d.value))
-
+  const renderSimpleChart = (data: ChartData, height: string = 'h-64') => {
+    const maxValue = Math.max(...data.datasets[0].data)
+    
     return (
-      <div className="h-64 bg-muted/30 rounded-lg p-4 flex items-end justify-between space-x-2">
-        {chartData.slice(-14).map((point, index) => {
-          const height = ((point.value - minValue) / (maxValue - minValue)) * 100
+      <div className={`${height} flex items-end justify-between space-x-2 p-4`}>
+        {data.datasets[0].data.map((value, index) => {
+          const heightPercentage = (value / maxValue) * 100
           return (
             <div key={index} className="flex flex-col items-center flex-1">
               <div
-                className={`w-full bg-primary rounded-t transition-all duration-300 hover:bg-primary/80 cursor-pointer ${
-                  type === 'bar' ? 'rounded-b' : ''
-                }`}
-                style={{ height: `${Math.max(height, 5)}%` }}
-                onClick={() => console.log('Drill down to:', point.date)}
+                className="bg-blue-500 rounded-t w-full transition-all duration-500 hover:bg-blue-600"
+                style={{ height: `${heightPercentage}%` }}
+                title={`${data.labels[index]}: ${value}`}
               />
-              <span className="text-xs text-muted-foreground mt-2 transform -rotate-45 origin-top-left">
-                {new Date(point.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+              <span className="text-xs text-muted-foreground mt-2 text-center">
+                {data.labels[index]}
               </span>
             </div>
           )
@@ -174,76 +211,69 @@ export function AdvancedDataVisualization({ websiteId, compact = false }: Advanc
     )
   }
 
-  const renderPieChart = (pieData: { name: string; value: number; color: string }[]) => {
-    const total = pieData.reduce((sum, item) => sum + item.value, 0)
-    let currentAngle = -90 // Start from top
+  const renderDonutChart = (data: Record<string, number>, colors: Record<string, string>) => {
+    const total = Object.values(data).reduce((sum, value) => sum + value, 0)
+    let cumulativePercentage = 0
 
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="relative w-48 h-48">
-          <svg className="w-full h-full" viewBox="0 0 100 100">
-            {pieData.map((item, index) => {
-              const percentage = item.value / total
-              const angle = percentage * 360
-              const startAngle = currentAngle
-              const endAngle = currentAngle + angle
-
-              const x1 = 50 + 40 * Math.cos((startAngle * Math.PI) / 180)
-              const y1 = 50 + 40 * Math.sin((startAngle * Math.PI) / 180)
-              const x2 = 50 + 40 * Math.cos((endAngle * Math.PI) / 180)
-              const y2 = 50 + 40 * Math.sin((endAngle * Math.PI) / 180)
-
-              const largeArcFlag = angle > 180 ? 1 : 0
-
-              const pathData = [
-                `M 50 50`,
-                `L ${x1} ${y1}`,
-                `A 40 40 0 ${largeArcFlag} 1 ${x2} ${y2}`,
-                'Z'
-              ].join(' ')
-
-              currentAngle = endAngle
-
-              return (
-                <path
-                  key={index}
-                  d={pathData}
-                  fill={item.color}
-                  className="cursor-pointer hover:opacity-80 transition-opacity"
-                  onClick={() => console.log('Selected:', item.name)}
-                />
-              )
-            })}
-          </svg>
-        </div>
-        <div className="ml-6 space-y-2">
-          {pieData.map((item, index) => (
-            <div key={index} className="flex items-center space-x-2">
-              <div
-                className="w-3 h-3 rounded-full"
-                style={{ backgroundColor: item.color }}
+      <div className="relative w-32 h-32 mx-auto">
+        <svg className="w-full h-full transform -rotate-90">
+          {Object.entries(data).map(([key, value], index) => {
+            const percentage = (value / total) * 100
+            const circumference = 2 * Math.PI * 40 // radius = 40
+            const strokeDasharray = `${(percentage / 100) * circumference} ${circumference}`
+            const strokeDashoffset = -((cumulativePercentage / 100) * circumference)
+            
+            cumulativePercentage += percentage
+            
+            return (
+              <circle
+                key={key}
+                cx="50%"
+                cy="50%"
+                r="40"
+                fill="none"
+                stroke={colors[key] || '#e5e7eb'}
+                strokeWidth="8"
+                strokeDasharray={strokeDasharray}
+                strokeDashoffset={strokeDashoffset}
+                className="transition-all duration-500"
               />
-              <span className="text-sm font-medium">{item.name}</span>
-              <Badge variant="secondary">{item.value}%</Badge>
-            </div>
-          ))}
+            )
+          })}
+        </svg>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-sm font-semibold">{total}</span>
         </div>
       </div>
     )
   }
 
-  if (loading) {
-    return <SmartSkeleton type="chart" />
+  if (isLoading) {
+    return (
+      <Card className={compact ? 'p-4' : ''}>
+        <CardContent className={compact ? 'p-0' : ''}>
+          <div className="space-y-4">
+            <div className="h-6 bg-muted animate-pulse rounded w-1/3" />
+            <div className="h-64 bg-muted animate-pulse rounded" />
+            <div className="grid grid-cols-2 gap-4">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <div key={i} className="h-20 bg-muted animate-pulse rounded" />
+              ))}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    )
   }
 
   if (!data) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-16">
-          <div className="text-center">
-            <BarChart3 className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No data available</h3>
-            <p className="text-muted-foreground">Unable to load analytics data</p>
+      <Card className={compact ? 'p-4' : ''}>
+        <CardContent className={compact ? 'p-0' : ''}>
+          <div className="text-center py-8 text-muted-foreground">
+            <BarChart3 className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No analytics data available</p>
           </div>
         </CardContent>
       </Card>
@@ -252,202 +282,232 @@ export function AdvancedDataVisualization({ websiteId, compact = false }: Advanc
 
   if (compact) {
     return (
-      <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center justify-between text-base">
+      <Card className="p-4">
+        <CardHeader className="p-0 pb-4">
+          <CardTitle className="text-base flex items-center justify-between">
             <span>Analytics Overview</span>
-            <Badge variant="secondary">{selectedTimeRange}</Badge>
+            <Badge variant="secondary">{timeRange}</Badge>
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">
-                  {data.visitors.slice(-1)[0]?.value || 0}
-                </div>
-                <div className="text-xs text-muted-foreground">Visitors Today</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-green-600">
-                  {data.pageViews.slice(-1)[0]?.value || 0}
-                </div>
-                <div className="text-xs text-muted-foreground">Page Views</div>
-              </div>
+        <CardContent className="p-0">
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="text-center p-3 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">{data.overview.totalVisitors}</div>
+              <div className="text-xs text-gray-600">Visitors</div>
             </div>
-            {renderChart(data.visitors.slice(-7), 'bar')}
+            <div className="text-center p-3 bg-green-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">{data.overview.totalPageViews}</div>
+              <div className="text-xs text-gray-600">Page Views</div>
+            </div>
           </div>
+          {renderSimpleChart(data.traffic.daily, 'h-32')}
         </CardContent>
       </Card>
     )
   }
 
   return (
-    <div className="space-y-6">
-      {/* Controls */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-4">
-          <Select value={selectedTimeRange} onValueChange={setSelectedTimeRange}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {timeRanges.map((range) => (
-                <SelectItem key={range.value} value={range.value}>
-                  {range.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-
-          <Select value={selectedChartType} onValueChange={setSelectedChartType}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {chartTypes.map((type) => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex items-center space-x-2">
-          <Button variant="outline" size="sm" onClick={() => exportData('csv')}>
-            <Download className="h-4 w-4 mr-2" />
-            Export
-          </Button>
-          <Button variant="outline" size="sm">
-            <Share className="h-4 w-4 mr-2" />
-            Share
-          </Button>
-        </div>
-      </div>
-
-      {/* Breadcrumb Navigation */}
-      {drillDownLevel !== 'overview' && (
-        <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-          <Button variant="ghost" size="sm" onClick={handleDrillUp}>
-            Overview
-          </Button>
-          <ChevronRight className="h-4 w-4" />
-          <span className="font-medium text-foreground">
-            {drillDownLevel === 'page' ? 'Page Details' : 'Source Details'}: {selectedDrillDown}
-          </span>
-        </div>
-      )}
-
-      {/* Main Analytics Dashboard */}
-      <Tabs defaultValue="overview" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="overview">Overview</TabsTrigger>
-          <TabsTrigger value="audience">Audience</TabsTrigger>
-          <TabsTrigger value="behavior">Behavior</TabsTrigger>
-          <TabsTrigger value="realtime">Real-time</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="overview" className="space-y-6">
-          {/* Key Metrics */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center">
-                  <Users className="h-4 w-4 mr-2" />
-                  Total Visitors
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {data.visitors.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  <TrendingUp className="h-3 w-3 inline mr-1" />
-                  +12% from last period
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center">
-                  <Eye className="h-4 w-4 mr-2" />
-                  Page Views
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {data.pageViews.reduce((sum, item) => sum + item.value, 0).toLocaleString()}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  <TrendingUp className="h-3 w-3 inline mr-1" />
-                  +8% from last period
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center">
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  Bounce Rate
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {Math.round(data.bounceRate.reduce((sum, item) => sum + item.value, 0) / data.bounceRate.length)}%
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  <TrendingUp className="h-3 w-3 inline mr-1" />
-                  -3% from last period
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium flex items-center">
-                  <TrendingUp className="h-4 w-4 mr-2" />
-                  Conversion
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {Math.round(data.conversionRate.reduce((sum, item) => sum + item.value, 0) / data.conversionRate.length)}%
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  <TrendingUp className="h-3 w-3 inline mr-1" />
-                  +2% from last period
-                </p>
-              </CardContent>
-            </Card>
+    <Card>
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center space-x-2">
+            <BarChart3 className="h-6 w-6" />
+            <span>Analytics Dashboard</span>
+          </CardTitle>
+          <div className="flex items-center space-x-2">
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="7d">Last 7 days</SelectItem>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+                <SelectItem value="90d">Last 90 days</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button variant="outline" size="sm" onClick={loadAnalyticsData}>
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="sm">
+              <Download className="h-4 w-4" />
+            </Button>
           </div>
+        </div>
+      </CardHeader>
+      <CardContent>
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid w-full grid-cols-4">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="traffic">Traffic</TabsTrigger>
+            <TabsTrigger value="audience">Audience</TabsTrigger>
+            <TabsTrigger value="content">Content</TabsTrigger>
+          </TabsList>
 
-          {/* Charts */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TabsContent value="overview" className="space-y-6">
+            {/* Key Metrics */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Total Visitors</p>
+                      <p className="text-2xl font-bold">{data.overview.totalVisitors.toLocaleString()}</p>
+                    </div>
+                    <Users className="h-8 w-8 text-blue-500" />
+                  </div>
+                  <div className="flex items-center mt-2">
+                    {getTrendIcon(12)}
+                    <span className={`text-sm ml-1 ${getTrendColor(12)}`}>+12%</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Page Views</p>
+                      <p className="text-2xl font-bold">{data.overview.totalPageViews.toLocaleString()}</p>
+                    </div>
+                    <Eye className="h-8 w-8 text-green-500" />
+                  </div>
+                  <div className="flex items-center mt-2">
+                    {getTrendIcon(8)}
+                    <span className={`text-sm ml-1 ${getTrendColor(8)}`}>+8%</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Bounce Rate</p>
+                      <p className="text-2xl font-bold">{data.overview.bounceRate}%</p>
+                    </div>
+                    <MousePointer className="h-8 w-8 text-orange-500" />
+                  </div>
+                  <div className="flex items-center mt-2">
+                    {getTrendIcon(-5, 0)}
+                    <span className={`text-sm ml-1 ${getTrendColor(-5, 0)}`}>-5%</span>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Conversion Rate</p>
+                      <p className="text-2xl font-bold">{data.overview.conversionRate}%</p>
+                    </div>
+                    <TrendingUp className="h-8 w-8 text-purple-500" />
+                  </div>
+                  <div className="flex items-center mt-2">
+                    {getTrendIcon(2)}
+                    <span className={`text-sm ml-1 ${getTrendColor(2)}`}>+2%</span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Traffic Chart */}
             <Card>
               <CardHeader>
-                <CardTitle>Visitors Trend</CardTitle>
+                <CardTitle>Traffic Overview</CardTitle>
               </CardHeader>
               <CardContent>
-                {renderChart(data.visitors, selectedChartType)}
+                {renderSimpleChart(data.traffic.daily)}
               </CardContent>
             </Card>
+          </TabsContent>
 
+          <TabsContent value="traffic" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Traffic Sources */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Traffic Sources</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {renderDonutChart(data.sources, {
+                    direct: '#3b82f6',
+                    search: '#10b981',
+                    social: '#f59e0b',
+                    referral: '#ef4444'
+                  })}
+                  <div className="mt-4 space-y-2">
+                    {Object.entries(data.sources).map(([source, value]) => (
+                      <div key={source} className="flex items-center justify-between">
+                        <span className="text-sm capitalize">{source}</span>
+                        <span className="text-sm font-medium">{value}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Device Types */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Device Types</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {renderDonutChart(data.devices, {
+                    desktop: '#3b82f6',
+                    mobile: '#10b981',
+                    tablet: '#f59e0b'
+                  })}
+                  <div className="mt-4 space-y-2">
+                    {Object.entries(data.devices).map(([device, value]) => (
+                      <div key={device} className="flex items-center justify-between">
+                        <div className="flex items-center space-x-2">
+                          {device === 'desktop' && <Monitor className="h-4 w-4" />}
+                          {device === 'mobile' && <Smartphone className="h-4 w-4" />}
+                          {device === 'tablet' && <Monitor className="h-4 w-4" />}
+                          <span className="text-sm capitalize">{device}</span>
+                        </div>
+                        <span className="text-sm font-medium">{value}%</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="audience" className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Device Breakdown</CardTitle>
+                <CardTitle>Top Countries</CardTitle>
               </CardHeader>
               <CardContent>
-                {renderPieChart(data.devices)}
+                <div className="space-y-3">
+                  {data.countries.map((country, index) => (
+                    <div key={country.country} className="flex items-center justify-between">
+                      <div className="flex items-center space-x-3">
+                        <span className="text-sm font-medium w-6">{index + 1}</span>
+                        <span className="text-sm">{country.country}</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <div className="w-20 bg-gray-200 rounded-full h-2">
+                          <div
+                            className="bg-blue-500 h-2 rounded-full"
+                            style={{ width: `${country.percentage}%` }}
+                          />
+                        </div>
+                        <span className="text-sm font-medium w-12 text-right">
+                          {country.visitors}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
               </CardContent>
             </Card>
-          </div>
-        </TabsContent>
+          </TabsContent>
 
-        <TabsContent value="audience" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <TabsContent value="content" className="space-y-6">
             <Card>
               <CardHeader>
                 <CardTitle>Top Pages</CardTitle>
@@ -455,108 +515,27 @@ export function AdvancedDataVisualization({ websiteId, compact = false }: Advanc
               <CardContent>
                 <div className="space-y-3">
                   {data.topPages.map((page, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 rounded-lg hover:bg-accent cursor-pointer"
-                      onClick={() => handleDrillDown('page', page.path)}
-                    >
+                    <div key={page.page} className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
-                        <Badge variant="outline">{index + 1}</Badge>
-                        <div>
-                          <div className="font-medium">{page.path}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {page.views.toLocaleString()} views
-                          </div>
-                        </div>
+                        <span className="text-sm font-medium w-6">{index + 1}</span>
+                        <span className="text-sm">{page.page}</span>
                       </div>
-                      <Badge variant={page.change > 0 ? "default" : "secondary"}>
-                        {page.change > 0 ? '+' : ''}{page.change}%
-                      </Badge>
+                      <div className="flex items-center space-x-4">
+                        <span className="text-sm text-muted-foreground">
+                          {page.bounceRate}% bounce
+                        </span>
+                        <span className="text-sm font-medium">
+                          {page.views.toLocaleString()} views
+                        </span>
+                      </div>
                     </div>
                   ))}
                 </div>
               </CardContent>
             </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle>Traffic Sources</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-3">
-                  {data.topSources.map((source, index) => (
-                    <div
-                      key={index}
-                      className="flex items-center justify-between p-3 rounded-lg hover:bg-accent cursor-pointer"
-                      onClick={() => handleDrillDown('source', source.source)}
-                    >
-                      <div className="flex items-center space-x-3">
-                        <Badge variant="outline">{index + 1}</Badge>
-                        <div>
-                          <div className="font-medium">{source.source}</div>
-                          <div className="text-sm text-muted-foreground">
-                            {source.visitors.toLocaleString()} visitors
-                          </div>
-                        </div>
-                      </div>
-                      <Badge variant="secondary">
-                        {source.percentage}%
-                      </Badge>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="behavior" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>User Flow Analysis</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-16 text-muted-foreground">
-                <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>User flow visualization coming soon...</p>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="realtime" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                <span>Real-time Visitors</span>
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="text-center">
-                  <div className="text-4xl font-bold text-primary">
-                    {data.realtime.slice(-1)[0]?.visitors || 0}
-                  </div>
-                  <p className="text-muted-foreground">Active visitors right now</p>
-                </div>
-                <div className="h-32 bg-muted/30 rounded-lg p-4 flex items-end justify-between space-x-1">
-                  {data.realtime.slice(-20).map((point, index) => (
-                    <div
-                      key={index}
-                      className="bg-primary rounded-t flex-1"
-                      style={{ height: `${(point.visitors / 20) * 100}%` }}
-                    />
-                  ))}
-                </div>
-                <div className="text-center text-sm text-muted-foreground">
-                  Last 20 minutes activity
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-    </div>
+          </TabsContent>
+        </Tabs>
+      </CardContent>
+    </Card>
   )
 }

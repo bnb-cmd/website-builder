@@ -38,7 +38,8 @@ import {
   Hash,
   AtSign,
   GitBranch,
-  History
+  History,
+  Globe
 } from 'lucide-react'
 
 interface CollaborationPanelProps {

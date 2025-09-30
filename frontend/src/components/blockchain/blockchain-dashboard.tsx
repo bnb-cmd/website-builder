@@ -20,7 +20,7 @@ import {
   Database,
   Loader2
 } from 'lucide-react'
-import { api } from '@/lib/api'
+import { apiHelpers } from '@/lib/api'
 
 interface BlockchainDashboardProps {
   websiteId: string
@@ -75,10 +75,11 @@ export function BlockchainDashboard({ websiteId, userId }: BlockchainDashboardPr
   const loadBlockchainData = async () => {
     try {
       setIsLoading(true)
+      const currentUserId = userId || 'demo-user'
       const [walletsData, collectionsData, contractsData] = await Promise.all([
-        api.blockchain.getWallets(userId, websiteId),
-        api.blockchain.getNFTCollections(userId, websiteId),
-        api.blockchain.getSmartContracts(userId, websiteId)
+        apiHelpers.getBlockchainWallets(currentUserId, websiteId),
+        apiHelpers.getNFTCollections(currentUserId, websiteId),
+        apiHelpers.getSmartContracts(currentUserId, websiteId)
       ])
       
       setWallets(walletsData.data || [])
