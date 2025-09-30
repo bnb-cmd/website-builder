@@ -46,7 +46,7 @@ export function ProductCard({
 
   const isOnSale = product.comparePrice && product.comparePrice > product.price
   const discountPercentage = isOnSale 
-    ? Math.round(((product.comparePrice - product.price) / product.comparePrice) * 100)
+    ? Math.round(((product.comparePrice! - product.price) / product.comparePrice!) * 100)
     : 0
 
   const isOutOfStock = product.inventory.track && product.inventory.quantity <= 0

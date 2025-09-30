@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { Element } from '@/types/editor'
 import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import Editor from '@monaco-editor/react'
@@ -34,7 +35,7 @@ interface JavaScriptSnippet {
 
 export function CustomJavaScriptPanel({ element, onUpdateElement, onClose }: CustomJavaScriptPanelProps) {
   const [snippets, setSnippets] = useState<JavaScriptSnippet[]>(
-    element.customJavaScript || []
+    (element as any).customJavaScript || []
   )
   const [newSnippetName, setNewSnippetName] = useState('')
   const [newSnippetCode, setNewSnippetCode] = useState('')
@@ -44,7 +45,7 @@ export function CustomJavaScriptPanel({ element, onUpdateElement, onClose }: Cus
 
   const updateSnippets = (updatedSnippets: JavaScriptSnippet[]) => {
     setSnippets(updatedSnippets)
-    onUpdateElement(element.id, { customJavaScript: updatedSnippets })
+    onUpdateElement(element.id, { customJavaScript: updatedSnippets } as any)
   }
 
   const addSnippet = () => {

@@ -189,7 +189,7 @@ export function AIWebsiteAssistant({ onSuggestion, websiteId }: AIAssistantProps
       children: [],
       style: {
         minHeight: '600px',
-        textAlign: 'center',
+        textAlign: 'center' as const,
         padding: '80px 20px'
       },
       position: { x: 0, y: 0 }

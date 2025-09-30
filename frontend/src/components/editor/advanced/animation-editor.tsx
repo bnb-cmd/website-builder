@@ -110,7 +110,7 @@ const easingOptions = [
 
 export function AnimationEditor({ element, onUpdateElement, onClose }: AnimationEditorProps) {
   const [animations, setAnimations] = useState<Animation[]>(
-    element.animations || []
+    (element as any).animations || []
   )
   const [selectedAnimation, setSelectedAnimation] = useState<string | null>(
     animations[0]?.id || null
@@ -173,7 +173,7 @@ export function AnimationEditor({ element, onUpdateElement, onClose }: Animation
   }
 
   const updateElementAnimations = (anims: Animation[]) => {
-    onUpdateElement(element.id, { animations: anims })
+    onUpdateElement(element.id, { animations: anims } as any)
   }
 
   const playAnimation = () => {

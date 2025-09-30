@@ -64,7 +64,7 @@ const integrationTypes = [
 
 export function APIIntegrationsPanel({ element, onUpdateElement, onClose }: APIIntegrationsPanelProps) {
   const [integrations, setIntegrations] = useState<APIIntegration[]>(
-    element.apiIntegrations || []
+    (element as any).apiIntegrations || []
   )
   const [newIntegration, setNewIntegration] = useState<Partial<APIIntegration>>({
     name: '',
@@ -80,7 +80,7 @@ export function APIIntegrationsPanel({ element, onUpdateElement, onClose }: APII
 
   const updateIntegrations = (updatedIntegrations: APIIntegration[]) => {
     setIntegrations(updatedIntegrations)
-    onUpdateElement(element.id, { apiIntegrations: updatedIntegrations })
+    onUpdateElement(element.id, { apiIntegrations: updatedIntegrations } as any)
   }
 
   const addIntegration = () => {

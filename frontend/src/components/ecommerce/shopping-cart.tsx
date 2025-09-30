@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Badge } from '@/components/ui/badge'
-import { ShoppingCart, Trash2, Plus, Minus, ArrowRight } from 'lucide-react'
+import { ShoppingCart as ShoppingCartIcon, Trash2, Plus, Minus, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface ShoppingCartProps {
@@ -159,7 +159,7 @@ export function ShoppingCart({
       <CardHeader>
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center space-x-2">
-            <ShoppingCart className="h-5 w-5" />
+            <ShoppingCartIcon className="h-5 w-5" />
             <span>Shopping Cart</span>
             {itemCount > 0 && (
               <Badge variant="secondary">{itemCount}</Badge>
@@ -176,7 +176,7 @@ export function ShoppingCart({
       <CardContent>
         {cart.items.length === 0 ? (
           <div className="text-center py-8">
-            <ShoppingCart className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+            <ShoppingCartIcon className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
             <h3 className="font-medium mb-2">Your cart is empty</h3>
             <p className="text-muted-foreground text-sm">
               Add some products to get started

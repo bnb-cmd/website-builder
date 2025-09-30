@@ -190,8 +190,7 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
             <Button
               onClick={generateContent}
               disabled={!generationPrompt.trim() || isLoading}
-              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-              className="text-xs h-8"
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-xs h-8"
             >
               {isLoading ? (
                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
@@ -372,19 +371,16 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
                               placeholder="X" 
                               className="text-xs h-8" 
                               value={selectedContent.rotation?.x || 0}
-                              className="text-xs"
                             />
                             <Input 
                               placeholder="Y" 
                               className="text-xs h-8" 
                               value={selectedContent.rotation?.y || 0}
-                              className="text-xs"
                             />
                             <Input 
                               placeholder="Z" 
                               className="text-xs h-8" 
                               value={selectedContent.rotation?.z || 0}
-                              className="text-xs"
                             />
                           </div>
                         </div>
@@ -395,19 +391,16 @@ export function ARVRContentManager({ websiteId, userId }: ARVRContentManagerProp
                               placeholder="X" 
                               className="text-xs h-8" 
                               value={selectedContent.scale?.x || 1}
-                              className="text-xs"
                             />
                             <Input 
                               placeholder="Y" 
                               className="text-xs h-8" 
                               value={selectedContent.scale?.y || 1}
-                              className="text-xs"
                             />
                             <Input 
                               placeholder="Z" 
                               className="text-xs h-8" 
                               value={selectedContent.scale?.z || 1}
-                              className="text-xs"
                             />
                           </div>
                         </div>

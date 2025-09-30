@@ -41,7 +41,7 @@ import {
 import { format } from 'date-fns'
 import { cn } from '@/lib/utils'
 import { apiHelpers } from '@/lib/api'
-import type {
+import {
   Content,
   ContentCategory,
   ContentSchedule,
@@ -76,7 +76,7 @@ export function SmartContentManager({ websiteId }: SmartContentManagerProps) {
     excerpt: '',
     categoryId: '',
     tags: [] as string[],
-    type: 'blog_post' as ContentType,
+      type: ContentType.BLOG_POST,
     seo: {
       title: '',
       description: '',
@@ -182,7 +182,7 @@ export function SmartContentManager({ websiteId }: SmartContentManagerProps) {
       excerpt: '',
       categoryId: '',
       tags: [],
-      type: 'blog_post',
+      type: ContentType.BLOG_POST,
       seo: {
         title: '',
         description: '',
