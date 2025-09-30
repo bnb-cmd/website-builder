@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify'
-import { aiMarketingSuiteService } from '../services/aiMarketingSuiteService.js'
+import { aiMarketingSuiteService } from '../services/aiMarketingSuiteService'
 
 export async function aiMarketingSuiteRoutes(fastify: FastifyInstance) {
   // Campaign Management

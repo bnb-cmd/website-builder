@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { IntegrationService } from '@/services/integrationService'
+import { integrationMarketplaceService } from '@/services/integrationMarketplaceService'
 import { authenticate, requireOwnership } from '@/middleware/auth'
 
 const integrationDataSchema = z.object({
@@ -289,5 +290,183 @@ export async function integrationRoutes(fastify: FastifyInstance) {
     const { websiteIntegrationId } = request.params as { websiteIntegrationId: string }
     const result = await integrationService.testIntegration(websiteIntegrationId)
     reply.send({ success: true, data: result })
+  })
+
+  // Marketplace endpoints
+  // GET /api/v1/integrations/marketplace
+  fastify.get('/marketplace', {
+    schema: {
+      description: 'Get all available integrations from marketplace',
+      tags: ['Integrations', 'Marketplace'],
+      querystring: {
+        type: 'object',
+        properties: {
+          category: { type: 'string' },
+          status: { type: 'string', enum: ['active', 'beta', 'deprecated', 'coming_soon'] },
+          search: { type: 'string' },
+          limit: { type: 'integer', minimum: 1, maximum: 100, default: 20 },
+          offset: { type: 'integer', minimum: 0, default: 0 }
+        }
+      },
+      response: {
+        200: { $ref: 'Success' },
+        400: { $ref: 'Error' }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const query = request.query as any
+      const result = await integrationMarketplaceService.getIntegrations({
+        category: query.category,
+        status: query.status,
+        search: query.search,
+        limit: query.limit || 20,
+        offset: query.offset || 0
+      })
+
+      reply.send({
+        success: true,
+        data: result,
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to get marketplace integrations',
+          code: 'MARKETPLACE_INTEGRATIONS_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // GET /api/v1/integrations/marketplace/:id
+  fastify.get('/marketplace/:id', {
+    schema: {
+      description: 'Get integration details from marketplace',
+      tags: ['Integrations', 'Marketplace'],
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: { id: { type: 'string' } }
+      },
+      response: {
+        200: { $ref: 'Success' },
+        404: { $ref: 'Error' }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { id } = request.params as { id: string }
+      const integration = await integrationMarketplaceService.getIntegrationById(id)
+      
+      if (!integration) {
+        reply.status(404).send({
+          success: false,
+          error: {
+            message: 'Integration not found',
+            code: 'INTEGRATION_NOT_FOUND',
+            timestamp: new Date().toISOString()
+          }
+        })
+        return
+      }
+      
+      reply.send({
+        success: true,
+        data: integration,
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to get integration details',
+          code: 'INTEGRATION_DETAILS_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // POST /api/v1/integrations/marketplace/install
+  fastify.post('/marketplace/install', {
+    preHandler: [authenticate],
+    schema: {
+      description: 'Install integration from marketplace',
+      tags: ['Integrations', 'Marketplace'],
+      security: [{ bearerAuth: [] }],
+      body: {
+        type: 'object',
+        required: ['integrationId', 'websiteId'],
+        properties: {
+          integrationId: { type: 'string' },
+          websiteId: { type: 'string' },
+          config: { type: 'object' },
+          credentials: { type: 'object' }
+        }
+      },
+      response: {
+        201: { $ref: 'Success' },
+        400: { $ref: 'Error' },
+        401: { $ref: 'Error' }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { integrationId, websiteId, config, credentials } = request.body as any
+      const installation = await integrationMarketplaceService.installIntegration({
+        integrationId,
+        websiteId,
+        config,
+        credentials
+      })
+      
+      reply.code(201).send({
+        success: true,
+        data: installation,
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to install integration',
+          code: 'INTEGRATION_INSTALLATION_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // GET /api/v1/integrations/categories
+  fastify.get('/categories', {
+    schema: {
+      description: 'Get integration categories',
+      tags: ['Integrations', 'Marketplace'],
+      response: {
+        200: { $ref: 'Success' }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const categories = await integrationMarketplaceService.getCategories()
+      
+      reply.send({
+        success: true,
+        data: categories,
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to get integration categories',
+          code: 'INTEGRATION_CATEGORIES_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
   })
 }

@@ -515,7 +515,16 @@ export function useInternationalization(defaultLanguage: SupportedLanguage = 'en
   }
 }
 
-// Provider component moved to separate client component file
+// Provider component
+export function I18nProvider({ children, defaultLanguage = 'en' }: { children: React.ReactNode, defaultLanguage?: SupportedLanguage }) {
+  const i18n = useInternationalization(defaultLanguage)
+  
+  return (
+    <I18nContext.Provider value={i18n}>
+      {children}
+    </I18nContext.Provider>
+  )
+}
 
 // Hook to use i18n context
 export function useI18n() {
