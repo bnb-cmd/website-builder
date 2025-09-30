@@ -42,7 +42,7 @@ import { errorHandler } from '@/utils/errorHandler'
 import { notFoundHandler } from '@/utils/notFoundHandler'
 
 export async function createServer() {
-  const fastify = Fastify<FastifyServerOptions>({
+  const fastify = Fastify({
     logger: {
       level: serverConfig.enableLogging ? 'info' : 'error',
       transport: serverConfig.nodeEnv === 'development'
@@ -109,7 +109,7 @@ export async function createServer() {
   // Register CORS
   await fastify.register(cors, {
     origin: serverConfig.nodeEnv === 'development' 
-      ? ['http://localhost:3000', 'http://127.0.0.1:3000']
+      ? ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:3002', 'http://127.0.0.1:3000', 'http://127.0.0.1:3001', 'http://127.0.0.1:3002']
       : serverConfig.enableCors ? [serverConfig.clientUrl] : false,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
@@ -117,16 +117,10 @@ export async function createServer() {
   })
 
   // Register JWT
-  await fastify.register(jwt as FastifyPluginAsync<FastifyJWTOptions>, {
+  await fastify.register(jwt, {
     secret: config.auth.jwtSecret,
     sign: {
-      expiresIn: config.auth.jwtExpiresIn,
-      issuer: 'pakistan-website-builder',
-      audience: 'pakistan-website-builder-users'
-    },
-    verify: {
-      issuer: 'pakistan-website-builder',
-      audience: 'pakistan-website-builder-users'
+      expiresIn: config.auth.jwtExpiresIn
     }
   })
 

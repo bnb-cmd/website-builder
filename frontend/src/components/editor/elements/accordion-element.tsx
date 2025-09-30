@@ -43,7 +43,7 @@ export function AccordionElement({ element, isSelected, onSelect }: AccordionEle
       `}
     >
       <div className="space-y-4">
-        {defaultItems.map((item, index) => {
+        {defaultItems.map((item: any, index: number) => {
           const isOpen = openItems.includes(index)
           
           return (

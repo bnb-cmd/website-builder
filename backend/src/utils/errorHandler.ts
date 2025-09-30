@@ -2,7 +2,7 @@ import { FastifyError, FastifyRequest, FastifyReply } from 'fastify'
 
 export interface APIError extends FastifyError {
   statusCode?: number
-  code?: string
+  code: string
   details?: any
 }
 
@@ -158,9 +158,9 @@ export function errorHandler(
       message,
       code: error.code || 'INTERNAL_ERROR',
       timestamp: new Date().toISOString(),
-      ...(process.env.NODE_ENV === 'development' && {
+      ...(process.env['NODE_ENV'] === 'development' && {
         stack: error.stack,
-        details: error.details
+        details: (error as any).details
       })
     }
   })
@@ -220,7 +220,7 @@ function handlePrismaError(error: any): { statusCode: number; message: string; c
 }
 
 export function notFoundHandler(
-  request: FastifyRequest,
+  _request: FastifyRequest,
   reply: FastifyReply
 ) {
   reply.status(404).send({

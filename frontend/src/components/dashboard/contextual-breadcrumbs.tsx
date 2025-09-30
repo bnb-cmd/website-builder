@@ -210,70 +210,73 @@ export function ContextualBreadcrumbs() {
   }
 
   return (
-    <div className="flex items-center justify-between py-4 px-6 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="flex items-center space-x-4">
-        {/* Back Button */}
-        {pathname !== '/dashboard' && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleBack}
-            className="flex items-center space-x-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Back</span>
-          </Button>
+    <div className="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      {/* Main Header Row */}
+      <div className="flex items-center justify-between py-3 px-6 gap-4">
+        <div className="flex items-center space-x-4 min-w-0 flex-1">
+          {/* Back Button */}
+          {pathname !== '/dashboard' && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleBack}
+              className="flex items-center space-x-2 flex-shrink-0"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span className="hidden sm:inline">Back</span>
+            </Button>
+          )}
+
+          {/* Breadcrumb Navigation */}
+          <Breadcrumb className="min-w-0">
+            <BreadcrumbList>
+              {breadcrumbs.map((crumb, index) => (
+                <div key={crumb.path} className="flex items-center">
+                  {index > 0 && <BreadcrumbSeparator />}
+                  <BreadcrumbItem>
+                    {index === breadcrumbs.length - 1 ? (
+                      <BreadcrumbPage className="flex items-center space-x-2">
+                        {crumb.config.icon && <crumb.config.icon className="h-4 w-4 flex-shrink-0" />}
+                        <span className="truncate">{crumb.config.label}</span>
+                      </BreadcrumbPage>
+                    ) : (
+                      <BreadcrumbLink asChild>
+                        <Link href={crumb.path} className="flex items-center space-x-2">
+                          {crumb.config.icon && <crumb.config.icon className="h-4 w-4 flex-shrink-0" />}
+                          <span className="truncate">{crumb.config.label}</span>
+                        </Link>
+                      </BreadcrumbLink>
+                    )}
+                  </BreadcrumbItem>
+                </div>
+              ))}
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+
+        {/* Contextual Actions */}
+        {currentConfig.actions && currentConfig.actions.length > 0 && (
+          <div className="flex items-center space-x-2 flex-shrink-0">
+            {currentConfig.actions.map((action, index) => (
+              <Button
+                key={index}
+                variant={action.variant || 'default'}
+                size="sm"
+                onClick={action.action}
+                className="flex items-center space-x-2"
+              >
+                <action.icon className="h-4 w-4" />
+                <span className="hidden sm:inline">{action.label}</span>
+              </Button>
+            ))}
+          </div>
         )}
 
-        {/* Breadcrumb Navigation */}
-        <Breadcrumb>
-          <BreadcrumbList>
-            {breadcrumbs.map((crumb, index) => (
-              <div key={crumb.path} className="flex items-center">
-                {index > 0 && <BreadcrumbSeparator />}
-                <BreadcrumbItem>
-                  {index === breadcrumbs.length - 1 ? (
-                    <BreadcrumbPage className="flex items-center space-x-2">
-                      {crumb.config.icon && <crumb.config.icon className="h-4 w-4" />}
-                      <span>{crumb.config.label}</span>
-                    </BreadcrumbPage>
-                  ) : (
-                    <BreadcrumbLink asChild>
-                      <Link href={crumb.path} className="flex items-center space-x-2">
-                        {crumb.config.icon && <crumb.config.icon className="h-4 w-4" />}
-                        <span>{crumb.config.label}</span>
-                      </Link>
-                    </BreadcrumbLink>
-                  )}
-                </BreadcrumbItem>
-              </div>
-            ))}
-          </BreadcrumbList>
-        </Breadcrumb>
-      </div>
-
-      {/* Contextual Actions */}
-      {currentConfig.actions && currentConfig.actions.length > 0 && (
-        <div className="flex items-center space-x-2">
-          {currentConfig.actions.map((action, index) => (
-            <Button
-              key={index}
-              variant={action.variant || 'default'}
-              size="sm"
-              onClick={action.action}
-              className="flex items-center space-x-2"
-            >
-              <action.icon className="h-4 w-4" />
-              <span className="hidden sm:inline">{action.label}</span>
-            </Button>
-          ))}
+        {/* User Info - Only show on very large screens to prevent overlap */}
+        <div className="hidden 2xl:flex items-center space-x-2 text-sm text-muted-foreground flex-shrink-0">
+          <span>Welcome back,</span>
+          <span className="font-medium text-foreground truncate max-w-20">{user?.name || 'User'}</span>
         </div>
-      )}
-
-      {/* User Info */}
-      <div className="hidden md:flex items-center space-x-2 text-sm text-muted-foreground">
-        <span>Welcome back,</span>
-        <span className="font-medium text-foreground">{user?.name || 'User'}</span>
       </div>
     </div>
   )

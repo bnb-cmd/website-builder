@@ -61,7 +61,7 @@ export function Canvas({
   }
 
   return (
-    <div className="flex-1 bg-muted/30 overflow-auto">
+    <div className="flex-1 bg-muted/30 overflow-auto min-w-0">
       <div className="min-h-full flex justify-center p-8">
         <div
           ref={setNodeRef}

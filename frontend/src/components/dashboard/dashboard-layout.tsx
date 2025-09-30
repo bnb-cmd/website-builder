@@ -98,6 +98,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter()
   const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['Core']))
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
 
@@ -132,8 +133,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Sidebar */}
       <nav
         className={cn(
-          'fixed inset-y-0 left-0 z-50 w-64 bg-card border-r border-border transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
-          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+          'fixed inset-y-0 left-0 z-50 bg-card border-r border-border transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full',
+          sidebarCollapsed ? 'w-16' : 'w-64'
         )}
         aria-label="Main navigation"
         id="navigation"
@@ -145,16 +147,27 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
                 <Globe className="h-5 w-5 text-primary-foreground" />
               </div>
-              <span className="text-lg font-bold gradient-text">Pakistan Builder</span>
+              {!sidebarCollapsed && <span className="text-lg font-bold gradient-text">Pakistan Builder</span>}
             </Link>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSidebarOpen(false)}
-              className="lg:hidden"
-            >
-              <X className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center space-x-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+                className="hidden lg:flex"
+                title={sidebarCollapsed ? "Expand sidebar" : "Collapse sidebar"}
+              >
+                {sidebarCollapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarOpen(false)}
+                className="lg:hidden"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
           </header>
 
           {/* Navigation */}
@@ -172,17 +185,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                 >
                   <div className="flex items-center space-x-3">
                     <group.icon className="h-4 w-4" />
-                    <span>{group.title}</span>
+                    {!sidebarCollapsed && <span>{group.title}</span>}
                   </div>
-                  {expandedGroups.has(group.title) ? (
-                    <ChevronDown className="h-4 w-4" />
-                  ) : (
-                    <ChevronRight className="h-4 w-4" />
+                  {!sidebarCollapsed && (
+                    expandedGroups.has(group.title) ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )
                   )}
                 </button>
 
                 {/* Group Items */}
-                {expandedGroups.has(group.title) && (
+                {expandedGroups.has(group.title) && !sidebarCollapsed && (
                   <div className="ml-4 space-y-1">
                     {group.items.map((item) => (
                       <Link
@@ -209,17 +224,19 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="p-4 border-t border-border">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-full justify-start space-x-2 p-2">
+                <Button variant="ghost" className={`w-full ${sidebarCollapsed ? 'justify-center p-2' : 'justify-start space-x-2 p-2'}`}>
                   <Avatar className="h-8 w-8">
                     <AvatarImage src={user?.avatar} />
                     <AvatarFallback>
                       {user?.name?.split(' ').map(n => n[0]).join('') || 'U'}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 text-left">
-                    <div className="text-sm font-medium">{user?.name}</div>
-                    <div className="text-xs text-muted-foreground">{user?.email}</div>
-                  </div>
+                  {!sidebarCollapsed && (
+                    <div className="flex-1 text-left">
+                      <div className="text-sm font-medium">{user?.name}</div>
+                      <div className="text-xs text-muted-foreground">{user?.email}</div>
+                    </div>
+                  )}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -249,7 +266,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </nav>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-0'}`}>
         {/* Mobile Header */}
         <header className="bg-background border-b border-border px-4 py-3 lg:hidden">
           <div className="flex items-center justify-between">
@@ -282,7 +299,9 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           role="main"
           aria-label="Main content"
         >
-          {children}
+          <div className="p-6">
+            {children}
+          </div>
         </main>
       </div>
 

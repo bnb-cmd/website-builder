@@ -113,7 +113,7 @@ export default function RootLayout({
                 {children}
 
                 {/* Language Switcher */}
-                <div className="fixed top-4 right-4 z-40">
+                <div className="fixed top-4 right-4 z-40 hidden xl:block">
                   <LanguageSwitcher variant="minimal" />
                 </div>
 

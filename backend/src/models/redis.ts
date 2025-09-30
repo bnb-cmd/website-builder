@@ -9,7 +9,6 @@ export class RedisService {
     this.redis = new Redis(redisConfig.url, {
       password: redisConfig.password,
       db: redisConfig.db,
-      retryDelayOnFailover: 100,
       enableReadyCheck: true,
       maxRetriesPerRequest: 3,
       lazyConnect: true,
@@ -177,15 +176,16 @@ export class RedisService {
     return await this.redis.keys(pattern)
   }
 
-  public async scan(cursor: number, pattern?: string, count?: number): Promise<[number, string[]]> {
-    const args: (string | number)[] = [cursor]
+  public async scan(cursor: string = '0', pattern?: string, count?: number): Promise<[string, string[]]> {
+    const args: any[] = [cursor]
     if (pattern) {
       args.push('MATCH', pattern)
     }
     if (count) {
       args.push('COUNT', count)
     }
-    return await this.redis.scan(...args)
+    const result = await this.redis.scan(...args)
+    return [result[0], result[1]]
   }
 
   // Batch operations
@@ -308,7 +308,8 @@ export class RedisService {
 
   // Connection info
   public async getInfo(): Promise<Record<string, string>> {
-    return await this.redis.info()
+    const info = await this.redis.info()
+    return info as Record<string, string>
   }
 
   // Cleanup

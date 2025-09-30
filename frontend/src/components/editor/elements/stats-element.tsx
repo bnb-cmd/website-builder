@@ -34,7 +34,7 @@ export function StatsElement({ element, isSelected, onSelect }: StatsElementProp
       setCounters(new Array(defaultStats.length).fill(0))
       
       // Animate each counter
-      defaultStats.forEach((stat, index) => {
+      defaultStats.forEach((stat: any, index: number) => {
         const duration = 2000 // 2 seconds
         const steps = 50
         const increment = stat.value / steps
@@ -56,7 +56,7 @@ export function StatsElement({ element, isSelected, onSelect }: StatsElementProp
         return () => clearInterval(timer)
       })
     } else {
-      setCounters(defaultStats.map(stat => stat.value))
+      setCounters(defaultStats.map((stat: any) => stat.value))
     }
   }, [animate])
 
@@ -75,7 +75,7 @@ export function StatsElement({ element, isSelected, onSelect }: StatsElementProp
           : 'grid-cols-1'
         }
       `}>
-        {defaultStats.map((stat, index) => {
+        {defaultStats.map((stat: any, index: number) => {
           const Icon = icons[stat.icon] || TrendingUp
           const displayValue = animate ? counters[index] || 0 : stat.value
           

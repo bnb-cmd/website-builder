@@ -653,7 +653,7 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
           )}
 
           {/* Middle Section - Layers and Canvas */}
-          <div className="flex-1 flex">
+          <div className="flex-1 flex min-w-0">
             {/* Layers Panel */}
             {showLayers && (
               <LayerPanel
@@ -670,7 +670,7 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
             {/* Main Canvas */}
             <div
               ref={canvasRef}
-              className="flex-1 flex flex-col"
+              className="flex-1 flex flex-col min-w-0"
               onMouseMove={handleMouseMove}
             >
               <Canvas

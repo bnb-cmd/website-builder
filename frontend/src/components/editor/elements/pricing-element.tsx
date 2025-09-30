@@ -76,7 +76,7 @@ export function PricingElement({ element, isSelected, onSelect }: PricingElement
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {defaultPlans.map((plan, index) => (
+        {defaultPlans.map((plan: any, index: number) => (
           <div
             key={index}
             className={`
@@ -105,7 +105,7 @@ export function PricingElement({ element, isSelected, onSelect }: PricingElement
             </div>
 
             <ul className="space-y-3 mb-6">
-              {plan.features.map((feature, featureIndex) => (
+              {plan.features.map((feature: any, featureIndex: number) => (
                 <li key={featureIndex} className="flex items-center gap-2">
                   {feature.included ? (
                     <Check className="h-5 w-5 text-green-500 flex-shrink-0" />

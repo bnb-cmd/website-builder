@@ -62,9 +62,9 @@ export function ProgressElement({ element, isSelected, onSelect }: ProgressEleme
           )}
         </div>
         
-        <div className={`w-full bg-muted rounded-full overflow-hidden ${sizeClasses[size]}`}>
+        <div className={`w-full bg-muted rounded-full overflow-hidden ${sizeClasses[size as keyof typeof sizeClasses]}`}>
           <div
-            className={`h-full transition-all duration-1000 ease-out ${colorClasses[color]}`}
+            className={`h-full transition-all duration-1000 ease-out ${colorClasses[color as keyof typeof colorClasses]}`}
             style={{ width: `${percentage}%` }}
           />
         </div>

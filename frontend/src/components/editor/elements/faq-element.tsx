@@ -62,13 +62,13 @@ export function FAQElement({ element, isSelected, onSelect }: FAQElementProps) {
   }
 
   const filteredFAQs = searchTerm 
-    ? defaultFAQs.filter(faq => 
+    ? defaultFAQs.filter((faq: any) => 
         faq.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
         faq.answer.toLowerCase().includes(searchTerm.toLowerCase())
       )
     : defaultFAQs
 
-  const categories = [...new Set(defaultFAQs.map(faq => faq.category))]
+  const categories = [...new Set(defaultFAQs.map((faq: any) => faq.category))]
 
   return (
     <div
@@ -99,7 +99,7 @@ export function FAQElement({ element, isSelected, onSelect }: FAQElementProps) {
 
         {layout === 'accordion' ? (
           <div className="space-y-4">
-            {filteredFAQs.map((faq, index) => {
+            {filteredFAQs.map((faq: any, index: number) => {
               const isOpen = openItems.includes(index)
               
               return (
@@ -141,12 +141,12 @@ export function FAQElement({ element, isSelected, onSelect }: FAQElementProps) {
         ) : (
           <div className="space-y-8">
             {categories.map((category) => (
-              <div key={category}>
-                <h3 className="font-semibold text-lg mb-4">{category}</h3>
+              <div key={category as string}>
+                <h3 className="font-semibold text-lg mb-4">{category as string}</h3>
                 <div className="space-y-4">
                   {filteredFAQs
-                    .filter(faq => faq.category === category)
-                    .map((faq, index) => (
+                    .filter((faq: any) => faq.category === category)
+                    .map((faq: any, index: number) => (
                       <div key={index}>
                         <h4 className="font-medium mb-2">{faq.question}</h4>
                         <p className="text-muted-foreground text-sm">{faq.answer}</p>

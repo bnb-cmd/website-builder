@@ -63,7 +63,9 @@ export class DatabaseService {
   public async transaction<T>(
     fn: (prisma: PrismaClient) => Promise<T>
   ): Promise<T> {
-    return await this.prisma.$transaction(fn)
+    return await this.prisma.$transaction(async (tx) => {
+      return await fn(tx as PrismaClient)
+    })
   }
 
   public async executeRaw<T = any>(query: string, ...params: any[]): Promise<T> {
@@ -108,7 +110,11 @@ export class DatabaseService {
           (SELECT setting::int FROM pg_settings WHERE name = 'max_connections') as max_connections
       `
       
-      return result[0] || {
+      return result[0] ? {
+        activeConnections: result[0].active_connections,
+        totalConnections: result[0].total_connections,
+        maxConnections: result[0].max_connections
+      } : {
         activeConnections: 0,
         totalConnections: 0,
         maxConnections: 0

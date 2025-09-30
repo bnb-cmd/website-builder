@@ -375,9 +375,25 @@ export function TemplateLibrary({ onSelectTemplate, onSelectBlock }: TemplateLib
                     <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                       {filteredTemplates.map((template) => (
                         <Card key={template.id} className="group hover:shadow-lg transition-all">
-                          <div className="relative aspect-video bg-muted">
+                          <div className="relative aspect-video bg-muted group/preview cursor-pointer">
                             {/* Template Preview */}
                             <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-purple-500 opacity-20" />
+                            
+                            {/* Quick Preview Overlay */}
+                            <div className="absolute inset-0 bg-black/0 group-hover/preview:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover/preview:opacity-100">
+                              <Button
+                                size="sm"
+                                variant="secondary"
+                                className="bg-white/90 hover:bg-white text-black shadow-lg"
+                                onClick={(e) => {
+                                  e.stopPropagation()
+                                  // Add quick preview functionality here
+                                }}
+                              >
+                                <Eye className="h-4 w-4 mr-2" />
+                                Quick Preview
+                              </Button>
+                            </div>
                             
                             {/* Hover Actions */}
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center space-x-2">

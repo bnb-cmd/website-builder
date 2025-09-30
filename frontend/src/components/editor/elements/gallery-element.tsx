@@ -1,7 +1,7 @@
 'use client'
 
 import { Element } from '@/types/editor'
-import { ImageIcon, X, ChevronLeft, ChevronRight, Grid3x3, Columns3, Square } from 'lucide-react'
+import { ImageIcon, X, ChevronLeft, ChevronRight, Grid, Columns, Square } from 'lucide-react'
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 

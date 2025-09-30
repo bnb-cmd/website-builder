@@ -3,12 +3,12 @@ import { FastifyRequest, FastifyReply, FastifyInstance } from 'fastify'
 import { authConfig } from '@/config/environment'
 import { UserService } from '@/services/userService'
 
-export interface AuthenticatedRequest extends FastifyRequest {
-  user?: {
+export interface AuthenticatedRequest {
+  user: {
     id: string
     email: string
     name: string
-    role: string
+    role: 'USER' | 'ADMIN' | 'SUPER_ADMIN'
   }
 }
 
@@ -38,19 +38,15 @@ export class AuthService {
   // Generate JWT token
   generateAccessToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
     return jwt.sign(payload, authConfig.jwtSecret, {
-      expiresIn: authConfig.jwtExpiresIn,
-      issuer: 'pakistan-website-builder',
-      audience: 'pakistan-website-builder-users'
-    })
+      expiresIn: authConfig.jwtExpiresIn
+    } as jwt.SignOptions)
   }
 
   // Generate refresh token
   generateRefreshToken(payload: Omit<RefreshTokenPayload, 'iat' | 'exp'>): string {
     return jwt.sign(payload, authConfig.jwtSecret, {
-      expiresIn: authConfig.refreshTokenExpiresIn,
-      issuer: 'pakistan-website-builder',
-      audience: 'pakistan-website-builder-refresh'
-    })
+      expiresIn: authConfig.refreshTokenExpiresIn
+    } as jwt.SignOptions)
   }
 
   // Verify JWT token
@@ -159,7 +155,7 @@ export class AuthService {
 
 // Authentication middleware
 export async function authenticate(
-  request: AuthenticatedRequest,
+  request: FastifyRequest & AuthenticatedRequest,
   reply: FastifyReply
 ): Promise<void> {
   try {
@@ -169,6 +165,7 @@ export async function authenticate(
       request.user = {
         id: 'dev-user-id',
         email: 'dev@example.com',
+        name: 'Development User',
         role: 'USER'
       }
       return
@@ -245,7 +242,7 @@ export async function authenticate(
       id: user.id,
       email: user.email,
       name: user.name,
-      role: user.role
+      role: user.role as 'USER' | 'ADMIN' | 'SUPER_ADMIN'
     }
   } catch (error) {
     console.error('Authentication error:', error)
@@ -261,7 +258,7 @@ export async function authenticate(
 
 // Optional authentication middleware
 export async function optionalAuthenticate(
-  request: AuthenticatedRequest,
+  request: FastifyRequest & AuthenticatedRequest,
   reply: FastifyReply
 ): Promise<void> {
   try {

@@ -390,7 +390,7 @@ export function AIWebsiteAssistant({ onSuggestion, websiteId }: AIAssistantProps
   }
 
   return (
-    <Card className="fixed bottom-4 right-4 w-96 max-h-[600px] z-50 shadow-xl">
+    <Card className="fixed bottom-4 right-4 w-80 max-h-[500px] z-50 shadow-xl">
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">

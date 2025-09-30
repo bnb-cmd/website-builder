@@ -90,7 +90,7 @@ export function TeamElement({ element, isSelected, onSelect }: TeamElementProps)
           : 'grid-cols-1 max-w-4xl mx-auto'
         }
       `}>
-        {defaultMembers.map((member, index) => (
+        {defaultMembers.map((member: any, index: number) => (
           <div 
             key={index}
             className="text-center group"

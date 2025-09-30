@@ -29,7 +29,7 @@ export function TabsElement({ element, isSelected, onSelect }: TabsElementProps)
     >
       {/* Tab Headers */}
       <div className="flex space-x-1 mb-6 border-b border-border">
-        {defaultTabs.map((tab, index) => (
+        {defaultTabs.map((tab: any, index: number) => (
           <button
             key={index}
             onClick={(e) => {
@@ -54,7 +54,7 @@ export function TabsElement({ element, isSelected, onSelect }: TabsElementProps)
       
       {/* Tab Content */}
       <div className="min-h-[100px]">
-        {defaultTabs.map((tab, index) => (
+        {defaultTabs.map((tab: any, index: number) => (
           <div
             key={index}
             className={`

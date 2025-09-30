@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import {
   Search,
   Filter,
@@ -62,6 +63,135 @@ const sortOptions = [
   { value: 'name', label: 'Name A-Z' },
   { value: 'category', label: 'Category' }
 ]
+
+// Helper function to get template-specific gradient colors
+const getTemplateGradient = (category: string) => {
+  const gradients: { [key: string]: string } = {
+    'Business': 'from-blue-50 to-indigo-100',
+    'E-commerce': 'from-green-50 to-emerald-100',
+    'Restaurant': 'from-orange-50 to-red-100',
+    'Portfolio': 'from-purple-50 to-pink-100',
+    'Education': 'from-yellow-50 to-orange-100',
+    'Medical': 'from-teal-50 to-cyan-100',
+    'Real Estate': 'from-gray-50 to-slate-100',
+    'Events': 'from-pink-50 to-rose-100',
+    'Blog': 'from-indigo-50 to-blue-100',
+    'Non-Profit': 'from-emerald-50 to-green-100',
+    'Fitness': 'from-red-50 to-pink-100',
+    'Travel': 'from-cyan-50 to-blue-100',
+    'Fashion': 'from-rose-50 to-pink-100',
+    'Technology': 'from-violet-50 to-purple-100',
+    'default': 'from-gray-50 to-slate-100'
+  }
+  return gradients[category] || gradients.default
+}
+
+// Helper function to render template-specific preview
+const renderTemplatePreview = (template: Template) => {
+  const category = template.category.toLowerCase()
+  
+  if (category.includes('business') || category.includes('consulting')) {
+    return (
+      <>
+        {/* Header */}
+        <div className="h-3 bg-blue-300 rounded w-3/4"></div>
+        {/* Content blocks */}
+        <div className="space-y-1">
+          <div className="h-2 bg-blue-200 rounded w-full"></div>
+          <div className="h-2 bg-blue-200 rounded w-5/6"></div>
+          <div className="h-2 bg-blue-200 rounded w-4/6"></div>
+        </div>
+        {/* Services grid */}
+        <div className="grid grid-cols-3 gap-1 mt-2">
+          <div className="h-8 bg-blue-200 rounded"></div>
+          <div className="h-8 bg-blue-200 rounded"></div>
+          <div className="h-8 bg-blue-200 rounded"></div>
+        </div>
+        {/* Footer */}
+        <div className="h-2 bg-blue-300 rounded w-1/2 mt-2"></div>
+      </>
+    )
+  }
+  
+  if (category.includes('ecommerce') || category.includes('fashion') || category.includes('shop')) {
+    return (
+      <>
+        {/* Header */}
+        <div className="h-3 bg-green-300 rounded w-3/4"></div>
+        {/* Product grid */}
+        <div className="grid grid-cols-2 gap-1 mt-2">
+          <div className="h-12 bg-green-200 rounded"></div>
+          <div className="h-12 bg-green-200 rounded"></div>
+          <div className="h-12 bg-green-200 rounded"></div>
+          <div className="h-12 bg-green-200 rounded"></div>
+        </div>
+        {/* Price tags */}
+        <div className="flex justify-between mt-1">
+          <div className="h-2 bg-green-300 rounded w-1/4"></div>
+          <div className="h-2 bg-green-300 rounded w-1/4"></div>
+        </div>
+        {/* Footer */}
+        <div className="h-2 bg-green-300 rounded w-1/2 mt-2"></div>
+      </>
+    )
+  }
+  
+  if (category.includes('restaurant') || category.includes('food')) {
+    return (
+      <>
+        {/* Header */}
+        <div className="h-3 bg-orange-300 rounded w-3/4"></div>
+        {/* Menu items */}
+        <div className="space-y-1 mt-2">
+          <div className="h-2 bg-orange-200 rounded w-full"></div>
+          <div className="h-2 bg-orange-200 rounded w-5/6"></div>
+          <div className="h-2 bg-orange-200 rounded w-4/6"></div>
+          <div className="h-2 bg-orange-200 rounded w-3/4"></div>
+        </div>
+        {/* Image placeholder */}
+        <div className="h-8 bg-orange-200 rounded mt-2"></div>
+        {/* Footer */}
+        <div className="h-2 bg-orange-300 rounded w-1/2 mt-2"></div>
+      </>
+    )
+  }
+  
+  if (category.includes('portfolio') || category.includes('creative')) {
+    return (
+      <>
+        {/* Header */}
+        <div className="h-3 bg-purple-300 rounded w-3/4"></div>
+        {/* Gallery grid */}
+        <div className="grid grid-cols-2 gap-1 mt-2">
+          <div className="h-8 bg-purple-200 rounded"></div>
+          <div className="h-8 bg-purple-200 rounded"></div>
+          <div className="h-6 bg-purple-200 rounded"></div>
+          <div className="h-6 bg-purple-200 rounded"></div>
+        </div>
+        {/* Footer */}
+        <div className="h-2 bg-purple-300 rounded w-1/2 mt-2"></div>
+      </>
+    )
+  }
+  
+  // Default preview for other categories
+  return (
+    <>
+      {/* Header */}
+      <div className="h-3 bg-gray-300 rounded w-3/4"></div>
+      {/* Content blocks */}
+      <div className="space-y-1">
+        <div className="h-2 bg-gray-200 rounded w-full"></div>
+        <div className="h-2 bg-gray-200 rounded w-5/6"></div>
+        <div className="h-2 bg-gray-200 rounded w-4/6"></div>
+      </div>
+      {/* Image placeholder */}
+      <div className="h-12 bg-gray-200 rounded mt-2"></div>
+      {/* Footer */}
+      <div className="h-2 bg-gray-300 rounded w-1/2 mt-2"></div>
+    </>
+  )
+}
 
 export default function TemplatesPage() {
   const router = useRouter()
@@ -260,58 +390,71 @@ export default function TemplatesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 -m-6 p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Template Library</h1>
-          <p className="text-muted-foreground">
-            {loading ? (
-              'Loading templates...'
-            ) : error ? (
-              'Error loading templates'
-            ) : (
-              `Choose from ${total}+ professionally designed templates`
-            )}
-          </p>
-        </div>
-        <div className="flex items-center space-x-2">
-          <Button
-            variant={viewMode === 'grid' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('grid')}
-          >
-            <Grid className="h-4 w-4" />
-          </Button>
-          <Button
-            variant={viewMode === 'list' ? 'default' : 'outline'}
-            size="sm"
-            onClick={() => setViewMode('list')}
-          >
-            <List className="h-4 w-4" />
-          </Button>
+      <div className="space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="min-w-0 flex-1">
+            <h1 className="text-2xl font-bold">Template Library</h1>
+            <p className="text-muted-foreground">
+              {loading ? (
+                'Loading templates...'
+              ) : error ? (
+                'Error loading templates'
+              ) : (
+                `Choose from ${total}+ professionally designed templates`
+              )}
+            </p>
+          </div>
+          
+          {/* Controls - Stack on mobile, row on desktop */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-2">
+            {/* View Mode Controls */}
+            <div className="flex items-center space-x-1">
+              <Button
+                variant={viewMode === 'grid' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('grid')}
+              >
+                <Grid className="h-4 w-4" />
+              </Button>
+              <Button
+                variant={viewMode === 'list' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setViewMode('list')}
+              >
+                <List className="h-4 w-4" />
+              </Button>
+            </div>
 
-          {/* Visual Browser Controls */}
-          <div className="w-px h-6 bg-border mx-2" />
-          <Button
-            variant={templatesToCompare.length === 2 ? 'default' : 'outline'}
-            size="sm"
-            onClick={startComparison}
-            disabled={templatesToCompare.length !== 2}
-          >
-            <GitCompare className="h-4 w-4 mr-2" />
-            Compare ({templatesToCompare.length}/2)
-          </Button>
-          {comparisonMode && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={exitComparison}
-            >
-              <RotateCcw className="h-4 w-4 mr-2" />
-              Exit Compare
-            </Button>
-          )}
+            {/* Visual Browser Controls */}
+            <div className="hidden sm:block w-px h-6 bg-border mx-2" />
+            <div className="flex items-center space-x-2">
+              <Button
+                variant={templatesToCompare.length === 2 ? 'default' : 'outline'}
+                size="sm"
+                onClick={startComparison}
+                disabled={templatesToCompare.length !== 2}
+                className="flex items-center space-x-2"
+              >
+                <GitCompare className="h-4 w-4" />
+                <span className="hidden sm:inline">Compare ({templatesToCompare.length}/2)</span>
+                <span className="sm:hidden">Compare</span>
+              </Button>
+              {comparisonMode && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={exitComparison}
+                  className="flex items-center space-x-2"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  <span className="hidden sm:inline">Exit Compare</span>
+                  <span className="sm:hidden">Exit</span>
+                </Button>
+              )}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -443,28 +586,51 @@ export default function TemplatesPage() {
                     onMouseLeave={() => setHoveredTemplate(null)}
                   >
                     <CardHeader className="pb-3">
-                      <div className="relative aspect-video bg-muted rounded-lg mb-3 overflow-hidden cursor-pointer">
-                        {template.thumbnail ? (
+                      <div className="relative aspect-video bg-muted rounded-lg mb-3 overflow-hidden cursor-pointer group/preview">
+                        {/* Template Preview Image */}
+                        <div className="w-full h-full relative">
                           <img
-                            src={template.thumbnail}
+                            src={`/api/template-preview?id=${template.id}&category=${encodeURIComponent(template.category)}&name=${encodeURIComponent(template.name)}`}
                             alt={template.name}
-                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover/preview:scale-105"
                             onClick={() => handlePreviewTemplate(template)}
-                            onError={(event) => {
-                              const target = event.target as HTMLImageElement
-                              target.style.display = 'none'
-                            }}
                           />
-                        ) : (
-                          <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/10">
-                            <Sparkles className="h-8 w-8 text-muted-foreground" />
+                          
+                          {/* Fallback Template Preview */}
+                          <div 
+                            className={`absolute inset-0 flex items-center justify-center ${template.thumbnail ? 'hidden' : 'flex'}`}
+                            style={{ display: template.thumbnail ? 'none' : 'flex' }}
+                          >
+                            <div className={`w-full h-full bg-gradient-to-br ${getTemplateGradient(template.category)} flex flex-col items-center justify-center p-4`}>
+                              <div className="w-full max-w-[200px] space-y-2">
+                                {/* Template-specific preview based on category */}
+                                {renderTemplatePreview(template)}
+                              </div>
+                            </div>
                           </div>
-                        )}
+                        </div>
                         {template.isPremium && (
                           <Badge className="absolute top-3 left-3 bg-amber-500 text-white">
                             Premium
                           </Badge>
                         )}
+                        
+                        {/* Quick Preview Overlay */}
+                        <div className="absolute inset-0 bg-black/0 group-hover/preview:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover/preview:opacity-100">
+                          <Button
+                            size="sm"
+                            variant="secondary"
+                            className="bg-white/90 hover:bg-white text-black shadow-lg"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setPreviewTemplate(template)
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-2" />
+                            Quick Preview
+                          </Button>
+                        </div>
+                        
                         <Button
                           variant="secondary"
                           size="sm"
@@ -936,6 +1102,65 @@ export default function TemplatesPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Quick Preview Modal */}
+      {previewTemplate && !previewMode && (
+        <Dialog open={!!previewTemplate} onOpenChange={() => setPreviewTemplate(null)}>
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+            <DialogHeader>
+              <DialogTitle className="flex items-center justify-between">
+                <span>{previewTemplate.name} - Quick Preview</span>
+                <div className="flex items-center space-x-2">
+                  <Badge variant="outline">{previewTemplate.category}</Badge>
+                  {previewTemplate.isPremium && (
+                    <Badge className="bg-amber-500 text-white">Premium</Badge>
+                  )}
+                </div>
+              </DialogTitle>
+              <DialogDescription>
+                {previewTemplate.description}
+              </DialogDescription>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              {/* Template Preview */}
+              <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+                <img
+                  src={`/api/template-preview?id=${previewTemplate.id}&category=${encodeURIComponent(previewTemplate.category)}&name=${encodeURIComponent(previewTemplate.name)}`}
+                  alt={previewTemplate.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              
+              {/* Quick Actions */}
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                  <span>Difficulty: {previewTemplate.difficulty || 'Easy'}</span>
+                  <span>Time: {previewTemplate.estimatedTime || '~15 min'}</span>
+                  <span>Price: {previewTemplate.price === 0 ? 'Free' : `PKR ${previewTemplate.price}`}</span>
+                </div>
+                
+                <div className="flex items-center space-x-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setPreviewTemplate(null)
+                      setPreviewMode(true)
+                    }}
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    Full Preview
+                  </Button>
+                  <Button onClick={() => handleUseTemplate(previewTemplate.id)}>
+                    <Download className="h-4 w-4 mr-2" />
+                    Use Template
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       )}
 
       {/* Template Comparison View */}

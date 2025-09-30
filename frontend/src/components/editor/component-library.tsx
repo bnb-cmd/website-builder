@@ -93,8 +93,7 @@ import {
   Eraser,
   Scissors,
   CopyIcon,
-  Paste,
-  Cut,
+  Clipboard,
   SearchIcon,
   FilterIcon,
   Building,
@@ -117,13 +116,13 @@ import {
   Lock,
   Share,
   Users,
-  Maximize2,
   HelpCircle,
   GitCompare,
   Bell,
   Clock,
   Mic,
   ChevronRight,
+  ChevronLeft,
   Calculator
 } from 'lucide-react'
 import { cn } from '@/lib/utils'

@@ -87,7 +87,10 @@ export function ElementRenderer({
     const commonProps = {
       element,
       isSelected,
-      onSelect: () => onSelect(element.id)
+      onSelect: () => onSelect(element.id),
+      onUpdate,
+      viewMode,
+      style: getResponsiveStyle()
     }
 
     switch (element.type) {
