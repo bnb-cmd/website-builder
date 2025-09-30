@@ -1,3 +1,5 @@
+"use client"
+
 import { useState, useEffect, useCallback, createContext, useContext } from 'react'
 
 export type SupportedLanguage = 'en' | 'ur' | 'ar' | 'hi' | 'es' | 'fr' | 'de' | 'zh'

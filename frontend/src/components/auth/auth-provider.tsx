@@ -70,6 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error('Auth check failed:', error)
       localStorage.removeItem('accessToken')
       localStorage.removeItem('refreshToken')
+      setUser(null)
     } finally {
       setIsLoading(false)
     }

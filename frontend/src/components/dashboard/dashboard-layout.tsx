@@ -118,6 +118,10 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     })
   }
 
+  const handleCreateWebsite = () => {
+    router.push('/dashboard/websites/new')
+  }
+
   return (
     <div className="h-screen flex overflow-hidden bg-background">
       {/* Screen Reader Announcements */}
@@ -151,7 +155,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             >
               <X className="h-4 w-4" />
             </Button>
-          </div>
+          </header>
 
           {/* Navigation */}
           <nav className="flex-1 p-4 space-y-1">
@@ -242,7 +246,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
             </DropdownMenu>
           </div>
         </div>
-      </div>
+      </nav>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -281,7 +285,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           {children}
         </main>
       </div>
-      </nav>
 
       {/* Mobile Overlay */}
       {sidebarOpen && (
@@ -343,8 +346,4 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       </div>
     </div>
   )
-
-  function handleCreateWebsite() {
-    router.push('/dashboard/websites/new')
-  }
 }

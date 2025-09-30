@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useMemo } from 'react'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -301,13 +301,13 @@ export function SmartFormField({
   const [validation, setValidation] = useState<ValidationResult>({ isValid: true, errors: [], warnings: [], suggestions: [] })
   const [aiSuggestionsList, setAiSuggestionsList] = useState<string[]>([])
 
-  const currentValue = value !== undefined ? value : internalValue
+  const currentValue = useMemo(() => value !== undefined ? value : internalValue, [value, internalValue])
 
   // Combine validation rules
-  const allRules = [
+  const allRules = useMemo(() => [
     ...validationRules,
     ...(required ? [{ type: 'required' as const, message: `${label || name} is required` }] : [])
-  ]
+  ], [validationRules, required, label, name])
 
   // Real-time validation
   const validate = useCallback((val: any) => {
@@ -316,39 +316,43 @@ export function SmartFormField({
     return result
   }, [allRules, type])
 
-  // Update validation on value change
-  useEffect(() => {
-    if (realTimeValidation || touched) {
-      validate(currentValue)
-    }
-  }, [currentValue, validate, realTimeValidation, touched])
+  // Update validation on value change - moved to handleChange to avoid infinite loops
 
-  // AI suggestions
-  useEffect(() => {
-    if (aiSuggestions && isFocused && currentValue.length < 3) {
-      const suggestions = getAISuggestions(type, context, currentValue)
-      setAiSuggestionsList(suggestions.slice(0, 5))
-    } else {
-      setAiSuggestionsList([])
-    }
-  }, [type, context, currentValue, isFocused, aiSuggestions])
+  // AI suggestions - moved to handleFocus to avoid infinite loops
 
   const handleChange = (newValue: any) => {
     if (value === undefined) {
       setInternalValue(newValue)
     }
-    onChange?.(newValue, validation.isValid)
+    
+    // Perform validation if real-time validation is enabled or field is touched
+    if (realTimeValidation || touched) {
+      const result = validateField(newValue, allRules, type)
+      setValidation(result)
+      onChange?.(newValue, result.isValid)
+    } else {
+      onChange?.(newValue, validation.isValid)
+    }
   }
 
   const handleFocus = () => {
     setIsFocused(true)
     setTouched(true)
+    
+    // Generate AI suggestions when focusing
+    if (aiSuggestions && currentValue.length < 3) {
+      const suggestions = getAISuggestions(type, context, currentValue)
+      setAiSuggestionsList(suggestions.slice(0, 5))
+    }
+    
     onFocus?.()
   }
 
   const handleBlur = () => {
     setIsFocused(false)
-    validate(currentValue)
+    setAiSuggestionsList([]) // Clear AI suggestions on blur
+    const result = validateField(currentValue, allRules, type)
+    setValidation(result)
     onBlur?.()
   }
 

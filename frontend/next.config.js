@@ -39,14 +39,14 @@ const nextConfig = {
       }
     ]
   },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/v1/:path*`
-      }
-    ]
-  },
+  // async rewrites() {
+  //   return [
+  //     {
+  //       source: '/api/:path*',
+  //       destination: `${process.env.NEXT_PUBLIC_API_URL}/v1/:path*`
+  //     }
+  //   ]
+  // },
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.resolve.fallback = {

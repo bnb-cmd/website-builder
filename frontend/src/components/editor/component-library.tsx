@@ -101,7 +101,6 @@ import {
   GraduationCap,
   Briefcase,
   Utensils,
-  Heart,
   Home,
   BookOpen,
   Award,
@@ -115,7 +114,17 @@ import {
   Shield,
   Ticket,
   Gift,
-  Lock
+  Lock,
+  Share,
+  Users,
+  Maximize2,
+  HelpCircle,
+  GitCompare,
+  Bell,
+  Clock,
+  Mic,
+  ChevronRight,
+  Calculator
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

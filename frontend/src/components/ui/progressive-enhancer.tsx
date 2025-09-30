@@ -46,7 +46,7 @@ export function ProgressiveEnhancer({
       ...loadingPriority.high,
       ...loadingPriority.medium,
       ...loadingPriority.low
-    ].length
+    ]
 
     let loaded = loadingPriority.critical.length + loadingPriority.high.length
     let loading: string[] = []
@@ -54,9 +54,9 @@ export function ProgressiveEnhancer({
 
     // Simulate loading progress (in real implementation, this would come from actual loading events)
     const interval = setInterval(() => {
-      if (loaded < totalComponents) {
+      if (loaded < totalComponents.length) {
         loaded += Math.random() > 0.8 ? 2 : 1 // Sometimes load 2 components at once
-        const progress = Math.min((loaded / totalComponents) * 100, 100)
+        const progress = Math.min((loaded / totalComponents.length) * 100, 100)
         setEnhancementStatus(prev => ({
           ...prev,
           loadedComponents: totalComponents.slice(0, loaded),

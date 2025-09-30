@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import { DndContext, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
 import { Sidebar } from './sidebar'
@@ -314,9 +314,7 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
         addElement(newElement)
 
         // Track data change for auto-save
-        setTimeout(() => {
-          onDataChange({ elements: [...elements, newElement], viewMode })
-        }, 100)
+        onDataChange({ elements: [...elements, newElement], viewMode })
       }
     }
 

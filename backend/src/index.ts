@@ -108,7 +108,9 @@ export async function createServer() {
 
   // Register CORS
   await fastify.register(cors, {
-    origin: serverConfig.enableCors ? [serverConfig.clientUrl] : false,
+    origin: serverConfig.nodeEnv === 'development' 
+      ? ['http://localhost:3000', 'http://127.0.0.1:3000']
+      : serverConfig.enableCors ? [serverConfig.clientUrl] : false,
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
