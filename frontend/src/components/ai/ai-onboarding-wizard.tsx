@@ -657,45 +657,82 @@ export function AIOnboardingWizard({ userId, onComplete }: { userId: string; onC
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle>{steps[currentStep].title}</CardTitle>
-              <CardDescription>{steps[currentStep].description}</CardDescription>
-            </div>
-            <div className="text-sm text-gray-500">
-              Step {currentStep + 1} of {steps.length}
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+      <div className="max-w-4xl mx-auto p-6">
+        {/* Enhanced Header */}
+        <div className="text-center mb-8">
+          <div className="flex items-center justify-center mb-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center shadow-lg">
+              <Sparkles className="w-8 h-8 text-white" />
             </div>
           </div>
-          <Progress value={(currentStep + 1) / steps.length * 100} className="mt-4" />
-        </CardHeader>
-        <CardContent>
-          {renderStepContent()}
-          <div className="flex justify-between mt-8">
-            <Button
-              variant="outline"
-              onClick={handlePrevious}
-              disabled={currentStep === 0}
-            >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Previous
-            </Button>
-            <Button
-              onClick={handleNext}
-              disabled={!canProceed() || isLoading}
-            >
-              {isLoading ? (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              ) : (
-                <ArrowRight className="w-4 h-4 mr-2" />
-              )}
-              {currentStep === steps.length - 1 ? 'Complete' : 'Next'}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent mb-2">
+            AI-Powered Website Builder
+          </h1>
+          <p className="text-gray-600 text-lg">
+            Let our AI create the perfect website for your business
+          </p>
+        </div>
+
+        {/* Enhanced Progress Card */}
+        <Card className="mb-8 border-0 bg-white/80 backdrop-blur-sm shadow-lg">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-xl font-semibold text-gray-900">
+                  {steps[currentStep].title}
+                </h3>
+                <p className="text-gray-600 mt-1">
+                  {steps[currentStep].description}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-sm font-medium text-gray-500">
+                  Step {currentStep + 1} of {steps.length}
+                </div>
+                <div className="text-xs text-gray-400 mt-1">
+                  {steps[currentStep].estimatedTime}
+                </div>
+              </div>
+            </div>
+            <Progress value={(currentStep + 1) / steps.length * 100} className="h-3" />
+            <div className="flex justify-between text-xs text-gray-500 mt-2">
+              <span>Welcome</span>
+              <span>Complete</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Step Content */}
+        <Card className="border-0 bg-white/80 backdrop-blur-sm shadow-lg">
+          <CardContent className="p-8">
+            {renderStepContent()}
+            <div className="flex justify-between mt-8">
+              <Button
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentStep === 0}
+                className="hover:bg-gray-50"
+              >
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Previous
+              </Button>
+              <Button
+                onClick={handleNext}
+                disabled={!canProceed() || isLoading}
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+              >
+                {isLoading ? (
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                ) : (
+                  <ArrowRight className="w-4 h-4 mr-2" />
+                )}
+                {currentStep === steps.length - 1 ? 'Complete' : 'Next'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

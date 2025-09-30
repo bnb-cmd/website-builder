@@ -267,23 +267,37 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
 
       {/* Main Content */}
       <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-0' : 'lg:ml-0'}`}>
-        {/* Mobile Header */}
-        <header className="bg-background border-b border-border px-4 py-3 lg:hidden">
+        {/* Enhanced Mobile Header */}
+        <header className="bg-white/95 backdrop-blur-sm border-b border-gray-200/50 px-4 py-3 lg:hidden sticky top-0 z-40">
           <div className="flex items-center justify-between">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setSidebarOpen(true)}
-            >
-              <Menu className="h-4 w-4" />
-            </Button>
+            <div className="flex items-center space-x-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSidebarOpen(true)}
+                className="hover:bg-gray-100"
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
+              <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
+                <Globe className="h-4 w-4 text-white" />
+              </div>
+              <div>
+                <h1 className="text-sm font-semibold text-gray-900">Pakistan Builder</h1>
+                <p className="text-xs text-gray-500">Welcome back, {user?.name}</p>
+              </div>
+            </div>
 
             <div className="flex items-center space-x-2">
               {/* Quick Actions */}
-              <Button variant="ghost" size="sm">
+              <Button variant="ghost" size="sm" className="hover:bg-gray-100">
                 <Bell className="h-4 w-4" />
               </Button>
-              <Button onClick={handleCreateWebsite} size="sm">
+              <Button 
+                onClick={handleCreateWebsite} 
+                size="sm"
+                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
+              >
                 <Plus className="h-4 w-4" />
               </Button>
             </div>

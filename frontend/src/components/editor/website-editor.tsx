@@ -365,27 +365,31 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
         <Toolbar data-toolbar>
           <div className="flex items-center space-x-4">
             {/* Undo/Redo */}
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={undo}
                 disabled={!canUndo}
+                className="h-8 w-8 p-0 hover:bg-white"
+                title="Undo"
               >
                 <Undo className="h-4 w-4" />
               </Button>
               <Button
-                variant="outline"
+                variant="ghost"
                 size="sm"
                 onClick={redo}
                 disabled={!canRedo}
+                className="h-8 w-8 p-0 hover:bg-white"
+                title="Redo"
               >
                 <Redo className="h-4 w-4" />
               </Button>
             </div>
 
             {/* View Mode */}
-            <div className="flex items-center space-x-1 bg-muted rounded-lg p-1" data-view-modes>
+            <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1" data-view-modes>
               <Button
                 variant={viewMode === 'desktop' ? 'default' : 'ghost'}
                 size="sm"
@@ -393,6 +397,8 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
                   setViewMode('desktop')
                   onDataChange({ elements, viewMode: 'desktop' })
                 }}
+                className="h-8 w-8 p-0 hover:bg-white"
+                title="Desktop View"
               >
                 <Monitor className="h-4 w-4" />
               </Button>
@@ -403,6 +409,8 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
                   setViewMode('tablet')
                   onDataChange({ elements, viewMode: 'tablet' })
                 }}
+                className="h-8 w-8 p-0 hover:bg-white"
+                title="Tablet View"
               >
                 <Tablet className="h-4 w-4" />
               </Button>
@@ -413,172 +421,38 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
                   setViewMode('mobile')
                   onDataChange({ elements, viewMode: 'mobile' })
                 }}
+                className="h-8 w-8 p-0 hover:bg-white"
+                title="Mobile View"
               >
                 <Smartphone className="h-4 w-4" />
               </Button>
             </div>
 
-            {/* Advanced Tools */}
-            <div className="flex items-center space-x-2">
-              <Button
-                variant={showLayers ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowLayers(!showLayers)}
-                title="Layers Panel"
-              >
-                <Layers className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showDesignTools ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowDesignTools(!showDesignTools)}
-                title="Design Tools"
-              >
-                <Wand2 className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showComponentLibrary ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => {
-                  setShowComponentLibrary(true)
-                  setShowTemplates(false)
-                }}
-                title="Component Library"
-              >
-                <MousePointer className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showTemplates ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => {
-                  setShowTemplates(true)
-                  setShowComponentLibrary(false)
-                }}
-                title="Templates"
-              >
-                <Palette className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showGuidedLearning ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowGuidedLearning(!showGuidedLearning)}
-                title="Guided Learning"
-              >
-                <GraduationCap className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showCollaboration ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowCollaboration(!showCollaboration)}
-                title="Collaboration"
-              >
-                <Users className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showProperties ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowProperties(!showProperties)}
-                title="Properties"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showAnimationEditor ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowAnimationEditor(!showAnimationEditor)}
-                title="Animations"
-              >
-                <Sparkles className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showInteractionsPanel ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowInteractionsPanel(!showInteractionsPanel)}
-                title="Interactions"
-              >
-                <MousePointer className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showCustomCssEditor ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowCustomCssEditor(!showCustomCssEditor)}
-                title="Custom CSS"
-              >
-                <Code className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showVersionHistory ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowVersionHistory(!showVersionHistory)}
-                title="Version History"
-              >
-                <History className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showAIDesignAssistant ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowAIDesignAssistant(!showAIDesignAssistant)}
-                title="AI Design Assistant"
-              >
-                <Bot className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showABTesting ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowABTesting(!showABTesting)}
-                title="A/B Testing"
-              >
-                <GitBranch className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showCustomJavaScript ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowCustomJavaScript(!showCustomJavaScript)}
-                title="Custom JavaScript"
-              >
-                <Terminal className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showAPIIntegrations ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowAPIIntegrations(!showAPIIntegrations)}
-                title="API Integrations"
-              >
-                <Webhook className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showWhiteLabel ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowWhiteLabel(!showWhiteLabel)}
-                title="White-Label"
-              >
-                <Palette className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showSecurityCompliance ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowSecurityCompliance(!showSecurityCompliance)}
-                title="Security & Compliance"
-              >
-                <Shield className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showDeveloperPortal ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowDeveloperPortal(!showDeveloperPortal)}
-                title="Developer Portal"
-              >
-                <Code className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={showCustomDomain ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setShowCustomDomain(!showCustomDomain)}
-                title="Custom Domains"
-              >
-                <Globe className="h-4 w-4" />
-              </Button>
-            </div>
+            {/* Contextual Actions for Selected Element */}
+            {selectedElement && (
+              <>
+                <div className="flex items-center space-x-1 bg-blue-50 rounded-lg p-1">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => duplicateElement(selectedElement.id)}
+                    className="h-8 w-8 p-0 hover:bg-blue-100"
+                    title="Duplicate Element"
+                  >
+                    <Copy className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteElement(selectedElement.id)}
+                    className="h-8 w-8 p-0 hover:bg-blue-100"
+                    title="Delete Element"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
 
           <div className="flex items-center space-x-4">
@@ -591,27 +465,22 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
             {/* Auto-save indicator */}
             <AutoSaveIndicator saveState={saveState} compact />
 
-            {/* Draft recovery button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowDraftRecovery(!showDraftRecovery)}
-              title="Draft Recovery"
-            >
-              <History className="h-4 w-4" />
-            </Button>
-
             {/* Manual save button */}
             <Button
               variant="outline"
               onClick={handleManualSave}
               disabled={saveState.status === 'saving'}
+              className="hover:bg-green-50 hover:border-green-300 hover:text-green-700"
             >
               <Save className="h-4 w-4 mr-2" />
               {saveState.status === 'saving' ? 'Saving...' : 'Save Now'}
             </Button>
 
-            <Button variant="outline" onClick={handlePreview}>
+            <Button 
+              variant="outline" 
+              onClick={handlePreview}
+              className="hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700"
+            >
               <Eye className="h-4 w-4 mr-2" />
               Preview
             </Button>
