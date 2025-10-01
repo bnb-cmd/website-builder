@@ -1,6 +1,12 @@
 import axios from 'axios'
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002'
+
+// Debug environment variables
+console.log('🔧 Environment Variables Debug:')
+console.log('🔧 NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL)
+console.log('🔧 Final API_URL:', API_URL)
+console.log('🔧 NODE_ENV:', process.env.NODE_ENV)
 
 export const api = axios.create({
   baseURL: `${API_URL}/v1`,
@@ -10,6 +16,28 @@ export const api = axios.create({
   },
   withCredentials: true,
 })
+
+// Debug axios configuration
+console.log('🔧 Axios API instance created with:')
+console.log('🔧 Base URL:', api.defaults.baseURL)
+console.log('🔧 Timeout:', api.defaults.timeout)
+console.log('🔧 Headers:', api.defaults.headers)
+console.log('🔧 With Credentials:', api.defaults.withCredentials)
+
+// Response interceptor for debugging
+api.interceptors.response.use(
+  (response) => {
+    console.log('🔧 Axios Response:', response.status, response.config.url)
+    return response
+  },
+  (error) => {
+    console.error('🔧 Axios Error:', error.message)
+    console.error('🔧 Error Status:', error.response?.status)
+    console.error('🔧 Error URL:', error.config?.url)
+    console.error('🔧 Error Data:', error.response?.data)
+    return Promise.reject(error)
+  }
+)
 
 // Request interceptor to add auth token
 api.interceptors.request.use(
@@ -302,16 +330,26 @@ export const apiHelpers = {
   // Template API helpers
   getTemplates: async (params: any = {}) => {
     try {
+      console.log('🔧 API Helper: getTemplates called with params:', params)
+      console.log('🔧 API Base URL:', api.defaults.baseURL)
+      
       const queryParams = new URLSearchParams()
       if (params.limit) queryParams.append('limit', params.limit.toString())
       if (params.category) queryParams.append('category', params.category)
       if (params.search) queryParams.append('search', params.search)
       if (params.featured) queryParams.append('featured', params.featured.toString())
       
-      const response = await api.get(`/templates?${queryParams.toString()}`)
+      const url = `/templates?${queryParams.toString()}`
+      console.log('🔧 Making request to:', url)
+      
+      const response = await api.get(url)
+      console.log('🔧 API Response received:', response.status, response.statusText)
+      console.log('🔧 Response data:', response.data)
+      
       return response
     } catch (error) {
-      console.error('Failed to fetch templates:', error)
+      console.error('🔧 API Helper Error:', error)
+      console.error('🔧 Error response:', error.response)
       throw error
     }
   },

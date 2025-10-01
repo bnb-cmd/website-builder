@@ -9,7 +9,7 @@ const createWebsiteSchema = z.object({
   description: z.string().max(500).optional(),
   templateId: z.string().optional(),
   businessType: z.enum(['RESTAURANT', 'RETAIL', 'SERVICE', 'ECOMMERCE', 'EDUCATION', 'HEALTHCARE', 'REAL_ESTATE', 'TECHNOLOGY', 'CREATIVE', 'NON_PROFIT', 'OTHER']).optional(),
-  language: z.enum(['ENGLISH', 'URDU', 'PUNJABI', 'SINDHI', 'PASHTO']).optional(),
+  language: z.enum(['ENGLISH', 'URDU']).optional(),
   content: z.any().optional(),
   settings: z.any().optional(),
   customCSS: z.string().optional(),
@@ -37,7 +37,7 @@ const websiteQuerySchema = z.object({
   limit: z.coerce.number().min(1).max(100).default(10),
   status: z.enum(['DRAFT', 'PUBLISHED', 'ARCHIVED']).optional(),
   businessType: z.enum(['RESTAURANT', 'RETAIL', 'SERVICE', 'ECOMMERCE', 'EDUCATION', 'HEALTHCARE', 'REAL_ESTATE', 'TECHNOLOGY', 'CREATIVE', 'NON_PROFIT', 'OTHER']).optional(),
-  language: z.enum(['ENGLISH', 'URDU', 'PUNJABI', 'SINDHI', 'PASHTO']).optional(),
+  language: z.enum(['ENGLISH', 'URDU']).optional(),
   search: z.string().optional(),
   sortBy: z.string().optional(),
   sortOrder: z.enum(['asc', 'desc']).optional()
@@ -169,23 +169,24 @@ export async function websiteRoutes(fastify: FastifyInstance) {
     try {
       const query = websiteQuerySchema.parse(request.query)
 
-      if (process.env.NODE_ENV === 'development' || process.env.USE_MOCK_DATA === 'true') {
-        const offset = (query.page - 1) * query.limit
-        const data = mockWebsites.slice(offset, offset + query.limit)
+      // Always use real database data, not mock data
+      // if (process.env.NODE_ENV === 'development' || process.env.USE_MOCK_DATA === 'true') {
+      //   const offset = (query.page - 1) * query.limit
+      //   const data = mockWebsites.slice(offset, offset + query.limit)
 
-        reply.send({
-          success: true,
-          data,
-          pagination: {
-            page: query.page,
-            limit: query.limit,
-            total: mockWebsites.length,
-            pages: Math.ceil(mockWebsites.length / query.limit)
-          },
-          timestamp: new Date().toISOString()
-        })
-        return
-      }
+      //   reply.send({
+      //     success: true,
+      //     data,
+      //     pagination: {
+      //       page: query.page,
+      //       limit: query.limit,
+      //       total: mockWebsites.length,
+      //       pages: Math.ceil(mockWebsites.length / query.limit)
+      //     },
+      //     timestamp: new Date().toISOString()
+      //   })
+      //   return
+      // }
 
       const websites = await websiteService.findAll({
         ...query,
@@ -287,7 +288,7 @@ export async function websiteRoutes(fastify: FastifyInstance) {
       
       const website = await websiteService.create({
         ...data,
-        userId: request.user!.id
+        userId: request.user?.id || 'dev-user-id'
       })
       
       reply.status(201).send({
@@ -296,6 +297,8 @@ export async function websiteRoutes(fastify: FastifyInstance) {
         timestamp: new Date().toISOString()
       })
     } catch (error) {
+      console.error('❌ Website creation error:', error)
+      
       if (error instanceof z.ZodError) {
         reply.status(400).send({
           success: false,
@@ -312,7 +315,7 @@ export async function websiteRoutes(fastify: FastifyInstance) {
       reply.status(500).send({
         success: false,
         error: {
-          message: 'Failed to create website',
+          message: error instanceof Error ? error.message : 'Failed to create website',
           code: 'CREATE_WEBSITE_FAILED',
           timestamp: new Date().toISOString()
         }

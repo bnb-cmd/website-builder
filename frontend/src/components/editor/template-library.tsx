@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Image from 'next/image'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -32,31 +32,25 @@ import {
   Sparkles,
   Check,
   X,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react'
 import { Element } from '@/types/editor'
 import { useWebsiteStore } from '@/store/website-store'
 import toast from 'react-hot-toast'
+import { apiHelpers } from '@/lib/api'
 
 interface Template {
   id: string
   name: string
   description: string
   category: string
-  businessType: string
-  preview: string
   thumbnail: string
   isPremium: boolean
-  rating: number
-  downloads: number
   tags: string[]
-  colors: {
-    primary: string
-    secondary: string
-    accent: string
-  }
-  sections: Element[]
+  pages: string[]
   features: string[]
+  localizedFor?: string
 }
 
 interface TemplateBlock {
@@ -73,7 +67,7 @@ const templateCategories = [
   { id: 'all', name: 'All Templates', icon: Layout },
   { id: 'business', name: 'Business', icon: Briefcase },
   { id: 'restaurant', name: 'Restaurant', icon: Coffee },
-  { id: 'retail', name: 'Retail', icon: ShoppingBag },
+  { id: 'ecommerce', name: 'E-commerce', icon: ShoppingBag },
   { id: 'realestate', name: 'Real Estate', icon: Home },
   { id: 'education', name: 'Education', icon: GraduationCap },
   { id: 'healthcare', name: 'Healthcare', icon: HeartHandshake },
@@ -232,40 +226,67 @@ export function TemplateLibrary({ onSelectTemplate, onSelectBlock }: TemplateLib
   const [showPremiumOnly, setShowPremiumOnly] = useState(false)
   const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null)
   const [favorites, setFavorites] = useState<string[]>([])
+  const [templates, setTemplates] = useState<Template[]>([])
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   
   const { elements, addElement, updateTheme } = useWebsiteStore()
 
-  const filteredTemplates = mockTemplates.filter(template => {
-    const matchesCategory = selectedCategory === 'all' || template.category === selectedCategory
-    const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         template.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         template.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+  // Fetch templates from API
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        
+        console.log('🔍 Fetching templates from API...')
+        console.log('🌐 API URL:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002')
+        
+        const response = await apiHelpers.getTemplates({ limit: 50 })
+        
+        console.log('✅ API Response:', response)
+        console.log('📊 Templates data:', response.data)
+        
+        setTemplates(response.data.templates || [])
+        
+      } catch (err: any) {
+        console.error('❌ Failed to fetch templates:', err)
+        console.error('❌ Error details:', {
+          message: err.message,
+          status: err.response?.status,
+          statusText: err.response?.statusText,
+          data: err.response?.data
+        })
+        setError(`Failed to load templates: ${err.message || 'Unknown error'}`)
+        setTemplates([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchTemplates()
+  }, [])
+
+  const filteredTemplates = templates.filter(template => {
+    const matchesCategory = selectedCategory === 'all' || 
+      template.category.toLowerCase() === selectedCategory.toLowerCase()
+    const matchesSearch = !searchQuery || 
+      template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      template.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      template.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
     const matchesPremium = !showPremiumOnly || template.isPremium
     
     return matchesCategory && matchesSearch && matchesPremium
   })
 
-  const filteredBlocks = mockBlocks.filter(block => {
-    const matchesSearch = block.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         block.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-    const matchesPremium = !showPremiumOnly || block.isPremium
-    
-    return matchesSearch && matchesPremium
-  })
+  const filteredBlocks: TemplateBlock[] = [] // No blocks for now
 
   const handleUseTemplate = async (template: Template) => {
     try {
       // Clear existing elements
       // In real implementation, this would be more sophisticated
       
-      // Apply template colors
-      updateTheme({
-        colors: template.colors
-      })
-      
-      // Add template sections
-      // In real implementation, template.sections would contain actual elements
-      
+      // Apply template (simplified for now)
       toast.success(`Template "${template.name}" applied successfully!`)
       onSelectTemplate?.(template)
     } catch (error) {
@@ -363,7 +384,19 @@ export function TemplateLibrary({ onSelectTemplate, onSelectBlock }: TemplateLib
               {/* Templates Grid */}
               <ScrollArea className="flex-1">
                 <div className="p-4">
-                  {filteredTemplates.length === 0 ? (
+                  {loading ? (
+                    <div className="flex items-center justify-center py-12">
+                      <Loader2 className="h-8 w-8 animate-spin" />
+                      <span className="ml-2">Loading templates...</span>
+                    </div>
+                  ) : error ? (
+                    <div className="text-center py-12">
+                      <p className="text-red-500 mb-4">{error}</p>
+                      <Button onClick={() => window.location.reload()}>
+                        Try Again
+                      </Button>
+                    </div>
+                  ) : filteredTemplates.length === 0 ? (
                     <div className="text-center py-12">
                       <Palette className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
                       <h3 className="font-medium mb-2">No templates found</h3>
@@ -377,7 +410,20 @@ export function TemplateLibrary({ onSelectTemplate, onSelectBlock }: TemplateLib
                         <Card key={template.id} className="group hover:shadow-lg transition-all">
                           <div className="relative aspect-video bg-muted group/preview cursor-pointer">
                             {/* Template Preview */}
-                            <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-purple-500 opacity-20" />
+                            {template.thumbnail ? (
+                              <img 
+                                src={`http://localhost:3002${template.thumbnail}`} 
+                                alt={template.name}
+                                className="w-full h-full object-cover"
+                                onError={(e) => {
+                                  // Fallback to placeholder if image fails to load
+                                  e.currentTarget.style.display = 'none';
+                                  e.currentTarget.nextElementSibling.style.display = 'flex';
+                                }}
+                              />
+                            ) : (
+                              <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-purple-500 opacity-20" />
+                            )}
                             
                             {/* Quick Preview Overlay */}
                             <div className="absolute inset-0 bg-black/0 group-hover/preview:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover/preview:opacity-100">

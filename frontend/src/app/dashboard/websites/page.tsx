@@ -292,7 +292,7 @@ export default function WebsitesPage() {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {demoWebsites.filter(w => w.status === 'published').length}
+              {websites.filter(w => w.status === 'PUBLISHED').length}
             </div>
             <p className="text-xs text-muted-foreground">
               +1 from last month

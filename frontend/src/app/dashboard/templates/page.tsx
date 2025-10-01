@@ -231,12 +231,7 @@ export default function TemplatesPage() {
         setLoading(true)
         setError(null)
         
-        // Direct fetch for debugging
-        const fetchResponse = await fetch('http://localhost:3005/v1/templates?limit=20')
-        if (!fetchResponse.ok) {
-          throw new Error(`HTTP ${fetchResponse.status}: ${fetchResponse.statusText}`)
-        }
-        const response = { data: await fetchResponse.json() }
+        const response = await apiHelpers.getTemplates({ limit: 20 })
         
         setTemplates(response.data.templates || [])
         setTotal(response.data.total || 0)

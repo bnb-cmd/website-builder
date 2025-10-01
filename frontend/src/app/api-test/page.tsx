@@ -11,7 +11,7 @@ export default function APITest() {
     setResult('Testing login...')
     
     try {
-      const response = await fetch('http://localhost:3005/v1/auth/login', {
+      const response = await fetch('http://localhost:3002/v1/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ export default function APITest() {
     setResult('Testing registration...')
     
     try {
-      const response = await fetch('http://localhost:3005/v1/auth/register', {
+      const response = await fetch('http://localhost:3002/v1/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

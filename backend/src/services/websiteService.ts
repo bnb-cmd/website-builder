@@ -1,12 +1,12 @@
-import { Website, WebsiteStatus, BusinessType, Language, Prisma } from '@prisma/client'
+import { Website, Prisma } from '@prisma/client'
 import { BaseService } from './baseService'
 
 export interface CreateWebsiteData {
   name: string
   description?: string
   templateId?: string
-  businessType?: BusinessType
-  language?: Language
+  businessType?: string
+  language?: string
   userId?: string
   teamId?: string
   content?: any
@@ -34,9 +34,9 @@ export interface UpdateWebsiteData {
 export interface WebsiteFilters {
   userId?: string
   teamId?: string
-  status?: WebsiteStatus
-  businessType?: BusinessType
-  language?: Language
+  status?: string
+  businessType?: string
+  language?: string
   templateId?: string
   search?: string
   page?: number
@@ -49,14 +49,13 @@ export interface WebsiteFilters {
 
 export interface WebsiteWithRelations extends Website {
   user?: any
-  team?: any
-  template?: any
   pages?: any[]
   products?: any[]
+  orders?: any[]
   _count?: {
     pages: number
     products: number
-    visitors: number
+    orders: number
   }
 }
 
@@ -67,10 +66,24 @@ export class WebsiteService extends BaseService<Website> {
 
   override async create(data: CreateWebsiteData): Promise<Website> {
     try {
+      console.log('🔧 WebsiteService.create called with data:', data)
       this.validateRequired(data, ['name'])
       
       // Generate subdomain if not provided
+      console.log('🔧 Generating subdomain for:', data.name)
       const subdomain = await this.generateSubdomain(data.name)
+      console.log('🔧 Generated subdomain:', subdomain)
+      
+      console.log('🔧 Creating website with data:', {
+        name: data.name,
+        description: data.description || null,
+        templateId: data.templateId || null,
+        businessType: data.businessType || null,
+        language: data.language || 'ENGLISH',
+        userId: data.userId || null,
+        subdomain,
+        status: 'DRAFT'
+      })
       
       const website = await this.prisma.website.create({
         data: {
@@ -78,35 +91,34 @@ export class WebsiteService extends BaseService<Website> {
           description: data.description || null,
           templateId: data.templateId || null,
           businessType: data.businessType || null,
-          language: data.language || Language.ENGLISH,
-          userId: data.userId || null,
-          teamId: data.teamId || null,
+          language: data.language || 'ENGLISH',
+          user: data.userId ? { connect: { id: data.userId } } : undefined,
           content: data.content || null,
           settings: data.settings || null,
           customCSS: data.customCSS || null,
           customJS: data.customJS || null,
           metaTitle: data.metaTitle || null,
           metaDescription: data.metaDescription || null,
-          metaKeywords: data.metaKeywords || [],
+          metaKeywords: data.metaKeywords ? data.metaKeywords.join(',') : null,
           subdomain,
-          status: WebsiteStatus.DRAFT,
+          status: 'DRAFT',
           createdAt: new Date(),
           updatedAt: new Date()
         }
       })
+      
+      console.log('✅ Website created successfully:', website.id)
       
       // Invalidate cache
       await this.invalidateCache('websites:*')
       if (data.userId) {
         await this.invalidateCache(`user:${data.userId}:websites`)
       }
-      if (data.teamId) {
-        await this.invalidateCache(`team:${data.teamId}:websites`)
-      }
       
       return website
     } catch (error) {
-      this.handleError(error)
+      console.error('❌ WebsiteService.create error:', error)
+      throw error
     }
   }
 
@@ -118,6 +130,8 @@ export class WebsiteService extends BaseService<Website> {
       const cached = await this.getCached<WebsiteWithRelations>(cacheKey)
       if (cached) return cached
       
+      console.log('🔍 WebsiteService.findById called with id:', id)
+      
       const website = await this.prisma.website.findUnique({
         where: { id },
         include: {
@@ -127,21 +141,6 @@ export class WebsiteService extends BaseService<Website> {
               name: true,
               email: true,
               avatar: true
-            }
-          },
-          team: {
-            select: {
-              id: true,
-              name: true,
-              description: true
-            }
-          },
-          template: {
-            select: {
-              id: true,
-              name: true,
-              category: true,
-              previewImage: true
             }
           },
           pages: {
@@ -166,11 +165,13 @@ export class WebsiteService extends BaseService<Website> {
             select: {
               pages: true,
               products: true,
-              visitors: true
+              orders: true
             }
           }
         }
       })
+      
+      console.log('🔍 Prisma query result:', JSON.stringify(website, null, 2))
       
       if (website) {
         await this.setCached(cacheKey, website, 1800) // 30 minutes
@@ -260,6 +261,8 @@ export class WebsiteService extends BaseService<Website> {
 
   override async findAll(filters: WebsiteFilters = {}): Promise<Website[]> {
     try {
+      console.log('🔍 WebsiteService.findAll called with filters:', filters)
+      
       const {
         page = 1,
         limit = 10,
@@ -271,6 +274,8 @@ export class WebsiteService extends BaseService<Website> {
         ...whereFilters
       } = filters
       
+      console.log('🔍 Processed filters:', { page, limit, sortBy, sortOrder, whereFilters })
+      
       const { skip, take } = this.getPaginationParams(page, limit)
       
       // Build where clause
@@ -278,12 +283,14 @@ export class WebsiteService extends BaseService<Website> {
         ...whereFilters
       }
       
+      console.log('🔍 Prisma where clause:', where)
+      
       // Add search functionality
       if (search) {
         where.OR = [
-          { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-          { metaTitle: { contains: search, mode: 'insensitive' } }
+          { name: { contains: search } },
+          { description: { contains: search } },
+          { metaTitle: { contains: search } }
         ]
       }
       
@@ -293,6 +300,8 @@ export class WebsiteService extends BaseService<Website> {
         if (publishedAfter) where.publishedAt.gte = publishedAfter
         if (publishedBefore) where.publishedAt.lte = publishedBefore
       }
+      
+      console.log('🔍 About to execute Prisma query...')
       
       const websites = await this.prisma.website.findMany({
         where,
@@ -308,25 +317,11 @@ export class WebsiteService extends BaseService<Website> {
               avatar: true
             }
           },
-          team: {
-            select: {
-              id: true,
-              name: true
-            }
-          },
-          template: {
-            select: {
-              id: true,
-              name: true,
-              category: true,
-              previewImage: true
-            }
-          },
           _count: {
             select: {
               pages: true,
               products: true,
-              visitors: true
+              orders: true
             }
           }
         }
@@ -359,7 +354,7 @@ export class WebsiteService extends BaseService<Website> {
           customJS: data.customJS || null,
           metaTitle: data.metaTitle || null,
           metaDescription: data.metaDescription || null,
-          metaKeywords: data.metaKeywords || [],
+          metaKeywords: data.metaKeywords ? data.metaKeywords.join(',') : null,
           customDomain: data.customDomain || null,
           updatedAt: new Date()
         }
@@ -395,7 +390,7 @@ export class WebsiteService extends BaseService<Website> {
       await this.prisma.website.update({
         where: { id },
         data: {
-          status: WebsiteStatus.ARCHIVED,
+          status: 'ARCHIVED',
           updatedAt: new Date()
         }
       })
@@ -458,7 +453,7 @@ export class WebsiteService extends BaseService<Website> {
       const website = await this.prisma.website.update({
         where: { id },
         data: {
-          status: WebsiteStatus.PUBLISHED,
+          status: 'PUBLISHED',
           publishedAt: new Date(),
           updatedAt: new Date()
         }
@@ -486,7 +481,7 @@ export class WebsiteService extends BaseService<Website> {
       const website = await this.prisma.website.update({
         where: { id },
         data: {
-          status: WebsiteStatus.DRAFT,
+          status: 'DRAFT',
           publishedAt: null,
           updatedAt: new Date()
         }
@@ -599,7 +594,7 @@ export class WebsiteService extends BaseService<Website> {
           metaDescription: originalWebsite.metaDescription,
           metaKeywords: originalWebsite.metaKeywords,
           subdomain,
-          status: WebsiteStatus.DRAFT,
+          status: 'DRAFT',
           userId: userId || originalWebsite.userId,
           teamId: originalWebsite.teamId,
           createdAt: new Date(),
@@ -665,8 +660,8 @@ export class WebsiteService extends BaseService<Website> {
         websitesByLanguage
       ] = await Promise.all([
         this.prisma.website.count(),
-        this.prisma.website.count({ where: { status: WebsiteStatus.PUBLISHED } }),
-        this.prisma.website.count({ where: { status: WebsiteStatus.DRAFT } }),
+        this.prisma.website.count({ where: { status: 'PUBLISHED' } }),
+        this.prisma.website.count({ where: { status: 'DRAFT' } }),
         this.prisma.website.count({
           where: {
             createdAt: {
@@ -723,8 +718,8 @@ export class WebsiteService extends BaseService<Website> {
         websites.map(async (website) => ({
           ...website,
           subdomain: await this.generateSubdomain(website.name),
-          status: WebsiteStatus.DRAFT,
-          language: website.language || Language.ENGLISH,
+          status: 'DRAFT',
+          language: website.language || 'ENGLISH',
           createdAt: new Date(),
           updatedAt: new Date()
         }))
@@ -736,7 +731,7 @@ export class WebsiteService extends BaseService<Website> {
           description: website.description || null,
           templateId: website.templateId || null,
           businessType: website.businessType || null,
-          language: website.language || Language.ENGLISH,
+          language: website.language || 'ENGLISH',
           userId: website.userId || null,
           teamId: website.teamId || null,
           content: website.content || null,
@@ -747,7 +742,7 @@ export class WebsiteService extends BaseService<Website> {
           metaDescription: website.metaDescription || null,
           metaKeywords: website.metaKeywords || [],
           subdomain: website.subdomain,
-          status: WebsiteStatus.DRAFT,
+          status: 'DRAFT',
           createdAt: new Date(),
           updatedAt: new Date()
         })),
@@ -787,7 +782,7 @@ export class WebsiteService extends BaseService<Website> {
       const result = await this.prisma.website.updateMany({
         where: { id: { in: ids } },
         data: {
-          status: WebsiteStatus.ARCHIVED,
+          status: 'ARCHIVED',
           updatedAt: new Date()
         }
       })

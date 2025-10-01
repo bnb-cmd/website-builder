@@ -66,6 +66,7 @@ model Website {
   // Business
   businessType String? // RESTAURANT, RETAIL, SERVICE, etc.
   language     String  @default("ENGLISH") // ENGLISH, URDU, PUNJABI, etc.
+  templateId   String? // Template used to create this website
 
   // SEO
   metaTitle       String?

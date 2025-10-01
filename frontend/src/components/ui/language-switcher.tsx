@@ -33,7 +33,7 @@ export function LanguageSwitcher({
           <Button
             variant="ghost"
             size="sm"
-            className={cn("flex items-center space-x-1", className)}
+            className={cn("flex items-center space-x-1 bg-gray-800 hover:bg-gray-700 text-white border border-gray-600", className)}
           >
             {showFlag && <span className="text-sm">{currentLangInfo.flag}</span>}
             <span className="text-xs font-medium uppercase">{currentLangInfo.code}</span>

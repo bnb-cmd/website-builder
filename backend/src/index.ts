@@ -6,6 +6,8 @@ import rateLimit from '@fastify/rate-limit'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
 import compress from '@fastify/compress'
+import fastifyStatic from '@fastify/static'
+import path from 'path'
 
 import { config, serverConfig } from '@/config/environment'
 import { db } from '@/models/database'
@@ -106,6 +108,13 @@ export async function createServer() {
 
   // Register compression
   await fastify.register(compress)
+
+  // Register static file serving
+  await fastify.register(fastifyStatic, {
+    root: path.join(__dirname, '../public'),
+    prefix: '/',
+    decorateReply: false
+  })
 
   // Register CORS
   await fastify.register(cors, {
