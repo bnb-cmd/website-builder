@@ -450,6 +450,34 @@ export async function authRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
+      // Return mock user data in development mode
+      if (process.env.NODE_ENV === 'development' || process.env.DISABLE_AUTH === 'true') {
+        const mockUser = {
+          id: 'dev-user-id',
+          email: 'dev@example.com',
+          name: 'Development User',
+          phone: '+92-300-1234567',
+          avatar: null,
+          businessType: 'SERVICE',
+          city: 'Karachi',
+          companyName: 'Dev Company',
+          role: 'USER',
+          status: 'ACTIVE',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          lastLoginAt: new Date().toISOString()
+        }
+        
+        reply.send({
+          success: true,
+          data: {
+            user: mockUser
+          },
+          timestamp: new Date().toISOString()
+        })
+        return
+      }
+
       const user = await userService.findById(request.user!.id)
       if (!user) {
         reply.status(404).send({

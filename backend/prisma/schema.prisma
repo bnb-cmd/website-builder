@@ -3,43 +3,34 @@
 
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["postgresqlExtensions"]
   binaryTargets   = ["native", "linux-arm64-openssl-3.0.x"]
 }
 
 datasource db {
-  provider   = "postgresql"
+  provider   = "sqlite"
   url        = env("DATABASE_URL")
-  // extensions = [vector] // Temporarily disabled for local testing
 }
 
 // User Management
 model User {
-  id       String     @id @default(cuid())
-  email    String     @unique
+  id       String @id @default(cuid())
+  email    String @unique
   name     String
   password String
   phone    String?
   avatar   String?
-  role     UserRole   @default(USER)
-  status   UserStatus @default(ACTIVE)
+  role     String @default("USER") // USER, ADMIN, SUPER_ADMIN
+  status   String @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED, PENDING
 
   // Business Information
-  businessType BusinessType?
+  businessType String? // RESTAURANT, RETAIL, SERVICE, etc.
   city         String?
   companyName  String?
 
   // Localisation & AI usage
-  preferredLanguage Language? @default(ENGLISH)
-  aiQuotaUsed       Int       @default(0)
+  preferredLanguage String? @default("ENGLISH") // ENGLISH, URDU, PUNJABI, etc.
+  aiQuotaUsed       Int     @default(0)
   aiQuotaResetAt    DateTime?
-
-  // Subscription
-  subscriptionId String? @unique
-  subscription   Subscription? @relation("userSubscription", fields: [subscriptionId], references: [id])
-
-  // Onboarding profile
-  onboardingProfile AiOnboardingProfile?
 
   // Timestamps
   createdAt   DateTime  @default(now())
@@ -47,137 +38,43 @@ model User {
   lastLoginAt DateTime?
 
   // Relations
-  websites                Website[]
-  teams                   TeamMember[]
-  ownedTeams              Team[]
-  payments                Payment[]
-  aiGenerations           AIGeneration[]
-  notifications           Notification[]
-  notificationPreferences NotificationPreferences?
-  notificationDigests     NotificationDigest[]
-  sessions                UserSession[]
-  domains                 Domain[]
-  mediaAssets             MediaAsset[]
-  videoProjects           VideoProject[]
-  designSystems           DesignSystem[]
-  agency                  Agency?
-  aiSessions              AISession[]
-  arvrContent             ARVRContent[]
-
-  websiteGateways WebsitePaymentGateway[]
-
-  // Advanced E-commerce
-  vendor             Vendor?
-  vendorApplication  VendorApplication?
-  subscriptions      Subscription[] @relation("userSubscriptions")
-  orders             Order[]
-  productSubscriptions ProductSubscription[] @relation("productSubscriptions")
-
-  // Content Management
-  authoredContent Content[] @relation("contentAuthor")
-
-  // Integration Reviews
-  integrationReviews IntegrationReview[]
-
-  // Advanced Templates
-  authoredTemplates     AdvancedTemplate[]     @relation("templateAuthor")
-  templateCustomizations TemplateCustomization[] @relation("templateCustomizations")
-  templateReviews       TemplateReview[]       @relation("templateReviews")
-  templateAIGenerations TemplateAIGeneration[]  @relation("templateAIGenerations")
-
-  // Blockchain & Web3
-  blockchainWallets BlockchainWallet[]
-  nftCollections    NFTCollection[]
-  smartContracts    SmartContract[]
-  web3Integrations  Web3Integration[]
+  websites Website[]
+  payments Payment[]
+  orders   Order[]
+  aiGenerations AIGeneration[]
 
   @@map("users")
 }
 
-model UserSession {
-  id           String   @id @default(cuid())
-  userId       String
-  token        String   @unique
-  refreshToken String?  @unique
-  expiresAt    DateTime
-  createdAt    DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("user_sessions")
-}
-
-// Team Management
-model Team {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  ownerId     String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  owner    User         @relation(fields: [ownerId], references: [id])
-  members  TeamMember[]
-  websites Website[]
-
-  @@map("teams")
-}
-
-model TeamMember {
-  id       String   @id @default(cuid())
-  teamId   String
-  userId   String
-  role     TeamRole @default(MEMBER)
-  joinedAt DateTime @default(now())
-
-  team Team @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([teamId, userId])
-  @@map("team_members")
-}
-
 // Website Management
 model Website {
-  id          String        @id @default(cuid())
+  id          String @id @default(cuid())
   name        String
   description String?
-  status      WebsiteStatus @default(DRAFT)
+  status      String @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
 
-  // Content
-  content   Json? // Main website content
-  settings  Json? // Website settings
+  // Content (using String instead of Json for SQLite)
+  content   String? // Main website content
+  settings  String? // Website settings
   customCSS String? // Custom CSS
   customJS  String? // Custom JavaScript
-
-  onboardingProfileId String?
-  onboardingProfile   AiOnboardingProfile? @relation("AiProfileWebsites", fields: [onboardingProfileId], references: [id])
 
   // Domain
   subdomain    String? @unique
   customDomain String? @unique
 
-  // Template
-  templateId String?
-  template   Template? @relation(fields: [templateId], references: [id])
-
   // Business
-  businessType BusinessType?
-  language     Language      @default(ENGLISH)
+  businessType String? // RESTAURANT, RETAIL, SERVICE, etc.
+  language     String  @default("ENGLISH") // ENGLISH, URDU, PUNJABI, etc.
 
   // SEO
   metaTitle       String?
   metaDescription String?
-  metaKeywords    String[]
-
-  // Analytics
-  analyticsId String?
+  metaKeywords    String? // Comma-separated keywords
 
   // Ownership
   userId String?
-  user   User?   @relation(fields: [userId], references: [id])
-  teamId String?
-  team   Team?   @relation(fields: [teamId], references: [id])
+  user   User? @relation(fields: [userId], references: [id])
 
   // Timestamps
   createdAt   DateTime  @default(now())
@@ -185,627 +82,27 @@ model Website {
   publishedAt DateTime?
 
   // Relations
-  pages         Page[]
-  products      Product[]
-  orders        Order[]
-  visitors      WebsiteVisitor[]
-  aiGenerations AIGeneration[]
-  domains       Domain[]
-  pwaSettings   PwaSettings?
-  analytics     WebsiteAnalytics[]
-  campaigns     MarketingCampaign[]
-  integrations  WebsiteIntegration[]
-  mediaAssets   MediaAsset[]
-  videoProjects VideoProject[]
-  designSystems DesignSystem[]
-  agencyClients AgencyClient[]
-  aiSessions    AISession[]
-  paymentGateways WebsitePaymentGateway[]
-  payments        Payment[]
-
-  // Blockchain & Web3
-  blockchainWallets BlockchainWallet[]
-  nftCollections    NFTCollection[]
-  smartContracts    SmartContract[]
-  web3Integrations  Web3Integration[]
-  ARVRContent       ARVRContent[]
-
-  // Content Management
-  contents         Content[]
-  contentCategories ContentCategory[]
-
-  // Integration Marketplace (duplicate relationship removed)
-
-  // Social Media Hub
-  socialAccounts SocialAccount[]
-  socialPosts    SocialPost[]
-  socialCampaigns SocialCampaign[]
-  socialAutomationRules SocialAutomationRule[]
-  socialContentSuggestions SocialContentSuggestion[]
+  pages    Page[]
+  products Product[]
+  orders   Order[]
 
   @@map("websites")
 }
 
-model AiOnboardingProfile {
-  id                   String    @id @default(cuid())
-  userId               String    @unique
-  businessName         String?
-  businessDescription  String?
-  targetAudience       String?
-  siteGoals            String[]
-  brandTone            String?
-  brandColors          Json?
-  keywords             String[]
-  preferredLanguage    Language @default(ENGLISH)
-  additionalNotes      String?
-  aiRecommendations    Json?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
-
-  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  websites             Website[] @relation("AiProfileWebsites")
-
-  @@map("ai_onboarding_profiles")
-}
-
-model PwaSettings {
-  id              String  @id @default(cuid())
-  websiteId       String  @unique
-  name            String
-  shortName       String
-  description     String?
-  themeColor      String  @default("#ffffff")
-  backgroundColor String  @default("#ffffff")
-  display         String  @default("standalone") // standalone, fullscreen, minimal-ui
-  orientation     String  @default("portrait") // portrait, landscape
-  scope           String  @default("/")
-  startUrl        String  @default("/")
-  icon512         String? // URL to 512x512 icon
-  icon192         String? // URL to 192x192 icon
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-
-  @@map("pwa_settings")
-}
-
-model WebsiteAnalytics {
-  id        String @id @default(cuid())
-  websiteId String
-
-  // Metrics
-  pageViews          Int   @default(0)
-  uniqueVisitors     Int   @default(0)
-  bounceRate         Float @default(0)
-  avgSessionDuration Float @default(0) // in seconds
-  conversionRate     Float @default(0)
-
-  // Revenue metrics
-  revenue       Decimal @default(0)
-  orders        Int     @default(0)
-  avgOrderValue Decimal @default(0)
-
-  // Traffic sources
-  organicTraffic  Int @default(0)
-  socialTraffic   Int @default(0)
-  directTraffic   Int @default(0)
-  referralTraffic Int @default(0)
-
-  // Device breakdown
-  mobileTraffic  Int @default(0)
-  desktopTraffic Int @default(0)
-  tabletTraffic  Int @default(0)
-
-  // Geographic data
-  topCountries Json // {country: count}
-  topCities    Json // {city: count}
-
-  // Performance metrics
-  pageLoadTime  Float @default(0) // in seconds
-  coreWebVitals Json // LCP, FID, CLS scores
-
-  // Date range
-  date   DateTime
-  period AnalyticsPeriod
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-
-  @@unique([websiteId, date, period])
-  @@map("website_analytics")
-}
-
-model MarketingCampaign {
-  id        String         @id @default(cuid())
-  websiteId String
-  name      String
-  type      CampaignType
-  status    CampaignStatus @default(DRAFT)
-
-  // Campaign settings
-  channels       CampaignChannel[]
-  targetAudience Json? // Target audience criteria
-  schedule       Json? // Scheduling rules
-  budget         Json?
-
-  // Content
-  content  Json?
-  message   String
-  mediaUrls String[] // Images, videos, etc.
-
-  // Performance metrics
-  sentCount      Int @default(0)
-  deliveredCount Int @default(0)
-  openedCount    Int @default(0)
-  clickedCount   Int @default(0)
-  convertedCount Int @default(0)
-
-  // Automation rules
-  triggers   Json? // Trigger conditions
-  conditions Json? // Conditional logic
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  website  Website           @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  messages CampaignMessage[]
-  automation Json?
-  analytics  Json?
-  aiInsights Json?
-  audienceSegments Json?
-  abTests Json?
-  workflowExecutions WorkflowExecution[]
-
-  @@map("marketing_campaigns")
-}
-
-model Workflow {
-  id          String   @id @default(cuid())
-  name        String
-  description String?
-  steps       Json
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  executions WorkflowExecution[]
-
-  @@map("workflows")
-}
-
-model WorkflowExecution {
-  id          String   @id @default(cuid())
-  workflowId  String
-  campaignId  String
-  status      String   @default("pending")
-  currentStep Int      @default(0)
-  data        Json
-  startedAt   DateTime @default(now())
-  completedAt DateTime?
-  updatedAt   DateTime @updatedAt
-
-  workflow Workflow @relation(fields: [workflowId], references: [id], onDelete: Cascade)
-  campaign MarketingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-
-  @@map("workflow_executions")
-}
-
-model CampaignMessage {
-  id          String  @id @default(cuid())
-  campaignId  String
-  recipientId String? // User ID or phone/email
-
-  // Message details
-  channel   CampaignChannel
-  content   String
-  mediaUrls String[]
-
-  // Status
-  status      MessageStatus @default(PENDING)
-  sentAt      DateTime?
-  deliveredAt DateTime?
-  openedAt    DateTime?
-  clickedAt   DateTime?
-
-  // Response
-  response String?
-  error    String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  campaign MarketingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
-
-  @@map("campaign_messages")
-}
-
-model Integration {
-  id          String              @id @default(cuid())
-  name        String
-  description String?
-  category    IntegrationCategory
-  provider    String // e.g., "Google", "Facebook", "Stripe"
-
-  // Integration details
-  iconUrl          String?
-  websiteUrl       String?
-  apiVersion       String?
-  documentationUrl String?
-
-  // Configuration
-  configSchema Json? // JSON schema for configuration
-  authType     AuthType @default(API_KEY)
-
-  // Status
-  status    IntegrationStatus @default(ACTIVE)
-  isPremium Boolean           @default(false)
-
-  // Pricing
-  price    Decimal?
-  currency String   @default("PKR")
-
-  // Features
-  features String[]
-  tags     String[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  websiteIntegrations WebsiteIntegration[]
-  reviews             IntegrationReview[]
-
-  @@map("integrations")
-}
-
-model WebsiteIntegration {
-  id            String @id @default(cuid())
-  websiteId     String
-  integrationId String
-
-  // Configuration
-  config      Json // Integration-specific configuration
-  credentials Json // Encrypted credentials
-
-  // Status
-  status    IntegrationStatus @default(ACTIVE)
-  isEnabled Boolean           @default(true)
-
-  // Usage tracking
-  lastUsedAt DateTime?
-  usageCount Int       @default(0)
-
-  // Error tracking
-  lastError  String?
-  errorCount Int     @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  website     Website     @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
-  webhooks    IntegrationWebhook[] @relation("WebsiteIntegrationWebhook")
-  logs        IntegrationLog[]
-
-  @@unique([websiteId, integrationId])
-  @@map("website_integrations")
-}
-
-model MediaAsset {
-  id        String  @id @default(cuid())
-  websiteId String
-  userId    String?
-
-  // Asset details
-  name         String
-  type         MediaType
-  url          String
-  thumbnailUrl String?
-
-  // File information
-  size     Int // in bytes
-  duration Float? // for videos/audio, in seconds
-  width    Int? // for images/videos
-  height   Int? // for images/videos
-
-  // Metadata
-  metadata Json? // EXIF data, codec info, etc.
-  tags     String[]
-
-  // AI processing
-  aiGenerated Boolean @default(false)
-  aiPrompt    String?
-
-  // Status
-  status AssetStatus @default(ACTIVE)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  website    Website     @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  user       User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  videoClips VideoClip[]
-
-  @@map("media_assets")
-}
-
-model VideoProject {
-  id        String  @id @default(cuid())
-  websiteId String
-  userId    String?
-
-  // Project details
-  name        String
-  description String?
-
-  // Video settings
-  resolution String @default("1920x1080")
-  frameRate  Int    @default(30)
-  duration   Float  @default(0) // in seconds
-
-  // Timeline data
-  timeline Json // Video timeline with clips, effects, etc.
-
-  // Export settings
-  exportSettings Json?
-
-  // Status
-  status ProjectStatus @default(DRAFT)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  website Website     @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  user    User?       @relation(fields: [userId], references: [id], onDelete: SetNull)
-  clips   VideoClip[]
-
-  @@map("video_projects")
-}
-
-model VideoClip {
-  id        String  @id @default(cuid())
-  projectId String
-  assetId   String?
-
-  // Clip details
-  name      String
-  startTime Float  @default(0) // in seconds
-  endTime   Float  @default(0) // in seconds
-  position  Float  @default(0) // position in timeline
-
-  // Effects and filters
-  effects Json? // Applied effects
-  filters Json? // Applied filters
-
-  // Transform
-  transform Json? // Position, scale, rotation
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  project VideoProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  asset   MediaAsset?  @relation(fields: [assetId], references: [id], onDelete: SetNull)
-
-  @@map("video_clips")
-}
-
-model DesignSystem {
-  id        String  @id @default(cuid())
-  websiteId String
-  userId    String?
-
-  // Design system details
-  name        String
-  description String?
-
-  // Brand identity
-  brandName        String?
-  brandValues      String[] // Array of brand values
-  brandPersonality String? // e.g., "modern", "traditional", "luxury"
-
-  // Color palette
-  primaryColors   Json // {name: string, hex: string, usage: string}[]
-  secondaryColors Json // {name: string, hex: string, usage: string}[]
-  neutralColors   Json // {name: string, hex: string, usage: string}[]
-
-  // Typography
-  fontFamilies Json // {name: string, url: string, weights: number[], usage: string}[]
-  fontSizes    Json // {name: string, size: number, lineHeight: number, usage: string}[]
-
-  // Spacing & Layout
-  spacingScale Json // {name: string, value: number, usage: string}[]
-  borderRadius Json // {name: string, value: number, usage: string}[]
-  shadows      Json // {name: string, value: string, usage: string}[]
-
-  // Components
-  components Json // Component library definitions
-
-  // AI generation data
-  aiGenerated        Boolean @default(false)
-  aiPrompt           String?
-  generationSettings Json? // Settings used for AI generation
-
-  // Status
-  status DesignSystemStatus @default(DRAFT)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@map("design_systems")
-}
-
-model Agency {
-  id     String @id @default(cuid())
-  userId String @unique // Agency owner
-
-  // Agency details
-  name        String
-  description String?
-  website     String?
-  logo        String?
-
-  // White-label settings
-  brandName    String?
-  brandColors  Json? // Primary and secondary colors
-  customDomain String?
-  customLogo   String?
-
-  // Features enabled
-  features Json // Which features are enabled for this agency
-
-  // Billing
-  plan         AgencyPlan @default(STARTER)
-  billingEmail String?
-
-  // Status
-  status AgencyStatus @default(ACTIVE)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user    User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  clients AgencyClient[]
-
-  @@map("agencies")
-}
-
-model AgencyClient {
-  id        String @id @default(cuid())
-  agencyId  String
-  websiteId String
-
-  // Client details
-  clientName  String
-  clientEmail String
-  clientPhone String?
-  companyName String?
-
-  // Project details
-  projectType String?
-  budget      Decimal?
-  timeline    String?
-
-  // Status
-  status ClientStatus @default(ACTIVE)
-
-  // Communication
-  lastContactAt DateTime?
-  notes         String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  agency  Agency  @relation(fields: [agencyId], references: [id], onDelete: Cascade)
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-
-  @@unique([agencyId, websiteId])
-  @@map("agency_clients")
-}
-
-model AISession {
-  id        String  @id @default(cuid())
-  websiteId String
-  userId    String?
-
-  // Session details
-  sessionId String        @unique
-  type      AISessionType
-
-  // Context
-  context Json // Conversation context, user preferences, etc.
-  history Json // Chat history, interactions
-
-  // AI Configuration
-  model       String @default("gpt-4")
-  temperature Float  @default(0.7)
-  maxTokens   Int    @default(2000)
-
-  // Status
-  status AISessionStatus @default(ACTIVE)
-
-  // Analytics
-  messageCount Int     @default(0)
-  tokenUsage   Int     @default(0)
-  cost         Decimal @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@map("ai_sessions")
-}
-
-model ARVRContent {
-  id        String  @id @default(cuid())
-  websiteId String
-  userId    String?
-
-  // Content details
-  name        String
-  type        ARVRType
-  description String?
-
-  // 3D Assets
-  modelUrl     String? // URL to 3D model file
-  textureUrl   String? // URL to texture files
-  animationUrl String? // URL to animation files
-
-  // AR/VR Settings
-  scale    Json? // {x, y, z} scale values
-  position Json? // {x, y, z} position values
-  rotation Json? // {x, y, z} rotation values
-
-  // Interaction
-  interactions Json? // Touch, click, gesture handlers
-
-  // Performance
-  polygonCount Int?
-  textureSize  Int?
-  fileSize     Int?
-
-  // Status
-  status ARVRStatus @default(DRAFT)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
-
-  @@map("arvr_content")
-}
-
 model Page {
-  id        String  @id @default(cuid())
+  id        String @id @default(cuid())
   websiteId String
   name      String
   slug      String
-  content   Json
-  settings  Json?
+  content   String
+  settings  String? // JSON as string
   isHome    Boolean @default(false)
   order     Int     @default(0)
 
   // SEO
   metaTitle       String?
   metaDescription String?
-  metaKeywords    String[]
+  metaKeywords    String? // Comma-separated keywords
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -818,17 +115,17 @@ model Page {
 
 // Template Management
 model Template {
-  id           String           @id @default(cuid())
+  id           String @id @default(cuid())
   name         String
   description  String?
-  category     TemplateCategory
-  businessType BusinessType?
-  language     Language         @default(ENGLISH)
+  category     String // BUSINESS, PORTFOLIO, ECOMMERCE, etc.
+  businessType String? // RESTAURANT, RETAIL, SERVICE, etc.
+  language     String  @default("ENGLISH") // ENGLISH, URDU, PUNJABI, etc.
 
-  // Template Data
-  content Json // Template structure
-  styles  Json // Template styles
-  assets  String[] // Asset URLs
+  // Template Data (using String instead of Json for SQLite)
+  content String // Template structure
+  styles  String // Template styles
+  assets  String // Comma-separated asset URLs
 
   // Preview
   previewImage String?
@@ -839,25 +136,22 @@ model Template {
   price     Decimal?
 
   // Status
-  status TemplateStatus @default(ACTIVE)
+  status String @default("ACTIVE") // ACTIVE, INACTIVE, DRAFT
 
   // Metadata
-  tags       String[]
-  features   String[]
-  responsive Boolean  @default(true)
+  tags       String? // Comma-separated tags
+  features   String? // Comma-separated features
+  responsive Boolean @default(true)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  // Relations
-  websites Website[]
 
   @@map("templates")
 }
 
 // E-commerce
 model Product {
-  id           String   @id @default(cuid())
+  id           String  @id @default(cuid())
   websiteId    String
   name         String
   description  String?
@@ -870,76 +164,39 @@ model Product {
   inventory         Int     @default(0)
   lowStockThreshold Int     @default(5)
   allowBackorder    Boolean @default(false)
-  supplier          String?
-  supplierSku       String?
 
-  // Media
-  images String[]
-  videos String[]
+  // Media (comma-separated URLs)
+  images String?
+  videos String?
 
   // SEO
   metaTitle       String?
   metaDescription String?
-  metaKeywords    String[]
+  metaKeywords    String? // Comma-separated keywords
 
   // Status
-  status ProductStatus @default(ACTIVE)
+  status String @default("ACTIVE") // ACTIVE, INACTIVE, OUT_OF_STOCK
 
-  // Variants
+  // Variants (JSON as string)
   hasVariants Boolean @default(false)
-  variants    Json?
+  variants    String?
 
   // Shipping
   weight     Decimal?
-  dimensions Json?
-
-  // Advanced E-commerce
-  vendorId        String?
-  dropshipping    Json? // { enabled, supplierId, supplierPrice, supplierCurrency, estimatedDelivery, supplierStock }
-  subscription    Json? // { enabled, interval, intervalCount, trialDays }
-  digitalProduct  Json? // { enabled, downloadUrl, licenseKey, maxDownloads, expirationDays }
-
-  // Reviews & Ratings
-  rating      Float?
-  reviewCount Int   @default(0)
+  dimensions String? // JSON as string
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  website          Website            @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  vendor           Vendor?            @relation(fields: [vendorId], references: [id])
-  orderItems       OrderItem[]
-  dropshippingItems        DropshippingItem[]
-  productSubscriptionPlan ProductSubscriptionPlan?
-  reviews                  Review[]
+  website    Website     @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  orderItems OrderItem[]
 
   @@map("products")
-}
-
-model Review {
-  id          String @id @default(cuid())
-  productId   String
-  customerName String
-  customerEmail String
-  rating      Int
-  title       String?
-  content     String?
-  verified    Boolean @default(false)
-  helpful     Int     @default(0)
-  images      String[]
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@map("reviews")
 }
 
 model Order {
   id          String @id @default(cuid())
   websiteId   String
-  vendorId    String? // Link to Vendor if marketplace order
   orderNumber String @unique
 
   // Customer Information
@@ -948,9 +205,9 @@ model Order {
   customerName  String?
   customerPhone String?
 
-  // Address
-  shippingAddress Json
-  billingAddress  Json?
+  // Address (JSON as string)
+  shippingAddress String
+  billingAddress  String?
 
   // Order Details
   subtotal Decimal
@@ -960,12 +217,12 @@ model Order {
   total    Decimal
 
   // Payment
-  paymentStatus PaymentStatus @default(PENDING)
+  paymentStatus String @default("PENDING") // PENDING, COMPLETED, FAILED, REFUNDED, CANCELLED
   paymentMethod String?
   paymentId     String?
 
   // Shipping
-  shippingStatus ShippingStatus @default(PENDING)
+  shippingStatus String @default("PENDING") // PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED
   trackingNumber String?
 
   // Notes
@@ -974,10 +231,9 @@ model Order {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  website Website     @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  customer User?      @relation(fields: [customerId], references: [id])
-  vendor   Vendor?    @relation(fields: [vendorId], references: [id])
-  items   OrderItem[]
+  website  Website     @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  customer User?       @relation(fields: [customerId], references: [id])
+  items    OrderItem[]
 
   @@map("orders")
 }
@@ -998,12 +254,11 @@ model OrderItem {
 
 // AI Services
 model AIGeneration {
-  id        String  @id @default(cuid())
+  id        String @id @default(cuid())
   userId    String?
-  websiteId String?
 
   // Generation Details
-  type     AIGenerationType
+  type     String // CONTENT, IMAGE, SEO, COLORS, etc.
   prompt   String
   response String
   model    String
@@ -1011,12 +266,11 @@ model AIGeneration {
   // Metadata
   tokens   Int?
   cost     Decimal?
-  language Language?
+  language String? // ENGLISH, URDU, PUNJABI, etc.
 
   createdAt DateTime @default(now())
 
-  user    User?    @relation(fields: [userId], references: [id])
-  website Website? @relation(fields: [websiteId], references: [id])
+  user User? @relation(fields: [userId], references: [id])
 
   @@map("ai_generations")
 }
@@ -1027,12 +281,12 @@ model Subscription {
   name        String
   description String?
   slug        String  @unique
-  tier        SubscriptionTier @default(FREE)
+  tier        String  @default("FREE") // FREE, PRO, AGENCY
 
   // Pricing
   price    Decimal
-  currency String               @default("PKR")
-  interval SubscriptionInterval
+  currency String @default("PKR")
+  interval String // MONTHLY, YEARLY, LIFETIME
 
   // Features
   maxWebsites     Int
@@ -1042,48 +296,38 @@ model Subscription {
   customDomain    Boolean @default(false)
   aiGenerations   Int?
   prioritySupport Boolean @default(false)
-  paymentIntegrations Boolean @default(false)
-  advancedAnalytics    Boolean @default(false)
-  aiPrioritySupport    Boolean @default(false)
-  aiMonthlyQuota       Int?
-  aiTokenAllowance     Int?
-  allowedLanguages     Language[]
-  isDefault            Boolean @default(false)
 
   // Status
-  status SubscriptionStatus @default(ACTIVE)
+  status String @default("ACTIVE") // ACTIVE, INACTIVE, CANCELLED
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   // Relations
-  users       User[] @relation("userSubscriptions")
-  userSubscription User? @relation("userSubscription")
-  Payment     Payment[]
+  Payment Payment[]
 
   @@map("subscriptions")
 }
 
 model Payment {
-  id             String  @id @default(cuid())
+  id             String @id @default(cuid())
   userId         String?
   subscriptionId String?
   websiteId      String?
-  purpose        PaymentPurpose @default(PLATFORM_SUBSCRIPTION)
+  purpose        String @default("PLATFORM_SUBSCRIPTION") // PLATFORM_SUBSCRIPTION, WEBSITE_CHECKOUT, ADDON_PURCHASE
 
   // Payment Details
   amount   Decimal
-  currency String        @default("PKR")
-  status   PaymentStatus @default(PENDING)
+  currency String @default("PKR")
+  status   String @default("PENDING") // PENDING, COMPLETED, FAILED, REFUNDED, CANCELLED
 
   // Gateway Information
-  gateway     PaymentGateway
+  gateway     String // STRIPE, JAZZCASH, EASYPAISA, BANK_TRANSFER
   gatewayId   String?
-  gatewayData Json?
+  gatewayData String? // JSON as string
 
   // Subscription
   subscription Subscription? @relation(fields: [subscriptionId], references: [id])
-  website      Website?      @relation(fields: [websiteId], references: [id])
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1091,1753 +335,4 @@ model Payment {
   user User? @relation(fields: [userId], references: [id])
 
   @@map("payments")
-}
-
-model WebsitePaymentGateway {
-  id              String          @id @default(cuid())
-  websiteId       String
-  userId          String?
-  gateway         PaymentGateway
-  displayName     String?
-  merchantId      String?
-  merchantPassword String?
-  integritySalt   String?
-  apiKey          String?
-  settings        Json?
-  isActive        Boolean @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
-
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  user    User?   @relation(fields: [userId], references: [id])
-
-  @@unique([websiteId, gateway])
-  @@map("website_payment_gateways")
-}
-
-// Analytics
-model WebsiteVisitor {
-  id        String @id @default(cuid())
-  websiteId String
-
-  // Visitor Information
-  ipAddress String?
-  userAgent String?
-  country   String?
-  city      String?
-  referrer  String?
-
-  // Page Information
-  page      String?
-  sessionId String?
-
-  createdAt DateTime @default(now())
-
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-
-  @@map("website_visitors")
-}
-
-// Notifications
-model Notification {
-  id      String           @id @default(cuid())
-  userId  String
-  type    NotificationType
-  title   String
-  message String
-  data    Json?
-
-  // Enhanced fields
-  channel  NotificationChannel  @default(IN_APP)
-  status   NotificationStatus   @default(PENDING)
-  priority NotificationPriority @default(NORMAL)
-
-  // Interactive features
-  actions  Json? // Action buttons data
-  imageUrl String?
-
-  // Tracking
-  read      Boolean   @default(false)
-  readAt    DateTime?
-  clickedAt DateTime?
-
-  // Scheduling
-  scheduledFor DateTime?
-  expiresAt    DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user      User                    @relation(fields: [userId], references: [id], onDelete: Cascade)
-  analytics NotificationAnalytics[]
-
-  @@map("notifications")
-}
-
-model NotificationPreferences {
-  id     String @id @default(cuid())
-  userId String @unique
-
-  // Channel preferences
-  emailEnabled    Boolean @default(true)
-  pushEnabled     Boolean @default(true)
-  smsEnabled      Boolean @default(false)
-  whatsappEnabled Boolean @default(false)
-
-  // Type preferences
-  enabledTypes NotificationType[]
-
-  // Timing preferences
-  quietHoursStart String? // HH:MM format
-  quietHoursEnd   String? // HH:MM format
-  timezone        String  @default("Asia/Karachi")
-
-  // Frequency
-  digestFrequency String @default("DAILY") // INSTANT, DAILY, WEEKLY
-
-  // Language
-  language String @default("en")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("notification_preferences")
-}
-
-model NotificationTemplate {
-  id String @id @default(cuid())
-
-  // Template identification
-  type     NotificationType
-  channel  NotificationChannel
-  language String              @default("en")
-
-  // Template content
-  title   String
-  message String
-  subject String? // For email
-
-  // Template variables
-  variables Json? // Available template variables
-
-  // Styling
-  imageUrl String?
-  color    String?
-
-  // Status
-  isActive Boolean @default(true)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@unique([type, channel, language])
-  @@map("notification_templates")
-}
-
-model NotificationAnalytics {
-  id             String @id @default(cuid())
-  notificationId String
-
-  // Delivery tracking
-  sentAt      DateTime?
-  deliveredAt DateTime?
-  readAt      DateTime?
-  clickedAt   DateTime?
-
-  // Channel-specific data
-  channelData Json? // Channel-specific analytics
-
-  // Performance metrics
-  deliveryTime Int? // Milliseconds
-  openRate     Float?
-  clickRate    Float?
-
-  createdAt DateTime @default(now())
-
-  // Relations
-  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
-
-  @@map("notification_analytics")
-}
-
-model NotificationDigest {
-  id     String @id @default(cuid())
-  userId String
-
-  // Digest content
-  title   String
-  content Json // Array of notification summaries
-
-  // Delivery
-  channel NotificationChannel @default(EMAIL)
-  status  NotificationStatus  @default(PENDING)
-
-  // Timing
-  period String // DAILY, WEEKLY
-  sentAt DateTime?
-
-  createdAt DateTime @default(now())
-
-  // Relations
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@map("notification_digests")
-}
-
-// Enums
-enum UserRole {
-  USER
-  ADMIN
-  SUPER_ADMIN
-}
-
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-  PENDING
-}
-
-enum TeamRole {
-  OWNER
-  ADMIN
-  MEMBER
-  VIEWER
-}
-
-enum WebsiteStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
-enum TemplateCategory {
-  BUSINESS
-  PORTFOLIO
-  ECOMMERCE
-  BLOG
-  RESTAURANT
-  HEALTHCARE
-  EDUCATION
-  REAL_ESTATE
-  TECHNOLOGY
-  CREATIVE
-}
-
-enum TemplateStatus {
-  ACTIVE
-  INACTIVE
-  DRAFT
-}
-
-enum BusinessType {
-  RESTAURANT
-  RETAIL
-  SERVICE
-  ECOMMERCE
-  EDUCATION
-  HEALTHCARE
-  REAL_ESTATE
-  TECHNOLOGY
-  CREATIVE
-  NON_PROFIT
-  OTHER
-}
-
-enum Language {
-  ENGLISH
-  URDU
-  PUNJABI
-  SINDHI
-  PASHTO
-}
-
-enum ProductStatus {
-  ACTIVE
-  INACTIVE
-  OUT_OF_STOCK
-}
-
-enum PaymentStatus {
-  PENDING
-  COMPLETED
-  FAILED
-  REFUNDED
-  CANCELLED
-}
-
-enum ShippingStatus {
-  PENDING
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-}
-
-enum PaymentGateway {
-  STRIPE
-  JAZZCASH
-  EASYPAISA
-  BANK_TRANSFER
-}
-
-enum PaymentPurpose {
-  PLATFORM_SUBSCRIPTION
-  WEBSITE_CHECKOUT
-  ADDON_PURCHASE
-}
-
-enum AIGenerationType {
-  CONTENT
-  IMAGE
-  SEO
-  COLORS
-  TEMPLATE_SUGGESTION
-  PRODUCT_DESCRIPTION
-  META_TAGS
-}
-
-enum SubscriptionInterval {
-  MONTHLY
-  YEARLY
-  LIFETIME
-}
-
-enum SubscriptionTier {
-  FREE
-  PRO
-  AGENCY
-}
-
-enum SubscriptionStatus {
-  ACTIVE
-  INACTIVE
-  CANCELLED
-}
-
-enum NotificationType {
-  INFO
-  SUCCESS
-  WARNING
-  ERROR
-  PAYMENT
-  SUBSCRIPTION
-  WEBSITE
-  TEAM
-  ORDER_STATUS
-  INVENTORY_LOW
-  DOMAIN_EXPIRY
-  AI_GENERATION_COMPLETE
-  COLLABORATION_INVITE
-  SECURITY_ALERT
-  PERFORMANCE_ISSUE
-  BACKUP_COMPLETE
-  INTEGRATION_ERROR
-  CAMPAIGN_RESULTS
-  ANALYTICS_INSIGHT
-}
-
-enum NotificationChannel {
-  IN_APP
-  EMAIL
-  SMS
-  WHATSAPP
-  PUSH
-  WEBHOOK
-  SLACK
-}
-
-enum NotificationStatus {
-  PENDING
-  SENT
-  DELIVERED
-  READ
-  FAILED
-  CANCELLED
-}
-
-enum NotificationPriority {
-  LOW
-  NORMAL
-  HIGH
-  URGENT
-}
-
-// Domain Management
-model Domain {
-  id                String       @id @default(cuid())
-  userId            String
-  domain            String       @unique
-  websiteId         String?
-  status            DomainStatus @default(pending)
-  autoRenew         Boolean      @default(true)
-  privacyProtection Boolean      @default(true)
-  pricing           Json // Domain pricing information
-  registrationDate  DateTime?
-  expiryDate        DateTime?
-  transferAuthCode  String?
-  createdAt         DateTime     @default(now())
-  updatedAt         DateTime     @updatedAt
-
-  // Relations
-  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-  website    Website?    @relation(fields: [websiteId], references: [id], onDelete: SetNull)
-  dnsRecords DNSRecord[]
-
-  @@map("domains")
-}
-
-model DNSRecord {
-  id        String        @id @default(cuid())
-  domainId  String
-  type      DNSRecordType
-  name      String
-  value     String
-  ttl       Int           @default(3600)
-  priority  Int?
-  createdAt DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-
-  // Relations
-  domain Domain @relation(fields: [domainId], references: [id], onDelete: Cascade)
-
-  @@map("dns_records")
-}
-
-enum DomainStatus {
-  pending
-  active
-  expired
-  transferring
-  suspended
-}
-
-enum AnalyticsPeriod {
-  HOURLY
-  DAILY
-  WEEKLY
-  MONTHLY
-  YEARLY
-}
-
-enum CampaignType {
-  EMAIL
-  SMS
-  WHATSAPP
-  PUSH_NOTIFICATION
-  SOCIAL_MEDIA
-}
-
-enum CampaignStatus {
-  DRAFT
-  SCHEDULED
-  RUNNING
-  PAUSED
-  COMPLETED
-  CANCELLED
-}
-
-enum CampaignChannel {
-  EMAIL
-  SMS
-  WHATSAPP
-  PUSH
-  FACEBOOK
-  INSTAGRAM
-  TWITTER
-}
-
-enum MessageStatus {
-  PENDING
-  SENT
-  DELIVERED
-  OPENED
-  CLICKED
-  FAILED
-  BOUNCED
-}
-
-enum IntegrationCategory {
-  ANALYTICS
-  PAYMENT
-  EMAIL
-  SOCIAL_MEDIA
-  CRM
-  ECOMMERCE
-  MARKETING
-  CUSTOMER_SUPPORT
-  PRODUCTIVITY
-  OTHER
-}
-
-enum AuthType {
-  API_KEY
-  OAUTH2
-  BASIC_AUTH
-  WEBHOOK
-  NO_AUTH
-}
-
-enum IntegrationStatus {
-  ACTIVE
-  INACTIVE
-  DEPRECATED
-  BETA
-}
-
-enum MediaType {
-  IMAGE
-  VIDEO
-  AUDIO
-  GIF
-  SVG
-  PDF
-}
-
-enum AssetStatus {
-  ACTIVE
-  PROCESSING
-  ERROR
-  DELETED
-}
-
-enum ProjectStatus {
-  DRAFT
-  PROCESSING
-  COMPLETED
-  EXPORTED
-  FAILED
-}
-
-enum DesignSystemStatus {
-  DRAFT
-  GENERATING
-  COMPLETED
-  APPLIED
-  ARCHIVED
-}
-
-enum AgencyPlan {
-  STARTER
-  PROFESSIONAL
-  ENTERPRISE
-}
-
-enum AgencyStatus {
-  ACTIVE
-  SUSPENDED
-  CANCELLED
-}
-
-enum ClientStatus {
-  ACTIVE
-  INACTIVE
-  COMPLETED
-  CANCELLED
-}
-
-enum AISessionType {
-  CHAT
-  CODE_GENERATION
-  CONTENT_CREATION
-  DESIGN_ASSISTANCE
-  ANALYSIS
-}
-
-enum AISessionStatus {
-  ACTIVE
-  PAUSED
-  COMPLETED
-  ARCHIVED
-}
-
-enum ARVRType {
-  AR_OBJECT
-  VR_SCENE
-  AR_FILTER
-  VR_EXPERIENCE
-  AR_ANIMATION
-  VR_GAME
-}
-
-enum ARVRStatus {
-  DRAFT
-  PROCESSING
-  READY
-  PUBLISHED
-  ERROR
-}
-
-enum DNSRecordType {
-  A
-  AAAA
-  CNAME
-  MX
-  TXT
-  NS
-}
-
-// Blockchain & Web3 Models
-model BlockchainWallet {
-  id        String  @id @default(cuid())
-  userId    String?
-  websiteId String?
-
-  // Wallet details
-  address    String            @unique
-  network    BlockchainNetwork
-  walletType WalletType
-
-  // Wallet metadata
-  name        String?
-  description String?
-
-  // Security
-  isEncrypted   Boolean @default(true)
-  encryptionKey String? // Encrypted private key
-
-  // Status
-  status  WalletStatus @default(ACTIVE)
-  balance Decimal      @default(0) // Current balance
-
-  // Transaction tracking
-  lastSyncAt       DateTime?
-  transactionCount Int       @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user         User?                   @relation(fields: [userId], references: [id], onDelete: SetNull)
-  website      Website?                @relation(fields: [websiteId], references: [id], onDelete: SetNull)
-  transactions BlockchainTransaction[]
-
-  @@map("blockchain_wallets")
-}
-
-model NFTCollection {
-  id        String  @id @default(cuid())
-  userId    String?
-  websiteId String?
-
-  // Collection details
-  name        String
-  description String?
-  symbol      String?
-
-  // Contract details
-  contractAddress String
-  network         BlockchainNetwork
-  standard        NFTStandard
-
-  // Collection metadata
-  imageUrl   String?
-  bannerUrl  String?
-  websiteUrl String?
-
-  // Collection stats
-  totalSupply  Int     @default(0)
-  mintedCount  Int     @default(0)
-  floorPrice   Decimal @default(0)
-  volumeTraded Decimal @default(0)
-
-  // Royalties
-  royaltyPercentage Decimal @default(0)
-  royaltyRecipient  String?
-
-  // Status
-  status     CollectionStatus @default(DRAFT)
-  isVerified Boolean          @default(false)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  website Website? @relation(fields: [websiteId], references: [id], onDelete: SetNull)
-  nfts    NFT[]
-
-  @@map("nft_collections")
-}
-
-model NFT {
-  id           String @id @default(cuid())
-  collectionId String
-
-  // NFT details
-  tokenId     String
-  name        String
-  description String?
-
-  // Metadata
-  imageUrl     String?
-  animationUrl String?
-  attributes   Json? // NFT attributes/traits
-
-  // Ownership
-  ownerAddress String?
-  isListed     Boolean @default(false)
-  listingPrice Decimal @default(0)
-
-  // Transaction history
-  mintPrice     Decimal @default(0)
-  lastSalePrice Decimal @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  collection NFTCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
-
-  @@unique([collectionId, tokenId])
-  @@map("nfts")
-}
-
-model SmartContract {
-  id        String  @id @default(cuid())
-  userId    String?
-  websiteId String?
-
-  // Contract details
-  name        String
-  description String?
-
-  // Contract information
-  contractAddress String
-  network         BlockchainNetwork
-  abi             Json // Contract ABI
-
-  // Contract metadata
-  sourceCode          String?
-  compilerVersion     String?
-  optimizationEnabled Boolean @default(false)
-
-  // Deployment
-  deploymentTxHash      String?
-  deploymentBlockNumber Int?
-  gasUsed               Int?
-
-  // Status
-  status     ContractStatus @default(DRAFT)
-  isVerified Boolean        @default(false)
-
-  // Usage tracking
-  interactionCount  Int       @default(0)
-  lastInteractionAt DateTime?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user         User?                      @relation(fields: [userId], references: [id], onDelete: SetNull)
-  website      Website?                   @relation(fields: [websiteId], references: [id], onDelete: SetNull)
-  interactions SmartContractInteraction[]
-
-  @@map("smart_contracts")
-}
-
-model SmartContractInteraction {
-  id         String @id @default(cuid())
-  contractId String
-
-  // Interaction details
-  method     String
-  parameters Json?
-
-  // Transaction details
-  txHash      String
-  blockNumber Int
-  gasUsed     Int?
-  gasPrice    Decimal?
-
-  // Result
-  success      Boolean
-  returnValue  Json?
-  errorMessage String?
-
-  // User context
-  userAddress String?
-
-  createdAt DateTime @default(now())
-
-  // Relations
-  contract SmartContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
-
-  @@map("smart_contract_interactions")
-}
-
-model Web3Integration {
-  id        String  @id @default(cuid())
-  userId    String?
-  websiteId String?
-
-  // Integration details
-  name        String
-  description String?
-
-  // Integration type
-  type Web3IntegrationType
-
-  // Configuration
-  config Json // Integration-specific configuration
-
-  // API keys and credentials
-  apiKeys Json? // Encrypted API keys
-
-  // Status
-  status    IntegrationStatus @default(ACTIVE)
-  isEnabled Boolean           @default(true)
-
-  // Usage tracking
-  lastUsedAt DateTime?
-  usageCount Int       @default(0)
-
-  // Error tracking
-  lastError  String?
-  errorCount Int     @default(0)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user    User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-  website Website? @relation(fields: [websiteId], references: [id], onDelete: SetNull)
-
-  @@map("web3_integrations")
-}
-
-model BlockchainTransaction {
-  id       String @id @default(cuid())
-  walletId String
-
-  // Transaction details
-  txHash      String  @unique
-  blockNumber Int
-  blockHash   String?
-
-  // Transaction data
-  fromAddress String
-  toAddress   String
-  value       Decimal
-  gasUsed     Int?
-  gasPrice    Decimal?
-
-  // Transaction metadata
-  type          TransactionType
-  status        TransactionStatus
-  confirmations Int               @default(0)
-
-  // Additional data
-  data  String? // Transaction data/input
-  nonce Int?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  wallet BlockchainWallet @relation(fields: [walletId], references: [id], onDelete: Cascade)
-
-  @@map("blockchain_transactions")
-}
-
-// Blockchain Enums
-enum BlockchainNetwork {
-  ETHEREUM
-  POLYGON
-  BINANCE_SMART_CHAIN
-  ARBITRUM
-  OPTIMISM
-  AVALANCHE
-  SOLANA
-  POLKADOT
-}
-
-enum WalletType {
-  EXTERNAL
-  GENERATED
-  IMPORTED
-}
-
-enum WalletStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-}
-
-enum NFTStandard {
-  ERC721
-  ERC1155
-  ERC4907
-  SPL_TOKEN
-}
-
-enum CollectionStatus {
-  DRAFT
-  DEPLOYED
-  MINTING
-  COMPLETED
-  PAUSED
-}
-
-enum ContractStatus {
-  DRAFT
-  DEPLOYED
-  VERIFIED
-  FAILED
-}
-
-enum Web3IntegrationType {
-  MARKETPLACE
-  PAYMENT_PROCESSOR
-  ANALYTICS
-  STORAGE
-  IDENTITY
-  DEFI
-}
-
-enum TransactionType {
-  TRANSFER
-  CONTRACT_CALL
-  CONTRACT_DEPLOYMENT
-  NFT_MINT
-  NFT_TRANSFER
-  SWAP
-  STAKE
-  UNSTAKE
-}
-
-enum TransactionStatus {
-  PENDING
-  CONFIRMED
-  FAILED
-  CANCELLED
-}
-
-// Advanced E-commerce Models
-model Vendor {
-  id          String   @id @default(cuid())
-  userId      String   @unique
-  businessName String
-  description String?
-  logo        String?
-  website     String?
-
-  // Commission & Payout
-  commission     Json // { percentage: number, fixed?: number }
-  payoutSettings Json // { method: string, accountDetails: object }
-
-  // Status & Metrics
-  status       VendorStatus @default(PENDING)
-  productsCount Int         @default(0)
-  totalSales    Float       @default(0)
-  totalEarnings Float       @default(0)
-  rating        Float?
-  reviewCount   Int         @default(0)
-
-  // Review Process
-  reviewedBy   String?
-  reviewedAt   DateTime?
-  reviewNotes  String?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user     User     @relation(fields: [userId], references: [id])
-  products Product[]
-  orders   Order[]
-
-  @@map("vendors")
-}
-
-model Supplier {
-  id           String   @id @default(cuid())
-  name         String
-  email        String   @unique
-  phone        String?
-  apiEndpoint  String?
-  apiKey       String?
-  status       SupplierStatus @default(ACTIVE)
-  shippingTime String
-  returnPolicy String?
-  commission   Float?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  products          SupplierProduct[]
-  dropshippingOrders DropshippingOrder[]
-
-  @@map("suppliers")
-}
-
-model SupplierProduct {
-  id          String  @id @default(cuid())
-  supplierId  String
-  externalId  String
-  name        String
-  description String?
-  price       Float
-  currency    String  @default("USD")
-  images      Json    // Array of image URLs
-  stock       Int     @default(0)
-  category    String?
-  variants    Json?   // Product variants data
-  lastSynced  DateTime @default(now())
-
-  // Relations
-  supplier Supplier @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-
-  @@unique([supplierId, externalId])
-  @@map("supplier_products")
-}
-
-model DropshippingOrder {
-  id               String   @id @default(cuid())
-  orderId          String
-  supplierId       String
-  supplierOrderId  String?
-  status           DropshippingStatus @default(PENDING)
-  trackingNumber   String?
-  estimatedDelivery String?
-  actualDelivery   DateTime?
-
-  // Financials
-  cost   Float
-  profit Float
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  supplier Supplier @relation(fields: [supplierId], references: [id])
-  items    DropshippingItem[]
-
-  @@map("dropshipping_orders")
-}
-
-model DropshippingItem {
-  id             String  @id @default(cuid())
-  dropshippingOrderId String
-  productId      String
-  variantId      String?
-
-  // Quantities & Pricing
-  quantity      Int
-  supplierPrice Float
-  sellingPrice  Float
-  profit        Float
-
-  // Relations
-  dropshippingOrder DropshippingOrder @relation(fields: [dropshippingOrderId], references: [id], onDelete: Cascade)
-  product           Product           @relation(fields: [productId], references: [id])
-
-  @@map("dropshipping_items")
-}
-
-model ProductSubscriptionPlan {
-  id          String  @id @default(cuid())
-  productId   String @unique
-  name        String
-  description String?
-
-  // Billing Configuration
-  interval      ProductSubscriptionInterval
-  intervalCount Int
-  price         Float
-  trialDays     Int?
-
-  // Status
-  status          ProductSubscriptionStatus @default(ACTIVE)
-  subscriberCount Int               @default(0)
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  product      Product                @relation(fields: [productId], references: [id], onDelete: Cascade)
-  subscriptions ProductSubscription[] @relation("productSubscriptionPlan")
-
-  @@map("product_subscription_plans")
-}
-
-model ProductSubscription {
-  id          String  @id @default(cuid())
-  customerId  String
-  planId      String
-
-  // Status
-  status           ProductSubscriptionStatus @default(ACTIVE)
-  cancelAtPeriodEnd Boolean           @default(false)
-  cancelledAt       DateTime?
-
-  // Billing Periods
-  currentPeriodStart DateTime
-  currentPeriodEnd   DateTime
-  trialEnd           DateTime?
-  nextBillingDate    DateTime
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  customer      User                   @relation("productSubscriptions", fields: [customerId], references: [id])
-  plan          ProductSubscriptionPlan @relation("productSubscriptionPlan", fields: [planId], references: [id])
-  billingHistory ProductSubscriptionBilling[]
-
-  @@map("product_subscriptions")
-}
-
-model ProductSubscriptionBilling {
-  id             String  @id @default(cuid())
-  subscriptionId String
-
-  // Billing Details
-  amount    Float
-  currency  String @default("PKR")
-  status    BillingStatus @default(PENDING)
-  billingDate DateTime
-
-  // Additional Info
-  invoiceUrl String?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-
-  // Relations
-  subscription ProductSubscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
-
-  @@map("product_subscription_billings")
-}
-
-model VendorApplication {
-  id               String  @id @default(cuid())
-  userId           String  @unique
-  businessName     String
-  businessType     String
-  description      String
-  website          String?
-  socialMedia      Json?   // Social media links
-  experience       String?
-  productCategories Json    // Array of category strings
-
-  // Review Process
-  status      VendorApplicationStatus @default(PENDING)
-  reviewedBy  String?
-  reviewedAt  DateTime?
-  reviewNotes String?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user User @relation(fields: [userId], references: [id])
-
-  @@map("vendor_applications")
-}
-
-// Enums for Advanced E-commerce
-enum VendorStatus {
-  PENDING
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-}
-
-enum SupplierStatus {
-  ACTIVE
-  INACTIVE
-}
-
-enum DropshippingStatus {
-  PENDING
-  PROCESSING
-  SHIPPED
-  DELIVERED
-  CANCELLED
-  FAILED
-}
-
-enum ProductSubscriptionInterval {
-  DAILY
-  WEEKLY
-  MONTHLY
-  YEARLY
-}
-
-enum ProductSubscriptionStatus {
-  ACTIVE
-  PAUSED
-  CANCELLED
-  EXPIRED
-}
-
-enum BillingStatus {
-  PENDING
-  COMPLETED
-  FAILED
-  REFUNDED
-}
-
-enum VendorApplicationStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
-// Advanced Template Engine Models
-model AdvancedTemplate {
-  id          String   @id @default(cuid())
-  name        String
-  description String   @db.Text
-  category    TemplateCategory
-  subcategory String?
-
-  // Media
-  thumbnail     String?
-  previewImages String[]
-  demoUrl       String?
-
-  // Pricing
-  price        Float    @default(0)
-  currency     String   @default("PKR")
-  pricingModel TemplatePricingModel @default(FREE)
-
-  // Features & Tech
-  features     Json // TemplateFeature[]
-  technologies String[]
-  responsive   Boolean @default(true)
-  customizable Boolean @default(true)
-  aiGenerated  Boolean @default(false)
-  complexity   TemplateComplexity @default(INTERMEDIATE)
-  estimatedSetupTime Int @default(15)
-
-  // Metadata
-  rating       Float?
-  reviewCount  Int    @default(0)
-  downloadCount Int   @default(0)
-  tags         String[]
-
-  // Author
-  authorId String
-  author   User   @relation("templateAuthor", fields: [authorId], references: [id])
-
-  // Status & Versioning
-  status   TemplateStatus @default(DRAFT)
-  version  String        @default("1.0.0")
-  changelog Json // TemplateChangelog[]
-
-  // Dependencies & Configuration
-  dependencies Json // TemplateDependency[]
-  configuration Json // TemplateConfiguration
-
-  // Marketplace
-  marketplace Json // TemplateMarketplace
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  reviews       TemplateReview[]
-  customizations TemplateCustomization[]
-  aiGenerations TemplateAIGeneration[]
-
-  @@map("advanced_templates")
-}
-
-// Removed duplicate TemplateCategory model - using enum instead
-
-model TemplateCustomization {
-  id            String  @id @default(cuid())
-  templateId    String
-  userId        String
-  name          String
-  description   String?
-  customizations Json   // TemplateCustomizationItem[]
-  previewUrl    String?
-
-  // Status
-  status TemplateCustomizationStatus @default(DRAFT)
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  template AdvancedTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  user     User            @relation("templateCustomizations", fields: [userId], references: [id])
-
-  @@map("template_customizations")
-}
-
-model TemplateAIGeneration {
-  id        String  @id @default(cuid())
-  userId    String
-  prompt    String @db.Text
-  requirements Json // AI generation requirements
-
-  // Status
-  generatedTemplateId String?
-  status             TemplateGenerationStatus @default(GENERATING)
-  progress           Int                     @default(0)
-  errorMessage       String?
-  estimatedCompletion DateTime
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  user             User            @relation("templateAIGenerations", fields: [userId], references: [id])
-  generatedTemplate AdvancedTemplate? @relation(fields: [generatedTemplateId], references: [id])
-
-  @@map("template_ai_generations")
-}
-
-model TemplateReview {
-  id          String  @id @default(cuid())
-  templateId  String
-  userId      String
-  rating      Int
-  title       String?
-  content     String?
-  verified    Boolean @default(false)
-  helpful     Int     @default(0)
-  images      String[]
-
-  // Timestamps
-  createdAt DateTime @default(now())
-
-  // Relations
-  template AdvancedTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
-  user     User            @relation("templateReviews", fields: [userId], references: [id])
-
-  @@unique([templateId, userId])
-  @@map("template_reviews")
-}
-
-// Removed duplicate TemplateCategory and TemplateStatus enums - using existing ones
-
-enum TemplatePricingModel {
-  FREE
-  PREMIUM
-  SUBSCRIPTION
-}
-
-enum TemplateComplexity {
-  BEGINNER
-  INTERMEDIATE
-  ADVANCED
-}
-
-enum TemplateCustomizationStatus {
-  DRAFT
-  PUBLISHED
-  ARCHIVED
-}
-
-enum TemplateGenerationStatus {
-  GENERATING
-  COMPLETED
-  FAILED
-}
-
-// Social Media Integration Hub Models
-model SocialAccount {
-  id            String   @id @default(cuid())
-  websiteId     String
-  platform      SocialPlatform
-  accountId     String
-  accountName   String
-  username      String
-  avatar        String?
-  accessToken   String   // Encrypted
-  refreshToken  String?  // Encrypted
-  tokenExpiresAt DateTime?
-  scopes        String[]
-  status        SocialAccountStatus @default(ACTIVE)
-  lastSynced    DateTime?
-  errorMessage  String?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  website Website     @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  posts   SocialPost[]
-
-  @@map("social_accounts")
-}
-
-model SocialPost {
-  id          String  @id @default(cuid())
-  websiteId   String
-  campaignId  String?
-  contentId   String?
-  platform    SocialPlatform
-  accountId   String
-  content     Json   // SocialPostContent
-  status      SocialPostStatus @default(DRAFT)
-  scheduledAt DateTime?
-  publishedAt DateTime?
-  postId      String? // Platform-specific post ID
-  url         String?
-  engagement  Json   // SocialEngagement
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  website Website       @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  account SocialAccount @relation(fields: [accountId], references: [id])
-  campaign SocialCampaign? @relation(fields: [campaignId], references: [id])
-
-  @@map("social_posts")
-}
-
-model SocialCampaign {
-  id          String  @id @default(cuid())
-  websiteId   String
-  name        String
-  description String?
-  platforms   SocialPlatform[]
-  accounts    String[] // Social account IDs
-  status      SocialCampaignStatus @default(DRAFT)
-  schedule    Json   // SocialCampaignSchedule
-  targeting   Json?  // SocialTargeting
-  budget      Json?  // SocialCampaignBudget
-  analytics   Json   // SocialCampaignAnalytics
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  website Website      @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  posts   SocialPost[]
-
-  @@map("social_campaigns")
-}
-
-model SocialAutomationRule {
-  id          String  @id @default(cuid())
-  websiteId   String
-  name        String
-  trigger     Json   // SocialAutomationTrigger
-  conditions  Json[] // SocialAutomationCondition[]
-  actions     Json[] // SocialAutomationAction[]
-  status      AutomationStatus @default(ACTIVE)
-  lastTriggered DateTime?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-
-  @@map("social_automation_rules")
-}
-
-model SocialContentSuggestion {
-  id          String  @id @default(cuid())
-  websiteId   String
-  platform    SocialPlatform
-  contentType String
-  title       String
-  content     Json   // SocialPostContent
-  reasoning   String
-  predictedEngagement Int
-  bestTimeToPost String
-  hashtags    String[]
-
-  // Timestamps
-  createdAt DateTime @default(now())
-
-  // Relations
-  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-
-  @@map("social_content_suggestions")
-}
-
-// Social Media Enums
-enum SocialPlatform {
-  FACEBOOK
-  INSTAGRAM
-  TWITTER
-  LINKEDIN
-  TIKTOK
-  YOUTUBE
-  PINTEREST
-}
-
-enum SocialAccountStatus {
-  ACTIVE
-  EXPIRED
-  REVOKED
-  ERROR
-}
-
-enum SocialPostStatus {
-  DRAFT
-  SCHEDULED
-  PUBLISHING
-  PUBLISHED
-  FAILED
-  DELETED
-}
-
-enum SocialCampaignStatus {
-  DRAFT
-  ACTIVE
-  COMPLETED
-  PAUSED
-}
-
-enum AutomationStatus {
-  ACTIVE
-  INACTIVE
-}
-
-// Removed duplicate Integration model - using existing one
-
-// Removed duplicate IntegrationCategory model - using enum instead
-
-// Removed duplicate WebsiteIntegration model - using existing one
-
-model IntegrationWebhook {
-  id            String  @id @default(cuid())
-  integrationId String
-  websiteId     String
-  event         String
-  url           String
-  secret        String
-  status        WebhookStatus @default(ACTIVE)
-  retryCount    Int            @default(0)
-  lastTriggered DateTime?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-
-  // Relations
-  websiteIntegration WebsiteIntegration @relation("WebsiteIntegrationWebhook", fields: [integrationId], references: [id], onDelete: Cascade)
-}
-
-model IntegrationLog {
-  id            String  @id @default(cuid())
-  integrationId String
-  websiteId     String
-  action        String
-  status        LogStatus
-  message       String
-  metadata      Json?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-
-  // Relations
-  integration WebsiteIntegration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
-}
-
-model IntegrationReview {
-  id            String  @id @default(cuid())
-  integrationId String
-  userId        String
-  rating        Int
-  title         String?
-  content       String?
-  verified      Boolean @default(false)
-  helpful       Int     @default(0)
-
-  // Timestamps
-  createdAt DateTime @default(now())
-
-  // Relations
-  integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
-  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([integrationId, userId])
-}
-
-// Removed duplicate IntegrationStatus enum - using existing one
-
-enum WebsiteIntegrationStatus {
-  ACTIVE
-  INACTIVE
-  ERROR
-  EXPIRED
-}
-
-enum WebhookStatus {
-  ACTIVE
-  INACTIVE
-}
-
-enum LogStatus {
-  SUCCESS
-  ERROR
-  WARNING
-}
-
-// Content Management Models
-model Content {
-  id          String   @id @default(cuid())
-  websiteId   String
-  title       String
-  slug        String   @unique
-  content     String   @db.Text
-  excerpt     String?
-  featuredImage String?
-
-  // Author and Relations
-  authorId    String
-  author      User     @relation("contentAuthor", fields: [authorId], references: [id])
-
-  // Category
-  categoryId  String?
-  category    ContentCategory? @relation(fields: [categoryId], references: [id])
-
-  // Metadata
-  tags        String[]
-  status      ContentStatus @default(DRAFT)
-  type        ContentType   @default(BLOG_POST)
-
-  // SEO
-  seo         Json?
-
-  // Publishing
-  scheduledAt DateTime?
-  publishedAt DateTime?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  website     Website             @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  schedule    ContentSchedule?
-  analytics   ContentAnalytics?
-
-  @@map("contents")
-}
-
-model ContentCategory {
-  id          String  @id @default(cuid())
-  websiteId   String
-  name        String
-  slug        String  @unique
-  description String?
-
-  // Hierarchy
-  parentId    String?
-  parent      ContentCategory? @relation("categoryHierarchy", fields: [parentId], references: [id])
-  children    ContentCategory[] @relation("categoryHierarchy")
-
-  // SEO
-  seo         Json?
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  website   Website   @relation(fields: [websiteId], references: [id], onDelete: Cascade)
-  contents  Content[]
-
-  @@map("content_categories")
-}
-
-model ContentSchedule {
-  id          String  @id @default(cuid())
-  contentId   String  @unique
-  scheduledAt DateTime
-  status      ScheduleStatus @default(PENDING)
-  platforms   String[] // Social media platforms
-
-  // Timestamps
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
-  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
-
-  @@map("content_schedules")
-}
-
-model ContentAnalytics {
-  contentId       String  @id
-  views           Int     @default(0)
-  uniqueViews     Int     @default(0)
-  avgTimeOnPage   Float   @default(0)
-  bounceRate      Float   @default(0)
-  socialShares    Int     @default(0)
-  backlinks       Int     @default(0)
-  seoScore        Float   @default(0)
-  readabilityScore Float  @default(0)
-  lastUpdated     DateTime @default(now())
-
-  // Relations
-  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
-
-  @@map("content_analytics")
-}
-
-model ContentTemplate {
-  id          String  @id @default(cuid())
-  name        String
-  description String?
-  category    String
-  content     String  @db.Text
-  variables   Json    // Template variables configuration
-  thumbnail   String?
-
-  // Access Control
-  isPublic    Boolean @default(false)
-  createdBy   String
-
-  // Usage Tracking
-  usageCount  Int     @default(0)
-
-  // Timestamps
-  createdAt DateTime @default(now())
-
-  @@map("content_templates")
-}
-
-// Content Management Enums
-enum ContentStatus {
-  DRAFT
-  SCHEDULED
-  PUBLISHED
-  ARCHIVED
-}
-
-enum ContentType {
-  ARTICLE
-  BLOG_POST
-  NEWS
-  PAGE
-  PRODUCT_DESCRIPTION
-  LANDING_PAGE
-}
-
-enum ScheduleStatus {
-  PENDING
-  PUBLISHED
-  FAILED
-  CANCELLED
 }

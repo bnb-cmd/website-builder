@@ -17,7 +17,8 @@ import { SubscriptionPlans } from '@/components/subscriptions/subscription-plans
 import { PaymentCheckout } from '@/components/payments/payment-checkout'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Plus, Globe, Zap, Users, TrendingUp } from 'lucide-react'
+import { Badge } from '@/components/ui/badge'
+import { Plus, Globe, Zap, Users, TrendingUp, Sparkles, Eye, BarChart3, ArrowRight, Palette, Target } from 'lucide-react'
 import { apiHelpers } from '@/lib/api'
 
 interface DashboardData {

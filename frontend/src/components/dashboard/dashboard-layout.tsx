@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useAuth } from '@/components/auth/auth-provider'
-import { useRouter, usePathname } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
@@ -32,7 +32,6 @@ import {
   Smartphone,
   Brain,
   Coins,
-  Plus,
   Globe2,
   ChevronDown,
   ChevronRight,
@@ -96,7 +95,6 @@ const navigationGroups = [
 export function DashboardLayout({ children }: DashboardLayoutProps) {
   const { user, logout } = useAuth()
   const router = useRouter()
-  const pathname = usePathname()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(['Core']))
@@ -119,9 +117,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
     })
   }
 
-  const handleCreateWebsite = () => {
-    router.push('/dashboard/websites/new')
-  }
 
   return (
     <div className="h-screen flex overflow-hidden bg-background">
@@ -205,8 +200,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                         href={item.href}
                         className={cn(
                           'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                          'hover:bg-accent hover:text-accent-foreground',
-                          pathname === item.href && 'bg-accent text-accent-foreground'
+                          'hover:bg-accent hover:text-accent-foreground'
                         )}
                         onClick={() => setSidebarOpen(false)}
                       >
@@ -293,13 +287,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
               <Button variant="ghost" size="sm" className="hover:bg-gray-100">
                 <Bell className="h-4 w-4" />
               </Button>
-              <Button 
-                onClick={handleCreateWebsite} 
-                size="sm"
-                className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white"
-              >
-                <Plus className="h-4 w-4" />
-              </Button>
             </div>
           </div>
         </header>
@@ -334,19 +321,17 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       <div className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background border-t border-border">
         <div className="flex items-center justify-around py-2 px-4">
           {[
-            { name: 'Dashboard', href: '/dashboard', icon: Home, active: pathname === '/dashboard' },
-            { name: 'Templates', href: '/dashboard/templates', icon: Palette, active: pathname === '/dashboard/templates' },
-            { name: 'Websites', href: '/dashboard/websites', icon: Globe, active: pathname === '/dashboard/websites' },
-            { name: 'Search', href: '#', icon: Search, active: commandPaletteOpen, onClick: () => setCommandPaletteOpen(true) }
+            { name: 'Dashboard', href: '/dashboard', icon: Home },
+            { name: 'Templates', href: '/dashboard/templates', icon: Palette },
+            { name: 'Websites', href: '/dashboard/websites', icon: Globe },
+            { name: 'Search', href: '#', icon: Search, onClick: () => setCommandPaletteOpen(true) }
           ].map((item) => (
             <button
               key={item.name}
               onClick={item.onClick || (() => router.push(item.href))}
               className={cn(
                 'flex flex-col items-center justify-center p-2 rounded-lg transition-colors min-w-0 flex-1',
-                item.active
-                  ? 'text-primary bg-primary/10'
-                  : 'text-muted-foreground hover:text-foreground hover:bg-accent'
+                'text-muted-foreground hover:text-foreground hover:bg-accent'
               )}
             >
               <item.icon className="h-5 w-5 mb-1" />
