@@ -33,6 +33,7 @@ interface PropertiesPanelProps {
   element: Element
   onUpdate: (updates: Partial<Element>) => void
   onClose?: () => void
+  isOpen?: boolean  // ADD THIS LINE
 }
 
 interface PropertyGroupProps {
@@ -70,7 +71,7 @@ function PropertyGroup({ title, icon: Icon, children, defaultOpen = true }: Prop
   )
 }
 
-export function PropertiesPanel({ element, onUpdate, onClose }: PropertiesPanelProps) {
+export function PropertiesPanel({ element, onUpdate, onClose, isOpen = true }: PropertiesPanelProps) {
   const [activeTab, setActiveTab] = useState('content')
   const [activeBreakpoint, setActiveBreakpoint] = useState<ViewMode>('desktop')
 
@@ -271,7 +272,25 @@ export function PropertiesPanel({ element, onUpdate, onClose }: PropertiesPanelP
   const currentStyle = getCurrentStyle()
 
   return (
-    <div className="w-80 bg-card border-l border-border flex flex-col">
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && onClose && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Properties Panel */}
+      <div className={`
+        fixed lg:relative inset-y-0 right-0 z-50
+        w-full sm:w-96 lg:w-80
+        bg-card/95 backdrop-blur-md border-l border-border/50
+        flex flex-col
+        shadow-xl
+        transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : 'translate-x-full lg:translate-x-0'}
+      `}>
       {/* Header */}
       <div className="p-4 border-b border-border">
         <div className="flex items-center justify-between">
@@ -282,7 +301,7 @@ export function PropertiesPanel({ element, onUpdate, onClose }: PropertiesPanelP
             </p>
           </div>
           {onClose && (
-            <Button variant="ghost" size="sm" onClick={onClose}>
+            <Button variant="ghost" size="sm" onClick={onClose} className="lg:hidden">
               <X className="h-4 w-4" />
             </Button>
           )}
@@ -294,12 +313,15 @@ export function PropertiesPanel({ element, onUpdate, onClose }: PropertiesPanelP
         <Label className="text-xs uppercase tracking-wide text-muted-foreground">
           Device Preview
         </Label>
-        <div className="flex items-center space-x-1 mt-2 bg-muted rounded-lg p-1">
+        <div className="flex items-center space-x-1 mt-2 bg-muted/50 rounded-lg p-1 shadow-inner">
           <Button
             variant={activeBreakpoint === 'desktop' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setActiveBreakpoint('desktop')}
-            className="flex-1"
+            className={cn(
+              "flex-1 transition-all duration-200",
+              activeBreakpoint === 'desktop' && "shadow-md"
+            )}
           >
             <Monitor className="h-3 w-3" />
           </Button>
@@ -307,7 +329,10 @@ export function PropertiesPanel({ element, onUpdate, onClose }: PropertiesPanelP
             variant={activeBreakpoint === 'tablet' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setActiveBreakpoint('tablet')}
-            className="flex-1"
+            className={cn(
+              "flex-1 transition-all duration-200",
+              activeBreakpoint === 'tablet' && "shadow-md"
+            )}
           >
             <Tablet className="h-3 w-3" />
           </Button>
@@ -315,7 +340,10 @@ export function PropertiesPanel({ element, onUpdate, onClose }: PropertiesPanelP
             variant={activeBreakpoint === 'mobile' ? 'default' : 'ghost'}
             size="sm"
             onClick={() => setActiveBreakpoint('mobile')}
-            className="flex-1"
+            className={cn(
+              "flex-1 transition-all duration-200",
+              activeBreakpoint === 'mobile' && "shadow-md"
+            )}
           >
             <Smartphone className="h-3 w-3" />
           </Button>
@@ -329,15 +357,15 @@ export function PropertiesPanel({ element, onUpdate, onClose }: PropertiesPanelP
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="content" className="text-xs">
                 <Type className="h-3 w-3 mr-1" />
-                Content
+                <span className="hidden sm:inline">Content</span>
               </TabsTrigger>
               <TabsTrigger value="style" className="text-xs">
                 <Palette className="h-3 w-3 mr-1" />
-                Style
+                <span className="hidden sm:inline">Style</span>
               </TabsTrigger>
               <TabsTrigger value="layout" className="text-xs">
                 <Layout className="h-3 w-3 mr-1" />
-                Layout
+                <span className="hidden sm:inline">Layout</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -532,9 +560,11 @@ export function PropertiesPanel({ element, onUpdate, onClose }: PropertiesPanelP
       <div className="p-4 border-t border-border">
         <Button variant="outline" size="sm" className="w-full">
           <Sparkles className="h-4 w-4 mr-2" />
-          AI Optimize
+          <span className="hidden sm:inline">AI Optimize</span>
+          <span className="sm:hidden">Optimize</span>
         </Button>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

@@ -128,7 +128,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       {/* Sidebar */}
       <nav
         className={cn(
-          'fixed inset-y-0 left-0 z-50 bg-card border-r border-border transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
+          'fixed inset-y-0 left-0 z-50 bg-gradient-to-b from-card/95 to-card/98 backdrop-blur-xl border-r border-border/50 shadow-2xl transform transition-all duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full',
           sidebarCollapsed ? 'w-16' : 'w-64'
         )}
@@ -137,12 +137,12 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       >
         <div className="flex flex-col h-full">
           {/* Header */}
-          <header className="flex items-center justify-between p-4 border-b border-border">
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center">
+          <header className="flex items-center justify-between p-4 border-b border-border/50 bg-gradient-to-r from-primary/5 to-transparent">
+            <Link href="/dashboard" className="flex items-center space-x-2 group">
+              <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center shadow-lg group-hover:shadow-xl group-hover:scale-105 transition-all duration-200">
                 <Globe className="h-5 w-5 text-primary-foreground" />
               </div>
-              {!sidebarCollapsed && <span className="text-lg font-bold gradient-text">Pakistan Builder</span>}
+              {!sidebarCollapsed && <span className="text-lg font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">Pakistan Builder</span>}
             </Link>
             <div className="flex items-center space-x-1">
               <Button
@@ -166,20 +166,23 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </header>
 
           {/* Navigation */}
-          <nav className="flex-1 p-4 space-y-1">
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
             {navigationGroups.map((group) => (
               <div key={group.title} className="space-y-1">
                 {/* Group Header */}
                 <button
                   onClick={() => toggleGroup(group.title)}
                   className={cn(
-                    'flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                    'hover:bg-accent hover:text-accent-foreground',
-                    'text-muted-foreground hover:text-foreground'
+                    'flex items-center justify-between w-full px-3 py-2 rounded-lg text-sm font-semibold transition-all duration-200',
+                    'hover:bg-gradient-to-r hover:from-primary/10 hover:to-primary/5',
+                    'text-muted-foreground hover:text-foreground',
+                    'group'
                   )}
                 >
                   <div className="flex items-center space-x-3">
-                    <group.icon className="h-4 w-4" />
+                    <div className="p-1.5 rounded-md bg-primary/10 group-hover:bg-primary/20 transition-colors">
+                      <group.icon className="h-4 w-4 text-primary" />
+                    </div>
                     {!sidebarCollapsed && <span>{group.title}</span>}
                   </div>
                   {!sidebarCollapsed && (
@@ -199,13 +202,15 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
                         key={item.name}
                         href={item.href}
                         className={cn(
-                          'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors',
-                          'hover:bg-accent hover:text-accent-foreground'
+                          'flex items-center space-x-3 px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 group relative',
+                          'hover:bg-gradient-to-r hover:from-primary/10 hover:to-transparent hover:translate-x-1',
+                          'before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-1 before:h-0 before:bg-primary before:rounded-r',
+                          'hover:before:h-6 before:transition-all before:duration-200'
                         )}
                         onClick={() => setSidebarOpen(false)}
                       >
-                        <item.icon className="h-4 w-4" />
-                        <span>{item.name}</span>
+                        <item.icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <span className="group-hover:text-foreground">{item.name}</span>
                       </Link>
                     ))}
                   </div>
@@ -215,7 +220,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           </nav>
 
           {/* User Menu */}
-          <div className="p-4 border-t border-border">
+          <div className="p-4 border-t border-border/50 bg-gradient-to-t from-muted/20 to-transparent">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className={`w-full ${sidebarCollapsed ? 'justify-center p-2' : 'justify-start space-x-2 p-2'}`}>

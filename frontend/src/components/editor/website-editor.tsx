@@ -1,12 +1,15 @@
 'use client'
 
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import { DndContext, DragEndEvent, DragStartEvent, DragOverlay } from '@dnd-kit/core'
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable'
+import { cn } from '@/lib/utils'
 import { Sidebar } from './sidebar'
 import { Canvas } from './canvas'
 import { PropertiesPanel } from './properties-panel'
 import { Toolbar } from './toolbar'
+import { TooltipWrapper } from './tooltip-wrapper'
+import { TooltipProvider } from '@/components/ui/tooltip'
 import { LayerPanel } from './advanced/layer-panel'
 import { DesignTools } from './advanced/design-tools'
 import { AIWebsiteAssistant } from './advanced/ai-website-assistant'
@@ -63,7 +66,10 @@ import {
   Globe,
   GraduationCap,
   BookOpen,
-  Users
+  Users,
+  Menu,
+  Copy,
+  Trash2
 } from 'lucide-react'
 import toast from 'react-hot-toast'
 
@@ -91,10 +97,12 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
     redo,
     saveWebsite,
     duplicateElement,
-    isLoading
+    isLoading,
+    loadWebsite
   } = useWebsiteStore()
 
   const [draggedElement, setDraggedElement] = useState<ElementType | null>(null)
+  const [showSidebar, setShowSidebar] = useState(true)
   const [showLayers, setShowLayers] = useState(false)
   const [showDesignTools, setShowDesignTools] = useState(false)
   const [showTemplates, setShowTemplates] = useState(false)
@@ -112,6 +120,16 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
   const [showDeveloperPortal, setShowDeveloperPortal] = useState(false)
   const [showCustomDomain, setShowCustomDomain] = useState(false)
   const [showProperties, setShowProperties] = useState(true)
+
+  // Load website data on mount
+  useEffect(() => {
+    if (websiteId) {
+      loadWebsite(websiteId).catch(error => {
+        console.error('Failed to load website:', error)
+        toast.error('Failed to load website. Please try again.')
+      })
+    }
+  }, [websiteId, loadWebsite])
   const [showComponentLibrary, setShowComponentLibrary] = useState(true)
   const [showDraftRecovery, setShowDraftRecovery] = useState(false)
   const [showGuidedLearning, setShowGuidedLearning] = useState(false)
@@ -359,79 +377,104 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
   }
 
   return (
-    <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
-      <div ref={editorRef} className="h-screen flex flex-col bg-background">
+    <TooltipProvider>
+      <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+        <div ref={editorRef} className="h-screen flex flex-col bg-background overflow-hidden">
         {/* Header Toolbar */}
         <Toolbar data-toolbar>
-          <div className="flex items-center space-x-4">
+          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
+            {/* Mobile Menu Toggle */}
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowSidebar(!showSidebar)}
+              className="lg:hidden h-8 w-8 p-0"
+              title="Toggle Sidebar"
+            >
+              <Menu className="h-4 w-4" />
+            </Button>
+
             {/* Undo/Redo */}
-            <div className="flex items-center space-x-2 bg-gray-100 rounded-lg p-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={undo}
-                disabled={!canUndo}
-                className="h-8 w-8 p-0 hover:bg-white"
-                title="Undo"
-              >
-                <Undo className="h-4 w-4" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={redo}
-                disabled={!canRedo}
-                className="h-8 w-8 p-0 hover:bg-white"
-                title="Redo"
-              >
-                <Redo className="h-4 w-4" />
-              </Button>
+            <div className="hidden sm:flex items-center space-x-1 bg-muted/50 rounded-lg p-1 shadow-sm">
+              <TooltipWrapper content="Undo" shortcut="⌘Z">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={undo}
+                  disabled={!canUndo}
+                  className="h-8 w-8 p-0 hover:bg-background hover:shadow-sm transition-all duration-200"
+                >
+                  <Undo className="h-4 w-4" />
+                </Button>
+              </TooltipWrapper>
+              <TooltipWrapper content="Redo" shortcut="⌘⇧Z">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={redo}
+                  disabled={!canRedo}
+                  className="h-8 w-8 p-0 hover:bg-background hover:shadow-sm transition-all duration-200"
+                >
+                  <Redo className="h-4 w-4" />
+                </Button>
+              </TooltipWrapper>
             </div>
 
             {/* View Mode */}
-            <div className="flex items-center space-x-1 bg-gray-100 rounded-lg p-1" data-view-modes>
-              <Button
-                variant={viewMode === 'desktop' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => {
-                  setViewMode('desktop')
-                  onDataChange({ elements, viewMode: 'desktop' })
-                }}
-                className="h-8 w-8 p-0 hover:bg-white"
-                title="Desktop View"
-              >
-                <Monitor className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'tablet' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => {
-                  setViewMode('tablet')
-                  onDataChange({ elements, viewMode: 'tablet' })
-                }}
-                className="h-8 w-8 p-0 hover:bg-white"
-                title="Tablet View"
-              >
-                <Tablet className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'mobile' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => {
-                  setViewMode('mobile')
-                  onDataChange({ elements, viewMode: 'mobile' })
-                }}
-                className="h-8 w-8 p-0 hover:bg-white"
-                title="Mobile View"
-              >
-                <Smartphone className="h-4 w-4" />
-              </Button>
+            <div className="flex items-center space-x-1 bg-muted/50 rounded-lg p-1 shadow-sm" data-view-modes>
+              <TooltipWrapper content="Desktop View" shortcut="⌘1">
+                <Button
+                  variant={viewMode === 'desktop' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => {
+                    setViewMode('desktop')
+                    onDataChange({ elements, viewMode: 'desktop' })
+                  }}
+                  className={cn(
+                    "h-8 w-8 p-0 transition-all duration-200",
+                    viewMode === 'desktop' ? "shadow-md" : "hover:bg-background hover:shadow-sm"
+                  )}
+                >
+                  <Monitor className="h-4 w-4" />
+                </Button>
+              </TooltipWrapper>
+              <TooltipWrapper content="Tablet View" shortcut="⌘2">
+                <Button
+                  variant={viewMode === 'tablet' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => {
+                    setViewMode('tablet')
+                    onDataChange({ elements, viewMode: 'tablet' })
+                  }}
+                  className={cn(
+                    "h-8 w-8 p-0 transition-all duration-200",
+                    viewMode === 'tablet' ? "shadow-md" : "hover:bg-background hover:shadow-sm"
+                  )}
+                >
+                  <Tablet className="h-4 w-4" />
+                </Button>
+              </TooltipWrapper>
+              <TooltipWrapper content="Mobile View" shortcut="⌘3">
+                <Button
+                  variant={viewMode === 'mobile' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => {
+                    setViewMode('mobile')
+                    onDataChange({ elements, viewMode: 'mobile' })
+                  }}
+                  className={cn(
+                    "h-8 w-8 p-0 transition-all duration-200",
+                    viewMode === 'mobile' ? "shadow-md" : "hover:bg-background hover:shadow-sm"
+                  )}
+                >
+                  <Smartphone className="h-4 w-4" />
+                </Button>
+              </TooltipWrapper>
             </div>
 
             {/* Contextual Actions for Selected Element */}
             {selectedElement && (
-              <>
-                <div className="flex items-center space-x-1 bg-blue-50 rounded-lg p-1">
+              <div className="hidden md:flex items-center space-x-1 bg-blue-50 rounded-lg p-1">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -451,44 +494,88 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-              </>
             )}
           </div>
 
-          <div className="flex items-center space-x-4">
-            {/* Collaboration presence */}
-            <CollaborationPresence
-              collaborators={activeCollaborators}
-              compact
-            />
+          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
+            {/* Collaboration presence - Hidden on small screens */}
+            <div className="hidden md:block">
+              <CollaborationPresence
+                collaborators={activeCollaborators}
+                compact
+              />
+            </div>
 
             {/* Auto-save indicator */}
             <AutoSaveIndicator saveState={saveState} compact />
 
-            {/* Manual save button */}
-            <Button
-              variant="outline"
-              onClick={handleManualSave}
-              disabled={saveState.status === 'saving'}
-              className="hover:bg-green-50 hover:border-green-300 hover:text-green-700"
-            >
-              <Save className="h-4 w-4 mr-2" />
-              {saveState.status === 'saving' ? 'Saving...' : 'Save Now'}
-            </Button>
+            {/* Manual save button with status */}
+            <TooltipWrapper content="Save Changes" shortcut="⌘S">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleManualSave}
+                disabled={saveState.status === 'saving'}
+                className={cn(
+                  "transition-all duration-200 shadow-sm",
+                  saveState.status === 'saving' && "bg-blue-50 border-blue-300 text-blue-700",
+                  saveState.status === 'saved' && "bg-green-50 border-green-300 text-green-700",
+                  saveState.status === 'error' && "bg-red-50 border-red-300 text-red-700",
+                  saveState.status === 'idle' && "hover:bg-muted hover:shadow-md"
+                )}
+              >
+                {saveState.status === 'saving' && (
+                  <div className="h-4 w-4 sm:mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
+                )}
+                {saveState.status === 'saved' && (
+                  <svg className="h-4 w-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                )}
+                {saveState.status === 'error' && (
+                  <svg className="h-4 w-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                )}
+                {saveState.status === 'idle' && <Save className="h-4 w-4 sm:mr-2" />}
+                <span className="hidden sm:inline font-medium">
+                  {saveState.status === 'saving' && 'Saving...'}
+                  {saveState.status === 'saved' && 'Saved'}
+                  {saveState.status === 'error' && 'Error'}
+                  {saveState.status === 'idle' && 'Save'}
+                </span>
+              </Button>
+            </TooltipWrapper>
 
-            <Button 
-              variant="outline" 
-              onClick={handlePreview}
-              className="hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700"
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              Preview
-            </Button>
+            <TooltipWrapper content="Preview Website" shortcut="⌘P">
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={handlePreview}
+                className="hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
+              >
+                <Eye className="h-4 w-4 sm:mr-2" />
+                <span className="hidden sm:inline font-medium">Preview</span>
+              </Button>
+            </TooltipWrapper>
+
+            {/* Mobile Properties Toggle */}
+            {selectedElement && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowProperties(!showProperties)}
+                className="lg:hidden h-8 w-8 p-0"
+                title="Toggle Properties"
+              >
+                <Settings className="h-4 w-4" />
+              </Button>
+            )}
           </div>
         </Toolbar>
 
         {/* Editor Layout */}
-        <div className="flex-1 flex">
+        <div className="flex-1 flex overflow-hidden min-h-0">
           {/* Left Panel - Components, Templates, or Default Sidebar */}
           {showComponentLibrary ? (
             <ComponentLibrary
@@ -499,10 +586,10 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
                 addElement({
                   id: `${component.id}-${Date.now()}`,
                   type: component.id as ElementType,
-                  content: component.defaultProps || {},
-                  styles: {},
-                  position: { x: 0, y: 0 },
-                  size: { width: 300, height: 200 }
+                  props: component.defaultProps || {},
+                  style: {},
+                  children: [],
+                  position: { x: 0, y: 0 }
                 })
               }}
               currentContext={['landing-page', 'content']} // This could be dynamic based on current page context
@@ -518,11 +605,11 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
               }}
             />
           ) : (
-            <Sidebar />
+            <Sidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} />
           )}
 
           {/* Middle Section - Layers and Canvas */}
-          <div className="flex-1 flex min-w-0">
+          <div className="flex-1 flex min-w-0 overflow-hidden">
             {/* Layers Panel */}
             {showLayers && (
               <LayerPanel
@@ -539,7 +626,7 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
             {/* Main Canvas */}
             <div
               ref={canvasRef}
-              className="flex-1 flex flex-col min-w-0"
+              className="flex-1 flex flex-col min-w-0 overflow-hidden"
               onMouseMove={handleMouseMove}
             >
               <Canvas
@@ -662,6 +749,7 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
                   element={selectedElement}
                   onUpdate={(updates) => updateElement(selectedElement.id, updates)}
                   onClose={() => setShowProperties(false)}
+                  isOpen={showProperties}
                 />
               )
             )
@@ -714,6 +802,7 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
           />
         </>
       )}
-    </DndContext>
+      </DndContext>
+    </TooltipProvider>
   )
 }

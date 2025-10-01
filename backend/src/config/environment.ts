@@ -17,6 +17,7 @@ export interface RedisConfig {
   url: string
   password?: string
   db?: number
+  sessionTtl?: number // Session TTL in seconds
 }
 
 export interface AIConfig {
@@ -160,7 +161,8 @@ export const config: Config = {
   redis: {
     url: process.env.REDIS_URL || 'redis://localhost:6379',
     password: process.env.REDIS_PASSWORD,
-    db: parseInt(process.env.REDIS_DB || '0')
+    db: parseInt(process.env.REDIS_DB || '0'),
+    sessionTtl: parseInt(process.env.REDIS_SESSION_TTL || '86400') // 24 hours in seconds
   },
   
   ai: {

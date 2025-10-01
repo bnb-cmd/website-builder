@@ -36,6 +36,7 @@ import { subscriptionRoutes } from '@/routes/subscriptions'
 import { aiOnboardingRoutes } from '@/routes/aiOnboarding'
 import { contentRoutes } from '@/routes/content'
 import { performanceOptimizationRoutes } from '@/routes/performanceOptimization'
+import { conversationRoutes } from '@/routes/conversation'
 
 // Import error handlers
 import { errorHandler } from '@/utils/errorHandler'
@@ -317,6 +318,7 @@ export async function createServer() {
       ['notificationRoutes', notificationRoutes, '/notifications'],
       ['subscriptionRoutes', subscriptionRoutes, '/subscriptions'],
       ['aiOnboardingRoutes', aiOnboardingRoutes, '/ai-onboarding'],
+      ['conversationRoutes', conversationRoutes, '/'],
       ['contentRoutes', contentRoutes, '/'],
       ['performanceOptimizationRoutes', performanceOptimizationRoutes, '/']
     ]

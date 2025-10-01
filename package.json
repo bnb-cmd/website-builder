@@ -36,11 +36,15 @@
   "author": "Pakistan Website Builder Team",
   "license": "MIT",
   "devDependencies": {
-    "concurrently": "^8.2.2",
-    "@types/node": "^20.10.5"
+    "@types/node": "^20.10.5",
+    "concurrently": "^8.2.2"
   },
   "engines": {
     "node": ">=22.0.0",
     "npm": ">=10.0.0"
+  },
+  "dependencies": {
+    "@types/uuid": "^10.0.0",
+    "uuid": "^13.0.0"
   }
 }

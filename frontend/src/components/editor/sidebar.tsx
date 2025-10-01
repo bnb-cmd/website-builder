@@ -18,8 +18,6 @@ import {
   Map, 
   Minus, 
   Space, 
-  Icon, 
-  Share, 
   Star, 
   DollarSign, 
   Megaphone, 
@@ -30,7 +28,8 @@ import {
   Sparkles,
   Search,
   Layers,
-  Palette
+  Palette,
+  X
 } from 'lucide-react'
 import { FormIcon, GalleryIcon, SliderIcon, TabsIcon } from '@/components/icons/custom-icons'
 
@@ -330,20 +329,22 @@ function DraggableElement({ element }: DraggableElementProps) {
       {...listeners}
       {...attributes}
       className={`
-        group cursor-grab active:cursor-grabbing p-3 rounded-lg border border-border
-        hover:border-primary hover:bg-primary/5 transition-all duration-200
-        ${isDragging ? 'opacity-50' : ''}
-        ${element.isPremium ? 'border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950' : ''}
+        group cursor-grab active:cursor-grabbing p-3 rounded-xl border border-border/50
+        hover:border-primary/50 hover:bg-primary/5 hover:shadow-lg hover:-translate-y-0.5
+        transition-all duration-200 ease-out
+        ${isDragging ? 'opacity-50 scale-95' : ''}
+        ${element.isPremium ? 'border-amber-200 bg-gradient-to-br from-amber-50 to-amber-100/50 dark:border-amber-800 dark:from-amber-950 dark:to-amber-900/50' : 'bg-background/50'}
       `}
     >
       <div className="flex items-center space-x-3">
         <div className={`
-          p-2 rounded-md 
+          p-2 rounded-lg shadow-sm
           ${element.isPremium 
-            ? 'bg-amber-100 text-amber-600 dark:bg-amber-900 dark:text-amber-400' 
-            : 'bg-muted text-muted-foreground'
+            ? 'bg-gradient-to-br from-amber-100 to-amber-200 text-amber-700 dark:from-amber-900 dark:to-amber-800 dark:text-amber-300' 
+            : 'bg-gradient-to-br from-muted to-muted/50 text-muted-foreground'
           } 
-          group-hover:bg-primary group-hover:text-primary-foreground transition-colors
+          group-hover:from-primary group-hover:to-primary/80 group-hover:text-primary-foreground group-hover:shadow-md
+          transition-all duration-200
         `}>
           <element.icon className="h-4 w-4" />
         </div>
@@ -351,7 +352,7 @@ function DraggableElement({ element }: DraggableElementProps) {
           <div className="flex items-center space-x-2">
             <h4 className="text-sm font-medium text-foreground">{element.name}</h4>
             {element.isPremium && (
-              <div className="px-1.5 py-0.5 bg-amber-500 text-white text-xs rounded font-medium">
+              <div className="px-1.5 py-0.5 bg-gradient-to-r from-amber-500 to-amber-600 text-white text-xs rounded-md font-semibold shadow-sm">
                 PRO
               </div>
             )}
@@ -365,7 +366,12 @@ function DraggableElement({ element }: DraggableElementProps) {
   )
 }
 
-export function Sidebar() {
+interface SidebarProps {
+  isOpen?: boolean
+  onClose?: () => void
+}
+
+export function Sidebar({ isOpen = true, onClose }: SidebarProps) {
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('basic')
 
@@ -378,93 +384,154 @@ export function Sidebar() {
   })).filter(category => category.elements.length > 0)
 
   return (
-    <div className="w-80 bg-card border-r border-border flex flex-col">
-      <div className="p-4 border-b border-border">
-        <h2 className="font-semibold text-lg mb-3">Components</h2>
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search components..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-9"
-          />
+    <>
+      {/* Mobile Overlay */}
+      {isOpen && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+          onClick={onClose}
+        />
+      )}
+      
+      {/* Sidebar */}
+      <div className={`
+        fixed lg:relative inset-y-0 left-0 z-50
+        w-80 sm:w-96 lg:w-80
+        bg-card/95 backdrop-blur-md border-r border-border/50
+        flex flex-col
+        shadow-xl
+        transform transition-transform duration-300 ease-in-out
+        ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
+      `}>
+        <div className="p-4 border-b border-border">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="font-semibold text-lg">Components</h2>
+            {onClose && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onClose}
+                className="lg:hidden"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            )}
+          </div>
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search components..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-9"
+            />
+          </div>
         </div>
-      </div>
 
-      <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col">
-        <div className="px-4 py-2">
-          <TabsList className="grid w-full grid-cols-3 gap-1">
-            <TabsTrigger value="basic" className="text-xs">
-              <Layers className="h-3 w-3 mr-1" />
-              Basic
-            </TabsTrigger>
-            <TabsTrigger value="sections" className="text-xs">
-              <Grid className="h-3 w-3 mr-1" />
-              Sections
-            </TabsTrigger>
-            <TabsTrigger value="advanced" className="text-xs">
-              <Sparkles className="h-3 w-3 mr-1" />
-              Advanced
-            </TabsTrigger>
-          </TabsList>
-        </div>
+        <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="flex-1 flex flex-col">
+          <div className="px-4 py-2">
+            <TabsList className="grid w-full grid-cols-3 gap-1">
+              <TabsTrigger value="basic" className="text-xs">
+                <Layers className="h-3 w-3 mr-1" />
+                <span className="hidden sm:inline">Basic</span>
+              </TabsTrigger>
+              <TabsTrigger value="sections" className="text-xs">
+                <Grid className="h-3 w-3 mr-1" />
+                <span className="hidden sm:inline">Sections</span>
+              </TabsTrigger>
+              <TabsTrigger value="advanced" className="text-xs">
+                <Sparkles className="h-3 w-3 mr-1" />
+                <span className="hidden sm:inline">Advanced</span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-        <ScrollArea className="flex-1 px-4">
-          {filteredCategories.map((category) => (
-            <TabsContent key={category.id} value={category.id} className="mt-0">
-              <div className="space-y-6">
-                <div>
-                  <div className="flex items-center space-x-2 mb-3">
-                    <category.icon className="h-4 w-4 text-muted-foreground" />
-                    <h3 className="font-medium text-sm text-foreground">{category.name}</h3>
-                  </div>
-                  <div className="space-y-2">
-                    {category.elements.map((element) => (
-                      <DraggableElement key={element.type} element={element} />
-                    ))}
-                  </div>
+          <div className="flex-1 overflow-y-auto">
+            {/* Recently Used Section */}
+            {selectedCategory === 'basic' && (
+              <div className="px-4 py-3 border-b border-border/50 bg-muted/20">
+                <div className="flex items-center gap-2 mb-2">
+                  <svg className="h-3.5 w-3.5 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Recently Used</span>
+                </div>
+                <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+                  {['text', 'button', 'image'].map((type) => {
+                    const element = componentCategories
+                      .flatMap(cat => cat.elements)
+                      .find(el => el.type === type)
+                    if (!element) return null
+                    return (
+                      <div
+                        key={type}
+                        className="flex-shrink-0 w-16 h-16 rounded-lg border border-border/50 bg-background/50 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 cursor-grab flex flex-col items-center justify-center gap-1 group"
+                      >
+                        <element.icon className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <span className="text-[10px] text-muted-foreground group-hover:text-foreground">{element.name}</span>
+                      </div>
+                    )
+                  })}
                 </div>
               </div>
-            </TabsContent>
-          ))}
+            )}
 
-          {searchTerm && (
-            <TabsContent value="search" className="mt-0">
-              <div className="space-y-4">
-                <h3 className="font-medium text-sm text-foreground">Search Results</h3>
-                {filteredCategories.map((category) => 
-                  category.elements.length > 0 && (
-                    <div key={category.id}>
-                      <h4 className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
-                        {category.name}
-                      </h4>
-                      <div className="space-y-2">
-                        {category.elements.map((element) => (
-                          <DraggableElement key={element.type} element={element} />
-                        ))}
-                      </div>
-                      <Separator className="my-4" />
+            {filteredCategories.map((category) => (
+              <TabsContent key={category.id} value={category.id} className="mt-0">
+                <div className="space-y-6">
+                  <div>
+                    <div className="flex items-center space-x-2 mb-3">
+                      <category.icon className="h-4 w-4 text-muted-foreground" />
+                      <h3 className="font-medium text-sm text-foreground">{category.name}</h3>
                     </div>
-                  )
-                )}
-                {filteredCategories.every(cat => cat.elements.length === 0) && (
-                  <p className="text-sm text-muted-foreground text-center py-8">
-                    No components found matching "{searchTerm}"
-                  </p>
-                )}
-              </div>
-            </TabsContent>
-          )}
-        </ScrollArea>
+                    <div className="space-y-2 px-4">
+                      {category.elements.map((element) => (
+                        <DraggableElement key={element.type} element={element} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </TabsContent>
+            ))}
+
+            {searchTerm && (
+              <TabsContent value="search" className="mt-0">
+                <div className="space-y-4">
+                  <h3 className="font-medium text-sm text-foreground">Search Results</h3>
+                  {filteredCategories.map((category) => 
+                    category.elements.length > 0 && (
+                      <div key={category.id}>
+                        <h4 className="text-xs text-muted-foreground uppercase tracking-wide mb-2">
+                          {category.name}
+                        </h4>
+                        <div className="space-y-2">
+                          {category.elements.map((element) => (
+                            <DraggableElement key={element.type} element={element} />
+                          ))}
+                        </div>
+                        <Separator className="my-4" />
+                      </div>
+                    )
+                  )}
+                  {filteredCategories.every(cat => cat.elements.length === 0) && (
+                    <p className="text-sm text-muted-foreground text-center py-8">
+                      No components found matching "{searchTerm}"
+                    </p>
+                  )}
+                </div>
+              </TabsContent>
+            )}
+          </div>
 
         <div className="p-4 border-t border-border">
           <Button variant="outline" size="sm" className="w-full">
             <Palette className="h-4 w-4 mr-2" />
-            Browse Templates
+            <span className="hidden sm:inline">Browse Templates</span>
+            <span className="sm:hidden">Templates</span>
           </Button>
         </div>
       </Tabs>
     </div>
+    </>
   )
 }
