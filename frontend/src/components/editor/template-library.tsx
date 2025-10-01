@@ -240,7 +240,7 @@ export function TemplateLibrary({ onSelectTemplate, onSelectBlock }: TemplateLib
         setError(null)
         
         console.log('🔍 Fetching templates from API...')
-        console.log('🌐 API URL:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3002')
+        console.log('🌐 API URL:', process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005')
         
         const response = await apiHelpers.getTemplates({ limit: 50 })
         
@@ -412,7 +412,7 @@ export function TemplateLibrary({ onSelectTemplate, onSelectBlock }: TemplateLib
                             {/* Template Preview */}
                             {template.thumbnail ? (
                               <img 
-                                src={`http://localhost:3002${template.thumbnail}`} 
+                                src={`http://localhost:3005${template.thumbnail}`} 
                                 alt={template.name}
                                 className="w-full h-full object-cover"
                                 onError={(e) => {

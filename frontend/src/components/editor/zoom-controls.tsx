@@ -13,7 +13,7 @@ interface ZoomControlsProps {
 export function ZoomControls({ onZoomChange, className }: ZoomControlsProps) {
   const [zoom, setZoom] = useState(100)
 
-  const zoomLevels = [25, 50, 75, 100, 125, 150, 200, 300, 400]
+  const zoomLevels = [25, 50, 75, 100, 125, 150, 200, 300, 400, 500, 600]
 
   const handleZoomIn = () => {
     const currentIndex = zoomLevels.indexOf(zoom)

@@ -271,6 +271,7 @@ export async function websiteRoutes(fastify: FastifyInstance) {
                 subdomain: { type: 'string' },
                 businessType: { type: 'string' },
                 language: { type: 'string' },
+                templateId: { type: 'string' },
                 createdAt: { type: 'string', format: 'date-time' },
                 updatedAt: { type: 'string', format: 'date-time' }
               }
@@ -360,6 +361,7 @@ export async function websiteRoutes(fastify: FastifyInstance) {
                 metaKeywords: { type: 'array', items: { type: 'string' } },
                 businessType: { type: 'string' },
                 language: { type: 'string' },
+                templateId: { type: 'string' },
                 createdAt: { type: 'string', format: 'date-time' },
                 updatedAt: { type: 'string', format: 'date-time' },
                 publishedAt: { type: 'string', format: 'date-time' }
@@ -401,6 +403,10 @@ export async function websiteRoutes(fastify: FastifyInstance) {
         })
         return
       }
+      
+      // Return content as-is (let frontend handle parsing)
+      console.log('🔧 API Route - Content type:', typeof website.content)
+      console.log('🔧 API Route - Content length:', website.content ? website.content.length : 0)
       
       reply.send({
         success: true,

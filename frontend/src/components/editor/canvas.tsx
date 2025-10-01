@@ -50,7 +50,7 @@ export function Canvas({
         return '768px'
       case 'desktop':
       default:
-        return '1200px'
+        return '1600px' // Increased from 1200px to 1600px
     }
   }
 
@@ -76,7 +76,7 @@ export function Canvas({
         <div
           ref={setNodeRef}
           className={cn(
-            'bg-background shadow-2xl transition-all duration-300 min-h-screen',
+            'bg-background shadow-2xl transition-all duration-300 min-h-screen relative',
             'border border-border/50 rounded-xl overflow-hidden',
             'hover:shadow-[0_20px_50px_rgba(0,0,0,0.15)]',
             isOver && 'ring-2 ring-primary ring-opacity-50 shadow-[0_0_30px_rgba(59,130,246,0.3)]',
@@ -89,6 +89,20 @@ export function Canvas({
           }}
           onClick={handleCanvasClick}
         >
+          {/* Enhanced Drop Zone Indicator */}
+          {isOver && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-50">
+              <div className="bg-primary/10 border-2 border-dashed border-primary rounded-xl p-12 text-center backdrop-blur-sm">
+                <div className="w-16 h-16 mx-auto mb-4 bg-primary/20 rounded-full flex items-center justify-center">
+                  <svg className="w-8 h-8 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                  </svg>
+                </div>
+                <div className="text-primary font-semibold text-lg mb-2">Drop Component Here</div>
+                <div className="text-primary/70 text-sm">Release to add to canvas</div>
+              </div>
+            </div>
+          )}
           {/* Canvas Content */}
           <div className="relative">
             {elements.length === 0 ? (

@@ -49,29 +49,14 @@ import {
   Monitor, 
   Undo, 
   Redo, 
-  Layers,
-  Wand2,
-  Palette,
+  Menu, 
+  Copy, 
+  Trash2, 
   Settings,
-  X,
-  Sparkles,
-  MousePointer,
-  Code,
-  History,
-  Bot,
-  GitBranch,
-  Terminal,
-  Webhook,
-  Shield,
-  Globe,
-  GraduationCap,
-  BookOpen,
   Users,
-  Menu,
-  Copy,
-  Trash2
+  Globe
 } from 'lucide-react'
-import toast from 'react-hot-toast'
+import { toast } from 'react-hot-toast'
 
 interface WebsiteEditorProps {
   websiteId: string
@@ -79,6 +64,7 @@ interface WebsiteEditorProps {
 }
 
 export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
+  // Store state
   const {
     elements,
     selectedElement,
@@ -101,6 +87,7 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
     loadWebsite
   } = useWebsiteStore()
 
+  // Local state
   const [draggedElement, setDraggedElement] = useState<ElementType | null>(null)
   const [showSidebar, setShowSidebar] = useState(true)
   const [showLayers, setShowLayers] = useState(false)
@@ -120,6 +107,15 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
   const [showDeveloperPortal, setShowDeveloperPortal] = useState(false)
   const [showCustomDomain, setShowCustomDomain] = useState(false)
   const [showProperties, setShowProperties] = useState(true)
+  const [showComponentLibrary, setShowComponentLibrary] = useState(true)
+  const [showDraftRecovery, setShowDraftRecovery] = useState(false)
+  const [showGuidedLearning, setShowGuidedLearning] = useState(false)
+  const [showCollaboration, setShowCollaboration] = useState(false)
+  const [collaborationVisible, setCollaborationVisible] = useState(true)
+
+  // Refs
+  const canvasRef = useRef<HTMLDivElement>(null)
+  const editorRef = useRef<HTMLDivElement>(null)
 
   // Load website data on mount
   useEffect(() => {
@@ -130,15 +126,6 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
       })
     }
   }, [websiteId, loadWebsite])
-  const [showComponentLibrary, setShowComponentLibrary] = useState(true)
-  const [showDraftRecovery, setShowDraftRecovery] = useState(false)
-  const [showGuidedLearning, setShowGuidedLearning] = useState(false)
-  const [showCollaboration, setShowCollaboration] = useState(false)
-  const [collaborationVisible, setCollaborationVisible] = useState(true)
-
-  // Touch interaction refs
-  const canvasRef = useRef<HTMLDivElement>(null)
-  const editorRef = useRef<HTMLDivElement>(null)
 
   // Auto-save functionality
   const {
@@ -203,8 +190,8 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
     getAvailableWorkflows,
     getWorkflowProgress
   } = useGuidedEditor({
-    userId: 'demo-user', // In real app, this would be the actual user ID
-    autoStart: true,
+    userId: undefined, // No demo user - will be set when real user is available
+    autoStart: false, // Don't auto-start without real user
     showHints: true,
     enableTutorials: true
   })
@@ -222,9 +209,9 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
     updateAction
   } = useCollaboration({
     websiteId,
-    currentUserId: 'demo-user', // In real app, this would be the actual user ID
-    currentUserName: 'You', // In real app, this would be the actual user name
-    enabled: true,
+    currentUserId: undefined, // No demo user - will be set when real user is available
+    currentUserName: 'Guest', // Default guest name
+    enabled: false, // Disable collaboration until real user is available
     onCollaboratorUpdate: (updatedCollaborators) => {
       console.log('Collaborators updated:', updatedCollaborators)
     },
@@ -380,101 +367,101 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
     <TooltipProvider>
       <DndContext onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div ref={editorRef} className="h-screen flex flex-col bg-background overflow-hidden">
-        {/* Header Toolbar */}
-        <Toolbar data-toolbar>
-          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
-            {/* Mobile Menu Toggle */}
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setShowSidebar(!showSidebar)}
-              className="lg:hidden h-8 w-8 p-0"
-              title="Toggle Sidebar"
-            >
-              <Menu className="h-4 w-4" />
-            </Button>
+          {/* Header Toolbar */}
+          <Toolbar data-toolbar>
+            <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
+              {/* Mobile Menu Toggle */}
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowSidebar(!showSidebar)}
+                className="lg:hidden h-8 w-8 p-0"
+                title="Toggle Sidebar"
+              >
+                <Menu className="h-4 w-4" />
+              </Button>
 
-            {/* Undo/Redo */}
-            <div className="hidden sm:flex items-center space-x-1 bg-muted/50 rounded-lg p-1 shadow-sm">
-              <TooltipWrapper content="Undo" shortcut="⌘Z">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={undo}
-                  disabled={!canUndo}
-                  className="h-8 w-8 p-0 hover:bg-background hover:shadow-sm transition-all duration-200"
-                >
-                  <Undo className="h-4 w-4" />
-                </Button>
-              </TooltipWrapper>
-              <TooltipWrapper content="Redo" shortcut="⌘⇧Z">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={redo}
-                  disabled={!canRedo}
-                  className="h-8 w-8 p-0 hover:bg-background hover:shadow-sm transition-all duration-200"
-                >
-                  <Redo className="h-4 w-4" />
-                </Button>
-              </TooltipWrapper>
-            </div>
+              {/* Undo/Redo Controls */}
+              <div className="flex items-center space-x-1 bg-muted/50 rounded-lg p-1 shadow-sm">
+                <TooltipWrapper content="Undo" shortcut="⌘Z">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={undo}
+                    disabled={!canUndo}
+                    className="h-8 w-8 p-0 hover:bg-background hover:shadow-sm transition-all duration-200"
+                  >
+                    <Undo className="h-4 w-4" />
+                  </Button>
+                </TooltipWrapper>
+                <TooltipWrapper content="Redo" shortcut="⌘⇧Z">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={redo}
+                    disabled={!canRedo}
+                    className="h-8 w-8 p-0 hover:bg-background hover:shadow-sm transition-all duration-200"
+                  >
+                    <Redo className="h-4 w-4" />
+                  </Button>
+                </TooltipWrapper>
+              </div>
 
-            {/* View Mode */}
-            <div className="flex items-center space-x-1 bg-muted/50 rounded-lg p-1 shadow-sm" data-view-modes>
-              <TooltipWrapper content="Desktop View" shortcut="⌘1">
-                <Button
-                  variant={viewMode === 'desktop' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => {
-                    setViewMode('desktop')
-                    onDataChange({ elements, viewMode: 'desktop' })
-                  }}
-                  className={cn(
-                    "h-8 w-8 p-0 transition-all duration-200",
-                    viewMode === 'desktop' ? "shadow-md" : "hover:bg-background hover:shadow-sm"
-                  )}
-                >
-                  <Monitor className="h-4 w-4" />
-                </Button>
-              </TooltipWrapper>
-              <TooltipWrapper content="Tablet View" shortcut="⌘2">
-                <Button
-                  variant={viewMode === 'tablet' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => {
-                    setViewMode('tablet')
-                    onDataChange({ elements, viewMode: 'tablet' })
-                  }}
-                  className={cn(
-                    "h-8 w-8 p-0 transition-all duration-200",
-                    viewMode === 'tablet' ? "shadow-md" : "hover:bg-background hover:shadow-sm"
-                  )}
-                >
-                  <Tablet className="h-4 w-4" />
-                </Button>
-              </TooltipWrapper>
-              <TooltipWrapper content="Mobile View" shortcut="⌘3">
-                <Button
-                  variant={viewMode === 'mobile' ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => {
-                    setViewMode('mobile')
-                    onDataChange({ elements, viewMode: 'mobile' })
-                  }}
-                  className={cn(
-                    "h-8 w-8 p-0 transition-all duration-200",
-                    viewMode === 'mobile' ? "shadow-md" : "hover:bg-background hover:shadow-sm"
-                  )}
-                >
-                  <Smartphone className="h-4 w-4" />
-                </Button>
-              </TooltipWrapper>
-            </div>
+              {/* View Mode */}
+              <div className="flex items-center space-x-1 bg-muted/50 rounded-lg p-1 shadow-sm" data-view-modes>
+                <TooltipWrapper content="Desktop View" shortcut="⌘1">
+                  <Button
+                    variant={viewMode === 'desktop' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => {
+                      setViewMode('desktop')
+                      onDataChange({ elements, viewMode: 'desktop' })
+                    }}
+                    className={cn(
+                      "h-8 w-8 p-0 transition-all duration-200",
+                      viewMode === 'desktop' ? "shadow-md" : "hover:bg-background hover:shadow-sm"
+                    )}
+                  >
+                    <Monitor className="h-4 w-4" />
+                  </Button>
+                </TooltipWrapper>
+                <TooltipWrapper content="Tablet View" shortcut="⌘2">
+                  <Button
+                    variant={viewMode === 'tablet' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => {
+                      setViewMode('tablet')
+                      onDataChange({ elements, viewMode: 'tablet' })
+                    }}
+                    className={cn(
+                      "h-8 w-8 p-0 transition-all duration-200",
+                      viewMode === 'tablet' ? "shadow-md" : "hover:bg-background hover:shadow-sm"
+                    )}
+                  >
+                    <Tablet className="h-4 w-4" />
+                  </Button>
+                </TooltipWrapper>
+                <TooltipWrapper content="Mobile View" shortcut="⌘3">
+                  <Button
+                    variant={viewMode === 'mobile' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => {
+                      setViewMode('mobile')
+                      onDataChange({ elements, viewMode: 'mobile' })
+                    }}
+                    className={cn(
+                      "h-8 w-8 p-0 transition-all duration-200",
+                      viewMode === 'mobile' ? "shadow-md" : "hover:bg-background hover:shadow-sm"
+                    )}
+                  >
+                    <Smartphone className="h-4 w-4" />
+                  </Button>
+                </TooltipWrapper>
+              </div>
 
-            {/* Contextual Actions for Selected Element */}
-            {selectedElement && (
-              <div className="hidden md:flex items-center space-x-1 bg-blue-50 rounded-lg p-1">
+              {/* Contextual Actions for Selected Element */}
+              {selectedElement && (
+                <div className="hidden md:flex items-center space-x-1 bg-blue-50 rounded-lg p-1">
                   <Button
                     variant="ghost"
                     size="sm"
@@ -494,314 +481,324 @@ export function WebsiteEditor({ websiteId, initialData }: WebsiteEditorProps) {
                     <Trash2 className="h-4 w-4" />
                   </Button>
                 </div>
-            )}
-          </div>
-
-          <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
-            {/* Collaboration presence - Hidden on small screens */}
-            <div className="hidden md:block">
-              <CollaborationPresence
-                collaborators={activeCollaborators}
-                compact
-              />
+              )}
             </div>
 
-            {/* Auto-save indicator */}
-            <AutoSaveIndicator saveState={saveState} compact />
+            {/* Right Side Actions */}
+            <div className="flex items-center space-x-2 sm:space-x-4">
+              {/* Collaboration Presence */}
+              {isConnected && (
+                <div className="flex items-center space-x-1">
+                  <div className="flex -space-x-1">
+                    {activeCollaborators.map((collaborator) => (
+                      <div
+                        key={collaborator.id}
+                        className="w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center border-2 border-background"
+                        title={collaborator.name}
+                      >
+                        {collaborator.name.charAt(0).toUpperCase()}
+                      </div>
+                    ))}
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {activeCollaborators.length} online
+                  </span>
+                </div>
+              )}
 
-            {/* Manual save button with status */}
-            <TooltipWrapper content="Save Changes" shortcut="⌘S">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleManualSave}
-                disabled={saveState.status === 'saving'}
-                className={cn(
-                  "transition-all duration-200 shadow-sm",
-                  saveState.status === 'saving' && "bg-blue-50 border-blue-300 text-blue-700",
-                  saveState.status === 'saved' && "bg-green-50 border-green-300 text-green-700",
-                  saveState.status === 'error' && "bg-red-50 border-red-300 text-red-700",
-                  saveState.status === 'idle' && "hover:bg-muted hover:shadow-md"
-                )}
+              {/* Auto-save Indicator */}
+              <AutoSaveIndicator saveState={saveState} />
+
+              {/* Save Button */}
+              <TooltipWrapper content="Save" shortcut="⌘S">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleSave}
+                  className="h-8 px-3 hover:bg-background hover:shadow-sm transition-all duration-200"
+                >
+                  <Save className="h-4 w-4 mr-1" />
+                  Save
+                </Button>
+              </TooltipWrapper>
+
+              {/* Preview Button */}
+              <TooltipWrapper content="Preview" shortcut="⌘P">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePreview}
+                  className="h-8 px-3 hover:bg-background hover:shadow-sm transition-all duration-200"
+                >
+                  <Eye className="h-4 w-4 mr-1" />
+                  Preview
+                </Button>
+              </TooltipWrapper>
+
+              {/* Settings */}
+              {selectedElement && (
+                <TooltipWrapper content="Element Settings">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setShowProperties(!showProperties)}
+                    className="h-8 w-8 p-0 hover:bg-background hover:shadow-sm transition-all duration-200"
+                  >
+                    <Settings className="h-4 w-4" />
+                  </Button>
+                </TooltipWrapper>
+              )}
+            </div>
+          </Toolbar>
+
+          {/* Editor Layout - 3 Panel Design */}
+          <div className="flex-1 flex overflow-hidden min-h-0">
+            {/* Left Panel - Component Library (Fixed Width) */}
+            <div className="w-80 bg-background border-r border-border/50 flex flex-col overflow-hidden">
+              {showComponentLibrary ? (
+                <ComponentLibrary
+                  data-component-library
+                  onComponentSelect={(component) => {
+                    console.log('Selected component:', component)
+                    // Add component to canvas logic here
+                    addElement({
+                      id: `${component.id}-${Date.now()}`,
+                      type: component.id as ElementType,
+                      props: component.defaultProps || {},
+                      style: {},
+                      children: [],
+                      position: { x: 0, y: 0 }
+                    })
+                  }}
+                  currentContext={['landing-page', 'content']} // This could be dynamic based on current page context
+                />
+              ) : showTemplates ? (
+                <TemplateLibrary
+                  onSelectTemplate={(template) => {
+                    console.log('Selected template:', template)
+                    setShowTemplates(false)
+                  }}
+                  onSelectBlock={(block) => {
+                    console.log('Selected block:', block)
+                  }}
+                />
+              ) : (
+                <Sidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} />
+              )}
+            </div>
+
+            {/* Middle Section - Canvas (Main Area) */}
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+              {/* Layers Panel (Optional - Top of Canvas) */}
+              {showLayers && (
+                <div className="h-48 border-b border-border/50">
+                  <LayerPanel
+                    elements={elements}
+                    selectedElement={selectedElement}
+                    onSelectElement={selectElement}
+                    onUpdateElement={updateElement}
+                    onDeleteElement={deleteElement}
+                    onDuplicateElement={duplicateElement}
+                    onReorderElements={handleReorderElements}
+                  />
+                </div>
+              )}
+
+              {/* Main Canvas */}
+              <div
+                ref={canvasRef}
+                className="flex-1 flex flex-col min-w-0 overflow-hidden"
+                onMouseMove={handleMouseMove}
               >
-                {saveState.status === 'saving' && (
-                  <div className="h-4 w-4 sm:mr-2 animate-spin rounded-full border-2 border-current border-t-transparent" />
-                )}
-                {saveState.status === 'saved' && (
-                  <svg className="h-4 w-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-                {saveState.status === 'error' && (
-                  <svg className="h-4 w-4 sm:mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                )}
-                {saveState.status === 'idle' && <Save className="h-4 w-4 sm:mr-2" />}
-                <span className="hidden sm:inline font-medium">
-                  {saveState.status === 'saving' && 'Saving...'}
-                  {saveState.status === 'saved' && 'Saved'}
-                  {saveState.status === 'error' && 'Error'}
-                  {saveState.status === 'idle' && 'Save'}
-                </span>
-              </Button>
-            </TooltipWrapper>
+                <Canvas
+                  data-canvas
+                  elements={elements}
+                  selectedElement={selectedElement}
+                  viewMode={viewMode}
+                  onSelectElement={selectElement}
+                  onUpdateElement={updateElement}
+                  onDeleteElement={deleteElement}
+                />
+              </div>
+            </div>
 
-            <TooltipWrapper content="Preview Website" shortcut="⌘P">
-              <Button 
-                variant="outline"
-                size="sm"
-                onClick={handlePreview}
-                className="hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-200 shadow-sm hover:shadow-md"
-              >
-                <Eye className="h-4 w-4 sm:mr-2" />
-                <span className="hidden sm:inline font-medium">Preview</span>
-              </Button>
-            </TooltipWrapper>
-
-            {/* Mobile Properties Toggle */}
-            {selectedElement && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setShowProperties(!showProperties)}
-                className="lg:hidden h-8 w-8 p-0"
-                title="Toggle Properties"
-              >
-                <Settings className="h-4 w-4" />
-              </Button>
-            )}
-          </div>
-        </Toolbar>
-
-        {/* Editor Layout */}
-        <div className="flex-1 flex overflow-hidden min-h-0">
-          {/* Left Panel - Components, Templates, or Default Sidebar */}
-          {showComponentLibrary ? (
-            <ComponentLibrary
-              data-component-library
-              onComponentSelect={(component) => {
-                console.log('Selected component:', component)
-                // Add component to canvas logic here
-                addElement({
-                  id: `${component.id}-${Date.now()}`,
-                  type: component.id as ElementType,
-                  props: component.defaultProps || {},
-                  style: {},
-                  children: [],
-                  position: { x: 0, y: 0 }
-                })
-              }}
-              currentContext={['landing-page', 'content']} // This could be dynamic based on current page context
-            />
-          ) : showTemplates ? (
-            <TemplateLibrary
-              onSelectTemplate={(template) => {
-                console.log('Selected template:', template)
-                setShowTemplates(false)
-              }}
-              onSelectBlock={(block) => {
-                console.log('Selected block:', block)
-              }}
-            />
-          ) : (
-            <Sidebar isOpen={showSidebar} onClose={() => setShowSidebar(false)} />
-          )}
-
-          {/* Middle Section - Layers and Canvas */}
-          <div className="flex-1 flex min-w-0 overflow-hidden">
-            {/* Layers Panel */}
-            {showLayers && (
-              <LayerPanel
-                elements={elements}
-                selectedElement={selectedElement}
-                onSelectElement={selectElement}
-                onUpdateElement={updateElement}
-                onDeleteElement={deleteElement}
-                onDuplicateElement={duplicateElement}
-                onReorderElements={handleReorderElements}
-              />
-            )}
-
-            {/* Main Canvas */}
-            <div
-              ref={canvasRef}
-              className="flex-1 flex flex-col min-w-0 overflow-hidden"
-              onMouseMove={handleMouseMove}
-            >
-              <Canvas
-                data-canvas
-                elements={elements}
-                selectedElement={selectedElement}
-                viewMode={viewMode}
-                onSelectElement={selectElement}
-                onUpdateElement={updateElement}
-                onDeleteElement={deleteElement}
-              />
+            {/* Right Panel - Properties (Fixed Width) */}
+            <div className="w-80 bg-background border-l border-border/50 flex flex-col overflow-hidden">
+              {selectedElement ? (
+                showAnimationEditor ? (
+                  <AnimationEditor
+                    element={selectedElement}
+                    onUpdateElement={updateElement}
+                    onClose={() => setShowAnimationEditor(false)}
+                  />
+                ) : showInteractionsPanel ? (
+                  <InteractionsPanel
+                    element={selectedElement}
+                    onUpdateElement={updateElement}
+                    onClose={() => setShowInteractionsPanel(false)}
+                  />
+                ) : showCustomCssEditor ? (
+                  <CustomCSSEditor
+                    element={selectedElement}
+                    onUpdateElement={updateElement}
+                    onClose={() => setShowCustomCssEditor(false)}
+                  />
+                ) : showVersionHistory ? (
+                  <VersionHistoryPanel
+                    onClose={() => setShowVersionHistory(false)}
+                  />
+                ) : showAIDesignAssistant ? (
+                  <AIDesignAssistantPanel
+                    onClose={() => setShowAIDesignAssistant(false)}
+                  />
+                ) : showABTesting ? (
+                  <ABTestingPanel
+                    onClose={() => setShowABTesting(false)}
+                  />
+                ) : showCustomJavaScript ? (
+                  <CustomJavaScriptPanel
+                    element={selectedElement}
+                    onUpdateElement={updateElement}
+                    onClose={() => setShowCustomJavaScript(false)}
+                  />
+                ) : showAPIIntegrations ? (
+                  <APIIntegrationsPanel
+                    element={selectedElement}
+                    onUpdateElement={updateElement}
+                    onClose={() => setShowAPIIntegrations(false)}
+                  />
+                ) : showWhiteLabel ? (
+                  <WhiteLabelPanel
+                    onClose={() => setShowWhiteLabel(false)}
+                  />
+                ) : showSecurityCompliance ? (
+                  <SecurityCompliancePanel
+                    onClose={() => setShowSecurityCompliance(false)}
+                  />
+                ) : showDeveloperPortal ? (
+                  <DeveloperPortalPanel
+                    onClose={() => setShowDeveloperPortal(false)}
+                  />
+                ) : showCustomDomain ? (
+                  <CustomDomainPanel
+                    onClose={() => setShowCustomDomain(false)}
+                  />
+                ) : showDraftRecovery ? (
+                  <DraftRecovery
+                    draftVersions={draftVersions}
+                    onRecoverDraft={handleRecoverDraft}
+                    onDeleteDraft={deleteDraft}
+                    onClearAllDrafts={handleClearAllDrafts}
+                  />
+                ) : showCollaboration ? (
+                  <CollaborationPanel
+                    collaborators={collaborators}
+                    currentUser={currentUser}
+                    isConnected={isConnected}
+                    connectionStatus={connectionStatus}
+                    events={events}
+                    onToggleVisibility={() => setCollaborationVisible(!collaborationVisible)}
+                    onShareLink={() => {
+                      navigator.clipboard.writeText(window.location.href)
+                      toast.success('Collaboration link copied!')
+                    }}
+                    onCopyLink={() => {
+                      navigator.clipboard.writeText(window.location.href)
+                      toast.success('Link copied!')
+                    }}
+                  />
+                ) : showGuidedLearning ? (
+                  <GuidedWorkflowsPanel
+                    workflows={workflows}
+                    availableWorkflows={getAvailableWorkflows()}
+                    getWorkflowProgress={getWorkflowProgress}
+                    onStartWorkflow={startWorkflow}
+                    currentWorkflow={progress.currentWorkflow}
+                  />
+                ) : showDesignTools ? (
+                  <DesignTools
+                    selectedElement={selectedElement}
+                    onUpdateElement={updateElement}
+                    onAddElement={addElement}
+                  />
+                ) : (
+                  <PropertiesPanel
+                    element={selectedElement}
+                    onUpdateElement={updateElement}
+                    onDeleteElement={deleteElement}
+                    onDuplicateElement={duplicateElement}
+                  />
+                )
+              ) : (
+                <div className="flex-1 flex items-center justify-center p-8 text-center">
+                  <div className="max-w-sm">
+                    <div className="w-16 h-16 mx-auto mb-4 bg-muted rounded-full flex items-center justify-center">
+                      <svg className="w-8 h-8 text-muted-foreground" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                      </svg>
+                    </div>
+                    <h3 className="text-lg font-semibold mb-2">Select an Element</h3>
+                    <p className="text-sm text-muted-foreground">
+                      Click on any element in the canvas to see its properties and settings here.
+                    </p>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Right Panel - Properties or Design Tools */}
-          {selectedElement && (
-            showAnimationEditor ? (
-              <AnimationEditor
-                element={selectedElement}
-                onUpdateElement={updateElement}
-                onClose={() => setShowAnimationEditor(false)}
-              />
-            ) : showInteractionsPanel ? (
-              <InteractionsPanel
-                element={selectedElement}
-                onUpdateElement={updateElement}
-                onClose={() => setShowInteractionsPanel(false)}
-              />
-            ) : showCustomCssEditor ? (
-              <CustomCSSEditor
-                element={selectedElement}
-                onUpdateElement={updateElement}
-                onClose={() => setShowCustomCssEditor(false)}
-              />
-            ) : showVersionHistory ? (
-              <VersionHistoryPanel
-                onClose={() => setShowVersionHistory(false)}
-              />
-            ) : showAIDesignAssistant ? (
-              <AIDesignAssistantPanel
-                onClose={() => setShowAIDesignAssistant(false)}
-              />
-            ) : showABTesting ? (
-              <ABTestingPanel
-                onClose={() => setShowABTesting(false)}
-              />
-            ) : showCustomJavaScript ? (
-              <CustomJavaScriptPanel
-                element={selectedElement}
-                onUpdateElement={updateElement}
-                onClose={() => setShowCustomJavaScript(false)}
-              />
-            ) : showAPIIntegrations ? (
-              <APIIntegrationsPanel
-                element={selectedElement}
-                onUpdateElement={updateElement}
-                onClose={() => setShowAPIIntegrations(false)}
-              />
-            ) : showWhiteLabel ? (
-              <WhiteLabelPanel
-                onClose={() => setShowWhiteLabel(false)}
-              />
-            ) : showSecurityCompliance ? (
-              <SecurityCompliancePanel
-                onClose={() => setShowSecurityCompliance(false)}
-              />
-            ) : showDeveloperPortal ? (
-              <DeveloperPortalPanel
-                onClose={() => setShowDeveloperPortal(false)}
-              />
-            ) : showCustomDomain ? (
-              <CustomDomainPanel
-                onClose={() => setShowCustomDomain(false)}
-              />
-            ) : showDraftRecovery ? (
-              <div className="w-80 border-l bg-card">
-                <DraftRecovery
-                  draftVersions={draftVersions}
-                  onRecoverDraft={handleRecoverDraft}
-                  onDeleteDraft={deleteDraft}
-                  onClearAllDrafts={handleClearAllDrafts}
-                />
-              </div>
-            ) : showCollaboration ? (
-              <CollaborationPanel
-                collaborators={collaborators}
-                currentUser={currentUser}
-                isConnected={isConnected}
-                connectionStatus={connectionStatus}
-                events={events}
-                onToggleVisibility={() => setCollaborationVisible(!collaborationVisible)}
-                onShareLink={() => {
-                  navigator.clipboard.writeText(window.location.href)
-                  toast.success('Collaboration link copied!')
-                }}
-                onCopyLink={() => {
-                  navigator.clipboard.writeText(window.location.href)
-                  toast.success('Link copied!')
-                }}
-              />
-            ) : showGuidedLearning ? (
-              <div className="w-80 border-l bg-card p-4">
-                <GuidedWorkflowsPanel
-                  workflows={workflows}
-                  availableWorkflows={getAvailableWorkflows()}
-                  getWorkflowProgress={getWorkflowProgress}
-                  onStartWorkflow={startWorkflow}
-                  currentWorkflow={progress.currentWorkflow}
-                />
-              </div>
-            ) : showDesignTools ? (
-              <DesignTools
-                selectedElement={selectedElement}
-                onUpdateElement={updateElement}
-                onAddElement={addElement}
-              />
-            ) : (
-              showProperties && (
-                <PropertiesPanel
-                  element={selectedElement}
-                  onUpdate={(updates) => updateElement(selectedElement.id, updates)}
-                  onClose={() => setShowProperties(false)}
-                  isOpen={showProperties}
-                />
-              )
-            )
+          {/* AI Assistant (Floating) */}
+          {showAIAssistant && (
+            <AIWebsiteAssistant
+              websiteId={websiteId}
+              onSuggestion={(suggestion) => {
+                console.log('AI suggestion:', suggestion)
+              }}
+            />
           )}
         </div>
 
-        {/* AI Assistant (Floating) */}
-        {showAIAssistant && (
-          <AIWebsiteAssistant
-            websiteId={websiteId}
-            onSuggestion={(suggestion) => {
-              console.log('AI suggestion:', suggestion)
-            }}
-          />
+        {/* Enhanced Drag Overlay */}
+        <DragOverlay>
+          {draggedElement && (
+            <div className="bg-primary text-primary-foreground px-4 py-3 rounded-lg shadow-xl border border-primary/20 backdrop-blur-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-6 h-6 bg-primary-foreground/20 rounded flex items-center justify-center">
+                  <span className="text-xs font-bold">{draggedElement.charAt(0).toUpperCase()}</span>
+                </div>
+                <span className="font-medium text-sm">{draggedElement}</span>
+              </div>
+              <div className="text-xs opacity-80 mt-1">Drop to add component</div>
+            </div>
+          )}
+        </DragOverlay>
+
+        {/* Guided Tour Overlay */}
+        <GuidedTour
+          workflow={currentWorkflow}
+          currentStep={progress.currentStep}
+          isActive={isGuidedTourActive}
+          onComplete={completeStep}
+          onSkip={skipStep}
+          onClose={() => {
+            // Close the current workflow
+            completeWorkflow()
+          }}
+        />
+
+        {/* Collaboration Overlays */}
+        {collaborationVisible && (
+          <>
+            <CollaborationCursors
+              collaborators={activeCollaborators}
+              containerRef={{ current: document.querySelector('[data-canvas]') as HTMLElement }}
+            />
+            <CollaborationSelections
+              collaborators={activeCollaborators}
+              containerRef={{ current: document.querySelector('[data-canvas]') as HTMLElement }}
+            />
+          </>
         )}
-      </div>
-
-      {/* Drag Overlay */}
-      <DragOverlay>
-        {draggedElement && (
-          <div className="bg-primary text-primary-foreground px-3 py-2 rounded shadow-lg">
-            {draggedElement}
-          </div>
-        )}
-      </DragOverlay>
-
-      {/* Guided Tour Overlay */}
-      <GuidedTour
-        workflow={currentWorkflow}
-        currentStep={progress.currentStep}
-        isActive={isGuidedTourActive}
-        onComplete={completeStep}
-        onSkip={skipStep}
-        onClose={() => {
-          // Close the current workflow
-          completeWorkflow()
-        }}
-      />
-
-      {/* Collaboration Overlays */}
-      {collaborationVisible && (
-        <>
-          <CollaborationCursors
-            collaborators={activeCollaborators}
-            containerRef={{ current: document.querySelector('[data-canvas]') as HTMLElement }}
-          />
-          <CollaborationSelections
-            collaborators={activeCollaborators}
-            containerRef={{ current: document.querySelector('[data-canvas]') as HTMLElement }}
-          />
-        </>
-      )}
       </DndContext>
     </TooltipProvider>
   )

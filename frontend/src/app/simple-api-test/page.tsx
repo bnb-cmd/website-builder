@@ -11,7 +11,7 @@ export default function SimpleAPITest() {
     setResult('Testing direct fetch...')
     
     try {
-      const response = await fetch('http://localhost:3002/v1/auth/login', {
+      const response = await fetch('http://localhost:3005/v1/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

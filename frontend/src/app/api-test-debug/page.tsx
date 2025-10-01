@@ -15,7 +15,7 @@ export default function APITestPage() {
       console.log('🧪 Testing API connection...')
       
       // Test direct axios call
-      const directResponse = await fetch('http://localhost:3002/v1/templates?limit=5')
+      const directResponse = await fetch('http://localhost:3005/v1/templates?limit=5')
       console.log('🧪 Direct fetch response:', directResponse.status)
       
       if (!directResponse.ok) {
@@ -60,7 +60,7 @@ Templates found: ${apiResponse.data.templates?.length || 0}`)
       
       <div className="mt-4 text-sm text-gray-600">
         <p>Check browser console for detailed logs</p>
-        <p>Backend should be running on: http://localhost:3002</p>
+        <p>Backend should be running on: http://localhost:3005</p>
         <p>Frontend should be running on: http://localhost:3001</p>
       </div>
     </div>

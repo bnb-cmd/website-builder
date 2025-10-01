@@ -144,7 +144,7 @@ export function NotificationCenter({ userId, onClose }: NotificationCenterProps)
   }
 
   const setupWebSocket = () => {
-    const wsUrl = `${process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3002'}/v1/notifications/ws/${userId}`
+    const wsUrl = `${process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3005'}/v1/notifications/ws/${userId}`
     wsRef.current = new WebSocket(wsUrl)
 
     wsRef.current.onopen = () => {

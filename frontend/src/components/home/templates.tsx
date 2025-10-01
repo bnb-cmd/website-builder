@@ -81,7 +81,7 @@ export function Templates() {
                   <div className="aspect-video bg-muted rounded-t-lg overflow-hidden">
                     {template.thumbnail ? (
                       <img 
-                        src={`http://localhost:3002${template.thumbnail}`} 
+                        src={`http://localhost:3005${template.thumbnail}`} 
                         alt={template.name}
                         className="w-full h-full object-cover"
                         onError={(e) => {

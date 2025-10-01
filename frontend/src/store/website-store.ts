@@ -105,10 +105,23 @@ export const useWebsiteStore = create<WebsiteStore>()(
             const response = await apiHelpers.getWebsite(websiteId)
             const websiteData = response.data.data
             
+            // Parse content if it's a JSON string
+            let parsedContent = null
+            if (websiteData.content && typeof websiteData.content === 'string') {
+              try {
+                parsedContent = JSON.parse(websiteData.content)
+                console.log('🔧 Parsed website content:', parsedContent)
+              } catch (error) {
+                console.error('Failed to parse website content:', error)
+              }
+            } else if (websiteData.content) {
+              parsedContent = websiteData.content
+            }
+            
             set({
               websiteId,
               websiteData,
-              elements: websiteData.content?.elements || [],
+              elements: parsedContent?.elements || [],
               isLoading: false,
               isDirty: false
             })

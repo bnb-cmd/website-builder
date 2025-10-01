@@ -1,5 +1,6 @@
 import { Website, Prisma } from '@prisma/client'
 import { BaseService } from './baseService'
+import { websiteTemplates } from '../data/templates'
 
 export interface CreateWebsiteData {
   name: string
@@ -74,6 +75,22 @@ export class WebsiteService extends BaseService<Website> {
       const subdomain = await this.generateSubdomain(data.name)
       console.log('🔧 Generated subdomain:', subdomain)
       
+      // Load template elements if templateId is provided
+      let templateContent = null
+      if (data.templateId) {
+        const template = websiteTemplates.find(t => t.id === data.templateId)
+        if (template && template.elements) {
+          templateContent = JSON.stringify({
+            elements: template.elements,
+            templateId: data.templateId,
+            templateName: template.name
+          })
+          console.log('🔧 Loaded template elements:', template.elements.length, 'elements')
+        } else {
+          console.log('⚠️ Template not found:', data.templateId)
+        }
+      }
+
       console.log('🔧 Creating website with data:', {
         name: data.name,
         description: data.description || null,
@@ -82,7 +99,8 @@ export class WebsiteService extends BaseService<Website> {
         language: data.language || 'ENGLISH',
         userId: data.userId || null,
         subdomain,
-        status: 'DRAFT'
+        status: 'DRAFT',
+        hasTemplateContent: !!templateContent
       })
       
       const website = await this.prisma.website.create({
@@ -93,7 +111,7 @@ export class WebsiteService extends BaseService<Website> {
           businessType: data.businessType || null,
           language: data.language || 'ENGLISH',
           user: data.userId ? { connect: { id: data.userId } } : undefined,
-          content: data.content || null,
+          content: templateContent || data.content || null,
           settings: data.settings || null,
           customCSS: data.customCSS || null,
           customJS: data.customJS || null,
@@ -174,6 +192,16 @@ export class WebsiteService extends BaseService<Website> {
       console.log('🔍 Prisma query result:', JSON.stringify(website, null, 2))
       
       if (website) {
+        // Parse content if it's a JSON string
+        if (website.content && typeof website.content === 'string') {
+          try {
+            website.content = JSON.parse(website.content)
+            console.log('🔧 Parsed website content for API response')
+          } catch (error) {
+            console.error('Failed to parse website content:', error)
+          }
+        }
+        
         await this.setCached(cacheKey, website, 1800) // 30 minutes
       }
       

@@ -69,40 +69,8 @@ export function useCollaboration(options: UseCollaborationOptions) {
     return colors[Math.floor(Math.random() * colors.length)]
   }, [])
 
-  // Mock collaborators for demonstration
-  const mockCollaborators: Collaborator[] = [
-    {
-      id: 'user-1',
-      name: 'Sarah Johnson',
-      avatar: 'SJ',
-      color: '#FF6B6B',
-      isOnline: true,
-      lastSeen: new Date(),
-      cursor: { x: 400, y: 300 },
-      currentAction: 'Editing headline'
-    },
-    {
-      id: 'user-2',
-      name: 'Mike Chen',
-      avatar: 'MC',
-      color: '#4ECDC4',
-      isOnline: true,
-      lastSeen: new Date(),
-      selection: {
-        elementIds: ['element-1'],
-        bounds: { x: 100, y: 150, width: 200, height: 50 }
-      },
-      currentAction: 'Selecting image'
-    },
-    {
-      id: 'user-3',
-      name: 'Emma Davis',
-      avatar: 'ED',
-      color: '#45B7D1',
-      isOnline: false,
-      lastSeen: new Date(Date.now() - 300000), // 5 minutes ago
-    }
-  ]
+  // No mock collaborators - start with empty array
+  const mockCollaborators: Collaborator[] = []
 
   // Initialize collaboration
   useEffect(() => {

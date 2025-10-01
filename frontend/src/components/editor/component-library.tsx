@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { useDraggable } from '@dnd-kit/core'
 import {
   Search,
   Grid,
@@ -98,6 +99,7 @@ import {
   FilterIcon,
   Building,
   GraduationCap,
+  GripVertical,
   Briefcase,
   Utensils,
   Home,
@@ -155,28 +157,80 @@ interface ComponentLibraryProps {
 }
 
 // Component Categories
+// Wix-style categories with better organization
 const categories = [
-  { id: 'layout', name: 'Layout', icon: Layout, color: 'bg-blue-500' },
-  { id: 'content', name: 'Content', icon: Type, color: 'bg-green-500' },
-  { id: 'interactive', name: 'Interactive', icon: MousePointer, color: 'bg-purple-500' },
-  { id: 'forms', name: 'Forms', icon: FormInput, color: 'bg-orange-500' },
-  { id: 'commerce', name: 'E-commerce', icon: ShoppingCart, color: 'bg-red-500' },
-  { id: 'marketing', name: 'Marketing', icon: TrendingUp, color: 'bg-pink-500' },
-  { id: 'data', name: 'Data & Charts', icon: BarChart3, color: 'bg-indigo-500' },
-  { id: 'media', name: 'Media', icon: Image, color: 'bg-teal-500' },
-  { id: 'navigation', name: 'Navigation', icon: Menu, color: 'bg-gray-500' },
-  { id: 'feedback', name: 'Feedback', icon: MessageSquare, color: 'bg-yellow-500' },
-  { id: 'advanced', name: 'Advanced', icon: Zap, color: 'bg-purple-600' },
-  { id: 'utility', name: 'Utility', icon: Settings, color: 'bg-slate-500' },
-  { id: 'business', name: 'Business', icon: Building, color: 'bg-blue-600' },
-  { id: 'creative', name: 'Creative', icon: Palette, color: 'bg-pink-500' },
-  { id: 'entertainment', name: 'Entertainment', icon: Music, color: 'bg-purple-500' },
-  { id: 'education', name: 'Education', icon: GraduationCap, color: 'bg-green-600' },
-  { id: 'events', name: 'Events', icon: Calendar, color: 'bg-orange-500' },
-  { id: 'portfolio', name: 'Portfolio', icon: Briefcase, color: 'bg-indigo-500' },
-  { id: 'restaurant', name: 'Restaurant', icon: Utensils, color: 'bg-red-500' },
-  { id: 'healthcare', name: 'Healthcare', icon: Heart, color: 'bg-red-600' },
-  { id: 'real-estate', name: 'Real Estate', icon: Home, color: 'bg-teal-500' }
+  { 
+    id: 'layout', 
+    name: 'Layout', 
+    icon: Layout, 
+    color: 'bg-blue-500',
+    description: 'Structure your page',
+    bgColor: 'bg-blue-50',
+    textColor: 'text-blue-600'
+  },
+  { 
+    id: 'text', 
+    name: 'Text', 
+    icon: Type, 
+    color: 'bg-green-500',
+    description: 'Add headings and text',
+    bgColor: 'bg-green-50',
+    textColor: 'text-green-600'
+  },
+  { 
+    id: 'media', 
+    name: 'Media', 
+    icon: Image, 
+    color: 'bg-purple-500',
+    description: 'Images and videos',
+    bgColor: 'bg-purple-50',
+    textColor: 'text-purple-600'
+  },
+  { 
+    id: 'forms', 
+    name: 'Forms', 
+    icon: FormInput, 
+    color: 'bg-orange-500',
+    description: 'Contact and input forms',
+    bgColor: 'bg-orange-50',
+    textColor: 'text-orange-600'
+  },
+  { 
+    id: 'ecommerce', 
+    name: 'E-commerce', 
+    icon: ShoppingCart, 
+    color: 'bg-red-500',
+    description: 'Store and product elements',
+    bgColor: 'bg-red-50',
+    textColor: 'text-red-600'
+  },
+  { 
+    id: 'social', 
+    name: 'Social', 
+    icon: MessageSquare, 
+    color: 'bg-pink-500',
+    description: 'Social media integration',
+    bgColor: 'bg-pink-50',
+    textColor: 'text-pink-600'
+  },
+  { 
+    id: 'navigation', 
+    name: 'Navigation', 
+    icon: Menu, 
+    color: 'bg-indigo-500',
+    description: 'Menus and navigation',
+    bgColor: 'bg-indigo-50',
+    textColor: 'text-indigo-600'
+  },
+  { 
+    id: 'feedback', 
+    name: 'Feedback', 
+    icon: AlertCircle, 
+    color: 'bg-yellow-500',
+    description: 'Alerts and notifications',
+    bgColor: 'bg-yellow-50',
+    textColor: 'text-yellow-600'
+  }
 ]
 
 // Component Definitions - LOTS of components!
@@ -283,7 +337,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'heading',
     name: 'Heading',
     description: 'Typography hierarchy with multiple heading levels',
-    category: 'content',
+    category: 'text',
     icon: Type,
     preview: () => <div className="w-full h-8 flex items-center"><Type className="h-4 w-4 mr-2" /><span className="font-bold">Heading</span></div>,
     defaultProps: { level: 'h1', text: 'Heading Text', align: 'left' },
@@ -297,7 +351,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'paragraph',
     name: 'Paragraph',
     description: 'Rich text paragraph with formatting options',
-    category: 'content',
+    category: 'text',
     icon: FileText,
     preview: () => <div className="w-full h-8 flex items-center"><FileText className="h-4 w-4 mr-2" /><span className="text-sm">Paragraph text content</span></div>,
     defaultProps: { text: 'This is a paragraph of text content.', align: 'left' },
@@ -339,7 +393,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'quote',
     name: 'Quote Block',
     description: 'Pull quote or testimonial with attribution',
-    category: 'content',
+    category: 'text',
     icon: Quote,
     preview: () => <div className="w-full h-12 bg-muted rounded p-2 flex items-center"><Quote className="h-4 w-4 mr-2 text-muted-foreground" /><span className="text-xs italic">Quote text...</span></div>,
     defaultProps: { text: '"This is a quote"', author: 'Author Name', role: 'Role/Company' },
@@ -528,7 +582,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'product-card',
     name: 'Product Card',
     description: 'Product display with image, title, price, and actions',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Package,
     preview: () => (
       <div className="w-full h-32 bg-muted rounded p-3 space-y-2">
@@ -551,7 +605,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'shopping-cart',
     name: 'Shopping Cart',
     description: 'Cart summary with items, totals, and checkout',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: ShoppingCart,
     preview: () => (
       <div className="w-full h-24 bg-muted rounded p-3 space-y-2">
@@ -574,7 +628,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'pricing-table',
     name: 'Pricing Table',
     description: 'Comparison table for pricing plans',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: CreditCard,
     preview: () => (
       <div className="w-full h-32 bg-muted rounded p-3">
@@ -597,7 +651,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'product-gallery',
     name: 'Product Gallery',
     description: 'Product image gallery with zoom and thumbnails',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Image,
     preview: () => (
       <div className="w-full h-24 bg-muted rounded p-3 flex space-x-2">
@@ -620,7 +674,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'review-system',
     name: 'Review System',
     description: 'Star ratings and customer reviews',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Star,
     preview: () => (
       <div className="w-full h-16 bg-muted rounded p-3 space-y-2">
@@ -1517,7 +1571,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'blog-post',
     name: 'Blog Post Card',
     description: 'Blog post preview with image, title, excerpt, and metadata',
-    category: 'content',
+    category: 'text',
     icon: FileText,
     preview: () => (
       <div className="w-full h-40 bg-muted rounded border p-3 space-y-2">
@@ -1569,7 +1623,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'faq-section',
     name: 'FAQ Section',
     description: 'Frequently asked questions with expandable answers',
-    category: 'content',
+    category: 'text',
     icon: HelpCircle,
     preview: () => (
       <div className="w-full space-y-2">
@@ -1826,7 +1880,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'user-avatar',
     name: 'User Avatar',
     description: 'User profile image with fallback initials',
-    category: 'content',
+    category: 'text',
     icon: User,
     preview: () => (
       <div className="w-12 h-12 bg-primary rounded-full flex items-center justify-center">
@@ -1844,7 +1898,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'badge-system',
     name: 'Badge System',
     description: 'Status badges, labels, and tags with various styles',
-    category: 'content',
+    category: 'text',
     icon: Star,
     preview: () => (
       <div className="flex flex-wrap gap-2">
@@ -2182,7 +2236,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'product-filters',
     name: 'Product Filters',
     description: 'Advanced filtering for product catalogs',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Filter,
     preview: () => (
       <div className="w-full h-16 bg-muted rounded p-3 space-y-2">
@@ -2204,7 +2258,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'wishlist-widget',
     name: 'Wishlist Widget',
     description: 'Save and manage favorite products',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Heart,
     preview: () => (
       <div className="w-full h-12 bg-muted rounded p-3 flex items-center justify-between">
@@ -2226,7 +2280,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'shipping-calculator',
     name: 'Shipping Calculator',
     description: 'Calculate shipping costs and delivery times',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Truck,
     preview: () => (
       <div className="w-full h-16 bg-muted rounded p-3 space-y-2">
@@ -2252,7 +2306,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'customer-reviews',
     name: 'Customer Reviews',
     description: 'Advanced review system with ratings and filters',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Star,
     preview: () => (
       <div className="w-full h-20 bg-muted rounded p-3 space-y-2">
@@ -2276,7 +2330,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'loyalty-program',
     name: 'Loyalty Program',
     description: 'Customer loyalty and rewards display',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Trophy,
     preview: () => (
       <div className="w-full h-16 bg-muted rounded p-3 space-y-2">
@@ -2795,7 +2849,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'product-comparison',
     name: 'Product Comparison',
     description: 'Side-by-side product comparison tool',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: GitCompare,
     preview: () => (
       <div className="w-full h-16 bg-muted rounded p-3">
@@ -2824,7 +2878,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'upsell-cross-sell',
     name: 'Upsell/Cross-sell',
     description: 'Recommended products and bundles',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: TrendingUp,
     preview: () => (
       <div className="w-full h-16 bg-muted rounded p-3 space-y-2">
@@ -2848,7 +2902,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'product-customizer',
     name: 'Product Customizer',
     description: 'Interactive product customization tool',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Palette,
     preview: () => (
       <div className="w-full h-16 bg-muted rounded p-3 space-y-2">
@@ -2880,7 +2934,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'inventory-display',
     name: 'Inventory Display',
     description: 'Stock levels and availability indicators',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Package,
     preview: () => (
       <div className="w-full h-12 bg-muted rounded p-3 flex items-center justify-between">
@@ -2902,7 +2956,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'order-tracking',
     name: 'Order Tracking',
     description: 'Real-time order status and tracking',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Truck,
     preview: () => (
       <div className="w-full h-16 bg-muted rounded p-3 space-y-2">
@@ -2925,7 +2979,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'gift-cards',
     name: 'Gift Cards',
     description: 'Digital gift card purchase and redemption',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Gift,
     preview: () => (
       <div className="w-full h-16 bg-muted rounded p-3 space-y-2">
@@ -3189,7 +3243,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'ai-content-generator',
     name: 'AI Content Generator',
     description: 'AI-powered content creation and optimization',
-    category: 'content',
+    category: 'text',
     icon: ZapIcon,
     preview: () => (
       <div className="w-full h-16 bg-gradient-to-r from-purple-500 to-blue-500 rounded p-3 flex items-center space-x-3">
@@ -3403,7 +3457,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'payment-processing',
     name: 'Payment Processing',
     description: 'Integrated payment gateway and processing',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: CreditCard,
     preview: () => (
       <div className="w-full h-16 bg-muted rounded p-3 space-y-2">
@@ -3459,7 +3513,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'social-commerce',
     name: 'Social Commerce',
     description: 'Shoppable social media integration',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: ShoppingCart,
     preview: () => (
       <div className="w-full h-16 bg-muted rounded p-3 space-y-2">
@@ -3491,7 +3545,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'loyalty-program-advanced',
     name: 'Advanced Loyalty Program',
     description: 'Multi-tier loyalty and rewards system',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Crown,
     preview: () => (
       <div className="w-full h-18 bg-gradient-to-r from-yellow-400 to-orange-500 rounded p-3 text-white">
@@ -3523,7 +3577,7 @@ const componentDefinitions: ComponentDefinition[] = [
     id: 'ar-product-viewer',
     name: 'AR Product Viewer',
     description: 'Augmented reality product visualization',
-    category: 'commerce',
+    category: 'ecommerce',
     icon: Eye,
     preview: () => (
       <div className="w-full h-16 bg-muted rounded p-3 space-y-2">
@@ -3831,50 +3885,153 @@ export function ComponentLibrary({
     return <PreviewComponent />
   }
 
+  // Wix-style Draggable Component Card
+  function DraggableComponentCard({ component }: { component: ComponentDefinition }) {
+    const {
+      attributes,
+      listeners,
+      setNodeRef,
+      transform,
+      isDragging,
+    } = useDraggable({
+      id: `sidebar-${component.id}`,
+      data: {
+        type: component.id,
+        component: component,
+      },
+    })
+
+    const style = transform ? {
+      transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+    } : undefined
+
+    const category = categories.find(cat => cat.id === component.category)
+
+    return (
+      <Card
+        ref={setNodeRef}
+        style={style}
+        className={`cursor-pointer hover:shadow-md transition-all duration-200 group border-border/50 ${
+          isDragging ? 'opacity-50 shadow-lg' : ''
+        }`}
+        onClick={() => handleComponentSelect(component)}
+      >
+        <CardContent className="p-3">
+          <div className="flex items-center space-x-3">
+            {/* Drag Handle */}
+            <div 
+              {...attributes} 
+              {...listeners}
+              className="flex-shrink-0 w-5 h-5 bg-muted/50 rounded flex items-center justify-center cursor-grab hover:bg-muted/70 transition-colors"
+            >
+              <GripVertical className="h-3 w-3 text-muted-foreground" />
+            </div>
+            
+            {/* Category Color Indicator */}
+            <div className={`flex-shrink-0 w-1 h-8 rounded-full ${category?.color || 'bg-gray-400'}`} />
+            
+            {/* Content */}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center justify-between mb-1">
+                <h3 className="text-sm font-medium truncate">{component.name}</h3>
+                <div className="flex items-center space-x-1">
+                  {component.usage === 'high' && <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />}
+                  {component.complexity === 'advanced' && (
+                    <Badge variant="destructive" className="text-xs px-1 py-0">Pro</Badge>
+                  )}
+                </div>
+              </div>
+              
+              {/* Compact description */}
+              <p className="text-xs text-muted-foreground line-clamp-1 mb-2">
+                {component.description.length > 45 
+                  ? component.description.substring(0, 45) + '...' 
+                  : component.description}
+              </p>
+              
+              {/* Enhanced Preview */}
+              <div className="h-10 bg-gradient-to-br from-muted/30 to-muted/50 rounded border border-border/30 flex items-center justify-center relative overflow-hidden">
+                <div className="scale-75">
+                  {renderComponentPreview(component)}
+                </div>
+                {/* Preview overlay */}
+                <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent" />
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   return (
     <div className="h-full flex flex-col bg-background">
       {/* Header */}
-      <div className="p-4 border-b border-border">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Component Library</h2>
-          <div className="flex items-center space-x-2">
+      <div className="p-3 border-b border-border">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-base font-semibold">Components</h2>
+          <div className="flex items-center space-x-1">
             <Button
               variant={viewMode === 'grid' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('grid')}
+              className="h-7 w-7 p-0"
             >
-              <Grid className="h-4 w-4" />
+              <Grid className="h-3 w-3" />
             </Button>
             <Button
               variant={viewMode === 'list' ? 'default' : 'outline'}
               size="sm"
               onClick={() => setViewMode('list')}
+              className="h-7 w-7 p-0"
             >
-              <List className="h-4 w-4" />
+              <List className="h-3 w-3" />
             </Button>
           </div>
         </div>
 
-        {/* Category Tabs */}
-        <Tabs value={selectedCategory} onValueChange={setSelectedCategory}>
-          <TabsList className="w-full h-auto p-1">
-            <TabsTrigger value="all" className="flex-1">
-              <Package className="h-4 w-4 mr-2" />
-              All
-            </TabsTrigger>
-            {categories.map(category => (
-              <TabsTrigger key={category.id} value={category.id} className="flex-1">
-                <category.icon className="h-4 w-4 mr-2" />
-                {category.name}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        </Tabs>
+        {/* Wix-style Category Grid */}
+        <div className="grid grid-cols-2 gap-2">
+          <Button
+            variant={selectedCategory === 'all' ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setSelectedCategory('all')}
+            className="h-8 text-xs justify-start"
+          >
+            <Package className="h-3 w-3 mr-2" />
+            All
+          </Button>
+          {categories.slice(0, 7).map(category => (
+            <Button
+              key={category.id}
+              variant={selectedCategory === category.id ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedCategory(category.id)}
+              className="h-8 text-xs justify-start"
+            >
+              <category.icon className="h-3 w-3 mr-2" />
+              {category.name}
+            </Button>
+          ))}
+        </div>
+
+        {/* Search */}
+        <div className="mt-3">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+            <Input
+              placeholder="Search components..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-7 pl-7 text-xs"
+            />
+          </div>
+        </div>
 
         {/* Filters */}
-        <div className="flex items-center space-x-2 mt-4">
+        <div className="flex items-center space-x-2 mt-2">
           <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-            <SelectTrigger className="w-32">
+            <SelectTrigger className="w-24 h-7 text-xs">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -3886,28 +4043,48 @@ export function ComponentLibrary({
         </div>
       </div>
 
+      {/* Category Header */}
+      {selectedCategory !== 'all' && (
+        <div className="p-3 border-b border-border bg-muted/20">
+          {(() => {
+            const category = categories.find(cat => cat.id === selectedCategory)
+            return category ? (
+              <div className="flex items-center space-x-3">
+                <div className={`w-8 h-8 ${category.bgColor} rounded-lg flex items-center justify-center`}>
+                  <category.icon className={`h-4 w-4 ${category.textColor}`} />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold">{category.name}</h3>
+                  <p className="text-xs text-muted-foreground">{category.description}</p>
+                </div>
+              </div>
+            ) : null
+          })()}
+        </div>
+      )}
+
       {/* AI Suggestions */}
       {aiSuggestions.length > 0 && (
-        <div className="p-4 border-b border-border bg-primary/5">
-          <div className="flex items-center space-x-2 mb-3">
-            <Sparkles className="h-5 w-5 text-primary" />
-            <h3 className="font-medium">AI Suggestions</h3>
-            <Badge variant="secondary">Smart</Badge>
+        <div className="p-3 border-b border-border bg-primary/5">
+          <div className="flex items-center space-x-2 mb-2">
+            <Sparkles className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-medium">AI Suggestions</h3>
+            <Badge variant="secondary" className="text-xs">Smart</Badge>
           </div>
           <ScrollArea className="w-full">
-            <div className="flex space-x-4 pb-2">
+            <div className="flex space-x-3 pb-2">
               {aiSuggestions.map(component => (
                 <Card
                   key={`ai-${component.id}`}
-                  className="flex-shrink-0 w-48 cursor-pointer hover:shadow-md transition-shadow"
+                  className="flex-shrink-0 w-40 cursor-pointer hover:shadow-md transition-shadow"
                   onClick={() => handleComponentSelect(component)}
                 >
-                  <CardContent className="p-3">
+                  <CardContent className="p-2">
                     <div className="flex items-center space-x-2 mb-2">
-                      <component.icon className="h-4 w-4" />
-                      <span className="text-sm font-medium truncate">{component.name}</span>
+                      <component.icon className="h-3 w-3" />
+                      <span className="text-xs font-medium truncate">{component.name}</span>
                     </div>
-                    <div className="h-12 mb-2">
+                    <div className="h-8 mb-2">
                       {renderComponentPreview(component)}
                     </div>
                     <Badge variant="outline" className="text-xs">
@@ -3924,99 +4101,18 @@ export function ComponentLibrary({
       {/* Component Grid/List */}
       <div className="flex-1 overflow-auto">
         {viewMode === 'grid' ? (
-          <div className="p-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <div className="p-3">
+            <div className="grid grid-cols-1 gap-3">
               {filteredComponents.map(component => (
-                <Card
-                  key={component.id}
-                  className="cursor-pointer hover:shadow-lg transition-all duration-200 group"
-                  onClick={() => handleComponentSelect(component)}
-                >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <component.icon className="h-4 w-4" />
-                        <CardTitle className="text-sm">{component.name}</CardTitle>
-                      </div>
-                      <div className="flex space-x-1">
-                        {component.complexity === 'basic' && <Badge variant="secondary" className="text-xs">Basic</Badge>}
-                        {component.complexity === 'advanced' && <Badge variant="destructive" className="text-xs">Advanced</Badge>}
-                        {component.usage === 'high' && <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />}
-                      </div>
-                    </div>
-                    <p className="text-xs text-muted-foreground line-clamp-2">{component.description}</p>
-                  </CardHeader>
-
-                  <CardContent className="pt-0">
-                    <div className="h-16 mb-3 flex items-center justify-center bg-muted/30 rounded">
-                      {renderComponentPreview(component)}
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div className="flex flex-wrap gap-1">
-                        {component.tags.slice(0, 2).map(tag => (
-                          <Badge key={tag} variant="outline" className="text-xs">
-                            {tag}
-                          </Badge>
-                        ))}
-                        {component.tags.length > 2 && (
-                          <Badge variant="outline" className="text-xs">
-                            +{component.tags.length - 2}
-                          </Badge>
-                        )}
-                      </div>
-                      <Button size="sm" variant="ghost" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <DraggableComponentCard key={component.id} component={component} />
               ))}
             </div>
           </div>
         ) : (
-          <div className="p-4">
+          <div className="p-3">
             <div className="space-y-2">
               {filteredComponents.map(component => (
-                <Card
-                  key={component.id}
-                  className="cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => handleComponentSelect(component)}
-                >
-                  <CardContent className="p-4">
-                    <div className="flex items-center space-x-4">
-                      <div className="flex-shrink-0">
-                        <component.icon className="h-6 w-6" />
-                      </div>
-
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-medium">{component.name}</h3>
-                          <div className="flex items-center space-x-2">
-                            {component.complexity === 'basic' && <Badge variant="secondary" className="text-xs">Basic</Badge>}
-                            {component.complexity === 'advanced' && <Badge variant="destructive" className="text-xs">Advanced</Badge>}
-                            {component.usage === 'high' && <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />}
-                          </div>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">{component.description}</p>
-                        <div className="flex items-center space-x-2">
-                          <Badge variant="outline" className="text-xs capitalize">{component.category}</Badge>
-                          {component.tags.slice(0, 3).map(tag => (
-                            <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="flex-shrink-0 w-32 h-12 flex items-center justify-center bg-muted/30 rounded">
-                        {renderComponentPreview(component)}
-                      </div>
-
-                      <Button size="sm" variant="ghost">
-                        <Plus className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
+                <DraggableComponentCard key={component.id} component={component} />
               ))}
             </div>
           </div>
@@ -4035,3 +4131,4 @@ export function ComponentLibrary({
     </div>
   )
 }
+
