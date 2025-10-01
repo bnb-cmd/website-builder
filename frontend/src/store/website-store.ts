@@ -102,8 +102,13 @@ export const useWebsiteStore = create<WebsiteStore>()(
         loadWebsite: async (websiteId: string) => {
           set({ isLoading: true })
           try {
+            console.log('🔧 Loading website:', websiteId)
             const response = await apiHelpers.getWebsite(websiteId)
             const websiteData = response.data.data
+            
+            console.log('🔧 Raw website data:', websiteData)
+            console.log('🔧 Website content:', websiteData.content)
+            console.log('🔧 Template ID:', websiteData.templateId)
             
             // Parse content if it's a JSON string
             let parsedContent = null
@@ -111,17 +116,26 @@ export const useWebsiteStore = create<WebsiteStore>()(
               try {
                 parsedContent = JSON.parse(websiteData.content)
                 console.log('🔧 Parsed website content:', parsedContent)
+                console.log('🔧 Template elements:', parsedContent?.elements)
+                console.log('🔧 Template name:', parsedContent?.templateName)
               } catch (error) {
-                console.error('Failed to parse website content:', error)
+                console.error('❌ Failed to parse website content:', error)
+                console.error('❌ Raw content that failed to parse:', websiteData.content)
               }
             } else if (websiteData.content) {
               parsedContent = websiteData.content
+              console.log('🔧 Content was already parsed:', parsedContent)
+            } else {
+              console.warn('⚠️ No content found for website')
             }
+            
+            const elements = parsedContent?.elements || []
+            console.log('🔧 Final elements to load:', elements.length, 'elements')
             
             set({
               websiteId,
               websiteData,
-              elements: parsedContent?.elements || [],
+              elements,
               isLoading: false,
               isDirty: false
             })
@@ -129,7 +143,7 @@ export const useWebsiteStore = create<WebsiteStore>()(
             get().clearHistory()
             get().addToHistory()
           } catch (error) {
-            console.error('Failed to load website:', error)
+            console.error('❌ Failed to load website:', error)
             set({ isLoading: false })
           }
         },

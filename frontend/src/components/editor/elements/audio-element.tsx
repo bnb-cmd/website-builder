@@ -1,208 +1,145 @@
-'use client'
-
-import { Element } from '@/types/editor'
-import { Music, Play, Pause, Volume2 } from 'lucide-react'
-import { useRef, useState } from 'react'
+import { Element, ViewMode } from '@/types/editor'
+import { ReactNode } from 'react'
+import { cn } from '@/lib/utils'
+import { Play, Pause, Volume2, VolumeX, Maximize2 } from 'lucide-react'
 
 interface AudioElementProps {
   element: Element
-  isSelected: boolean
-  onSelect: () => void
+  onUpdate: (elementId: string, updates: Partial<Element>) => void
+  viewMode: ViewMode
+  style: React.CSSProperties
+  children: ReactNode
 }
 
-export function AudioElement({ element, isSelected, onSelect }: AudioElementProps) {
-  const { 
-    src = '', 
-    title = 'Audio Player',
-    artist = 'Unknown Artist',
-    cover = '',
-    autoplay = false,
-    loop = false,
-    showControls = true,
-    showVisualization = false
-  } = element.props
-
-  const audioRef = useRef<HTMLAudioElement>(null)
-  const [isPlaying, setIsPlaying] = useState(false)
-  const [currentTime, setCurrentTime] = useState(0)
-  const [duration, setDuration] = useState(0)
-  const [volume, setVolume] = useState(1)
-
-  const togglePlayPause = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause()
-      } else {
-        audioRef.current.play()
+export function AudioElement({ element, onUpdate, viewMode, style, children }: AudioElementProps) {
+  const handleTitleChange = (e: React.FocusEvent<HTMLDivElement>) => {
+    const newTitle = e.target.innerText
+    onUpdate(element.id, {
+      props: {
+        ...element.props,
+        title: newTitle
       }
-      setIsPlaying(!isPlaying)
+    })
+  }
+
+  const getVariantClass = () => {
+    switch (element.props.variant) {
+      case 'minimal':
+        return 'bg-transparent border-0'
+      case 'card':
+        return 'bg-card border border-border rounded-lg'
+      case 'player':
+        return 'bg-muted border border-border rounded-lg'
+      default:
+        return 'bg-card border border-border rounded-lg'
     }
   }
 
-  const handleTimeUpdate = () => {
-    if (audioRef.current) {
-      setCurrentTime(audioRef.current.currentTime)
-      setDuration(audioRef.current.duration)
+  const getSizeClass = () => {
+    switch (element.props.size) {
+      case 'sm':
+        return 'h-12'
+      case 'lg':
+        return 'h-20'
+      case 'xl':
+        return 'h-24'
+      case 'md':
+      default:
+        return 'h-16'
     }
-  }
-
-  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const time = parseFloat(e.target.value)
-    if (audioRef.current) {
-      audioRef.current.currentTime = time
-      setCurrentTime(time)
-    }
-  }
-
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const vol = parseFloat(e.target.value)
-    if (audioRef.current) {
-      audioRef.current.volume = vol
-      setVolume(vol)
-    }
-  }
-
-  const formatTime = (time: number) => {
-    if (isNaN(time)) return '0:00'
-    const minutes = Math.floor(time / 60)
-    const seconds = Math.floor(time % 60)
-    return `${minutes}:${seconds.toString().padStart(2, '0')}`
-  }
-
-  if (!src) {
-    return (
-      <div
-        onClick={onSelect}
-        className={`
-          p-8 cursor-pointer transition-all border-2 border-dashed border-muted-foreground/50
-          ${isSelected ? 'ring-2 ring-primary ring-offset-2' : ''}
-        `}
-      >
-        <div className="text-center">
-          <Music className="h-12 w-12 mx-auto mb-2 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground">
-            Add audio URL to display player
-          </p>
-        </div>
-      </div>
-    )
   }
 
   return (
     <div
-      onClick={onSelect}
-      className={`
-        p-4 cursor-pointer transition-all
-        ${isSelected ? 'ring-2 ring-primary ring-offset-2' : ''}
-      `}
+      className={cn(
+        'w-full p-4',
+        getVariantClass(),
+        getSizeClass()
+      )}
+      style={style}
     >
-      <audio
-        ref={audioRef}
-        src={src}
-        autoPlay={autoplay}
-        loop={loop}
-        onTimeUpdate={handleTimeUpdate}
-        onPlay={() => setIsPlaying(true)}
-        onPause={() => setIsPlaying(false)}
-        onLoadedMetadata={handleTimeUpdate}
-        className="hidden"
-      />
+      {/* Audio Player */}
+      <div className="flex items-center space-x-4">
+        {/* Play/Pause Button */}
+        <button className="flex items-center justify-center w-12 h-12 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 transition-colors">
+          <Play className="h-6 w-6" />
+        </button>
 
-      <div className="bg-card border border-border rounded-lg p-4">
-        <div className="flex items-center gap-4">
-          {/* Album Cover */}
-          <div className="flex-shrink-0">
-            {cover ? (
-              <img
-                src={cover}
-                alt={title}
-                className="w-16 h-16 rounded object-cover"
-              />
-            ) : (
-              <div className="w-16 h-16 bg-primary/10 rounded flex items-center justify-center">
-                <Music className="h-8 w-8 text-primary" />
-              </div>
-            )}
+        {/* Track Info */}
+        <div className="flex-1 min-w-0">
+          <div
+            className="font-medium text-foreground truncate"
+            contentEditable
+            suppressContentEditableWarning
+            onBlur={handleTitleChange}
+          >
+            {element.props.title || 'Audio Track'}
           </div>
-
-          {/* Player Content */}
-          <div className="flex-1 min-w-0">
-            <h3 className="font-medium truncate">{title}</h3>
-            <p className="text-sm text-muted-foreground truncate">{artist}</p>
-            
-            {showControls && (
-              <>
-                {/* Progress Bar */}
-                <div className="mt-2">
-                  <input
-                    type="range"
-                    min="0"
-                    max={duration || 100}
-                    value={currentTime}
-                    onChange={handleSeek}
-                    onClick={(e) => e.stopPropagation()}
-                    className="w-full h-1 bg-muted rounded-lg appearance-none cursor-pointer"
-                    style={{
-                      background: `linear-gradient(to right, hsl(var(--primary)) ${(currentTime / duration) * 100}%, hsl(var(--muted)) ${(currentTime / duration) * 100}%)`
-                    }}
-                  />
-                  <div className="flex justify-between text-xs text-muted-foreground mt-1">
-                    <span>{formatTime(currentTime)}</span>
-                    <span>{formatTime(duration)}</span>
-                  </div>
-                </div>
-
-                {/* Controls */}
-                <div className="flex items-center gap-2 mt-2">
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      togglePlayPause()
-                    }}
-                    className="w-10 h-10 bg-primary text-primary-foreground rounded-full flex items-center justify-center hover:bg-primary/90 transition-colors"
-                  >
-                    {isPlaying ? (
-                      <Pause className="h-5 w-5" />
-                    ) : (
-                      <Play className="h-5 w-5 ml-0.5" />
-                    )}
-                  </button>
-
-                  {/* Volume Control */}
-                  <div className="flex items-center gap-2 ml-auto">
-                    <Volume2 className="h-4 w-4 text-muted-foreground" />
-                    <input
-                      type="range"
-                      min="0"
-                      max="1"
-                      step="0.1"
-                      value={volume}
-                      onChange={handleVolumeChange}
-                      onClick={(e) => e.stopPropagation()}
-                      className="w-20 h-1 bg-muted rounded-lg appearance-none cursor-pointer"
-                    />
-                  </div>
-                </div>
-              </>
-            )}
+          <div className="text-sm text-muted-foreground">
+            {element.props.artist || 'Unknown Artist'} • {element.props.duration || '0:00'}
           </div>
         </div>
 
-        {showVisualization && (
-          <div className="mt-4 h-16 bg-muted/50 rounded flex items-end justify-center gap-1 p-2">
-            {[...Array(20)].map((_, i) => (
-              <div
-                key={i}
-                className="flex-1 bg-primary rounded-sm transition-all duration-300"
-                style={{
-                  height: `${isPlaying ? Math.random() * 100 : 20}%`,
-                  opacity: isPlaying ? 1 : 0.3
-                }}
-              />
-            ))}
+        {/* Volume Control */}
+        <div className="flex items-center space-x-2">
+          <button className="p-2 hover:bg-muted rounded transition-colors">
+            <Volume2 className="h-4 w-4" />
+          </button>
+          <div className="w-20 h-1 bg-muted rounded-full">
+            <div className="w-3/4 h-full bg-primary rounded-full"></div>
           </div>
-        )}
+        </div>
+
+        {/* Fullscreen */}
+        <button className="p-2 hover:bg-muted rounded transition-colors">
+          <Maximize2 className="h-4 w-4" />
+        </button>
       </div>
+
+      {/* Progress Bar */}
+      <div className="mt-4">
+        <div className="w-full h-1 bg-muted rounded-full">
+          <div className="w-1/3 h-full bg-primary rounded-full"></div>
+        </div>
+        <div className="flex justify-between text-xs text-muted-foreground mt-1">
+          <span>0:00</span>
+          <span>{element.props.duration || '0:00'}</span>
+        </div>
+      </div>
+
+      {/* Audio Controls */}
+      <div className="mt-4 flex items-center justify-between">
+        <div className="flex items-center space-x-2">
+          <button className="p-2 hover:bg-muted rounded transition-colors">
+            <span className="text-xs">Shuffle</span>
+          </button>
+          <button className="p-2 hover:bg-muted rounded transition-colors">
+            <span className="text-xs">Repeat</span>
+          </button>
+        </div>
+        
+        <div className="flex items-center space-x-2">
+          <button className="p-2 hover:bg-muted rounded transition-colors">
+            <span className="text-xs">Previous</span>
+          </button>
+          <button className="p-2 hover:bg-muted rounded transition-colors">
+            <span className="text-xs">Next</span>
+          </button>
+        </div>
+      </div>
+
+      {!element.props.title && (
+        <div className="absolute inset-0 border-2 border-dashed border-border rounded-lg flex items-center justify-center text-muted-foreground pointer-events-none">
+          <div className="text-center">
+            <Play className="h-8 w-8 mx-auto mb-2" />
+            <p>Audio Player</p>
+            <p className="text-xs mt-1">
+              Variant: {element.props.variant || 'card'} | 
+              Size: {element.props.size || 'md'}
+            </p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

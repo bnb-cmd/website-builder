@@ -411,18 +411,45 @@ export function TemplateLibrary({ onSelectTemplate, onSelectBlock }: TemplateLib
                           <div className="relative aspect-video bg-muted group/preview cursor-pointer">
                             {/* Template Preview */}
                             {template.thumbnail ? (
-                              <img 
-                                src={`http://localhost:3005${template.thumbnail}`} 
-                                alt={template.name}
-                                className="w-full h-full object-cover"
-                                onError={(e) => {
-                                  // Fallback to placeholder if image fails to load
-                                  e.currentTarget.style.display = 'none';
-                                  e.currentTarget.nextElementSibling.style.display = 'flex';
-                                }}
-                              />
+                              <div className="w-full h-full flex items-center justify-center bg-muted">
+                                {template.thumbnail.endsWith('.svg') ? (
+                                  <img 
+                                    src={`http://localhost:3005${template.thumbnail}`} 
+                                    alt={template.name}
+                                    className="w-full h-full object-contain"
+                                    onError={(e) => {
+                                      console.error('Failed to load SVG thumbnail:', template.thumbnail);
+                                      e.currentTarget.style.display = 'none';
+                                      e.currentTarget.nextElementSibling.style.display = 'flex';
+                                    }}
+                                  />
+                                ) : (
+                                  <img 
+                                    src={`http://localhost:3005${template.thumbnail}`} 
+                                    alt={template.name}
+                                    className="w-full h-full object-cover"
+                                    onError={(e) => {
+                                      console.error('Failed to load thumbnail:', template.thumbnail);
+                                      e.currentTarget.style.display = 'none';
+                                      e.currentTarget.nextElementSibling.style.display = 'flex';
+                                    }}
+                                  />
+                                )}
+                                {/* Fallback placeholder */}
+                                <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-purple-500 opacity-20 flex items-center justify-center" style={{ display: 'none' }}>
+                                  <div className="text-center text-white">
+                                    <Layout className="h-8 w-8 mx-auto mb-2" />
+                                    <span className="text-sm font-medium">{template.name}</span>
+                                  </div>
+                                </div>
+                              </div>
                             ) : (
-                              <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-purple-500 opacity-20" />
+                              <div className="absolute inset-0 bg-gradient-to-br from-slate-900 to-purple-500 opacity-20 flex items-center justify-center">
+                                <div className="text-center text-white">
+                                  <Layout className="h-8 w-8 mx-auto mb-2" />
+                                  <span className="text-sm font-medium">{template.name}</span>
+                                </div>
+                              </div>
                             )}
                             
                             {/* Quick Preview Overlay */}

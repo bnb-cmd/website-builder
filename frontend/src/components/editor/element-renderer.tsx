@@ -29,6 +29,57 @@ import { TestimonialElement } from './elements/testimonial-element'
 import { PricingElement } from './elements/pricing-element'
 import { TeamElement } from './elements/team-element'
 import { FAQElement } from './elements/faq-element'
+import { GridElement } from './elements/grid-element'
+import { FlexboxElement } from './elements/flexbox-element'
+import { SectionElement } from './elements/section-element'
+import { ColumnsElement } from './elements/columns-element'
+import { CardElement } from './elements/card-element'
+import { BadgeElement } from './elements/badge-element'
+import { AlertElement } from './elements/alert-element'
+import { TooltipElement } from './elements/tooltip-element'
+import { SliderElement } from './elements/slider-element'
+import { CarouselElement } from './elements/carousel-element'
+import { MapElement } from './elements/map-element'
+import { ChartElement } from './elements/chart-element'
+import { NavbarElement } from './elements/navbar-element'
+import { FooterElement } from './elements/footer-element'
+import { BreadcrumbElement } from './elements/breadcrumb-element'
+import { RatingElement } from './elements/rating-element'
+import { SearchElement } from './elements/search-element'
+import { GalleryElement } from './elements/gallery-element'
+import { NewsletterElement } from './elements/newsletter-element'
+import { ContactElement } from './elements/contact-element'
+import { SidebarElement } from './elements/sidebar-element'
+import { BlogElement } from './elements/blog-element'
+import { PortfolioElement } from './elements/portfolio-element'
+import { ServicesElement } from './elements/services-element'
+import { ClientsElement } from './elements/clients-element'
+import { PartnersElement } from './elements/partners-element'
+import { AwardsElement } from './elements/awards-element'
+import { NotificationElement } from './elements/notification-element'
+import { FilterElement } from './elements/filter-element'
+import { TableElement } from './elements/table-element'
+import { CodeElement } from './elements/code-element'
+import { IconElement } from './elements/icon-element'
+import { SocialElement } from './elements/social-element'
+import { RowElement } from './elements/row-element'
+import { AboutElement } from './elements/about-element'
+import { BannerElement } from './elements/banner-element'
+import { PopupElement } from './elements/popup-element'
+import { AudioElement } from './elements/audio-element'
+import { PdfElement } from './elements/pdf-element'
+import { DownloadElement } from './elements/download-element'
+import { PaginationElement } from './elements/pagination-element'
+import { CommentsElement } from './elements/comments-element'
+import { ShareElement } from './elements/share-element'
+import { LoginElement } from './elements/login-element'
+import { CartElement } from './elements/cart-element'
+import { EmbedElement } from './elements/embed-element'
+import { RegisterElement } from './elements/register-element'
+import { CheckoutElement } from './elements/checkout-element'
+import { WishlistElement } from './elements/wishlist-element'
+import { CompareElement } from './elements/compare-element'
+import { QuickviewElement } from './elements/quickview-element'
 
 interface ElementRendererProps {
   element: Element
@@ -153,6 +204,275 @@ export function ElementRenderer({
         return <TeamElement {...commonProps} />
       case 'faq':
         return <FAQElement {...commonProps} />
+      case 'grid':
+        return (
+          <GridElement {...commonProps}>
+            {element.children?.map((child) => (
+              <ElementRenderer
+                key={child.id}
+                element={child}
+                isSelected={false}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                viewMode={viewMode}
+                depth={depth + 1}
+              />
+            ))}
+          </GridElement>
+        )
+      case 'flexbox':
+      case 'flex':
+        return (
+          <FlexboxElement {...commonProps}>
+            {element.children?.map((child) => (
+              <ElementRenderer
+                key={child.id}
+                element={child}
+                isSelected={false}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                viewMode={viewMode}
+                depth={depth + 1}
+              />
+            ))}
+          </FlexboxElement>
+        )
+      case 'section':
+        return (
+          <SectionElement {...commonProps}>
+            {element.children?.map((child) => (
+              <ElementRenderer
+                key={child.id}
+                element={child}
+                isSelected={false}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                viewMode={viewMode}
+                depth={depth + 1}
+              />
+            ))}
+          </SectionElement>
+        )
+      case 'column':
+      case 'columns':
+        return (
+          <ColumnsElement {...commonProps}>
+            {element.children?.map((child) => (
+              <ElementRenderer
+                key={child.id}
+                element={child}
+                isSelected={false}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                viewMode={viewMode}
+                depth={depth + 1}
+              />
+            ))}
+          </ColumnsElement>
+        )
+      case 'card':
+        return (
+          <CardElement {...commonProps}>
+            {element.children?.map((child) => (
+              <ElementRenderer
+                key={child.id}
+                element={child}
+                isSelected={false}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                viewMode={viewMode}
+                depth={depth + 1}
+              />
+            ))}
+          </CardElement>
+        )
+      case 'badge':
+        return <BadgeElement {...commonProps} />
+      case 'alert':
+        return <AlertElement {...commonProps} />
+      case 'tooltip':
+        return (
+          <TooltipElement {...commonProps}>
+            {element.children?.map((child) => (
+              <ElementRenderer
+                key={child.id}
+                element={child}
+                isSelected={false}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                viewMode={viewMode}
+                depth={depth + 1}
+              />
+            ))}
+          </TooltipElement>
+        )
+      case 'slider':
+        return <SliderElement {...commonProps} />
+      case 'carousel':
+        return <CarouselElement {...commonProps} />
+      case 'map':
+        return <MapElement {...commonProps} />
+      case 'chart':
+        return <ChartElement {...commonProps} />
+      case 'navbar':
+        return <NavbarElement {...commonProps} />
+      case 'footer':
+        return <FooterElement {...commonProps} />
+      case 'breadcrumb':
+        return <BreadcrumbElement {...commonProps} />
+      case 'rating':
+        return <RatingElement {...commonProps} />
+      case 'search':
+        return <SearchElement {...commonProps} />
+      case 'gallery':
+        return <GalleryElement {...commonProps} />
+      case 'newsletter':
+        return <NewsletterElement {...commonProps} />
+      case 'contact':
+        return (
+          <ContactElement {...commonProps}>
+            {element.children?.map((child) => (
+              <ElementRenderer
+                key={child.id}
+                element={child}
+                isSelected={false}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                viewMode={viewMode}
+                depth={depth + 1}
+              />
+            ))}
+          </ContactElement>
+        )
+      case 'sidebar':
+        return (
+          <SidebarElement {...commonProps}>
+            {element.children?.map((child) => (
+              <ElementRenderer
+                key={child.id}
+                element={child}
+                isSelected={false}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                viewMode={viewMode}
+                depth={depth + 1}
+              />
+            ))}
+          </SidebarElement>
+        )
+      case 'blog':
+        return <BlogElement {...commonProps} />
+      case 'portfolio':
+        return <PortfolioElement {...commonProps} />
+      case 'services':
+        return <ServicesElement {...commonProps} />
+      case 'clients':
+        return <ClientsElement {...commonProps} />
+      case 'partners':
+        return <PartnersElement {...commonProps} />
+      case 'awards':
+        return <AwardsElement {...commonProps} />
+      case 'notification':
+        return <NotificationElement {...commonProps} />
+      case 'filter':
+        return <FilterElement {...commonProps} />
+      case 'table':
+        return <TableElement {...commonProps} />
+      case 'code':
+        return <CodeElement {...commonProps} />
+      case 'icon':
+        return <IconElement {...commonProps} />
+      case 'social':
+        return <SocialElement {...commonProps} />
+      case 'row':
+        return (
+          <RowElement {...commonProps}>
+            {element.children?.map((child) => (
+              <ElementRenderer
+                key={child.id}
+                element={child}
+                isSelected={false}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                viewMode={viewMode}
+                depth={depth + 1}
+              />
+            ))}
+          </RowElement>
+        )
+      case 'about':
+        return (
+          <AboutElement {...commonProps}>
+            {element.children?.map((child) => (
+              <ElementRenderer
+                key={child.id}
+                element={child}
+                isSelected={false}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                viewMode={viewMode}
+                depth={depth + 1}
+              />
+            ))}
+          </AboutElement>
+        )
+      case 'banner':
+        return <BannerElement {...commonProps} />
+      case 'popup':
+        return (
+          <PopupElement {...commonProps}>
+            {element.children?.map((child) => (
+              <ElementRenderer
+                key={child.id}
+                element={child}
+                isSelected={false}
+                onSelect={onSelect}
+                onUpdate={onUpdate}
+                onDelete={onDelete}
+                viewMode={viewMode}
+                depth={depth + 1}
+              />
+            ))}
+          </PopupElement>
+        )
+      case 'audio':
+        return <AudioElement {...commonProps} />
+      case 'pdf':
+        return <PdfElement {...commonProps} />
+      case 'download':
+        return <DownloadElement {...commonProps} />
+      case 'pagination':
+        return <PaginationElement {...commonProps} />
+      case 'comments':
+        return <CommentsElement {...commonProps} />
+      case 'share':
+        return <ShareElement {...commonProps} />
+      case 'login':
+        return <LoginElement {...commonProps} />
+      case 'cart':
+        return <CartElement {...commonProps} />
+      case 'embed':
+        return <EmbedElement {...commonProps} />
+      case 'register':
+        return <RegisterElement {...commonProps} />
+      case 'checkout':
+        return <CheckoutElement {...commonProps} />
+      case 'wishlist':
+        return <WishlistElement {...commonProps} />
+      case 'compare':
+        return <CompareElement {...commonProps} />
+      case 'quickview':
+        return <QuickviewElement {...commonProps} />
       // TODO: Add more element types as we create them
       default:
         return (

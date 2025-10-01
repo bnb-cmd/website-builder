@@ -296,16 +296,29 @@ export default function NewWebsitePage() {
                     <div className="aspect-video bg-muted rounded-lg mb-3 overflow-hidden relative">
                       {template.thumbnail ? (
                         <>
-                          <img 
-                            src={`http://localhost:3005${template.thumbnail}`} 
-                            alt={template.name}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              // Fallback to placeholder if image fails to load
-                              e.currentTarget.style.display = 'none';
-                              e.currentTarget.nextElementSibling.style.display = 'flex';
-                            }}
-                          />
+                          {template.thumbnail.endsWith('.svg') ? (
+                            <img 
+                              src={`http://localhost:3005${template.thumbnail}`} 
+                              alt={template.name}
+                              className="w-full h-full object-contain"
+                              onError={(e) => {
+                                console.error('Failed to load SVG thumbnail:', template.thumbnail);
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling.style.display = 'flex';
+                              }}
+                            />
+                          ) : (
+                            <img 
+                              src={`http://localhost:3005${template.thumbnail}`} 
+                              alt={template.name}
+                              className="w-full h-full object-cover"
+                              onError={(e) => {
+                                console.error('Failed to load thumbnail:', template.thumbnail);
+                                e.currentTarget.style.display = 'none';
+                                e.currentTarget.nextElementSibling.style.display = 'flex';
+                              }}
+                            />
+                          )}
                           <div 
                             className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-100 to-purple-100"
                             style={{ display: 'none' }}

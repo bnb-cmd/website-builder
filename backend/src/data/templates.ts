@@ -22,7 +22,9 @@ export const websiteTemplates = [
             { label: 'Contact', link: '/contact' }
           ],
           style: 'modern'
-        }
+        },
+        style: {},
+        children: []
       },
       {
         id: 'hero-1',
@@ -33,7 +35,9 @@ export const websiteTemplates = [
           buttonText: 'Get Started',
           buttonLink: '/contact',
           backgroundImage: '/templates/hero-business.jpg'
-        }
+        },
+        style: {},
+        children: []
       },
       {
         id: 'features-1',
@@ -57,7 +61,9 @@ export const websiteTemplates = [
               description: 'Experienced professionals dedicated to your success'
             }
           ]
-        }
+        },
+        style: {},
+        children: []
       }
     ]
   },
@@ -85,7 +91,9 @@ export const websiteTemplates = [
           ],
           showCart: true,
           showSearch: true
-        }
+        },
+        style: {},
+        children: []
       }
     ]
   },
