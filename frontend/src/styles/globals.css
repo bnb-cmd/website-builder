@@ -1,0 +1,232 @@
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --font-size: 14px;
+  /* Figma-like colors - clean grays and whites */
+  --background: #ffffff;
+  --foreground: #1e1e1e;
+  --card: #ffffff;
+  --card-foreground: #1e1e1e;
+  --popover: #ffffff;
+  --popover-foreground: #1e1e1e;
+  --primary: #0969da;
+  --primary-foreground: #ffffff;
+  --secondary: #f6f8fa;
+  --secondary-foreground: #1e1e1e;
+  --muted: #f6f8fa;
+  --muted-foreground: #656d76;
+  --accent: #f6f8fa;
+  --accent-foreground: #1e1e1e;
+  --destructive: #d1242f;
+  --destructive-foreground: #ffffff;
+  --border: #d0d7de;
+  --input: #f6f8fa;
+  --input-background: #ffffff;
+  --ring: #0969da;
+  --chart-1: #0969da;
+  --chart-2: #8250df;
+  --chart-3: #1f883d;
+  --chart-4: #fb8500;
+  --chart-5: #d1242f;
+  --radius: 6px;
+  /* Sidebar colors matching Figma's left panel */
+  --sidebar: #f9f9f9;
+  --sidebar-foreground: #1e1e1e;
+  --sidebar-primary: #0969da;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #f6f8fa;
+  --sidebar-accent-foreground: #656d76;
+  --sidebar-border: #d0d7de;
+  --sidebar-ring: #0969da;
+  /* Clean, minimal shadows */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-xl: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+.dark {
+  /* Figma dark mode - clean dark grays */
+  --background: #1e1e1e;
+  --foreground: #f0f6ff;
+  --card: #262626;
+  --card-foreground: #f0f6ff;
+  --popover: #262626;
+  --popover-foreground: #f0f6ff;
+  --primary: #4184f3;
+  --primary-foreground: #ffffff;
+  --secondary: #333333;
+  --secondary-foreground: #f0f6ff;
+  --muted: #333333;
+  --muted-foreground: #8b949e;
+  --accent: #333333;
+  --accent-foreground: #f0f6ff;
+  --destructive: #f85149;
+  --destructive-foreground: #ffffff;
+  --border: #333333;
+  --input: #262626;
+  --input-background: #262626;
+  --ring: #4184f3;
+  --chart-1: #4184f3;
+  --chart-2: #8250df;
+  --chart-3: #3fb950;
+  --chart-4: #fb8500;
+  --chart-5: #f85149;
+  --sidebar: #1a1a1a;
+  --sidebar-foreground: #f0f6ff;
+  --sidebar-primary: #4184f3;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #262626;
+  --sidebar-accent-foreground: #8b949e;
+  --sidebar-border: #333333;
+  --sidebar-ring: #4184f3;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 1px 3px 0 rgba(0, 0, 0, 0.4), 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.3);
+  --shadow-xl: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 2px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 2px);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+}
+
+/* Clean, minimal utility classes inspired by Figma */
+@layer utilities {
+  .border-subtle {
+    border: 1px solid var(--border);
+  }
+  
+  .shadow-figma {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 1px 4px rgba(0, 0, 0, 0.08);
+  }
+  
+  .shadow-figma-lg {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0, 0, 0, 0.08);
+  }
+  
+  .text-subtle {
+    color: var(--muted-foreground);
+  }
+  
+  .bg-subtle {
+    background: var(--muted);
+  }
+  
+  .hover-subtle {
+    transition: background-color 0.15s ease;
+  }
+  
+  .hover-subtle:hover {
+    background: var(--accent);
+  }
+}
+
+/**
+ * Base typography. This is not applied to elements which have an ancestor with a Tailwind text class.
+ */
+@layer base {
+  :where(:not(:has([class*=" text-"]), :not(:has([class^="text-"])))) {
+    h1 {
+      font-size: 1.5rem;
+      font-weight: 600;
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+    }
+
+    h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      line-height: 1.4;
+      letter-spacing: -0.005em;
+    }
+
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    h4 {
+      font-size: 1rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    p {
+      font-size: 0.875rem;
+      font-weight: 400;
+      line-height: 1.5;
+    }
+
+    label {
+      font-size: 0.875rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    button {
+      font-size: 0.875rem;
+      font-weight: 500;
+      line-height: 1.4;
+    }
+
+    input {
+      font-size: 0.875rem;
+      font-weight: 400;
+      line-height: 1.4;
+    }
+  }
+}
+
+html {
+  font-size: var(--font-size);
+}

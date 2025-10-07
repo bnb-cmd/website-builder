@@ -140,6 +140,76 @@ export class WebsiteService extends BaseService<Website> {
     }
   }
 
+  async publishWebsite(websiteId: string, customDomain?: string): Promise<Website> {
+    try {
+      const website = await this.prisma.website.findUnique({
+        where: { id: websiteId }
+      })
+
+      if (!website) {
+        throw new Error('Website not found')
+      }
+
+      if (website.status === 'PUBLISHED') {
+        throw new Error('Website is already published')
+      }
+
+      const updatedWebsite = await this.prisma.website.update({
+        where: { id: websiteId },
+        data: {
+          status: 'PUBLISHED',
+          customDomain: customDomain || null,
+          publishedAt: new Date(),
+          updatedAt: new Date()
+        }
+      })
+
+      console.log('✅ Website published successfully:', websiteId)
+      
+      // Invalidate cache
+      await this.invalidateCache('websites:*')
+      await this.invalidateCache(`user:${website.userId}:websites`)
+      
+      return updatedWebsite
+    } catch (error) {
+      console.error('❌ WebsiteService.publishWebsite error:', error)
+      throw error
+    }
+  }
+
+  async unpublishWebsite(websiteId: string): Promise<Website> {
+    try {
+      const website = await this.prisma.website.findUnique({
+        where: { id: websiteId }
+      })
+
+      if (!website) {
+        throw new Error('Website not found')
+      }
+
+      const updatedWebsite = await this.prisma.website.update({
+        where: { id: websiteId },
+        data: {
+          status: 'DRAFT',
+          customDomain: null,
+          publishedAt: null,
+          updatedAt: new Date()
+        }
+      })
+
+      console.log('✅ Website unpublished successfully:', websiteId)
+      
+      // Invalidate cache
+      await this.invalidateCache('websites:*')
+      await this.invalidateCache(`user:${website.userId}:websites`)
+      
+      return updatedWebsite
+    } catch (error) {
+      console.error('❌ WebsiteService.unpublishWebsite error:', error)
+      throw error
+    }
+  }
+
   override async findById(id: string): Promise<Website | null> {
     try {
       this.validateId(id)

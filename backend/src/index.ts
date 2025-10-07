@@ -25,6 +25,7 @@ import { userRoutes } from '@/routes/users'
 import { paymentRoutes } from '@/routes/payments'
 import { adminRoutes } from '@/routes/admin'
 import { domainRoutes } from '@/routes/domains'
+import { dnsVerificationRoutes } from '@/routes/dnsVerification'
 import { pwaRoutes } from '@/routes/pwa'
 import { analyticsRoutes } from '@/routes/analytics'
 import { marketingRoutes } from '@/routes/marketing'
@@ -39,6 +40,8 @@ import { aiOnboardingRoutes } from '@/routes/aiOnboarding'
 import { contentRoutes } from '@/routes/content'
 import { performanceOptimizationRoutes } from '@/routes/performanceOptimization'
 import { conversationRoutes } from '@/routes/conversation'
+import { seoRoutes } from '@/routes/seo'
+import { brandKitRoutes } from '@/routes/brandKit'
 
 // Import error handlers
 import { errorHandler } from '@/utils/errorHandler'
@@ -316,6 +319,7 @@ export async function createServer() {
       ['paymentRoutes', paymentRoutes, '/payments'],
       ['adminRoutes', adminRoutes, '/admin'],
       ['domainRoutes', domainRoutes, '/domains'],
+      ['dnsVerificationRoutes', dnsVerificationRoutes, '/dns'],
       ['pwaRoutes', pwaRoutes, '/'],
       ['analyticsRoutes', analyticsRoutes, '/analytics'],
       ['marketingRoutes', marketingRoutes, '/marketing'],
@@ -329,7 +333,9 @@ export async function createServer() {
       ['aiOnboardingRoutes', aiOnboardingRoutes, '/ai-onboarding'],
       ['conversationRoutes', conversationRoutes, '/'],
       ['contentRoutes', contentRoutes, '/'],
-      ['performanceOptimizationRoutes', performanceOptimizationRoutes, '/']
+      ['performanceOptimizationRoutes', performanceOptimizationRoutes, '/'],
+      ['seoRoutes', seoRoutes, '/seo'],
+      ['brandKitRoutes', brandKitRoutes, '/brand-kit']
     ]
 
     for (const [name, plugin, prefix] of routePlugins) {

@@ -1,28 +1,8 @@
-/**
- * ⚠️ DEPRECATED - DO NOT USE THIS FILE
- * 
- * This is a backup of the old dashboard page before the UI/UX improvements.
- * 
- * ✅ USE INSTEAD: /app/dashboard/page.tsx (the new enhanced version)
- * 
- * This file is kept for reference only and will be deleted in the next cleanup.
- * 
- * Changes in the new version:
- * - Uses new StatCard component instead of plain Card components
- * - Uses SkeletonDashboard for loading states
- * - Fixed all syntax errors and missing function definitions
- * - Enhanced with glass-morphism effects
- * - Better animations and transitions
- * 
- * Date deprecated: 2025-10-01
- */
-
 'use client'
 
 import { useEffect, useState } from 'react'
 import { useAuth } from '@/components/auth/auth-provider'
 import { useRouter, useSearchParams } from 'next/navigation'
-// import { DashboardLayout } from '@/components/dashboard/dashboard-layout' // Removed - now handled by layout.tsx
 import { DashboardStats } from '@/components/dashboard/dashboard-stats'
 import { RecentWebsites } from '@/components/dashboard/recent-websites'
 import { QuickActions } from '@/components/dashboard/quick-actions'
@@ -31,7 +11,6 @@ import { DashboardChecklist } from '@/components/dashboard/dashboard-checklist'
 import { AIOnboardingWizard } from '@/components/ai/ai-onboarding-wizard'
 import { UserJourneyMapping } from '@/components/dashboard/user-journey-mapping'
 import { PersonalizedWidgets } from '@/components/dashboard/personalized-widgets'
-import { SmartSkeleton } from '@/components/ui/smart-skeleton'
 import { SubscriptionPlans } from '@/components/subscriptions/subscription-plans'
 import { PaymentCheckout } from '@/components/payments/payment-checkout'
 import { Button } from '@/components/ui/button'
@@ -61,45 +40,109 @@ export default function DashboardPage() {
   const [loading, setLoading] = useState(true)
   const [currentView, setCurrentView] = useState<'dashboard' | 'onboarding' | 'plans' | 'checkout'>('dashboard')
   const [selectedPlan, setSelectedPlan] = useState<any>(null)
-  const [checkoutData, setCheckoutData] = useState<any>(null)
 
   useEffect(() => {
-    // Check if user should be redirected to onboarding wizard
     const shouldStartOnboarding = searchParams.get('onboarding') === 'true'
     if (shouldStartOnboarding) {
-      setCurrentView('onboarding')
-      // Remove the query parameter from URL
-      router.replace('/dashboard')
+      // Redirect to dedicated onboarding page
+      router.push('/onboarding')
       return
     }
 
-    // Bypass authentication for demo purposes
-    // if (!isLoading && !isAuthenticated) {
-    //   router.push('/login')
-    //   return
-    // }
+    loadDashboardData()
   }, [isAuthenticated, isLoading, router, searchParams])
 
-  const handleUpgrade = (subscriptionId: string, paymentGateway: string) => {
-    if (loading) {
-      return (
-        <div className="p-6">
-          <SkeletonDashboard />
-          {/* Dashboard Stats Loading */}
-{{ ... }}
-        <SmartSkeleton type="dashboard-stats" />
+  const loadDashboardData = async () => {
+    try {
+      const [websitesResponse] = await Promise.all([
+        apiHelpers.getWebsites({ limit: 5, sortBy: 'updatedAt' }),
+      ])
 
-        {/* Widgets Loading */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          <SmartSkeleton type="activity-feed" count={1} className="col-span-1" />
-          <SmartSkeleton type="activity-feed" count={1} className="col-span-1" />
-          <SmartSkeleton type="activity-feed" count={1} className="col-span-1" />
-          <SmartSkeleton type="activity-feed" count={1} className="col-span-1" />
-        </div>
+      const websites = websitesResponse.data.data || []
+      const publishedWebsites = websites.filter((w: any) => w.status === 'PUBLISHED')
+      
+      const realData: DashboardData = {
+        stats: {
+          totalWebsites: websites.length,
+          publishedWebsites: publishedWebsites.length,
+          totalVisitors: websites.reduce((sum: number, w: any) => sum + (w._count?.visitors || 0), 0),
+          conversionRate: publishedWebsites.length > 0 ? (publishedWebsites.length / websites.length) * 100 : 0
+        },
+        recentWebsites: websites,
+        activities: websites.slice(0, 3).map((website: any) => ({
+          id: `activity-${website.id}`,
+          type: website.status === 'PUBLISHED' ? 'website_published' : 'website_created',
+          message: website.status === 'PUBLISHED' 
+            ? `Published website "${website.name}"`
+            : `Created new website "${website.name}"`,
+          timestamp: website.updatedAt || website.createdAt
+        }))
+      }
+
+      setDashboardData(realData)
+    } catch (error) {
+      console.error('Failed to load dashboard data:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleCreateWebsite = () => {
+    router.push('/dashboard/websites/new')
+  }
+
+  const handleUpgrade = (subscriptionId: string, paymentGateway: string) => {
+    setSelectedPlan({ subscriptionId, paymentGateway })
+    setCurrentView('checkout')
+  }
+
+  const handleCheckoutSuccess = () => {
+    setCurrentView('dashboard')
+    setSelectedPlan(null)
+    loadDashboardData()
+  }
+
+  const handleCheckoutCancel = () => {
+    setCurrentView('plans')
+    setSelectedPlan(null)
+  }
+
+  const handleOnboardingComplete = () => {
+    setCurrentView('dashboard')
+    loadDashboardData()
+  }
+
+  const handleStepClick = (stepId: string) => {
+    switch (stepId) {
+      case 'first-website':
+      case 'customize-design':
+        router.push('/editor')
+        break
+      case 'setup-domain':
+        router.push('/domains')
+        break
+      case 'payment-setup':
+        router.push('/payments')
+        break
+      default:
+        console.log('Navigate to:', stepId)
+    }
+  }
+
+  const handleStartOnboarding = () => {
+    setCurrentView('onboarding')
+  }
+
+  // Loading State
+  if (loading) {
+    return (
+      <div className="p-6">
+        <SkeletonDashboard />
       </div>
     )
   }
 
+  // Error State
   if (!dashboardData) {
     return (
       <div className="text-center py-12">
@@ -109,7 +152,7 @@ export default function DashboardPage() {
     )
   }
 
-  // Render different views based on currentView state
+  // Onboarding View
   if (currentView === 'onboarding') {
     return (
       <AIOnboardingWizard 
@@ -119,6 +162,7 @@ export default function DashboardPage() {
     )
   }
 
+  // Plans View
   if (currentView === 'plans') {
     return (
       <div className="space-y-6">
@@ -141,12 +185,13 @@ export default function DashboardPage() {
     )
   }
 
+  // Checkout View
   if (currentView === 'checkout' && selectedPlan) {
     return (
       <PaymentCheckout
         subscriptionId={selectedPlan.subscriptionId}
         paymentGateway={selectedPlan.paymentGateway}
-        amount={2999} // This should come from the selected plan
+        amount={2999}
         currency="PKR"
         subscriptionName="Pro Plan"
         onSuccess={handleCheckoutSuccess}
@@ -155,6 +200,7 @@ export default function DashboardPage() {
     )
   }
 
+  // Main Dashboard View
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 via-blue-50/30 to-purple-50/30">
       {/* Enhanced Header */}
@@ -363,7 +409,6 @@ export default function DashboardPage() {
                 </CardHeader>
                 
                 <CardContent className="pt-0">
-                  {/* Thumbnail Preview */}
                   <div className="relative mb-4 rounded-lg overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200 h-32">
                     <div className="w-full h-full flex items-center justify-center">
                       <Globe className="w-8 h-8 text-gray-400" />
@@ -371,7 +416,6 @@ export default function DashboardPage() {
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-all duration-300" />
                   </div>
 
-                  {/* Stats */}
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div className="text-center p-2 bg-blue-50 rounded-lg">
                       <div className="flex items-center justify-center mb-1">
@@ -393,7 +437,6 @@ export default function DashboardPage() {
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
                   <div className="flex space-x-2">
                     <Button 
                       variant="outline" 
@@ -444,7 +487,7 @@ export default function DashboardPage() {
         {/* Personalized Dashboard Widgets */}
         <PersonalizedWidgets
           userId={user?.id || 'demo-user'}
-          userRole="beginner" // This could be determined from user profile
+          userRole="beginner"
         />
       </div>
     </div>

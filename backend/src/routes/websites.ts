@@ -324,6 +324,181 @@ export async function websiteRoutes(fastify: FastifyInstance) {
     }
   })
 
+  // POST /api/v1/websites/:id/publish
+  fastify.post('/:id/publish', {
+    preHandler: [authenticate, requireOwnership],
+    schema: {
+      description: 'Publish a website to a custom domain',
+      tags: ['Websites'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: 'uuid' }
+        },
+        required: ['id']
+      },
+      body: {
+        type: 'object',
+        properties: {
+          customDomain: { type: 'string' }
+        }
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean', example: true },
+            data: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                name: { type: 'string' },
+                status: { type: 'string' },
+                customDomain: { type: 'string' },
+                publishedAt: { type: 'string', format: 'date-time' }
+              }
+            },
+            timestamp: { type: 'string', format: 'date-time' }
+          }
+        },
+        400: { $ref: 'Error' },
+        401: { $ref: 'Error' },
+        404: { $ref: 'Error' }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { id } = request.params as { id: string }
+      const { customDomain } = request.body as { customDomain?: string }
+      
+      const website = await websiteService.publishWebsite(id, customDomain)
+      
+      reply.send({
+        success: true,
+        data: {
+          id: website.id,
+          name: website.name,
+          status: website.status,
+          customDomain: website.customDomain,
+          publishedAt: website.publishedAt
+        },
+        timestamp: new Date().toISOString()
+      })
+    } catch (error: any) {
+      if (error.message === 'Website not found') {
+        reply.status(404).send({
+          success: false,
+          error: {
+            message: 'Website not found',
+            code: 'WEBSITE_NOT_FOUND',
+            timestamp: new Date().toISOString()
+          }
+        })
+        return
+      }
+      
+      if (error.message === 'Website is already published') {
+        reply.status(400).send({
+          success: false,
+          error: {
+            message: 'Website is already published',
+            code: 'WEBSITE_ALREADY_PUBLISHED',
+            timestamp: new Date().toISOString()
+          }
+        })
+        return
+      }
+      
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to publish website',
+          code: 'PUBLISH_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // POST /api/v1/websites/:id/unpublish
+  fastify.post('/:id/unpublish', {
+    preHandler: [authenticate, requireOwnership],
+    schema: {
+      description: 'Unpublish a website',
+      tags: ['Websites'],
+      security: [{ bearerAuth: [] }],
+      params: {
+        type: 'object',
+        properties: {
+          id: { type: 'string', format: 'uuid' }
+        },
+        required: ['id']
+      },
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            success: { type: 'boolean', example: true },
+            data: {
+              type: 'object',
+              properties: {
+                id: { type: 'string' },
+                name: { type: 'string' },
+                status: { type: 'string' },
+                customDomain: { type: 'string' },
+                publishedAt: { type: 'string', format: 'date-time' }
+              }
+            },
+            timestamp: { type: 'string', format: 'date-time' }
+          }
+        },
+        400: { $ref: 'Error' },
+        401: { $ref: 'Error' },
+        404: { $ref: 'Error' }
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { id } = request.params as { id: string }
+      
+      const website = await websiteService.unpublishWebsite(id)
+      
+      reply.send({
+        success: true,
+        data: {
+          id: website.id,
+          name: website.name,
+          status: website.status,
+          customDomain: website.customDomain,
+          publishedAt: website.publishedAt
+        },
+        timestamp: new Date().toISOString()
+      })
+    } catch (error: any) {
+      if (error.message === 'Website not found') {
+        reply.status(404).send({
+          success: false,
+          error: {
+            message: 'Website not found',
+            code: 'WEBSITE_NOT_FOUND',
+            timestamp: new Date().toISOString()
+          }
+        })
+        return
+      }
+      
+      reply.status(500).send({
+        success: false,
+        error: {
+          message: 'Failed to unpublish website',
+          code: 'UNPUBLISH_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
   // GET /api/v1/websites/:id
   fastify.get('/:id', {
     preHandler: [authenticate],
