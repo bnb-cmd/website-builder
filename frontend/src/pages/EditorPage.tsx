@@ -1,5 +1,6 @@
 "use client";
-import React, { useState, useEffect } from 'react'
+
+import React, { useState, useEffect, useCallback } from 'react'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { Separator } from '../components/ui/separator'
@@ -31,6 +32,8 @@ interface PageComponent {
   position?: { x: number; y: number }
   locked?: boolean
   visible?: boolean
+  width?: number;
+  height?: number;
 }
 
 type DeviceMode = 'desktop' | 'tablet' | 'mobile'
@@ -49,7 +52,6 @@ const EditorPage: React.FC = () => {
 
   useEffect(() => {
     if (websiteId && currentWebsite?.id !== websiteId) {
-      // In a real app, you'd fetch the website data here
       console.log('Loading website:', websiteId)
     }
   }, [websiteId, currentWebsite])
@@ -87,28 +89,24 @@ const EditorPage: React.FC = () => {
   }
 
   const handlePublish = async () => {
-    await handleSave()
-    if (currentWebsite) {
-      await updateWebsite(currentWebsite.id, { status: 'published' })
-    }
+    console.log('Publishing website:', currentWebsite?.name)
+    // Implement publish logic here
   }
 
   const handleComponentDragStart = (component: any) => {
     console.log('EditorPage: Dragging component:', component)
   }
 
-  const handleComponentUpdate = (updatedComponent: PageComponent) => {
+  const handleComponentUpdate = useCallback((updatedComponent: PageComponent) => {
     setComponents(prev => 
-      prev.map(comp => 
-        comp.id === updatedComponent.id ? updatedComponent : comp
-      )
+      prev.map(c => (c.id === updatedComponent.id ? updatedComponent : c))
     )
     setSelectedComponent(updatedComponent)
-  }
+  }, [])
 
   const handleComponentDelete = () => {
     if (selectedComponent) {
-      setComponents(prev => prev.filter(comp => comp.id !== selectedComponent.id))
+      setComponents(prev => prev.filter(c => c.id !== selectedComponent.id))
       setSelectedComponent(null)
     }
   }
@@ -117,10 +115,11 @@ const EditorPage: React.FC = () => {
     if (selectedComponent) {
       const duplicated: PageComponent = {
         ...selectedComponent,
-        id: `${selectedComponent.type}_${Date.now()}`,
-        position: selectedComponent.position ? 
-          { x: selectedComponent.position.x + 20, y: selectedComponent.position.y + 20 } : 
-          undefined
+        id: `${selectedComponent.id}_copy_${Date.now()}`,
+        position: {
+          x: (selectedComponent.position?.x || 0) + 20,
+          y: (selectedComponent.position?.y || 0) + 20
+        }
       }
       setComponents(prev => [...prev, duplicated])
       setSelectedComponent(duplicated)
@@ -138,34 +137,31 @@ const EditorPage: React.FC = () => {
     }
   }
 
+  const getDeviceDimensions = () => {
+    switch (deviceMode) {
+      case 'mobile':
+        return { width: 375, height: 667 };
+      case 'tablet':
+        return { width: 768, height: 1024 };
+      default:
+        return { width: 1200, height: 1200 }; // Default desktop size
+    }
+  };
+
+  const deviceDimensions = getDeviceDimensions();
+
   return (
     <div className="h-screen bg-background flex flex-col">
       {/* Top Toolbar */}
       <div className="border-b bg-background">
-        <div className="flex items-center justify-between px-4 py-2">
+        <div className="flex items-center justify-between h-16 px-4">
           <div className="flex items-center space-x-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/dashboard/websites')}
-            >
+            <Button variant="ghost" size="sm" onClick={() => navigate('/dashboard/websites')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Websites
             </Button>
-            
-            <Separator orientation="vertical" className="h-6" />
-            
-            <div>
-              <h1 className="font-semibold">
-                {currentWebsite?.name || 'Untitled Website'}
-              </h1>
-              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <span>Last saved 2 minutes ago</span>
-                {hasUnsavedChanges && (
-                  <Badge variant="secondary">Unsaved changes</Badge>
-                )}
-              </div>
-            </div>
+            <h1 className="text-lg font-semibold">Untitled Website</h1>
+            {hasUnsavedChanges && <Badge variant="secondary">Unsaved changes</Badge>}
           </div>
 
           <div className="flex items-center space-x-2">
@@ -175,6 +171,7 @@ const EditorPage: React.FC = () => {
                 variant={deviceMode === 'desktop' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setDeviceMode('desktop')}
+                title="Desktop View"
               >
                 <Monitor className="w-4 h-4" />
               </Button>
@@ -182,6 +179,7 @@ const EditorPage: React.FC = () => {
                 variant={deviceMode === 'tablet' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setDeviceMode('tablet')}
+                title="Tablet View"
               >
                 <Tablet className="w-4 h-4" />
               </Button>
@@ -189,6 +187,7 @@ const EditorPage: React.FC = () => {
                 variant={deviceMode === 'mobile' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setDeviceMode('mobile')}
+                title="Mobile View"
               >
                 <Smartphone className="w-4 h-4" />
               </Button>
@@ -230,10 +229,6 @@ const EditorPage: React.FC = () => {
               <Rocket className="w-4 h-4 mr-2" />
               Publish
             </Button>
-
-            <Button variant="ghost" size="sm">
-              <Settings className="w-4 h-4" />
-            </Button>
           </div>
         </div>
       </div>
@@ -247,12 +242,14 @@ const EditorPage: React.FC = () => {
 
         {/* Main Canvas Area */}
         <div className="flex-1 flex flex-col">
-          <div className={`flex-1 ${getDeviceClass()}`}>
+          <div className={`flex-1 ${getDeviceClass()} flex justify-center items-start overflow-auto`}>
             <EditorCanvas
               components={components}
               onComponentsChange={setComponents}
               onComponentSelect={setSelectedComponent}
               selectedComponent={selectedComponent}
+              deviceMode={deviceMode}
+              deviceDimensions={deviceDimensions}
             />
           </div>
         </div>
@@ -276,12 +273,24 @@ const EditorPage: React.FC = () => {
             {selectedComponent && (
               <span>Selected: {selectedComponent.type}</span>
             )}
+            <span className="flex items-center gap-1">
+              <span>View:</span>
+              <Badge variant="outline" className="text-xs">
+                {deviceMode} ({deviceDimensions.width}×{deviceDimensions.height})
+              </Badge>
+            </span>
+            {deviceMode !== 'desktop' && (
+              <span className="text-green-600">📱 Components auto-adjust</span>
+            )}
           </div>
           
           <div className="flex items-center space-x-4">
             <span>WebBuilder Editor</span>
             <Badge variant="outline" className="text-xs">
               {isPreviewMode ? 'Preview Mode' : 'Edit Mode'}
+            </Badge>
+            <Badge variant="secondary" className="text-xs">
+              Responsive Design
             </Badge>
           </div>
         </div>
