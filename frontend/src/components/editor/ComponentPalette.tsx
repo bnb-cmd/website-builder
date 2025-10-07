@@ -187,7 +187,9 @@ interface ComponentPaletteProps {
 export const ComponentPalette: React.FC<ComponentPaletteProps> = ({ onDragStart }) => {
   const handleDragStart = (e: React.DragEvent, component: Component) => {
     e.dataTransfer.setData('application/json', JSON.stringify(component))
+    e.dataTransfer.effectAllowed = 'copy'
     onDragStart(component)
+    console.log('Drag started for component:', component.name)
   }
 
   return (

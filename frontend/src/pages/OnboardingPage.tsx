@@ -22,7 +22,7 @@ import {
   Wand2
 } from 'lucide-react'
 
-export const OnboardingPage: React.FC = () => {
+const OnboardingPage: React.FC = () => {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState(1)
   const [formData, setFormData] = useState({
@@ -489,3 +489,5 @@ export const OnboardingPage: React.FC = () => {
     </div>
   )
 }
+
+export default OnboardingPage

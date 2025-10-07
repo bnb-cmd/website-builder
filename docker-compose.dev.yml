@@ -56,6 +56,13 @@ services:
       - REDIS_URL=redis://redis:6379
       - PORT=3001
       - CLIENT_URL=http://localhost:3000
+      - JWT_SECRET=docker-dev-super-secret-jwt-key
+      - JWT_EXPIRES_IN=7d
+      - REFRESH_TOKEN_EXPIRES_IN=30d
+      - ENABLE_SWAGGER=true
+      - ENABLE_CORS=true
+      - ENABLE_LOGGING=true
+      - LOG_LEVEL=info
     volumes:
       - ./backend:/app
       - /app/node_modules
@@ -87,6 +94,8 @@ services:
       - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=http://localhost:3001
       - NEXT_PUBLIC_APP_URL=http://localhost:3000
+      - NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=""
+      - NEXT_PUBLIC_GOOGLE_ANALYTICS_ID=""
     volumes:
       - ./frontend:/app
       - /app/node_modules

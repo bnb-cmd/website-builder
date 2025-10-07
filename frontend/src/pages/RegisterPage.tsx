@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator'
 import { useAuthStore } from '@/lib/store'
 import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check } from 'lucide-react'
 
-export const RegisterPage: React.FC = () => {
+const RegisterPage: React.FC = () => {
   const router = useRouter()
   const { register, isLoading } = useAuthStore()
   const [formData, setFormData] = useState({
@@ -268,3 +268,5 @@ export const RegisterPage: React.FC = () => {
     </div>
   )
 }
+
+export default RegisterPage

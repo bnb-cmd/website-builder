@@ -44,17 +44,28 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
 }) => {
   const canvasRef = useRef<HTMLDivElement>(null)
   const [draggedComponent, setDraggedComponent] = useState<any>(null)
+  const [isDragOver, setIsDragOver] = useState(false)
   const { isPreviewMode } = useEditorStore()
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
+    e.dataTransfer.dropEffect = 'copy'
+    setIsDragOver(true)
+    console.log('Drag over canvas')
+  }
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    setIsDragOver(false)
   }
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
+    setIsDragOver(false)
+    console.log('Drop event triggered')
     
     try {
       const componentData = JSON.parse(e.dataTransfer.getData('application/json'))
+      console.log('Dropped component data:', componentData)
       const rect = canvasRef.current?.getBoundingClientRect()
       
       if (rect) {
@@ -70,6 +81,7 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
           locked: false
         }
         
+        console.log('Creating new component:', newComponent)
         onComponentsChange([...components, newComponent])
         onComponentSelect(newComponent)
       }
@@ -315,8 +327,12 @@ export const EditorCanvas: React.FC<EditorCanvasProps> = ({
       {/* Canvas */}
       <div
         ref={canvasRef}
-        className="min-h-full min-w-full relative p-8"
+        className={cn(
+          "min-h-full min-w-full relative p-8 transition-colors",
+          isDragOver && "bg-primary/5 border-2 border-dashed border-primary"
+        )}
         onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => onComponentSelect(null)}
       >

@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator'
 import { useAuthStore } from '@/lib/store'
 import { Eye, EyeOff, Mail, Lock, ArrowRight } from 'lucide-react'
 
-export const LoginPage: React.FC = () => {
+const LoginPage: React.FC = () => {
   const router = useRouter()
   const { login, isLoading } = useAuthStore()
   const [formData, setFormData] = useState({
@@ -183,3 +183,5 @@ export const LoginPage: React.FC = () => {
     </div>
   )
 }
+
+export default LoginPage

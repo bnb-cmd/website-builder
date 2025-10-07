@@ -156,7 +156,7 @@ const stats = [
   { number: '24/7', label: 'Support' }
 ]
 
-export const LandingPage: React.FC = () => {
+const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header variant="landing" />
@@ -498,3 +498,5 @@ export const LandingPage: React.FC = () => {
     </div>
   )
 }
+
+export default LandingPage

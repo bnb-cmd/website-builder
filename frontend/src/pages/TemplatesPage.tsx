@@ -62,7 +62,7 @@ const sortOptions = [
   { value: 'category', label: 'Category' }
 ]
 
-export const TemplatesPage: React.FC = () => {
+const TemplatesPage: React.FC = () => {
   const router = useRouter()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchQuery, setSearchQuery] = useState('')
@@ -827,3 +827,5 @@ export const TemplatesPage: React.FC = () => {
     </div>
   )
 }
+
+export default TemplatesPage

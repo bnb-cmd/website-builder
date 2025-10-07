@@ -1,9 +1,10 @@
-import { EditorPage } from '@/pages/EditorPage'
+import EditorPage from '@/pages/EditorPage'
 
-export default function EditWebsite({
+export default async function EditWebsite({
   params,
 }: {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }) {
+  const { id } = await params
   return <EditorPage />
 }

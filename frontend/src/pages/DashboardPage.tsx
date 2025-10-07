@@ -78,7 +78,7 @@ const quickActions = [
   }
 ]
 
-export const DashboardPage: React.FC = () => {
+const DashboardPage: React.FC = () => {
   const { user } = useAuthStore()
   const { websites, fetchWebsites, isLoading } = useWebsiteStore()
   const { navigate } = useRouter()
@@ -357,3 +357,5 @@ export const DashboardPage: React.FC = () => {
       </div>
   )
 }
+
+export default DashboardPage

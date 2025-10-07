@@ -35,7 +35,7 @@ interface PageComponent {
 
 type DeviceMode = 'desktop' | 'tablet' | 'mobile'
 
-export const EditorPage: React.FC = () => {
+const EditorPage: React.FC = () => {
   const { navigate, params } = useRouter()
   const { currentWebsite, updateWebsite } = useWebsiteStore()
   const { isPreviewMode, togglePreviewMode } = useEditorStore()
@@ -94,7 +94,7 @@ export const EditorPage: React.FC = () => {
   }
 
   const handleComponentDragStart = (component: any) => {
-    console.log('Dragging component:', component)
+    console.log('EditorPage: Dragging component:', component)
   }
 
   const handleComponentUpdate = (updatedComponent: PageComponent) => {
@@ -289,3 +289,5 @@ export const EditorPage: React.FC = () => {
     </div>
   )
 }
+
+export default EditorPage

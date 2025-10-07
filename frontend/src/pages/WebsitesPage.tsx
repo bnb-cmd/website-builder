@@ -47,7 +47,7 @@ const formatDate = (dateString: string) => {
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 
-export const WebsitesPage: React.FC = () => {
+const WebsitesPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [websites, setWebsites] = useState<Website[]>([])
@@ -337,3 +337,5 @@ export const WebsitesPage: React.FC = () => {
     </div>
   )
 }
+
+export default WebsitesPage
