@@ -5,106 +5,157 @@ import { BrandKitService } from '../services/brandKitService'
 
 // Schemas
 const createBrandKitSchema = {
-  body: z.object({
-    name: z.string().min(1),
-    description: z.string().optional(),
-    websiteId: z.string().optional(),
-    inheritsFrom: z.string().optional(),
-    logo: z.object({
-      primary: z.string().url().optional(),
-      secondary: z.string().url().optional(),
-      favicon: z.string().url().optional()
-    }).optional(),
-    colors: z.object({
-      primary: z.string().optional(),
-      secondary: z.string().optional(),
-      accent: z.string().optional(),
-      neutral: z.array(z.string()).optional(),
-      success: z.string().optional(),
-      warning: z.string().optional(),
-      error: z.string().optional()
-    }).optional(),
-    typography: z.object({
-      heading: z.string().optional(),
-      body: z.string().optional(),
-      accent: z.string().optional(),
-      sizes: z.object({
-        h1: z.string().optional(),
-        h2: z.string().optional(),
-        h3: z.string().optional(),
-        h4: z.string().optional(),
-        h5: z.string().optional(),
-        h6: z.string().optional(),
-        body: z.string().optional(),
-        small: z.string().optional()
-      }).optional()
-    }).optional(),
-    imagery: z.object({
-      style: z.string().optional(),
-      mood: z.string().optional(),
-      templates: z.array(z.string()).optional()
-    }).optional(),
-    guidelines: z.object({
-      logoUsage: z.string().optional(),
-      colorUsage: z.string().optional(),
-      spacing: z.string().optional()
-    }).optional()
-  })
+  body: {
+    type: 'object',
+    required: ['name'],
+    properties: {
+      name: { type: 'string', minLength: 1 },
+      description: { type: 'string' },
+      websiteId: { type: 'string' },
+      inheritsFrom: { type: 'string' },
+      logo: {
+        type: 'object',
+        properties: {
+          primary: { type: 'string', format: 'uri' },
+          secondary: { type: 'string', format: 'uri' },
+          favicon: { type: 'string', format: 'uri' }
+        }
+      },
+      colors: {
+        type: 'object',
+        properties: {
+          primary: { type: 'string' },
+          secondary: { type: 'string' },
+          accent: { type: 'string' },
+          neutral: { type: 'array', items: { type: 'string' } },
+          success: { type: 'string' },
+          warning: { type: 'string' },
+          error: { type: 'string' }
+        }
+      },
+      typography: {
+        type: 'object',
+        properties: {
+          heading: { type: 'string' },
+          body: { type: 'string' },
+          accent: { type: 'string' },
+          sizes: {
+            type: 'object',
+            properties: {
+              h1: { type: 'string' },
+              h2: { type: 'string' },
+              h3: { type: 'string' },
+              h4: { type: 'string' },
+              h5: { type: 'string' },
+              h6: { type: 'string' },
+              body: { type: 'string' },
+              small: { type: 'string' }
+            }
+          }
+        }
+      },
+      imagery: {
+        type: 'object',
+        properties: {
+          style: { type: 'string' },
+          mood: { type: 'string' },
+          templates: { type: 'array', items: { type: 'string' } }
+        }
+      },
+      guidelines: {
+        type: 'object',
+        properties: {
+          logoUsage: { type: 'string' },
+          colorUsage: { type: 'string' },
+          spacing: { type: 'string' }
+        }
+      }
+    }
+  }
 }
 
 const updateBrandKitSchema = {
-  params: z.object({
-    id: z.string()
-  }),
-  body: z.object({
-    name: z.string().min(1).optional(),
-    description: z.string().optional(),
-    logo: z.object({
-      primary: z.string().url().optional(),
-      secondary: z.string().url().optional(),
-      favicon: z.string().url().optional()
-    }).optional(),
-    colors: z.object({
-      primary: z.string().optional(),
-      secondary: z.string().optional(),
-      accent: z.string().optional(),
-      neutral: z.array(z.string()).optional(),
-      success: z.string().optional(),
-      warning: z.string().optional(),
-      error: z.string().optional()
-    }).optional(),
-    typography: z.object({
-      heading: z.string().optional(),
-      body: z.string().optional(),
-      accent: z.string().optional(),
-      sizes: z.object({
-        h1: z.string().optional(),
-        h2: z.string().optional(),
-        h3: z.string().optional(),
-        h4: z.string().optional(),
-        h5: z.string().optional(),
-        h6: z.string().optional(),
-        body: z.string().optional(),
-        small: z.string().optional()
-      }).optional()
-    }).optional(),
-    imagery: z.object({
-      style: z.string().optional(),
-      mood: z.string().optional(),
-      templates: z.array(z.string()).optional()
-    }).optional(),
-    guidelines: z.object({
-      logoUsage: z.string().optional(),
-      colorUsage: z.string().optional(),
-      spacing: z.string().optional()
-    }).optional()
-  })
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'string' }
+    }
+  },
+  body: {
+    type: 'object',
+    properties: {
+      name: { type: 'string', minLength: 1 },
+      description: { type: 'string' },
+      logo: {
+        type: 'object',
+        properties: {
+          primary: { type: 'string', format: 'uri' },
+          secondary: { type: 'string', format: 'uri' },
+          favicon: { type: 'string', format: 'uri' }
+        }
+      },
+      colors: {
+        type: 'object',
+        properties: {
+          primary: { type: 'string' },
+          secondary: { type: 'string' },
+          accent: { type: 'string' },
+          neutral: { type: 'array', items: { type: 'string' } },
+          success: { type: 'string' },
+          warning: { type: 'string' },
+          error: { type: 'string' }
+        }
+      },
+      typography: {
+        type: 'object',
+        properties: {
+          heading: { type: 'string' },
+          body: { type: 'string' },
+          accent: { type: 'string' },
+          sizes: {
+            type: 'object',
+            properties: {
+              h1: { type: 'string' },
+              h2: { type: 'string' },
+              h3: { type: 'string' },
+              h4: { type: 'string' },
+              h5: { type: 'string' },
+              h6: { type: 'string' },
+              body: { type: 'string' },
+              small: { type: 'string' }
+            }
+          }
+        }
+      },
+      imagery: {
+        type: 'object',
+        properties: {
+          style: { type: 'string' },
+          mood: { type: 'string' },
+          templates: { type: 'array', items: { type: 'string' } }
+        }
+      },
+      guidelines: {
+        type: 'object',
+        properties: {
+          logoUsage: { type: 'string' },
+          colorUsage: { type: 'string' },
+          spacing: { type: 'string' }
+        }
+      }
+    }
+  }
 }
 
 const brandKitParamsSchema = {
-  params: z.object({
-    id: z.string()
-  })
+  params: {
+    type: 'object',
+    required: ['id'],
+    properties: {
+      id: { type: 'string' }
+    }
+  }
 }
 
 export async function brandKitRoutes(fastify: FastifyInstance) {
@@ -240,10 +291,20 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   fastify.post('/api/brand-kits/:id/apply', { 
     preHandler: authenticate,
     schema: {
-      params: brandKitParamsSchema.params,
-      body: z.object({
-        websiteId: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -288,13 +349,23 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   fastify.post('/api/brand-kits/:id/assets', { 
     preHandler: authenticate,
     schema: {
-      params: brandKitParamsSchema.params,
-      body: z.object({
-        type: z.enum(['logo', 'image', 'icon']),
-        file: z.string(), // Base64 encoded file
-        filename: z.string(),
-        mimeType: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['type', 'file', 'filename', 'mimeType'],
+        properties: {
+          type: { type: 'string', enum: ['logo', 'image', 'icon'] },
+          file: { type: 'string' },
+          filename: { type: 'string' },
+          mimeType: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {

@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
+import { apiHelpers } from './api'
 
 // User interface
 interface User {
@@ -210,11 +211,12 @@ export const useWebsiteStore = create<WebsiteState>((set, get) => ({
   fetchWebsites: async () => {
     set({ isLoading: true })
     try {
-      // Mock API call - replace with actual API
-      const response = await fetch('/api/websites')
-      const websites = await response.json()
-      set({ websites, isLoading: false })
+      const response = await apiHelpers.getWebsites()
+      // Handle the API response structure: { success: true, data: [...] }
+      const websites = response.success ? response.data : response
+      set({ websites: Array.isArray(websites) ? websites : [], isLoading: false })
     } catch (error) {
+      console.error('Failed to fetch websites:', error)
       // Mock data for demo
       set({
         websites: [

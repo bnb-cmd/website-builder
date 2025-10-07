@@ -11,6 +11,7 @@ interface DashboardLayoutProps {
 export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
+  const [isHydrated, setIsHydrated] = useState(false)
 
   // Load sidebar state from localStorage on mount
   useEffect(() => {
@@ -18,12 +19,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     if (savedState !== null) {
       setSidebarCollapsed(JSON.parse(savedState))
     }
+    setIsHydrated(true)
   }, [])
 
   // Save sidebar state to localStorage when it changes
   useEffect(() => {
-    localStorage.setItem('sidebar-collapsed', JSON.stringify(sidebarCollapsed))
-  }, [sidebarCollapsed])
+    if (isHydrated) {
+      localStorage.setItem('sidebar-collapsed', JSON.stringify(sidebarCollapsed))
+    }
+  }, [sidebarCollapsed, isHydrated])
 
   const toggleSidebarCollapse = () => {
     setSidebarCollapsed(!sidebarCollapsed)
@@ -39,11 +43,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
       />
       
       <div className="flex h-[calc(100vh-4rem)]">
-        <DashboardSidebar 
-          isOpen={sidebarOpen} 
-          onClose={() => setSidebarOpen(false)}
-          collapsed={sidebarCollapsed}
-        />
+        {isHydrated ? (
+          <DashboardSidebar 
+            isOpen={sidebarOpen} 
+            onClose={() => setSidebarOpen(false)}
+            collapsed={sidebarCollapsed}
+          />
+        ) : (
+          <div className="w-64 border-r bg-sidebar border-sidebar-border" />
+        )}
         
         <main className="flex-1 overflow-auto bg-background">
           <div className="h-full">

@@ -5,30 +5,51 @@ import { DNSVerificationService } from '../services/dnsVerificationService'
 
 // Schemas
 const verifyDomainSchema = {
-  body: z.object({
-    domain: z.string().min(1),
-    expectedRecords: z.array(z.object({
-      type: z.string(),
-      name: z.string(),
-      value: z.string(),
-      ttl: z.number().optional()
-    })).optional()
-  })
+  body: {
+    type: 'object',
+    required: ['domain'],
+    properties: {
+      domain: { type: 'string', minLength: 1 },
+      expectedRecords: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            type: { type: 'string' },
+            name: { type: 'string' },
+            value: { type: 'string' },
+            ttl: { type: 'number' }
+          }
+        }
+      }
+    }
+  }
 }
 
 const startVerificationSchema = {
-  params: z.object({
-    domainId: z.string()
-  }),
-  body: z.object({
-    intervalMinutes: z.number().min(1).max(60).optional()
-  })
+  params: {
+    type: 'object',
+    required: ['domainId'],
+    properties: {
+      domainId: { type: 'string' }
+    }
+  },
+  body: {
+    type: 'object',
+    properties: {
+      intervalMinutes: { type: 'number', minimum: 1, maximum: 60 }
+    }
+  }
 }
 
 const stopVerificationSchema = {
-  params: z.object({
-    domainId: z.string()
-  })
+  params: {
+    type: 'object',
+    required: ['domainId'],
+    properties: {
+      domainId: { type: 'string' }
+    }
+  }
 }
 
 export async function dnsVerificationRoutes(fastify: FastifyInstance) {
@@ -247,10 +268,14 @@ export async function dnsVerificationRoutes(fastify: FastifyInstance) {
   fastify.post('/api/dns/test-provider', { 
     preHandler: authenticate,
     schema: {
-      body: z.object({
-        provider: z.string(),
-        domain: z.string()
-      })
+      body: {
+        type: 'object',
+        required: ['provider', 'domain'],
+        properties: {
+          provider: { type: 'string' },
+          domain: { type: 'string' }
+        }
+      }
     }
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {

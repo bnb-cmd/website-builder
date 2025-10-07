@@ -40,53 +40,53 @@ api.interceptors.response.use(
 export const apiHelpers = {
   // Auth endpoints
   login: async (email: string, password: string) => {
-    const response = await api.post('/api/auth/login', { email, password })
+    const response = await api.post('/v1/auth/login', { email, password })
     return response.data
   },
 
   register: async (email: string, password: string, name: string) => {
-    const response = await api.post('/api/auth/register', { email, password, name })
+    const response = await api.post('/v1/auth/register', { email, password, name })
     return response.data
   },
 
   logout: async () => {
-    const response = await api.post('/api/auth/logout')
+    const response = await api.post('/v1/auth/logout')
     return response.data
   },
 
   // Website endpoints
   getWebsites: async () => {
-    const response = await api.get('/api/websites')
+    const response = await api.get('/v1/websites')
     return response.data
   },
 
   getWebsite: async (id: string) => {
-    const response = await api.get(`/api/websites/${id}`)
+    const response = await api.get(`/v1/websites/${id}`)
     return response.data
   },
 
   createWebsite: async (data: any) => {
-    const response = await api.post('/api/websites', data)
+    const response = await api.post('/v1/websites', data)
     return response.data
   },
 
   updateWebsite: async (id: string, data: any) => {
-    const response = await api.put(`/api/websites/${id}`, data)
+    const response = await api.put(`/v1/websites/${id}`, data)
     return response.data
   },
 
   deleteWebsite: async (id: string) => {
-    const response = await api.delete(`/api/websites/${id}`)
+    const response = await api.delete(`/v1/websites/${id}`)
     return response.data
   },
 
   publishWebsite: async (id: string, customDomain?: string) => {
-    const response = await api.post(`/api/websites/${id}/publish`, { customDomain })
+    const response = await api.post(`/v1/websites/${id}/publish`, { customDomain })
     return response.data
   },
 
   unpublishWebsite: async (id: string) => {
-    const response = await api.post(`/api/websites/${id}/unpublish`)
+    const response = await api.post(`/v1/websites/${id}/unpublish`)
     return response.data
   },
 
@@ -176,6 +176,72 @@ export const apiHelpers = {
     return response.data
   },
 
+  // Subscription endpoints
+  getSubscriptions: async () => {
+    const response = await api.get('/api/subscriptions')
+    return response.data
+  },
+
+  getSubscription: async (id: string) => {
+    const response = await api.get(`/api/subscriptions/${id}`)
+    return response.data
+  },
+
+  getDefaultSubscription: async () => {
+    const response = await api.get('/api/subscriptions/default')
+    return response.data
+  },
+
+  upgradeSubscription: async (data: {
+    userId: string
+    subscriptionId: string
+    paymentGateway: string
+    customerEmail: string
+    customerPhone?: string
+  }) => {
+    const response = await api.post('/api/subscriptions/upgrade', data)
+    return response.data
+  },
+
+  confirmSubscriptionUpgrade: async (paymentId: string) => {
+    const response = await api.post('/api/subscriptions/confirm-upgrade', { paymentId })
+    return response.data
+  },
+
+  getUserLimits: async (userId: string) => {
+    const response = await api.get(`/api/subscriptions/limits/${userId}`)
+    return response.data
+  },
+
+  resetAIQuota: async (userId: string) => {
+    const response = await api.post(`/api/subscriptions/reset-ai-quota/${userId}`)
+    return response.data
+  },
+
+  // Payment endpoints
+  createPaymentIntent: async (data: {
+    amount: number
+    currency: string
+    subscriptionId: string
+    paymentMethod: string
+  }) => {
+    const response = await api.post('/api/payments/create-intent', data)
+    return response.data
+  },
+
+  confirmPayment: async (data: {
+    paymentIntentId: string
+    subscriptionId?: string
+  }) => {
+    const response = await api.post('/api/payments/confirm', data)
+    return response.data
+  },
+
+  getPaymentHistory: async (params?: { page?: number; limit?: number }) => {
+    const response = await api.get('/api/payments/history', { params })
+    return response.data
+  },
+
   // File upload
   uploadFile: async (file: File, type: 'image' | 'document' = 'image') => {
     const formData = new FormData()
@@ -198,6 +264,28 @@ export const apiHelpers = {
 
   generateWebsite: async (requirements: any) => {
     const response = await api.post('/api/ai/generate-website', requirements)
+    return response.data
+  },
+
+  // User Profile endpoints
+  updateProfile: async (data: any) => {
+    const response = await api.put('/v1/auth/profile', data)
+    return response.data
+  },
+
+  changePassword: async (data: { currentPassword: string; newPassword: string }) => {
+    const response = await api.put('/v1/auth/change-password', data)
+    return response.data
+  },
+
+  getUserProfile: async () => {
+    const response = await api.get('/v1/users/profile')
+    return response.data
+  },
+
+  // Notification preferences
+  updateNotificationPreferences: async (userId: string, preferences: any) => {
+    const response = await api.put(`/v1/notifications/preferences/${userId}`, preferences)
     return response.data
   },
 
