@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
@@ -20,8 +20,11 @@ import {
   Eye,
   EyeOff,
   Lock,
-  Unlock
+  Unlock,
+  Image as ImageIcon,
+  Upload
 } from 'lucide-react'
+import ImagePicker from './ImagePicker'
 
 interface PageComponent {
   id: string
@@ -47,6 +50,9 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   onComponentDelete,
   onComponentDuplicate
 }) => {
+  const [imagePickerOpen, setImagePickerOpen] = useState(false)
+  const [imagePickerCategory, setImagePickerCategory] = useState<string | undefined>()
+  const [imagePickerTitle, setImagePickerTitle] = useState('Choose Image')
   if (!selectedComponent) {
     return (
       <div className="w-80 bg-background border-l">
@@ -100,6 +106,28 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
       ...selectedComponent,
       locked: !selectedComponent.locked
     })
+  }
+
+  const openImagePicker = (category?: string, title?: string) => {
+    setImagePickerCategory(category)
+    setImagePickerTitle(title || 'Choose Image')
+    setImagePickerOpen(true)
+  }
+
+  const handleImageSelect = (image: any) => {
+    // Determine which property to update based on component type
+    if (selectedComponent.type === 'hero') {
+      updateProp('backgroundImage', image.url)
+    } else if (selectedComponent.type === 'image') {
+      updateProp('src', image.url)
+      updateProp('alt', image.name)
+    } else if (selectedComponent.type === 'about-section') {
+      updateProp('imageUrl', image.url)
+    } else {
+      // Default to backgroundImage for other components
+      updateProp('backgroundImage', image.url)
+    }
+    setImagePickerOpen(false)
   }
 
   const renderComponentSpecificProps = () => {
@@ -201,12 +229,22 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
           <div className="space-y-4">
             <div>
               <Label htmlFor="image-src">Image URL</Label>
-              <Input
-                id="image-src"
-                value={selectedComponent.props.src || ''}
-                onChange={(e) => updateProp('src', e.target.value)}
-                placeholder="https://example.com/image.jpg"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="image-src"
+                  value={selectedComponent.props.src || ''}
+                  onChange={(e) => updateProp('src', e.target.value)}
+                  placeholder="https://example.com/image.jpg"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => openImagePicker('hero', 'Choose Image')}
+                >
+                  <ImageIcon className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
             
             <div>
@@ -279,12 +317,22 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
             
             <div>
               <Label htmlFor="hero-background">Background Image</Label>
-              <Input
-                id="hero-background"
-                value={selectedComponent.props.backgroundImage || ''}
-                onChange={(e) => updateProp('backgroundImage', e.target.value)}
-                placeholder="https://example.com/background.jpg"
-              />
+              <div className="flex gap-2">
+                <Input
+                  id="hero-background"
+                  value={selectedComponent.props.backgroundImage || ''}
+                  onChange={(e) => updateProp('backgroundImage', e.target.value)}
+                  placeholder="https://example.com/background.jpg"
+                />
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => openImagePicker('hero', 'Choose Hero Background')}
+                >
+                  <ImageIcon className="w-4 h-4" />
+                </Button>
+              </div>
             </div>
           </div>
         )
@@ -476,6 +524,15 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
           </Card>
         </div>
       </ScrollArea>
+      
+      {/* Image Picker Modal */}
+      <ImagePicker
+        isOpen={imagePickerOpen}
+        onClose={() => setImagePickerOpen(false)}
+        onSelect={handleImageSelect}
+        category={imagePickerCategory}
+        title={imagePickerTitle}
+      />
     </div>
   )
 }

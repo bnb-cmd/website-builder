@@ -1,5 +1,6 @@
-import { Product, ProductStatus, Prisma } from '@prisma/client'
+import { Product, Prisma } from '@prisma/client'
 import { BaseService } from './baseService'
+import { ProductStatus } from '@/types/enums'
 
 export interface CreateProductData {
   websiteId: string
@@ -32,6 +33,7 @@ export interface UpdateProductData {
   metaDescription?: string
   metaKeywords?: string[]
   status?: ProductStatus
+  variants?: string
 }
 
 export interface ProductFilters {
@@ -64,13 +66,13 @@ export class ProductService extends BaseService<Product> {
           price: data.price,
           comparePrice: data.comparePrice || null,
           sku: data.sku || null,
-          images: data.images || [],
+          images: data.images ? data.images.join(',') : null,
           trackInventory: data.trackInventory || false,
           inventory: data.inventory || 0,
           lowStockThreshold: data.lowStockThreshold || 5,
           metaTitle: data.metaTitle || null,
           metaDescription: data.metaDescription || null,
-          metaKeywords: data.metaKeywords || [],
+          metaKeywords: data.metaKeywords ? data.metaKeywords.join(',') : null,
           status: data.status || ProductStatus.ACTIVE,
           createdAt: new Date(),
           updatedAt: new Date()
@@ -141,9 +143,9 @@ export class ProductService extends BaseService<Product> {
       // Add search functionality
       if (search) {
         where.OR = [
-          { name: { contains: search, mode: 'insensitive' } },
-          { description: { contains: search, mode: 'insensitive' } },
-          { sku: { contains: search, mode: 'insensitive' } }
+          { name: { contains: search } },
+          { description: { contains: search } },
+          { sku: { contains: search } }
         ]
       }
       
@@ -204,13 +206,13 @@ export class ProductService extends BaseService<Product> {
           price: data.price,
           comparePrice: data.comparePrice || null,
           sku: data.sku || null,
-          images: data.images || [],
+          images: data.images ? data.images.join(',') : null,
           trackInventory: data.trackInventory,
           inventory: data.inventory,
           lowStockThreshold: data.lowStockThreshold,
           metaTitle: data.metaTitle || null,
           metaDescription: data.metaDescription || null,
-          metaKeywords: data.metaKeywords || [],
+          metaKeywords: data.metaKeywords ? data.metaKeywords.join(',') : null,
           status: data.status,
           updatedAt: new Date()
         }
@@ -389,8 +391,8 @@ export class ProductService extends BaseService<Product> {
         websiteId,
         status: ProductStatus.ACTIVE,
         OR: [
-          { name: { contains: query, mode: 'insensitive' } },
-          { description: { contains: query, mode: 'insensitive' } }
+          { name: { contains: query } },
+          { description: { contains: query } }
         ]
       }
       
@@ -463,6 +465,94 @@ export class ProductService extends BaseService<Product> {
     }
   }
 
+  // Additional methods for routes
+  async findMany(filters: ProductFilters = {}): Promise<{
+    products: Product[]
+    pagination: {
+      page: number
+      limit: number
+      total: number
+      pages: number
+    }
+  }> {
+    try {
+      const products = await this.findAll(filters)
+      const total = await this.prisma.product.count({
+        where: this.buildWhereClause(filters)
+      })
+      
+      return {
+        products,
+        pagination: {
+          page: filters.page || 1,
+          limit: filters.limit || 20,
+          total,
+          pages: Math.ceil(total / (filters.limit || 20))
+        }
+      }
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async addVariants(id: string, variants: any[]): Promise<Product> {
+    try {
+      this.validateId(id)
+      
+      const product = await this.findById(id)
+      if (!product) {
+        throw new Error('Product not found')
+      }
+      
+      const updatedProduct = await this.update(id, {
+        variants: JSON.stringify(variants)
+      })
+      
+      return updatedProduct
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async bulkUpdateByIds(productIds: string[], updates: any): Promise<{
+    updated: number
+    failed: number
+  }> {
+    try {
+      let updated = 0
+      let failed = 0
+      
+      for (const id of productIds) {
+        try {
+          await this.update(id, updates)
+          updated++
+        } catch (error) {
+          failed++
+        }
+      }
+      
+      return { updated, failed }
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  private buildWhereClause(filters: ProductFilters): any {
+    const where: any = {}
+    
+    if (filters.websiteId) where.websiteId = filters.websiteId
+    if (filters.status) where.status = filters.status
+    if (filters.search) {
+      where.OR = [
+        { name: { contains: filters.search } },
+        { description: { contains: filters.search } },
+        { sku: { contains: filters.search } }
+      ]
+    }
+    
+    return where
+  }
+
   // Bulk Operations
   override async bulkCreate(products: CreateProductData[]): Promise<Product[]> {
     try {
@@ -474,13 +564,13 @@ export class ProductService extends BaseService<Product> {
           price: product.price,
           comparePrice: product.comparePrice || null,
           sku: product.sku || null,
-          images: product.images || [],
+          images: product.images ? product.images.join(',') : null,
           trackInventory: product.trackInventory || false,
           inventory: product.inventory || 0,
           lowStockThreshold: product.lowStockThreshold || 5,
           metaTitle: product.metaTitle || null,
           metaDescription: product.metaDescription || null,
-          metaKeywords: product.metaKeywords || [],
+          metaKeywords: product.metaKeywords ? product.metaKeywords.join(',') : null,
           status: product.status || ProductStatus.ACTIVE,
           createdAt: new Date(),
           updatedAt: new Date()

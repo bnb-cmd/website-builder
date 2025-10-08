@@ -7,10 +7,13 @@ import { Separator } from '../components/ui/separator'
 import { useRouter } from '../lib/router'
 import { useWebsiteStore, useEditorStore } from '../lib/store'
 import { ComponentPalette } from '../components/editor/ComponentPalette'
-import { EditorCanvas } from '../components/editor/EditorCanvas'
+import EditorCanvas from '../components/editor/EditorCanvas'
 import { PropertiesPanel } from '../components/editor/PropertiesPanel'
+import { ComponentMetadata } from '../components/website/registry'
+// Import website components to ensure they get registered
+import '../components/website'
 import { 
-  ArrowLeft, 
+  ArrowLeft,
   Save, 
   Eye, 
   Smartphone, 
@@ -93,8 +96,8 @@ const EditorPage: React.FC = () => {
     // Implement publish logic here
   }
 
-  const handleComponentDragStart = (component: any) => {
-    console.log('EditorPage: Dragging component:', component)
+  const handleComponentDragStart = (component: ComponentMetadata) => {
+    console.log('EditorPage: Dragging component:', component.config.name)
   }
 
   const handleComponentUpdate = useCallback((updatedComponent: PageComponent) => {

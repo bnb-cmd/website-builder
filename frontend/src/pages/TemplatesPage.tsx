@@ -107,8 +107,8 @@ const TemplatesPage: React.FC = () => {
             name: 'Modern Business',
             description: 'Professional business website with modern design',
             category: 'Business',
-            thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400',
-            preview: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800',
+            thumbnail: '/templates/business-1.svg',
+            preview: '/templates/business-1-preview.jpg',
             pages: ['Home', 'About', 'Services', 'Contact'],
             isPremium: false,
             tags: ['business', 'professional', 'modern'],
@@ -125,8 +125,8 @@ const TemplatesPage: React.FC = () => {
             name: 'E-commerce Store',
             description: 'Complete online store with product catalog',
             category: 'E-commerce',
-            thumbnail: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400',
-            preview: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=800',
+            thumbnail: '/templates/ecommerce-1.svg',
+            preview: '/templates/ecommerce-1-preview.jpg',
             pages: ['Home', 'Products', 'Cart', 'Checkout'],
             isPremium: true,
             tags: ['ecommerce', 'shop', 'products'],
@@ -143,8 +143,8 @@ const TemplatesPage: React.FC = () => {
             name: 'Restaurant Menu',
             description: 'Beautiful restaurant website with menu display',
             category: 'Restaurant',
-            thumbnail: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=400',
-            preview: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800',
+            thumbnail: '/templates/restaurant-1.svg',
+            preview: '/templates/restaurant-1-preview.jpg',
             pages: ['Home', 'Menu', 'About', 'Contact'],
             isPremium: false,
             tags: ['restaurant', 'food', 'menu'],
@@ -465,6 +465,12 @@ const TemplatesPage: React.FC = () => {
                             src={template.thumbnail}
                             alt={template.name}
                             className="w-full h-full object-cover transition-transform duration-300 group-hover/preview:scale-105"
+                            loading="lazy"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.src = '/templates/placeholder.svg';
+                              target.alt = 'Template preview not available';
+                            }}
                             onClick={() => handlePreviewTemplate(template)}
                           />
                         </div>
@@ -572,11 +578,13 @@ const TemplatesPage: React.FC = () => {
                               src={template.thumbnail}
                               alt={template.name}
                               className="w-full h-full object-cover"
-                              onClick={() => handlePreviewTemplate(template)}
-                              onError={(event) => {
-                                const target = event.target as HTMLImageElement
-                                target.style.display = 'none'
+                              loading="lazy"
+                              onError={(e) => {
+                                const target = e.target as HTMLImageElement;
+                                target.src = '/templates/placeholder.svg';
+                                target.alt = 'Template preview not available';
                               }}
+                              onClick={() => handlePreviewTemplate(template)}
                             />
                           ) : (
                             <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">

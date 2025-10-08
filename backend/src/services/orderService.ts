@@ -1,7 +1,8 @@
-import { Order, OrderItem, PaymentStatus, ShippingStatus, Prisma } from '@prisma/client'
+import { Order, OrderItem, Prisma } from '@prisma/client'
 import { BaseService } from './baseService'
 import { ProductService } from './productService'
 import { LogisticsService } from './logisticsService'
+import { PaymentStatus, ShippingStatus } from '@/types/enums'
 
 export interface CreateOrderData {
   websiteId: string
@@ -68,7 +69,7 @@ export interface OrderWithDetails extends Order {
     product: {
       id: string
       name: string
-      images: string[]
+      images: string
     }
   })[]
 }
@@ -103,8 +104,8 @@ export class OrderService extends BaseService<Order> {
             customerEmail: data.customerEmail,
             customerName: data.customerName,
             customerPhone: data.customerPhone,
-            shippingAddress: data.shippingAddress,
-            billingAddress: data.billingAddress || data.shippingAddress,
+            shippingAddress: JSON.stringify(data.shippingAddress),
+            billingAddress: JSON.stringify(data.billingAddress || data.shippingAddress),
             subtotal: data.subtotal,
             tax: data.tax || 0,
             shipping: data.shipping || 0,
@@ -236,9 +237,9 @@ export class OrderService extends BaseService<Order> {
       // Add search functionality
       if (search) {
         where.OR = [
-          { orderNumber: { contains: search, mode: 'insensitive' } },
-          { customerEmail: { contains: search, mode: 'insensitive' } },
-          { customerName: { contains: search, mode: 'insensitive' } }
+          { orderNumber: { contains: search } },
+          { customerEmail: { contains: search } },
+          { customerName: { contains: search } }
         ]
       }
       
@@ -253,7 +254,7 @@ export class OrderService extends BaseService<Order> {
         where,
         skip,
         take,
-        orderBy: this.buildSortQuery(sortBy, sortOrder),
+        orderBy: { [sortBy]: sortOrder },
         include: {
           items: {
             include: {
@@ -482,9 +483,9 @@ export class OrderService extends BaseService<Order> {
         where: {
           websiteId,
           OR: [
-            { orderNumber: { contains: query, mode: 'insensitive' } },
-            { customerEmail: { contains: query, mode: 'insensitive' } },
-            { customerName: { contains: query, mode: 'insensitive' } }
+            { orderNumber: { contains: query } },
+            { customerEmail: { contains: query } },
+            { customerName: { contains: query } }
           ]
         },
         orderBy: { createdAt: 'desc' },
@@ -532,7 +533,7 @@ export class OrderService extends BaseService<Order> {
         const product = await this.productService.findById(item.productId)
         if (product && product.websiteId === websiteId) {
           subtotal += product.price.toNumber() * item.quantity
-          totalWeight += (product.weight || 0.5) * item.quantity // default weight 0.5kg
+          totalWeight += (product.weight?.toNumber() || 0.5) * item.quantity // default weight 0.5kg
         }
       }
       
@@ -604,21 +605,114 @@ export class OrderService extends BaseService<Order> {
     }
   }
 
-  // Required abstract methods from BaseService
-  override async create(data: any): Promise<Order> {
-    return this.prisma.order.create({ data })
+  // Additional methods for routes
+  async findMany(filters: OrderFilters = {}): Promise<{
+    orders: OrderWithDetails[]
+    pagination: {
+      page: number
+      limit: number
+      total: number
+      pages: number
+    }
+  }> {
+    try {
+      const orders = await this.findAll(filters)
+      const total = await this.prisma.order.count({
+        where: this.buildWhereClause(filters)
+      })
+      
+      return {
+        orders,
+        pagination: {
+          page: filters.page || 1,
+          limit: filters.limit || 20,
+          total,
+          pages: Math.ceil(total / (filters.limit || 20))
+        }
+      }
+    } catch (error) {
+      this.handleError(error)
+    }
   }
-  
-  override async findById(id: string): Promise<Order | null> {
-    return this.prisma.order.findUnique({ where: { id } })
+
+  async updateStatus(id: string, status: ShippingStatus, notes?: string): Promise<OrderWithDetails> {
+    try {
+      const updateData: UpdateOrderData = { shippingStatus: status }
+      if (notes) {
+        updateData.notes = notes
+      }
+      
+      return await this.update(id, updateData)
+    } catch (error) {
+      this.handleError(error)
+    }
   }
-  
-  override async update(id: string, data: Partial<Order>): Promise<Order> {
-    return this.prisma.order.update({ where: { id }, data })
+
+  async addTracking(id: string, trackingData: { trackingNumber: string; carrier: string; trackingUrl?: string }): Promise<OrderWithDetails> {
+    try {
+      const updateData: UpdateOrderData = {
+        trackingNumber: trackingData.trackingNumber,
+        shippingStatus: ShippingStatus.SHIPPED
+      }
+      
+      return await this.update(id, updateData)
+    } catch (error) {
+      this.handleError(error)
+    }
   }
-  
-  override async delete(id: string): Promise<boolean> {
-    await this.prisma.order.delete({ where: { id } })
-    return true
+
+  async getAnalytics(filters: any): Promise<{
+    totalOrders: number
+    totalRevenue: number
+    averageOrderValue: number
+    ordersByStatus: any
+    revenueByPeriod: any[]
+    topProducts: any[]
+    ordersByDay: any[]
+  }> {
+    try {
+      const stats = await this.getOrderStats(filters.websiteId)
+      
+      return {
+        totalOrders: stats.totalOrders,
+        totalRevenue: stats.totalRevenue,
+        averageOrderValue: stats.averageOrderValue,
+        ordersByStatus: {
+          pending: stats.pendingOrders,
+          completed: stats.completedOrders,
+          cancelled: stats.cancelledOrders
+        },
+        revenueByPeriod: [], // Implement based on period filter
+        topProducts: stats.topProducts,
+        ordersByDay: [] // Implement based on period filter
+      }
+    } catch (error) {
+      this.handleError(error)
+    }
   }
+
+  private buildWhereClause(filters: OrderFilters): any {
+    const where: any = {}
+    
+    if (filters.websiteId) where.websiteId = filters.websiteId
+    if (filters.customerEmail) where.customerEmail = filters.customerEmail
+    if (filters.paymentStatus) where.paymentStatus = filters.paymentStatus
+    if (filters.shippingStatus) where.shippingStatus = filters.shippingStatus
+    if (filters.dateFrom || filters.dateTo) {
+      where.createdAt = {}
+      if (filters.dateFrom) where.createdAt.gte = filters.dateFrom
+      if (filters.dateTo) where.createdAt.lte = filters.dateTo
+    }
+    if (filters.search) {
+      where.OR = [
+        { orderNumber: { contains: filters.search, mode: 'insensitive' } },
+        { customerEmail: { contains: filters.search, mode: 'insensitive' } },
+        { customerName: { contains: filters.search, mode: 'insensitive' } }
+      ]
+    }
+    
+    return where
+  }
+
+  // Required abstract methods from BaseService (these are overridden above)
 }

@@ -20,7 +20,8 @@ import {
   Palette,
   Zap,
   X,
-  Link2
+  Link2,
+  ShoppingBag
 } from 'lucide-react'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 
@@ -52,6 +53,12 @@ const navigation = [
     href: '/dashboard/analytics',
     icon: BarChart3,
     badge: 'Pro'
+  },
+  {
+    name: 'E-commerce',
+    href: '/dashboard/ecommerce',
+    icon: ShoppingBag,
+    badge: 'New'
   },
 ]
 

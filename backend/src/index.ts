@@ -42,6 +42,12 @@ import { performanceOptimizationRoutes } from '@/routes/performanceOptimization'
 import { conversationRoutes } from '@/routes/conversation'
 import { seoRoutes } from '@/routes/seo'
 import { brandKitRoutes } from '@/routes/brandKit'
+import { productRoutes } from '@/routes/products'
+import { orderRoutes } from '@/routes/orders'
+import { customerRoutes } from '@/routes/customers'
+import { ecommerceSettingsRoutes } from '@/routes/ecommerceSettings'
+import { storePaymentsRoutes } from '@/routes/storePayments'
+import { imageLibraryRoutes } from '@/routes/imageLibrary'
 
 // Import error handlers
 import { errorHandler } from '@/utils/errorHandler'
@@ -260,6 +266,9 @@ export async function createServer() {
   // Register global hooks
   // Hooks are registered within plugins above
 
+  // Register Prisma client as decorator
+  fastify.decorate('prisma', db.getClient())
+
   // Register error handlers
   fastify.setErrorHandler(errorHandler)
   fastify.setNotFoundHandler(notFoundHandler)
@@ -335,7 +344,13 @@ export async function createServer() {
       ['contentRoutes', contentRoutes, '/'],
       ['performanceOptimizationRoutes', performanceOptimizationRoutes, '/'],
       ['seoRoutes', seoRoutes, '/seo'],
-      ['brandKitRoutes', brandKitRoutes, '/brand-kit']
+      ['brandKitRoutes', brandKitRoutes, '/brand-kit'],
+      ['productRoutes', productRoutes, '/products'],
+      ['orderRoutes', orderRoutes, '/orders'],
+      ['customerRoutes', customerRoutes, '/customers'],
+      ['ecommerceSettingsRoutes', ecommerceSettingsRoutes, '/websites'],
+      ['storePaymentsRoutes', storePaymentsRoutes, '/store-payments'],
+      ['imageLibraryRoutes', imageLibraryRoutes, '/']
     ]
 
     for (const [name, plugin, prefix] of routePlugins) {

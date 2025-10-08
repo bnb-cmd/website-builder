@@ -11,6 +11,8 @@ datasource db {
   url        = env("DATABASE_URL")
 }
 
+// Note: SQLite doesn't support enums, so we use String fields with constraints
+
 // User Management
 model User {
   id       String @id @default(cuid())
@@ -86,6 +88,7 @@ model Website {
   pages    Page[]
   products Product[]
   orders   Order[]
+  ecommerceSettings WebsiteEcommerceSettings?
 
   @@map("websites")
 }
@@ -131,6 +134,13 @@ model Template {
   // Preview
   previewImage String?
   thumbnail    String?
+  heroImageUrl String?
+  demoImages   String? // Comma-separated demo image URLs
+
+  // Localization
+  isGlobal         Boolean @default(true)
+  parentTemplateId String? // Link to parent template for localized versions
+  localizedFor     String? // Country code (pk, us, etc.)
 
   // Pricing
   isPremium Boolean  @default(false)
@@ -148,6 +158,26 @@ model Template {
   updatedAt DateTime @updatedAt
 
   @@map("templates")
+}
+
+// Image Library for Stock Photos
+model ImageLibrary {
+  id          String   @id @default(cuid())
+  name        String
+  category    String   // hero, business, food, tech, etc.
+  tags        String   // Comma-separated searchable tags
+  url         String
+  thumbnail   String
+  width       Int
+  height      Int
+  source      String   // unsplash, pexels, pixabay, custom
+  license     String   // free, commercial, attribution-required
+  isPremium   Boolean  @default(false)
+  downloadCount Int    @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("image_library")
 }
 
 // E-commerce
@@ -336,4 +366,52 @@ model Payment {
   user User? @relation(fields: [userId], references: [id])
 
   @@map("payments")
+}
+
+// E-commerce Settings per Website
+model WebsiteEcommerceSettings {
+  id        String @id @default(cuid())
+  websiteId String @unique
+  
+  // Store settings
+  storeName         String?
+  storeDescription  String?
+  currency          String @default("PKR")
+  taxRate           Decimal @default(0)
+  shippingEnabled   Boolean @default(true)
+  
+  // Payment gateways
+  stripeEnabled     Boolean @default(false)
+  stripePublicKey   String?
+  stripeSecretKey   String?
+  jazzcashEnabled   Boolean @default(false)
+  jazzcashMerchantId String?
+  jazzcashSecretKey String?
+  easypaisaEnabled  Boolean @default(false)
+  easypaisaMerchantId String?
+  easypaisaSecretKey String?
+  
+  // Shipping
+  freeShippingThreshold Decimal?
+  flatShippingRate      Decimal?
+  localDeliveryEnabled  Boolean @default(false)
+  
+  // Inventory
+  lowStockAlert     Boolean @default(true)
+  lowStockThreshold Int @default(10)
+  
+  // Cart & Checkout
+  guestCheckoutEnabled Boolean @default(true)
+  cartAbandonmentEmail Boolean @default(false)
+  
+  // Email settings
+  orderConfirmationEmail Boolean @default(true)
+  shippingNotificationEmail Boolean @default(true)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  @@map("website_ecommerce_settings")
 }

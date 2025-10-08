@@ -21,48 +21,161 @@ export const websiteTemplates = [
             { label: 'Services', link: '/services' },
             { label: 'Contact', link: '/contact' }
           ],
-          style: 'modern'
+          style: 'modern',
+          isSticky: true,
+          showMobileMenu: true
         },
-        style: {},
+        style: {
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid #e5e7eb',
+          padding: '1rem 0'
+        },
         children: []
       },
       {
         id: 'hero-1',
         type: 'hero',
         props: {
-          title: 'Welcome to Your Business',
-          subtitle: 'Professional solutions for modern challenges',
-          buttonText: 'Get Started',
-          buttonLink: '/contact',
-          backgroundImage: '/templates/hero-business.jpg'
+          title: 'Transform Your Business',
+          subtitle: 'We help businesses grow with innovative solutions and cutting-edge technology.',
+          ctaButtons: [
+            { text: 'Get Started', link: '/contact', variant: 'primary' },
+            { text: 'Learn More', link: '/about', variant: 'secondary' }
+          ],
+          backgroundImage: '/templates/hero-business.jpg',
+          style: 'centered',
+          overlayOpacity: 0.4
         },
-        style: {},
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          color: '#ffffff'
+        },
         children: []
       },
       {
         id: 'features-1',
-        type: 'features',
+        type: 'feature-grid',
         props: {
           title: 'Why Choose Us',
+          subtitle: 'We provide comprehensive solutions for your business needs',
           features: [
             {
-              icon: 'zap',
-              title: 'Fast & Reliable',
-              description: 'Quick turnaround times with consistent quality'
+              icon: 'rocket',
+              title: 'Fast Delivery',
+              description: 'Get your projects completed quickly and efficiently.'
             },
             {
               icon: 'shield',
-              title: 'Secure & Safe',
-              description: 'Your data is protected with industry-standard security'
+              title: 'Secure & Reliable',
+              description: 'Your data is safe with our enterprise-grade security.'
             },
             {
-              icon: 'users',
-              title: 'Expert Team',
-              description: 'Experienced professionals dedicated to your success'
+              icon: 'support',
+              title: '24/7 Support',
+              description: 'Round-the-clock support whenever you need help.'
             }
-          ]
+          ],
+          columns: 3,
+          showIcons: true
         },
-        style: {},
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f9fafb'
+        },
+        children: []
+      },
+      {
+        id: 'about-1',
+        type: 'about-section',
+        props: {
+          title: 'About Our Company',
+          content: 'We are a team of passionate professionals dedicated to delivering exceptional results. With years of experience in the industry, we understand what it takes to build successful businesses and create meaningful impact.',
+          imageUrl: '/templates/about-business.jpg',
+          layout: 'text-image',
+          showStats: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'contact-1',
+        type: 'contact-form',
+        props: {
+          title: 'Get In Touch',
+          subtitle: 'Ready to start your project? Contact us today for a free consultation.',
+          fields: [
+            { name: 'name', type: 'text', required: true, placeholder: 'Your Name' },
+            { name: 'email', type: 'email', required: true, placeholder: 'Your Email' },
+            { name: 'phone', type: 'tel', required: false, placeholder: 'Your Phone' },
+            { name: 'message', type: 'textarea', required: true, placeholder: 'Your Message' }
+          ],
+          submitText: 'Send Message',
+          showMap: true,
+          mapLocation: 'Karachi, Pakistan'
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f9fafb'
+        },
+        children: []
+      },
+      {
+        id: 'footer-1',
+        type: 'footer',
+        props: {
+          logo: 'Your Business',
+          description: 'Building the future of business with innovative solutions and exceptional service.',
+          links: [
+            {
+              title: 'Company',
+              items: [
+                { label: 'About Us', link: '/about' },
+                { label: 'Our Team', link: '/team' },
+                { label: 'Careers', link: '/careers' },
+                { label: 'Contact', link: '/contact' }
+              ]
+            },
+            {
+              title: 'Services',
+              items: [
+                { label: 'Web Development', link: '/services/web' },
+                { label: 'Mobile Apps', link: '/services/mobile' },
+                { label: 'Consulting', link: '/services/consulting' },
+                { label: 'Support', link: '/support' }
+              ]
+            },
+            {
+              title: 'Resources',
+              items: [
+                { label: 'Blog', link: '/blog' },
+                { label: 'Documentation', link: '/docs' },
+                { label: 'Help Center', link: '/help' },
+                { label: 'Community', link: '/community' }
+              ]
+            }
+          ],
+          socialLinks: [
+            { platform: 'facebook', url: 'https://facebook.com/yourbusiness' },
+            { platform: 'twitter', url: 'https://twitter.com/yourbusiness' },
+            { platform: 'linkedin', url: 'https://linkedin.com/company/yourbusiness' },
+            { platform: 'instagram', url: 'https://instagram.com/yourbusiness' }
+          ],
+          copyright: '© 2025 Your Business. All rights reserved.',
+          showNewsletter: true
+        },
+        style: {
+          backgroundColor: '#1f2937',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
         children: []
       }
     ]
@@ -90,15 +203,243 @@ export const websiteTemplates = [
             { label: 'Sale', link: '/sale' }
           ],
           showCart: true,
-          showSearch: true
+          showSearch: true,
+          style: 'modern',
+          isSticky: true
         },
-        style: {},
+        style: {
+          backgroundColor: '#ffffff',
+          borderBottom: '1px solid #e5e7eb',
+          padding: '1rem 0'
+        },
+        children: []
+      },
+      {
+        id: 'hero-2',
+        type: 'hero',
+        props: {
+          title: 'Shop the Latest Trends',
+          subtitle: 'Discover amazing products at unbeatable prices.',
+          ctaButtons: [
+            { text: 'Shop Now', link: '/shop', variant: 'primary' },
+            { text: 'View Sale', link: '/sale', variant: 'secondary' }
+          ],
+          backgroundImage: '/templates/hero-fashion.jpg',
+          style: 'centered',
+          overlayOpacity: 0.3
+        },
+        style: {
+          minHeight: '80vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          color: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'products-2',
+        type: 'product-grid',
+        props: {
+          title: 'Featured Products',
+          subtitle: 'Handpicked items just for you',
+          products: [
+            {
+              name: 'Wireless Headphones',
+              price: 'Rs. 2,500',
+              originalPrice: 'Rs. 3,000',
+              image: '/templates/products/headphones.jpg',
+              rating: 4.5,
+              reviews: 128,
+              badge: 'Sale'
+            },
+            {
+              name: 'Smart Watch',
+              price: 'Rs. 8,500',
+              originalPrice: 'Rs. 10,000',
+              image: '/templates/products/smartwatch.jpg',
+              rating: 4.8,
+              reviews: 89,
+              badge: 'New'
+            },
+            {
+              name: 'Bluetooth Speaker',
+              price: 'Rs. 1,800',
+              originalPrice: null,
+              image: '/templates/products/speaker.jpg',
+              rating: 4.3,
+              reviews: 156,
+              badge: null
+            }
+          ],
+          columns: 3,
+          showRating: true,
+          showReviews: true,
+          showBadges: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'features-2',
+        type: 'feature-grid',
+        props: {
+          title: 'Why Shop With Us',
+          subtitle: 'We make online shopping easy and secure',
+          features: [
+            {
+              icon: 'truck',
+              title: 'Free Shipping',
+              description: 'Free delivery on orders over Rs. 2,000'
+            },
+            {
+              icon: 'shield',
+              title: 'Secure Payment',
+              description: 'Your payment information is always safe'
+            },
+            {
+              icon: 'refresh',
+              title: 'Easy Returns',
+              description: '30-day return policy for all items'
+            },
+            {
+              icon: 'support',
+              title: '24/7 Support',
+              description: 'Customer support whenever you need help'
+            }
+          ],
+          columns: 4,
+          showIcons: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f9fafb'
+        },
+        children: []
+      },
+      {
+        id: 'testimonials-2',
+        type: 'testimonials',
+        props: {
+          title: 'What Our Customers Say',
+          subtitle: 'Join thousands of satisfied customers',
+          testimonials: [
+            {
+              name: 'Sarah Ahmed',
+              role: 'Customer',
+              company: 'Karachi',
+              content: 'Amazing quality and fast delivery! I love shopping here.',
+              avatar: '/templates/avatars/sarah.jpg',
+              rating: 5
+            },
+            {
+              name: 'Ali Khan',
+              role: 'Customer',
+              company: 'Lahore',
+              content: 'Great prices and excellent customer service. Highly recommended!',
+              avatar: '/templates/avatars/ali.jpg',
+              rating: 5
+            },
+            {
+              name: 'Fatima Sheikh',
+              role: 'Customer',
+              company: 'Islamabad',
+              content: 'The best online store in Pakistan. Quality products and reliable delivery.',
+              avatar: '/templates/avatars/fatima.jpg',
+              rating: 5
+            }
+          ],
+          layout: 'carousel',
+          showRating: true,
+          autoPlay: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'newsletter-2',
+        type: 'cta-section',
+        props: {
+          title: 'Stay Updated',
+          subtitle: 'Subscribe to our newsletter for exclusive deals and new arrivals',
+          ctaButtons: [
+            { text: 'Subscribe Now', link: '/newsletter', variant: 'primary' }
+          ],
+          backgroundImage: '/templates/newsletter-bg.jpg',
+          style: 'centered',
+          overlayOpacity: 0.6
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#3b82f6',
+          color: '#ffffff',
+          textAlign: 'center'
+        },
+        children: []
+      },
+      {
+        id: 'footer-2',
+        type: 'footer',
+        props: {
+          logo: 'Fashion Store',
+          description: 'Your one-stop destination for the latest fashion trends and quality products.',
+          links: [
+            {
+              title: 'Shop',
+              items: [
+                { label: 'New Arrivals', link: '/new' },
+                { label: 'Best Sellers', link: '/bestsellers' },
+                { label: 'Sale', link: '/sale' },
+                { label: 'Categories', link: '/categories' }
+              ]
+            },
+            {
+              title: 'Customer Service',
+              items: [
+                { label: 'Contact Us', link: '/contact' },
+                { label: 'Shipping Info', link: '/shipping' },
+                { label: 'Returns', link: '/returns' },
+                { label: 'Size Guide', link: '/size-guide' }
+              ]
+            },
+            {
+              title: 'Company',
+              items: [
+                { label: 'About Us', link: '/about' },
+                { label: 'Careers', link: '/careers' },
+                { label: 'Press', link: '/press' },
+                { label: 'Blog', link: '/blog' }
+              ]
+            }
+          ],
+          socialLinks: [
+            { platform: 'facebook', url: 'https://facebook.com/fashionstore' },
+            { platform: 'instagram', url: 'https://instagram.com/fashionstore' },
+            { platform: 'twitter', url: 'https://twitter.com/fashionstore' },
+            { platform: 'pinterest', url: 'https://pinterest.com/fashionstore' }
+          ],
+          copyright: '© 2025 Fashion Store. All rights reserved.',
+          showNewsletter: true
+        },
+        style: {
+          backgroundColor: '#1f2937',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
         children: []
       }
     ]
   },
   {
-    id: 'restaurant-1',
+    id: 'restaurant-1-global',
     name: 'Restaurant Deluxe',
     category: 'Restaurant',
     description: 'Elegant restaurant website with menu and reservations',
@@ -107,7 +448,255 @@ export const websiteTemplates = [
     tags: ['food', 'dining', 'hospitality'],
     pages: ['home', 'menu', 'about', 'reservations', 'contact'],
     features: ['menu-display', 'reservation-system', 'gallery'],
-    localizedFor: 'pk'
+    isGlobal: true,
+    elements: [
+      {
+        id: 'restaurant-navbar',
+        type: 'navbar',
+        props: {
+          logo: 'Restaurant Deluxe',
+          menuItems: [
+            { label: 'Home', link: '/' },
+            { label: 'Menu', link: '/menu' },
+            { label: 'About', link: '/about' },
+            { label: 'Reservations', link: '/reservations' },
+            { label: 'Contact', link: '/contact' }
+          ],
+          style: 'elegant'
+        },
+        style: {
+          backgroundColor: '#ffffff',
+          padding: '1rem 0',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        },
+        children: []
+      },
+      {
+        id: 'restaurant-hero',
+        type: 'hero',
+        props: {
+          title: 'Fine Dining Experience',
+          subtitle: 'Discover exquisite flavors and exceptional service',
+          ctaButtons: [
+            { text: 'View Menu', link: '/menu', variant: 'primary' },
+            { text: 'Make Reservation', link: '/reservations', variant: 'secondary' }
+          ],
+          backgroundImage: '/images/restaurant-hero-bg.jpg',
+          style: 'centered'
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #8B4513 0%, #D2691E 100%)',
+          color: '#ffffff',
+          textAlign: 'center'
+        },
+        children: []
+      },
+      {
+        id: 'restaurant-menu',
+        type: 'menu-section',
+        props: {
+          title: 'Our Menu',
+          subtitle: 'Fresh ingredients, authentic flavors',
+          categories: [
+            {
+              name: 'Appetizers',
+              items: [
+                { name: 'Bruschetta', description: 'Fresh tomatoes, basil, garlic', price: '$12' },
+                { name: 'Caesar Salad', description: 'Romaine lettuce, parmesan, croutons', price: '$14' }
+              ]
+            },
+            {
+              name: 'Main Courses',
+              items: [
+                { name: 'Grilled Salmon', description: 'Fresh salmon with herbs', price: '$28' },
+                { name: 'Chicken Parmesan', description: 'Breaded chicken with marinara', price: '$24' }
+              ]
+            }
+          ]
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'restaurant-footer',
+        type: 'footer',
+        props: {
+          logo: 'Restaurant Deluxe',
+          description: 'Fine dining at its best',
+          links: [
+            { title: 'Menu', items: [
+              { label: 'Appetizers', link: '/menu#appetizers' },
+              { label: 'Main Courses', link: '/menu#mains' },
+              { label: 'Desserts', link: '/menu#desserts' }
+            ]},
+            { title: 'Contact', items: [
+              { label: 'Reservations', link: '/reservations' },
+              { label: 'Location', link: '/contact' },
+              { label: 'Hours', link: '/contact#hours' }
+            ]}
+          ],
+          contactInfo: {
+            address: '123 Restaurant Street, City, Country',
+            phone: '+1-555-123-4567',
+            email: 'info@restaurantdeluxe.com'
+          },
+          copyright: '© 2025 Restaurant Deluxe. All rights reserved.'
+        },
+        style: {
+          backgroundColor: '#2c3e50',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
+        children: []
+      }
+    ]
+  },
+  {
+    id: 'restaurant-1',
+    name: 'Restaurant Deluxe (Pakistan)',
+    category: 'Restaurant',
+    description: 'Elegant restaurant website with menu and reservations - Pakistan version',
+    thumbnail: '/templates/restaurant-1.svg',
+    isPremium: false,
+    tags: ['food', 'dining', 'hospitality'],
+    pages: ['home', 'menu', 'about', 'reservations', 'contact'],
+    features: ['menu-display', 'reservation-system', 'gallery'],
+    parentTemplateId: 'restaurant-1-global',
+    localizedFor: 'pk',
+    elements: [
+      {
+        id: 'restaurant-navbar',
+        type: 'navbar',
+        props: {
+          logo: 'Restaurant Deluxe',
+          menuItems: [
+            { label: 'Home', link: '/' },
+            { label: 'Menu', link: '/menu' },
+            { label: 'About', link: '/about' },
+            { label: 'Reservations', link: '/reservations' },
+            { label: 'Contact', link: '/contact' }
+          ],
+          style: 'elegant'
+        },
+        style: {
+          backgroundColor: '#ffffff',
+          padding: '1rem 0',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        },
+        children: []
+      },
+      {
+        id: 'restaurant-hero',
+        type: 'hero',
+        props: {
+          title: 'Fine Dining Experience',
+          subtitle: 'Discover exquisite flavors and exceptional service',
+          ctaButtons: [
+            { text: 'View Menu', link: '/menu', variant: 'primary' },
+            { text: 'Make Reservation', link: '/reservations', variant: 'secondary' }
+          ],
+          backgroundImage: '/images/restaurant-hero-bg.jpg',
+          style: 'centered'
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #8B4513 0%, #D2691E 100%)',
+          color: '#ffffff',
+          textAlign: 'center'
+        },
+        children: []
+      },
+      {
+        id: 'restaurant-menu',
+        type: 'menu-section',
+        props: {
+          title: 'Our Menu',
+          subtitle: 'Fresh ingredients, authentic flavors',
+          categories: [
+            {
+              name: 'Appetizers',
+              items: [
+                { name: 'Biryani', description: 'Fragrant rice with spices', price: 'Rs. 450' },
+                { name: 'Samosa', description: 'Crispy pastry with filling', price: 'Rs. 50' }
+              ]
+            },
+            {
+              name: 'Main Courses',
+              items: [
+                { name: 'Chicken Karahi', description: 'Spicy chicken curry', price: 'Rs. 800' },
+                { name: 'Mutton Pulao', description: 'Aromatic rice with mutton', price: 'Rs. 900' }
+              ]
+            }
+          ]
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'restaurant-payment',
+        type: 'payment-methods',
+        props: {
+          title: 'Payment Methods',
+          methods: [
+            { name: 'JazzCash', icon: 'jazzcash', available: true },
+            { name: 'EasyPaisa', icon: 'easypaisa', available: true },
+            { name: 'Bank Transfer', icon: 'bank', available: true },
+            { name: 'Cash on Delivery', icon: 'cash', available: true }
+          ]
+        },
+        style: {
+          padding: '2rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      },
+      {
+        id: 'restaurant-footer',
+        type: 'footer',
+        props: {
+          logo: 'Restaurant Deluxe',
+          description: 'Fine dining at its best',
+          links: [
+            { title: 'Menu', items: [
+              { label: 'Appetizers', link: '/menu#appetizers' },
+              { label: 'Main Courses', link: '/menu#mains' },
+              { label: 'Desserts', link: '/menu#desserts' }
+            ]},
+            { title: 'Contact', items: [
+              { label: 'Reservations', link: '/reservations' },
+              { label: 'Location', link: '/contact' },
+              { label: 'Hours', link: '/contact#hours' }
+            ]}
+          ],
+          contactInfo: {
+            address: '123 Restaurant Street, Karachi, Pakistan',
+            phone: '+92-21-1234567',
+            email: 'info@restaurantdeluxe.pk',
+            whatsapp: '+92-300-1234567'
+          },
+          copyright: '© 2025 Restaurant Deluxe. All rights reserved.'
+        },
+        style: {
+          backgroundColor: '#2c3e50',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
+        children: []
+      }
+    ]
   },
   {
     id: 'portfolio-1',
@@ -118,10 +707,161 @@ export const websiteTemplates = [
     isPremium: false,
     tags: ['creative', 'portfolio', 'gallery'],
     pages: ['home', 'portfolio', 'about', 'contact'],
-    features: ['image-gallery', 'project-showcase', 'contact-form']
+    features: ['image-gallery', 'project-showcase', 'contact-form'],
+    elements: [
+      {
+        id: 'portfolio-navbar',
+        type: 'navbar',
+        props: {
+          logo: 'Your Name',
+          menuItems: [
+            { label: 'Home', link: '/' },
+            { label: 'Portfolio', link: '/portfolio' },
+            { label: 'About', link: '/about' },
+            { label: 'Contact', link: '/contact' }
+          ],
+          style: 'minimal'
+        },
+        style: {
+          backgroundColor: '#ffffff',
+          padding: '1rem 0',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        },
+        children: []
+      },
+      {
+        id: 'portfolio-hero',
+        type: 'hero',
+        props: {
+          title: 'Creative Designer & Developer',
+          subtitle: 'Bringing ideas to life through beautiful design and clean code',
+          ctaButtons: [
+            { text: 'View My Work', link: '/portfolio', variant: 'primary' },
+            { text: 'Get In Touch', link: '/contact', variant: 'secondary' }
+          ],
+          backgroundImage: '/images/portfolio-hero-bg.jpg',
+          style: 'centered'
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: '#ffffff',
+          textAlign: 'center'
+        },
+        children: []
+      },
+      {
+        id: 'portfolio-gallery',
+        type: 'gallery',
+        props: {
+          title: 'Featured Work',
+          subtitle: 'A selection of my recent projects',
+          images: [
+            {
+              src: '/images/portfolio/project-1.jpg',
+              alt: 'E-commerce Website',
+              title: 'E-commerce Platform',
+              description: 'Modern online store with custom CMS'
+            },
+            {
+              src: '/images/portfolio/project-2.jpg',
+              alt: 'Mobile App Design',
+              title: 'Mobile Banking App',
+              description: 'User-friendly financial management app'
+            },
+            {
+              src: '/images/portfolio/project-3.jpg',
+              alt: 'Brand Identity',
+              title: 'Brand Identity Design',
+              description: 'Complete brand package for startup'
+            }
+          ],
+          layout: 'masonry',
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      },
+      {
+        id: 'portfolio-about',
+        type: 'about-section',
+        props: {
+          title: 'About Me',
+          subtitle: 'Passionate about creating digital experiences',
+          content: 'I\'m a creative designer and developer with 5+ years of experience building beautiful, functional websites and applications. I specialize in user experience design, front-end development, and brand identity.',
+          imageUrl: '/images/portfolio/about-me.jpg',
+          skills: ['UI/UX Design', 'Frontend Development', 'Brand Identity', 'Web Design'],
+          layout: 'split'
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'portfolio-contact',
+        type: 'contact-form',
+        props: {
+          title: 'Let\'s Work Together',
+          subtitle: 'Ready to start your next project?',
+          fields: [
+            { name: 'name', type: 'text', required: true, placeholder: 'Your Name' },
+            { name: 'email', type: 'email', required: true, placeholder: 'Your Email' },
+            { name: 'project', type: 'select', required: true, placeholder: 'Project Type', options: ['Web Design', 'Brand Identity', 'Mobile App', 'Other'] },
+            { name: 'message', type: 'textarea', required: true, placeholder: 'Tell me about your project' }
+          ],
+          submitText: 'Send Message'
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      },
+      {
+        id: 'portfolio-footer',
+        type: 'footer',
+        props: {
+          logo: 'Your Name',
+          description: 'Creative Designer & Developer',
+          links: [
+            { title: 'Quick Links', items: [
+              { label: 'Home', link: '/' },
+              { label: 'Portfolio', link: '/portfolio' },
+              { label: 'About', link: '/about' },
+              { label: 'Contact', link: '/contact' }
+            ]},
+            { title: 'Services', items: [
+              { label: 'Web Design', link: '/services/web-design' },
+              { label: 'Brand Identity', link: '/services/branding' },
+              { label: 'Mobile Apps', link: '/services/mobile' }
+            ]}
+          ],
+          socialMedia: [
+            { platform: 'twitter', url: 'https://twitter.com' },
+            { platform: 'linkedin', url: 'https://linkedin.com' },
+            { platform: 'dribbble', url: 'https://dribbble.com' }
+          ],
+          copyright: '© 2025 Your Name. All rights reserved.'
+        },
+        style: {
+          backgroundColor: '#2c3e50',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
+        children: []
+      }
+    ]
   },
   {
-    id: 'education-1',
+    id: 'education-1-global',
     name: 'Online Academy',
     category: 'Education',
     description: 'Modern education platform for online learning',
@@ -130,7 +870,271 @@ export const websiteTemplates = [
     tags: ['education', 'courses', 'learning'],
     pages: ['home', 'courses', 'instructors', 'about', 'enroll'],
     features: ['course-catalog', 'instructor-profiles', 'enrollment-system'],
-    localizedFor: 'pk'
+    isGlobal: true,
+    elements: [
+      {
+        id: 'education-navbar',
+        type: 'navbar',
+        props: {
+          logo: 'EduAcademy',
+          menuItems: [
+            { label: 'Home', link: '/' },
+            { label: 'Courses', link: '/courses' },
+            { label: 'Instructors', link: '/instructors' },
+            { label: 'About', link: '/about' },
+            { label: 'Enroll', link: '/enroll' }
+          ],
+          style: 'modern'
+        },
+        style: {
+          backgroundColor: '#ffffff',
+          padding: '1rem 0',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        },
+        children: []
+      },
+      {
+        id: 'education-hero',
+        type: 'hero',
+        props: {
+          title: 'Learn Without Limits',
+          subtitle: 'Access world-class education from anywhere. Join thousands of students learning online.',
+          ctaButtons: [
+            { text: 'Browse Courses', link: '/courses', variant: 'primary' },
+            { text: 'Start Free Trial', link: '/enroll', variant: 'secondary' }
+          ],
+          backgroundImage: '/images/education-hero-bg.jpg',
+          style: 'centered'
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+          color: '#ffffff',
+          textAlign: 'center'
+        },
+        children: []
+      },
+      {
+        id: 'education-courses',
+        type: 'course-grid',
+        props: {
+          title: 'Popular Courses',
+          subtitle: 'Start your learning journey with these trending courses',
+          courses: [
+            {
+              title: 'Web Development Bootcamp',
+              instructor: 'Dr. Sarah Johnson',
+              duration: '12 weeks',
+              price: '$299',
+              rating: 4.8,
+              students: 1250,
+              image: '/images/courses/web-dev.jpg',
+              description: 'Complete full-stack web development course'
+            },
+            {
+              title: 'Digital Marketing Mastery',
+              instructor: 'Prof. Michael Chen',
+              duration: '8 weeks',
+              price: '$199',
+              rating: 4.7,
+              students: 980,
+              image: '/images/courses/digital-marketing.jpg',
+              description: 'Learn modern digital marketing strategies'
+            }
+          ],
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      },
+      {
+        id: 'education-footer',
+        type: 'footer',
+        props: {
+          logo: 'EduAcademy',
+          description: 'Empowering learners worldwide through quality education',
+          links: [
+            { title: 'Quick Links', items: [
+              { label: 'Home', link: '/' },
+              { label: 'Courses', link: '/courses' },
+              { label: 'Instructors', link: '/instructors' },
+              { label: 'About', link: '/about' }
+            ]},
+            { title: 'Support', items: [
+              { label: 'Help Center', link: '/help' },
+              { label: 'Contact Us', link: '/contact' },
+              { label: 'FAQ', link: '/faq' }
+            ]}
+          ],
+          contactInfo: {
+            address: '123 Education Avenue, City, Country',
+            phone: '+1-555-123-4567',
+            email: 'info@eduacademy.com'
+          },
+          copyright: '© 2025 EduAcademy. All rights reserved.'
+        },
+        style: {
+          backgroundColor: '#34495e',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
+        children: []
+      }
+    ]
+  },
+  {
+    id: 'education-1',
+    name: 'Online Academy (Pakistan)',
+    category: 'Education',
+    description: 'Modern education platform for online learning - Pakistan version',
+    thumbnail: '/templates/education-1.svg',
+    isPremium: true,
+    tags: ['education', 'courses', 'learning'],
+    pages: ['home', 'courses', 'instructors', 'about', 'enroll'],
+    features: ['course-catalog', 'instructor-profiles', 'enrollment-system'],
+    parentTemplateId: 'education-1-global',
+    localizedFor: 'pk',
+    elements: [
+      {
+        id: 'education-navbar',
+        type: 'navbar',
+        props: {
+          logo: 'EduAcademy',
+          menuItems: [
+            { label: 'Home', link: '/' },
+            { label: 'Courses', link: '/courses' },
+            { label: 'Instructors', link: '/instructors' },
+            { label: 'About', link: '/about' },
+            { label: 'Enroll', link: '/enroll' }
+          ],
+          style: 'modern'
+        },
+        style: {
+          backgroundColor: '#ffffff',
+          padding: '1rem 0',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        },
+        children: []
+      },
+      {
+        id: 'education-hero',
+        type: 'hero',
+        props: {
+          title: 'Learn Without Limits',
+          subtitle: 'Access world-class education from anywhere. Join thousands of students learning online.',
+          ctaButtons: [
+            { text: 'Browse Courses', link: '/courses', variant: 'primary' },
+            { text: 'Start Free Trial', link: '/enroll', variant: 'secondary' }
+          ],
+          backgroundImage: '/images/education-hero-bg.jpg',
+          style: 'centered'
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
+          color: '#ffffff',
+          textAlign: 'center'
+        },
+        children: []
+      },
+      {
+        id: 'education-courses',
+        type: 'course-grid',
+        props: {
+          title: 'Popular Courses',
+          subtitle: 'Start your learning journey with these trending courses',
+          courses: [
+            {
+              title: 'Web Development Bootcamp',
+              instructor: 'Dr. Sarah Ahmed',
+              duration: '12 weeks',
+              price: 'Rs. 15,000',
+              rating: 4.8,
+              students: 1250,
+              image: '/images/courses/web-dev.jpg',
+              description: 'Complete full-stack web development course'
+            },
+            {
+              title: 'Digital Marketing Mastery',
+              instructor: 'Prof. Ali Khan',
+              duration: '8 weeks',
+              price: 'Rs. 12,000',
+              rating: 4.7,
+              students: 980,
+              image: '/images/courses/digital-marketing.jpg',
+              description: 'Learn modern digital marketing strategies'
+            }
+          ],
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      },
+      {
+        id: 'education-payment',
+        type: 'payment-methods',
+        props: {
+          title: 'Payment Options',
+          methods: [
+            { name: 'JazzCash', icon: 'jazzcash', available: true },
+            { name: 'EasyPaisa', icon: 'easypaisa', available: true },
+            { name: 'Bank Transfer', icon: 'bank', available: true },
+            { name: 'Credit Card', icon: 'credit-card', available: true }
+          ]
+        },
+        style: {
+          padding: '2rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'education-footer',
+        type: 'footer',
+        props: {
+          logo: 'EduAcademy',
+          description: 'Empowering learners worldwide through quality education',
+          links: [
+            { title: 'Quick Links', items: [
+              { label: 'Home', link: '/' },
+              { label: 'Courses', link: '/courses' },
+              { label: 'Instructors', link: '/instructors' },
+              { label: 'About', link: '/about' }
+            ]},
+            { title: 'Support', items: [
+              { label: 'Help Center', link: '/help' },
+              { label: 'Contact Us', link: '/contact' },
+              { label: 'FAQ', link: '/faq' }
+            ]}
+          ],
+          contactInfo: {
+            address: '123 Education Avenue, Karachi, Pakistan',
+            phone: '+92-21-1234567',
+            email: 'info@eduacademy.pk',
+            whatsapp: '+92-300-1234567'
+          },
+          copyright: '© 2025 EduAcademy. All rights reserved.'
+        },
+        style: {
+          backgroundColor: '#34495e',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
+        children: []
+      }
+    ]
   },
   {
     id: 'medical-1',
@@ -142,7 +1146,233 @@ export const websiteTemplates = [
     tags: ['medical', 'healthcare', 'clinic'],
     pages: ['home', 'services', 'doctors', 'appointments', 'contact'],
     features: ['appointment-booking', 'doctor-profiles', 'service-listing'],
-    localizedFor: 'pk'
+    localizedFor: 'pk',
+    elements: [
+      {
+        id: 'medical-navbar',
+        type: 'navbar',
+        props: {
+          logo: 'HealthCare Plus',
+          menuItems: [
+            { label: 'Home', link: '/' },
+            { label: 'Services', link: '/services' },
+            { label: 'Doctors', link: '/doctors' },
+            { label: 'Appointments', link: '/appointments' },
+            { label: 'Contact', link: '/contact' }
+          ],
+          style: 'professional'
+        },
+        style: {
+          backgroundColor: '#ffffff',
+          padding: '1rem 0',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        },
+        children: []
+      },
+      {
+        id: 'medical-hero',
+        type: 'hero',
+        props: {
+          title: 'Your Health, Our Priority',
+          subtitle: 'Comprehensive healthcare services with experienced medical professionals',
+          ctaButtons: [
+            { text: 'Book Appointment', link: '/appointments', variant: 'primary' },
+            { text: 'Emergency Contact', link: '/contact', variant: 'secondary' }
+          ],
+          backgroundImage: '/images/medical-hero-bg.jpg',
+          style: 'centered'
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: '#ffffff',
+          textAlign: 'center'
+        },
+        children: []
+      },
+      {
+        id: 'medical-services',
+        type: 'feature-grid',
+        props: {
+          title: 'Our Medical Services',
+          subtitle: 'Comprehensive healthcare solutions for all your needs',
+          features: [
+            {
+              icon: 'heart',
+              title: 'Cardiology',
+              description: 'Expert heart care and cardiovascular treatments'
+            },
+            {
+              icon: 'brain',
+              title: 'Neurology',
+              description: 'Advanced neurological diagnosis and treatment'
+            },
+            {
+              icon: 'baby',
+              title: 'Pediatrics',
+              description: 'Specialized care for children and infants'
+            },
+            {
+              icon: 'eye',
+              title: 'Ophthalmology',
+              description: 'Complete eye care and vision services'
+            },
+            {
+              icon: 'bone',
+              title: 'Orthopedics',
+              description: 'Bone, joint, and muscle treatment'
+            },
+            {
+              icon: 'stethoscope',
+              title: 'General Medicine',
+              description: 'Primary healthcare and preventive medicine'
+            }
+          ],
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'medical-doctors',
+        type: 'team-section',
+        props: {
+          title: 'Our Medical Team',
+          subtitle: 'Experienced healthcare professionals dedicated to your wellbeing',
+          members: [
+            {
+              name: 'Dr. Ahmed Hassan',
+              role: 'Chief Cardiologist',
+              image: '/images/doctors/ahmed-hassan.jpg',
+              bio: '20+ years experience in cardiovascular medicine',
+              specialization: 'Cardiology',
+              experience: '20 years'
+            },
+            {
+              name: 'Dr. Fatima Ali',
+              role: 'Senior Neurologist',
+              image: '/images/doctors/fatima-ali.jpg',
+              bio: 'Specialist in neurological disorders and treatments',
+              specialization: 'Neurology',
+              experience: '15 years'
+            },
+            {
+              name: 'Dr. Muhammad Khan',
+              role: 'Pediatrician',
+              image: '/images/doctors/muhammad-khan.jpg',
+              bio: 'Expert in child healthcare and development',
+              specialization: 'Pediatrics',
+              experience: '12 years'
+            }
+          ],
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      },
+      {
+        id: 'medical-appointment',
+        type: 'appointment-booking',
+        props: {
+          title: 'Book Your Appointment',
+          subtitle: 'Schedule your visit with our medical professionals',
+          departments: [
+            { name: 'Cardiology', doctor: 'Dr. Ahmed Hassan' },
+            { name: 'Neurology', doctor: 'Dr. Fatima Ali' },
+            { name: 'Pediatrics', doctor: 'Dr. Muhammad Khan' },
+            { name: 'General Medicine', doctor: 'Dr. Sarah Ahmed' }
+          ],
+          timeSlots: [
+            '09:00 AM', '10:00 AM', '11:00 AM', '02:00 PM', '03:00 PM', '04:00 PM'
+          ],
+          emergencyContact: '+92-300-1234567'
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'medical-testimonials',
+        type: 'testimonials',
+        props: {
+          title: 'Patient Testimonials',
+          subtitle: 'What our patients say about our care',
+          testimonials: [
+            {
+              name: 'Ayesha Malik',
+              role: 'Patient',
+              content: 'Excellent care and professional service. The doctors are very knowledgeable and caring.',
+              rating: 5,
+              image: '/images/patients/ayesha-malik.jpg'
+            },
+            {
+              name: 'Hassan Sheikh',
+              role: 'Patient',
+              content: 'The medical team provided exceptional treatment during my recovery. Highly recommended.',
+              rating: 5,
+              image: '/images/patients/hassan-sheikh.jpg'
+            },
+            {
+              name: 'Zara Khan',
+              role: 'Patient',
+              content: 'Professional, clean, and efficient. The staff made me feel comfortable throughout my visit.',
+              rating: 5,
+              image: '/images/patients/zara-khan.jpg'
+            }
+          ]
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      },
+      {
+        id: 'medical-footer',
+        type: 'footer',
+        props: {
+          logo: 'HealthCare Plus',
+          description: 'Your trusted healthcare partner',
+          links: [
+            { title: 'Services', items: [
+              { label: 'Cardiology', link: '/services/cardiology' },
+              { label: 'Neurology', link: '/services/neurology' },
+              { label: 'Pediatrics', link: '/services/pediatrics' },
+              { label: 'General Medicine', link: '/services/general' }
+            ]},
+            { title: 'Quick Links', items: [
+              { label: 'Book Appointment', link: '/appointments' },
+              { label: 'Emergency Contact', link: '/emergency' },
+              { label: 'Patient Portal', link: '/portal' }
+            ]}
+          ],
+          contactInfo: {
+            address: '123 Medical Street, Karachi, Pakistan',
+            phone: '+92-21-1234567',
+            email: 'info@healthcareplus.pk',
+            emergency: '+92-300-1234567'
+          },
+          copyright: '© 2025 HealthCare Plus. All rights reserved.'
+        },
+        style: {
+          backgroundColor: '#2c3e50',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
+        children: []
+      }
+    ]
   },
   {
     id: 'realestate-1',
@@ -154,7 +1384,243 @@ export const websiteTemplates = [
     tags: ['property', 'real-estate', 'listings'],
     pages: ['home', 'properties', 'agents', 'about', 'contact'],
     features: ['property-search', 'agent-profiles', 'virtual-tours'],
-    localizedFor: 'pk'
+    localizedFor: 'pk',
+    elements: [
+      {
+        id: 'realestate-navbar',
+        type: 'navbar',
+        props: {
+          logo: 'Property Pro',
+          menuItems: [
+            { label: 'Home', link: '/' },
+            { label: 'Properties', link: '/properties' },
+            { label: 'Agents', link: '/agents' },
+            { label: 'About', link: '/about' },
+            { label: 'Contact', link: '/contact' }
+          ],
+          style: 'modern'
+        },
+        style: {
+          backgroundColor: '#ffffff',
+          padding: '1rem 0',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        },
+        children: []
+      },
+      {
+        id: 'realestate-hero',
+        type: 'hero',
+        props: {
+          title: 'Find Your Dream Home',
+          subtitle: 'Discover the perfect property with our expert real estate services',
+          ctaButtons: [
+            { text: 'Browse Properties', link: '/properties', variant: 'primary' },
+            { text: 'Get Valuation', link: '/valuation', variant: 'secondary' }
+          ],
+          backgroundImage: '/images/realestate-hero-bg.jpg',
+          style: 'centered'
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: '#ffffff',
+          textAlign: 'center'
+        },
+        children: []
+      },
+      {
+        id: 'realestate-search',
+        type: 'property-search',
+        props: {
+          title: 'Search Properties',
+          subtitle: 'Find your perfect home with our advanced search',
+          filters: {
+            propertyType: ['House', 'Apartment', 'Commercial', 'Land'],
+            priceRange: { min: 5000000, max: 50000000 },
+            bedrooms: [1, 2, 3, 4, 5],
+            bathrooms: [1, 2, 3, 4],
+            location: ['Karachi', 'Lahore', 'Islamabad', 'Rawalpindi']
+          },
+          featuredProperties: true
+        },
+        style: {
+          padding: '3rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      },
+      {
+        id: 'realestate-featured',
+        type: 'property-grid',
+        props: {
+          title: 'Featured Properties',
+          subtitle: 'Handpicked properties just for you',
+          properties: [
+            {
+              title: 'Modern Villa in DHA',
+              price: 'Rs. 25,000,000',
+              location: 'DHA Phase 5, Karachi',
+              bedrooms: 4,
+              bathrooms: 3,
+              area: '2500 sq ft',
+              image: '/images/properties/villa-dha.jpg',
+              features: ['Garden', 'Parking', 'Security'],
+              agent: 'Ahmed Hassan'
+            },
+            {
+              title: 'Luxury Apartment',
+              price: 'Rs. 15,000,000',
+              location: 'Gulberg, Lahore',
+              bedrooms: 3,
+              bathrooms: 2,
+              area: '1800 sq ft',
+              image: '/images/properties/apartment-gulberg.jpg',
+              features: ['Gym', 'Swimming Pool', '24/7 Security'],
+              agent: 'Fatima Ali'
+            },
+            {
+              title: 'Commercial Office Space',
+              price: 'Rs. 8,000,000',
+              location: 'Blue Area, Islamabad',
+              bedrooms: 0,
+              bathrooms: 2,
+              area: '1200 sq ft',
+              image: '/images/properties/office-blue-area.jpg',
+              features: ['Parking', 'Elevator', 'Central AC'],
+              agent: 'Muhammad Khan'
+            }
+          ],
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'realestate-agents',
+        type: 'team-section',
+        props: {
+          title: 'Our Expert Agents',
+          subtitle: 'Professional real estate agents ready to help you',
+          members: [
+            {
+              name: 'Ahmed Hassan',
+              role: 'Senior Real Estate Agent',
+              image: '/images/agents/ahmed-hassan.jpg',
+              bio: '10+ years experience in Karachi real estate market',
+              propertiesSold: 150,
+              rating: 4.9
+            },
+            {
+              name: 'Fatima Ali',
+              role: 'Luxury Property Specialist',
+              image: '/images/agents/fatima-ali.jpg',
+              bio: 'Specialist in high-end residential properties',
+              propertiesSold: 120,
+              rating: 4.8
+            },
+            {
+              name: 'Muhammad Khan',
+              role: 'Commercial Real Estate Expert',
+              image: '/images/agents/muhammad-khan.jpg',
+              bio: 'Expert in commercial and investment properties',
+              propertiesSold: 200,
+              rating: 4.9
+            }
+          ],
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      },
+      {
+        id: 'realestate-services',
+        type: 'feature-grid',
+        props: {
+          title: 'Our Services',
+          subtitle: 'Complete real estate solutions for all your needs',
+          features: [
+            {
+              icon: 'home',
+              title: 'Property Sales',
+              description: 'Buy and sell residential and commercial properties'
+            },
+            {
+              icon: 'key',
+              title: 'Property Rentals',
+              description: 'Find the perfect rental property or list yours'
+            },
+            {
+              icon: 'calculator',
+              title: 'Property Valuation',
+              description: 'Get accurate property valuations from experts'
+            },
+            {
+              icon: 'document',
+              title: 'Legal Services',
+              description: 'Complete legal support for property transactions'
+            },
+            {
+              icon: 'camera',
+              title: 'Virtual Tours',
+              description: 'Explore properties with our virtual tour service'
+            },
+            {
+              icon: 'shield',
+              title: 'Property Management',
+              description: 'Professional property management services'
+            }
+          ],
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'realestate-footer',
+        type: 'footer',
+        props: {
+          logo: 'Property Pro',
+          description: 'Your trusted real estate partner',
+          links: [
+            { title: 'Properties', items: [
+              { label: 'Residential', link: '/properties/residential' },
+              { label: 'Commercial', link: '/properties/commercial' },
+              { label: 'Land', link: '/properties/land' }
+            ]},
+            { title: 'Services', items: [
+              { label: 'Property Sales', link: '/services/sales' },
+              { label: 'Rentals', link: '/services/rentals' },
+              { label: 'Valuation', link: '/services/valuation' }
+            ]}
+          ],
+          contactInfo: {
+            address: '123 Real Estate Avenue, Karachi, Pakistan',
+            phone: '+92-21-1234567',
+            email: 'info@propertypro.pk',
+            whatsapp: '+92-300-1234567'
+          },
+          copyright: '© 2025 Property Pro. All rights reserved.'
+        },
+        style: {
+          backgroundColor: '#2c3e50',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
+        children: []
+      }
+    ]
   },
   {
     id: 'wedding-1',
@@ -166,7 +1632,204 @@ export const websiteTemplates = [
     tags: ['wedding', 'events', 'celebration'],
     pages: ['home', 'gallery', 'services', 'testimonials', 'contact'],
     features: ['photo-gallery', 'rsvp-system', 'countdown-timer'],
-    localizedFor: 'pk'
+    localizedFor: 'pk',
+    elements: [
+      {
+        id: 'wedding-navbar',
+        type: 'navbar',
+        props: {
+          logo: 'Wedding Bells',
+          menuItems: [
+            { label: 'Home', link: '/' },
+            { label: 'Gallery', link: '/gallery' },
+            { label: 'Services', link: '/services' },
+            { label: 'Testimonials', link: '/testimonials' },
+            { label: 'Contact', link: '/contact' }
+          ],
+          style: 'elegant'
+        },
+        style: {
+          backgroundColor: '#ffffff',
+          padding: '1rem 0',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        },
+        children: []
+      },
+      {
+        id: 'wedding-hero',
+        type: 'hero',
+        props: {
+          title: 'Your Dream Wedding Awaits',
+          subtitle: 'Creating magical moments that last a lifetime',
+          ctaButtons: [
+            { text: 'View Gallery', link: '/gallery', variant: 'primary' },
+            { text: 'Book Consultation', link: '/contact', variant: 'secondary' }
+          ],
+          backgroundImage: '/images/wedding-hero-bg.jpg',
+          style: 'centered'
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)',
+          color: '#8b4513',
+          textAlign: 'center'
+        },
+        children: []
+      },
+      {
+        id: 'wedding-gallery',
+        type: 'gallery',
+        props: {
+          title: 'Our Beautiful Weddings',
+          subtitle: 'A glimpse into the magical moments we create',
+          images: [
+            {
+              src: '/images/weddings/wedding-1.jpg',
+              alt: 'Garden Wedding',
+              title: 'Garden Wedding',
+              description: 'Romantic outdoor ceremony'
+            },
+            {
+              src: '/images/weddings/wedding-2.jpg',
+              alt: 'Ballroom Wedding',
+              title: 'Ballroom Wedding',
+              description: 'Elegant indoor celebration'
+            },
+            {
+              src: '/images/weddings/wedding-3.jpg',
+              alt: 'Beach Wedding',
+              title: 'Beach Wedding',
+              description: 'Sunset beach ceremony'
+            }
+          ],
+          layout: 'masonry',
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'wedding-services',
+        type: 'feature-grid',
+        props: {
+          title: 'Our Services',
+          subtitle: 'Complete wedding planning solutions',
+          features: [
+            {
+              icon: 'calendar',
+              title: 'Event Planning',
+              description: 'Complete wedding planning and coordination'
+            },
+            {
+              icon: 'camera',
+              title: 'Photography',
+              description: 'Professional wedding photography and videography'
+            },
+            {
+              icon: 'flower',
+              title: 'Floral Design',
+              description: 'Beautiful floral arrangements and decorations'
+            },
+            {
+              icon: 'utensils',
+              title: 'Catering',
+              description: 'Delicious cuisine for your special day'
+            },
+            {
+              icon: 'music',
+              title: 'Entertainment',
+              description: 'Live music and DJ services'
+            },
+            {
+              icon: 'car',
+              title: 'Transportation',
+              description: 'Luxury transportation for the wedding party'
+            }
+          ],
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      },
+      {
+        id: 'wedding-testimonials',
+        type: 'testimonials',
+        props: {
+          title: 'Happy Couples',
+          subtitle: 'What our clients say about their special day',
+          testimonials: [
+            {
+              name: 'Ayesha & Hassan',
+              role: 'Married Couple',
+              content: 'Wedding Bells made our dream wedding come true. Everything was perfect!',
+              rating: 5,
+              image: '/images/couples/ayesha-hassan.jpg'
+            },
+            {
+              name: 'Fatima & Ali',
+              role: 'Married Couple',
+              content: 'Professional, creative, and absolutely amazing. Highly recommended!',
+              rating: 5,
+              image: '/images/couples/fatima-ali.jpg'
+            },
+            {
+              name: 'Zara & Muhammad',
+              role: 'Married Couple',
+              content: 'They handled everything beautifully. Our guests are still talking about it!',
+              rating: 5,
+              image: '/images/couples/zara-muhammad.jpg'
+            }
+          ]
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'wedding-footer',
+        type: 'footer',
+        props: {
+          logo: 'Wedding Bells',
+          description: 'Making your dreams come true',
+          links: [
+            { title: 'Services', items: [
+              { label: 'Event Planning', link: '/services/planning' },
+              { label: 'Photography', link: '/services/photography' },
+              { label: 'Catering', link: '/services/catering' }
+            ]},
+            { title: 'Quick Links', items: [
+              { label: 'Gallery', link: '/gallery' },
+              { label: 'Testimonials', link: '/testimonials' },
+              { label: 'Contact', link: '/contact' }
+            ]}
+          ],
+          contactInfo: {
+            address: '123 Wedding Street, Karachi, Pakistan',
+            phone: '+92-21-1234567',
+            email: 'info@weddingbells.pk',
+            whatsapp: '+92-300-1234567'
+          },
+          copyright: '© 2025 Wedding Bells. All rights reserved.'
+        },
+        style: {
+          backgroundColor: '#8b4513',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
+        children: []
+      }
+    ]
   },
   {
     id: 'blog-1',
@@ -177,7 +1840,207 @@ export const websiteTemplates = [
     isPremium: false,
     tags: ['blog', 'content', 'writing'],
     pages: ['home', 'posts', 'categories', 'about', 'contact'],
-    features: ['blog-posts', 'categories', 'comments', 'search']
+    features: ['blog-posts', 'categories', 'comments', 'search'],
+    elements: [
+      {
+        id: 'blog-navbar',
+        type: 'navbar',
+        props: {
+          logo: 'Modern Blog',
+          menuItems: [
+            { label: 'Home', link: '/' },
+            { label: 'Posts', link: '/posts' },
+            { label: 'Categories', link: '/categories' },
+            { label: 'About', link: '/about' },
+            { label: 'Contact', link: '/contact' }
+          ],
+          style: 'minimal'
+        },
+        style: {
+          backgroundColor: '#ffffff',
+          padding: '1rem 0',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        },
+        children: []
+      },
+      {
+        id: 'blog-hero',
+        type: 'hero',
+        props: {
+          title: 'Welcome to Modern Blog',
+          subtitle: 'Discover amazing stories, insights, and inspiration',
+          ctaButtons: [
+            { text: 'Read Latest Posts', link: '/posts', variant: 'primary' },
+            { text: 'Subscribe', link: '/subscribe', variant: 'secondary' }
+          ],
+          backgroundImage: '/images/blog-hero-bg.jpg',
+          style: 'centered'
+        },
+        style: {
+          minHeight: '60vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: '#ffffff',
+          textAlign: 'center'
+        },
+        children: []
+      },
+      {
+        id: 'blog-featured',
+        type: 'blog-featured',
+        props: {
+          title: 'Featured Post',
+          post: {
+            title: 'The Future of Web Development',
+            excerpt: 'Exploring the latest trends and technologies shaping the future of web development...',
+            author: 'Sarah Ahmed',
+            date: '2025-01-15',
+            category: 'Technology',
+            image: '/images/posts/web-dev-future.jpg',
+            readTime: '5 min read'
+          }
+        },
+        style: {
+          padding: '3rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'blog-posts',
+        type: 'blog-grid',
+        props: {
+          title: 'Latest Posts',
+          subtitle: 'Stay updated with our latest articles',
+          posts: [
+            {
+              title: 'Getting Started with React',
+              excerpt: 'Learn the basics of React development...',
+              author: 'Ali Khan',
+              date: '2025-01-14',
+              category: 'Programming',
+              image: '/images/posts/react-basics.jpg',
+              readTime: '8 min read'
+            },
+            {
+              title: 'Design Trends 2025',
+              excerpt: 'Discover the design trends that will dominate 2025...',
+              author: 'Fatima Hassan',
+              date: '2025-01-13',
+              category: 'Design',
+              image: '/images/posts/design-trends.jpg',
+              readTime: '6 min read'
+            },
+            {
+              title: 'SEO Best Practices',
+              excerpt: 'Essential SEO strategies for better search rankings...',
+              author: 'Muhammad Ali',
+              date: '2025-01-12',
+              category: 'Marketing',
+              image: '/images/posts/seo-guide.jpg',
+              readTime: '10 min read'
+            }
+          ],
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      },
+      {
+        id: 'blog-categories',
+        type: 'category-grid',
+        props: {
+          title: 'Browse by Category',
+          subtitle: 'Find posts that interest you most',
+          categories: [
+            {
+              name: 'Technology',
+              count: 25,
+              image: '/images/categories/technology.jpg',
+              description: 'Latest tech news and tutorials'
+            },
+            {
+              name: 'Design',
+              count: 18,
+              image: '/images/categories/design.jpg',
+              description: 'UI/UX design insights and trends'
+            },
+            {
+              name: 'Programming',
+              count: 32,
+              image: '/images/categories/programming.jpg',
+              description: 'Coding tutorials and best practices'
+            },
+            {
+              name: 'Marketing',
+              count: 15,
+              image: '/images/categories/marketing.jpg',
+              description: 'Digital marketing strategies'
+            }
+          ],
+          columns: 4
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'blog-newsletter',
+        type: 'newsletter-signup',
+        props: {
+          title: 'Stay Updated',
+          subtitle: 'Subscribe to our newsletter for the latest posts',
+          placeholder: 'Enter your email address',
+          buttonText: 'Subscribe',
+          description: 'Get weekly updates on technology, design, and programming'
+        },
+        style: {
+          padding: '3rem 0',
+          backgroundColor: '#2c3e50',
+          color: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'blog-footer',
+        type: 'footer',
+        props: {
+          logo: 'Modern Blog',
+          description: 'Sharing knowledge and inspiring creativity',
+          links: [
+            { title: 'Categories', items: [
+              { label: 'Technology', link: '/category/technology' },
+              { label: 'Design', link: '/category/design' },
+              { label: 'Programming', link: '/category/programming' }
+            ]},
+            { title: 'Quick Links', items: [
+              { label: 'About', link: '/about' },
+              { label: 'Contact', link: '/contact' },
+              { label: 'Privacy Policy', link: '/privacy' }
+            ]}
+          ],
+          socialMedia: [
+            { platform: 'twitter', url: 'https://twitter.com' },
+            { platform: 'facebook', url: 'https://facebook.com' },
+            { platform: 'linkedin', url: 'https://linkedin.com' }
+          ],
+          copyright: '© 2025 Modern Blog. All rights reserved.'
+        },
+        style: {
+          backgroundColor: '#34495e',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
+        children: []
+      }
+    ]
   },
   {
     id: 'nonprofit-1',
@@ -189,7 +2052,181 @@ export const websiteTemplates = [
     tags: ['charity', 'nonprofit', 'donation'],
     pages: ['home', 'about', 'causes', 'donate', 'contact'],
     features: ['donation-system', 'cause-showcase', 'volunteer-signup'],
-    localizedFor: 'pk'
+    localizedFor: 'pk',
+    elements: [
+      {
+        id: 'nonprofit-navbar',
+        type: 'navbar',
+        props: {
+          logo: 'Charity Hope',
+          menuItems: [
+            { label: 'Home', link: '/' },
+            { label: 'About', link: '/about' },
+            { label: 'Causes', link: '/causes' },
+            { label: 'Donate', link: '/donate' },
+            { label: 'Contact', link: '/contact' }
+          ],
+          style: 'clean'
+        },
+        style: {
+          backgroundColor: '#ffffff',
+          padding: '1rem 0',
+          boxShadow: '0 2px 10px rgba(0,0,0,0.1)'
+        },
+        children: []
+      },
+      {
+        id: 'nonprofit-hero',
+        type: 'hero',
+        props: {
+          title: 'Making a Difference Together',
+          subtitle: 'Join us in creating positive change in our community',
+          ctaButtons: [
+            { text: 'Donate Now', link: '/donate', variant: 'primary' },
+            { text: 'Learn More', link: '/about', variant: 'secondary' }
+          ],
+          backgroundImage: '/images/nonprofit-hero-bg.jpg',
+          style: 'centered'
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: '#ffffff',
+          textAlign: 'center'
+        },
+        children: []
+      },
+      {
+        id: 'nonprofit-causes',
+        type: 'cause-grid',
+        props: {
+          title: 'Our Causes',
+          subtitle: 'Supporting communities and making a lasting impact',
+          causes: [
+            {
+              title: 'Education for All',
+              description: 'Providing quality education to underprivileged children',
+              image: '/images/causes/education.jpg',
+              raised: 'Rs. 2,500,000',
+              target: 'Rs. 5,000,000',
+              donors: 1250
+            },
+            {
+              title: 'Clean Water Initiative',
+              description: 'Bringing clean drinking water to rural communities',
+              image: '/images/causes/water.jpg',
+              raised: 'Rs. 1,800,000',
+              target: 'Rs. 3,000,000',
+              donors: 890
+            },
+            {
+              title: 'Healthcare Access',
+              description: 'Improving healthcare access in remote areas',
+              image: '/images/causes/healthcare.jpg',
+              raised: 'Rs. 3,200,000',
+              target: 'Rs. 6,000,000',
+              donors: 2100
+            }
+          ],
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'nonprofit-stats',
+        type: 'stats-counter',
+        props: {
+          stats: [
+            { number: '50,000+', label: 'Lives Impacted' },
+            { number: '500+', label: 'Projects Completed' },
+            { number: '10,000+', label: 'Volunteers' },
+            { number: 'Rs. 25M+', label: 'Funds Raised' }
+          ]
+        },
+        style: {
+          padding: '3rem 0',
+          backgroundColor: '#2c3e50',
+          color: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'nonprofit-testimonials',
+        type: 'testimonials',
+        props: {
+          title: 'Stories of Hope',
+          subtitle: 'Hear from those whose lives we\'ve touched',
+          testimonials: [
+            {
+              name: 'Amina Khan',
+              role: 'Beneficiary',
+              content: 'Thanks to Charity Hope, my children now have access to quality education. We are forever grateful.',
+              rating: 5,
+              image: '/images/testimonials/amina-khan.jpg'
+            },
+            {
+              name: 'Hassan Ali',
+              role: 'Volunteer',
+              content: 'Volunteering with this organization has been one of the most rewarding experiences of my life.',
+              rating: 5,
+              image: '/images/testimonials/hassan-ali.jpg'
+            },
+            {
+              name: 'Fatima Sheikh',
+              role: 'Donor',
+              content: 'I\'m proud to support such a transparent and effective organization making real change.',
+              rating: 5,
+              image: '/images/testimonials/fatima-sheikh.jpg'
+            }
+          ]
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      },
+      {
+        id: 'nonprofit-footer',
+        type: 'footer',
+        props: {
+          logo: 'Charity Hope',
+          description: 'Creating positive change in our community',
+          links: [
+            { title: 'Causes', items: [
+              { label: 'Education', link: '/causes/education' },
+              { label: 'Healthcare', link: '/causes/healthcare' },
+              { label: 'Water', link: '/causes/water' }
+            ]},
+            { title: 'Get Involved', items: [
+              { label: 'Donate', link: '/donate' },
+              { label: 'About', link: '/about' },
+              { label: 'Contact', link: '/contact' }
+            ]}
+          ],
+          contactInfo: {
+            address: '123 Charity Street, Karachi, Pakistan',
+            phone: '+92-21-1234567',
+            email: 'info@charityhope.pk',
+            whatsapp: '+92-300-1234567'
+          },
+          copyright: '© 2025 Charity Hope. All rights reserved.'
+        },
+        style: {
+          backgroundColor: '#34495e',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
+        children: []
+      }
+    ]
   },
   {
     id: 'fitness-1',
@@ -1831,7 +3868,183 @@ export const websiteTemplates = [
     isPremium: true,
     tags: ['glassmorphism', 'modern', 'glass-effect', 'trendy'],
     pages: ['home', 'about', 'services', 'contact'],
-    features: ['glass-effects', 'modern-layout', 'smooth-animations', 'contact-form']
+    features: ['glass-effects', 'modern-layout', 'smooth-animations', 'contact-form'],
+    elements: [
+      {
+        id: 'navbar-glassmorphism',
+        type: 'navbar',
+        props: {
+          logo: 'Glassmorphism Modern',
+          menuItems: [
+            { label: 'Home', link: '/' },
+            { label: 'About', link: '/about' },
+            { label: 'Services', link: '/services' },
+            { label: 'Contact', link: '/contact' }
+          ],
+          style: 'glassmorphism',
+          isSticky: true,
+          showMobileMenu: true
+        },
+        style: {
+          backgroundColor: 'rgba(255, 255, 255, 0.1)',
+          backdropFilter: 'blur(10px)',
+          borderBottom: '1px solid rgba(255, 255, 255, 0.2)',
+          padding: '1rem 0'
+        },
+        children: []
+      },
+      {
+        id: 'hero-glassmorphism',
+        type: 'hero',
+        props: {
+          title: 'Modern Glass Design',
+          subtitle: 'Experience the future of web design with glassmorphism effects.',
+          ctaButtons: [
+            { text: 'Explore Features', link: '/features', variant: 'primary' },
+            { text: 'View Demo', link: '/demo', variant: 'secondary' }
+          ],
+          backgroundImage: '/templates/hero-glassmorphism.jpg',
+          style: 'glassmorphism',
+          overlayOpacity: 0.3
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          color: '#ffffff',
+          position: 'relative'
+        },
+        children: []
+      },
+      {
+        id: 'features-glassmorphism',
+        type: 'feature-grid',
+        props: {
+          title: 'Glass Effects',
+          subtitle: 'Modern design elements with glassmorphism effects',
+          features: [
+            {
+              icon: 'glass',
+              title: 'Glass Morphism',
+              description: 'Beautiful glass-like effects with transparency and blur.'
+            },
+            {
+              icon: 'modern',
+              title: 'Modern Design',
+              description: 'Clean, contemporary design that stands out.'
+            },
+            {
+              icon: 'responsive',
+              title: 'Fully Responsive',
+              description: 'Perfect on all devices and screen sizes.'
+            }
+          ],
+          columns: 3,
+          showIcons: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(20px)'
+        },
+        children: []
+      },
+      {
+        id: 'about-glassmorphism',
+        type: 'about-section',
+        props: {
+          title: 'About Glassmorphism',
+          content: 'Glassmorphism is a design trend that uses frosted glass effects to create depth and visual interest. Our templates incorporate this modern aesthetic with subtle transparency, blur effects, and layered elements that create a sophisticated, contemporary look.',
+          imageUrl: '/templates/about-glassmorphism.jpg',
+          layout: 'text-image',
+          showStats: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: 'rgba(255, 255, 255, 0.02)',
+          backdropFilter: 'blur(10px)'
+        },
+        children: []
+      },
+      {
+        id: 'contact-glassmorphism',
+        type: 'contact-form',
+        props: {
+          title: 'Get In Touch',
+          subtitle: 'Ready to experience glassmorphism design? Contact us today.',
+          fields: [
+            { name: 'name', type: 'text', required: true, placeholder: 'Your Name' },
+            { name: 'email', type: 'email', required: true, placeholder: 'Your Email' },
+            { name: 'phone', type: 'tel', required: false, placeholder: 'Your Phone' },
+            { name: 'message', type: 'textarea', required: true, placeholder: 'Your Message' }
+          ],
+          submitText: 'Send Message',
+          showMap: true,
+          mapLocation: 'Modern City, World'
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: 'rgba(255, 255, 255, 0.05)',
+          backdropFilter: 'blur(20px)'
+        },
+        children: []
+      },
+      {
+        id: 'footer-glassmorphism',
+        type: 'footer',
+        props: {
+          logo: 'Glassmorphism Modern',
+          description: 'Leading the way in modern glassmorphism design trends.',
+          links: [
+            {
+              title: 'Design',
+              items: [
+                { label: 'Glass Effects', link: '/glass-effects' },
+                { label: 'Modern UI', link: '/modern-ui' },
+                { label: 'Templates', link: '/templates' },
+                { label: 'Showcase', link: '/showcase' }
+              ]
+            },
+            {
+              title: 'Services',
+              items: [
+                { label: 'Web Design', link: '/web-design' },
+                { label: 'UI/UX', link: '/ui-ux' },
+                { label: 'Development', link: '/development' },
+                { label: 'Consulting', link: '/consulting' }
+              ]
+            },
+            {
+              title: 'Company',
+              items: [
+                { label: 'About Us', link: '/about' },
+                { label: 'Our Team', link: '/team' },
+                { label: 'Careers', link: '/careers' },
+                { label: 'Contact', link: '/contact' }
+              ]
+            }
+          ],
+          socialLinks: [
+            { platform: 'facebook', url: 'https://facebook.com/glassmorphism' },
+            { platform: 'twitter', url: 'https://twitter.com/glassmorphism' },
+            { platform: 'linkedin', url: 'https://linkedin.com/company/glassmorphism' },
+            { platform: 'instagram', url: 'https://instagram.com/glassmorphism' }
+          ],
+          copyright: '© 2025 Glassmorphism Modern. All rights reserved.',
+          showNewsletter: true
+        },
+        style: {
+          backgroundColor: 'rgba(0, 0, 0, 0.8)',
+          backdropFilter: 'blur(20px)',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
+        children: []
+      }
+    ]
   },
   {
     id: 'dark-mode-premium',
@@ -1877,7 +4090,202 @@ export const websiteTemplates = [
     isPremium: true,
     tags: ['ai-assistant', 'chatbot', 'platform', 'automation'],
     pages: ['home', 'features', 'demo', 'pricing', 'contact'],
-    features: ['ai-demo', 'feature-showcase', 'pricing-tables', 'contact-form']
+    features: ['ai-demo', 'feature-showcase', 'pricing-tables', 'contact-form'],
+    elements: [
+      {
+        id: 'navbar-ai',
+        type: 'navbar',
+        props: {
+          logo: 'AI Assistant Platform',
+          menuItems: [
+            { label: 'Home', link: '/' },
+            { label: 'AI Solutions', link: '/solutions' },
+            { label: 'Features', link: '/features' },
+            { label: 'Demo', link: '/demo' },
+            { label: 'Pricing', link: '/pricing' },
+            { label: 'Contact', link: '/contact' }
+          ],
+          style: 'modern',
+          isSticky: true,
+          showMobileMenu: true
+        },
+        style: {
+          backgroundColor: '#0a0a0a',
+          borderBottom: '1px solid #333333',
+          padding: '1rem 0'
+        },
+        children: []
+      },
+      {
+        id: 'hero-ai',
+        type: 'hero',
+        props: {
+          title: 'AI-Powered Solutions',
+          subtitle: 'Harness the power of artificial intelligence for your business.',
+          ctaButtons: [
+            { text: 'Try AI Demo', link: '/demo', variant: 'primary' },
+            { text: 'See Features', link: '/features', variant: 'secondary' }
+          ],
+          backgroundImage: '/templates/hero-ai.jpg',
+          style: 'modern',
+          overlayOpacity: 0.6
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          color: '#ffffff',
+          backgroundColor: '#0a0a0a'
+        },
+        children: []
+      },
+      {
+        id: 'features-ai',
+        type: 'feature-grid',
+        props: {
+          title: 'AI Capabilities',
+          subtitle: 'Powerful artificial intelligence features',
+          features: [
+            {
+              icon: 'brain',
+              title: 'Machine Learning',
+              description: 'Advanced ML algorithms for intelligent automation.'
+            },
+            {
+              icon: 'chat',
+              title: 'AI Chatbot',
+              description: 'Intelligent conversational AI assistant.'
+            },
+            {
+              icon: 'analytics',
+              title: 'Predictive Analytics',
+              description: 'Data-driven insights and predictions.'
+            }
+          ],
+          columns: 3,
+          showIcons: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#1a1a1a'
+        },
+        children: []
+      },
+      {
+        id: 'about-ai',
+        type: 'about-section',
+        props: {
+          title: 'AI Technology',
+          content: 'Our advanced AI technology uses machine learning algorithms to provide intelligent solutions. From natural language processing to computer vision, we leverage cutting-edge AI to solve complex business problems.',
+          imageUrl: '/templates/about-ai.jpg',
+          layout: 'text-image',
+          showStats: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#0a0a0a'
+        },
+        children: []
+      },
+      {
+        id: 'stats-ai',
+        type: 'stats-counter',
+        props: {
+          stats: [
+            { number: '99.9%', label: 'Uptime', suffix: '', icon: 'uptime' },
+            { number: '1M+', label: 'Processed', suffix: 'Requests', icon: 'requests' },
+            { number: '50+', label: 'Integrations', suffix: '', icon: 'integrations' },
+            { number: '24/7', label: 'Support', suffix: '', icon: 'support' }
+          ],
+          animation: true,
+          duration: 2000
+        },
+        style: {
+          padding: '3rem 0',
+          backgroundColor: '#1a1a1a',
+          color: '#ffffff'
+        },
+        children: []
+      },
+      {
+        id: 'contact-ai',
+        type: 'contact-form',
+        props: {
+          title: 'Get Started with AI',
+          subtitle: 'Ready to automate your business? Contact us for a consultation.',
+          fields: [
+            { name: 'name', type: 'text', required: true, placeholder: 'Your Name' },
+            { name: 'email', type: 'email', required: true, placeholder: 'Your Email' },
+            { name: 'company', type: 'text', required: true, placeholder: 'Company Name' },
+            { name: 'use-case', type: 'select', required: true, placeholder: 'Use Case' },
+            { name: 'budget', type: 'select', required: false, placeholder: 'Budget Range' },
+            { name: 'message', type: 'textarea', required: true, placeholder: 'Tell us about your automation needs' }
+          ],
+          submitText: 'Request Consultation',
+          showMap: true,
+          mapLocation: 'AI Tech Hub, Silicon Valley'
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#0a0a0a'
+        },
+        children: []
+      },
+      {
+        id: 'footer-ai',
+        type: 'footer',
+        props: {
+          logo: 'AI Assistant Platform',
+          description: 'Leading AI solutions for modern businesses.',
+          links: [
+            {
+              title: 'AI Solutions',
+              items: [
+                { label: 'Machine Learning', link: '/ml' },
+                { label: 'Natural Language', link: '/nlp' },
+                { label: 'Computer Vision', link: '/cv' },
+                { label: 'Predictive Analytics', link: '/analytics' }
+              ]
+            },
+            {
+              title: 'Resources',
+              items: [
+                { label: 'Documentation', link: '/docs' },
+                { label: 'API Reference', link: '/api' },
+                { label: 'Tutorials', link: '/tutorials' },
+                { label: 'Support', link: '/support' }
+              ]
+            },
+            {
+              title: 'Company',
+              items: [
+                { label: 'About Us', link: '/about' },
+                { label: 'Careers', link: '/careers' },
+                { label: 'Blog', link: '/blog' },
+                { label: 'Contact', link: '/contact' }
+              ]
+            }
+          ],
+          socialLinks: [
+            { platform: 'facebook', url: 'https://facebook.com/aiplatform' },
+            { platform: 'twitter', url: 'https://twitter.com/aiplatform' },
+            { platform: 'linkedin', url: 'https://linkedin.com/company/aiplatform' },
+            { platform: 'github', url: 'https://github.com/aiplatform' }
+          ],
+          copyright: '© 2025 AI Assistant Platform. All rights reserved.',
+          showNewsletter: true
+        },
+        style: {
+          backgroundColor: '#000000',
+          color: '#ffffff',
+          padding: '3rem 0 1rem'
+        },
+        children: []
+      }
+    ]
   },
   {
     id: 'machine-learning-lab',
@@ -2298,17 +4706,33 @@ export const blockTemplates = [
     id: 'hero-gradient',
     name: 'Gradient Hero',
     category: 'Heroes',
-    thumbnail: '/blocks/hero-gradient.jpg',
+    thumbnail: '/blocks/hero-gradient.svg',
     elements: [
       {
+        id: 'hero-gradient-block',
         type: 'hero',
         props: {
-          style: 'gradient',
           title: 'Build Something Amazing',
           subtitle: 'Create stunning websites with our easy-to-use builder',
-          primaryButton: { text: 'Get Started', link: '#' },
-          secondaryButton: { text: 'Learn More', link: '#' }
-        }
+          ctaButtons: [
+            { text: 'Get Started', link: '#', variant: 'primary' },
+            { text: 'Learn More', link: '#', variant: 'secondary' }
+          ],
+          style: 'gradient',
+          gradientColors: ['#667eea', '#764ba2'],
+          overlayOpacity: 0.3
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: '#ffffff',
+          textAlign: 'center',
+          position: 'relative'
+        },
+        children: []
       }
     ]
   },
@@ -2316,7 +4740,7 @@ export const blockTemplates = [
     id: 'features-grid',
     name: 'Features Grid',
     category: 'Features',
-    thumbnail: '/blocks/features-grid.jpg',
+    thumbnail: '/blocks/features-grid.svg',
     elements: [
       {
         type: 'features',
@@ -2348,7 +4772,7 @@ export const blockTemplates = [
     id: 'testimonial-carousel',
     name: 'Testimonial Carousel',
     category: 'Testimonials',
-    thumbnail: '/blocks/testimonial-carousel.jpg',
+    thumbnail: '/blocks/testimonial-carousel.svg',
     elements: [
       {
         type: 'testimonial',
@@ -2371,7 +4795,7 @@ export const blockTemplates = [
     id: 'pricing-table',
     name: 'Pricing Table',
     category: 'Pricing',
-    thumbnail: '/blocks/pricing-table.jpg',
+    thumbnail: '/blocks/pricing-table.svg',
     elements: [
       {
         type: 'pricing',
@@ -2405,7 +4829,7 @@ export const blockTemplates = [
     id: 'contact-split',
     name: 'Split Contact',
     category: 'Contact',
-    thumbnail: '/blocks/contact-split.jpg',
+    thumbnail: '/blocks/contact-split.svg',
     elements: [
       {
         type: 'container',
@@ -2443,7 +4867,7 @@ export const blockTemplates = [
     id: 'cta-gradient',
     name: 'Gradient CTA',
     category: 'Call to Action',
-    thumbnail: '/blocks/cta-gradient.jpg',
+    thumbnail: '/blocks/cta-gradient.svg',
     elements: [
       {
         type: 'cta',
@@ -2461,7 +4885,7 @@ export const blockTemplates = [
     id: 'team-cards',
     name: 'Team Cards',
     category: 'Team',
-    thumbnail: '/blocks/team-cards.jpg',
+    thumbnail: '/blocks/team-cards.svg',
     elements: [
       {
         type: 'team',
@@ -2483,7 +4907,7 @@ export const blockTemplates = [
     id: 'stats-animated',
     name: 'Animated Stats',
     category: 'Statistics',
-    thumbnail: '/blocks/stats-animated.jpg',
+    thumbnail: '/blocks/stats-animated.svg',
     elements: [
       {
         type: 'stats',
@@ -2502,7 +4926,7 @@ export const blockTemplates = [
     id: 'footer-mega',
     name: 'Mega Footer',
     category: 'Footers',
-    thumbnail: '/blocks/footer-mega.jpg',
+    thumbnail: '/blocks/footer-mega.svg',
     elements: [
       {
         type: 'footer',
@@ -2525,6 +4949,653 @@ export const blockTemplates = [
           social: ['facebook', 'twitter', 'linkedin', 'instagram'],
           copyright: '© 2025 Your Company. All rights reserved.'
         }
+      }
+    ]
+  },
+  
+  // === NEW BLOCK TEMPLATES ===
+  
+  // Hero Variants
+  {
+    id: 'hero-video-background',
+    name: 'Video Background Hero',
+    category: 'Heroes',
+    thumbnail: '/blocks/hero-video-background.svg',
+    elements: [
+      {
+        id: 'hero-video-block',
+        type: 'hero',
+        props: {
+          title: 'Immersive Experience',
+          subtitle: 'Engage your audience with stunning video backgrounds',
+          ctaButtons: [
+            { text: 'Watch Demo', link: '#', variant: 'primary' },
+            { text: 'Learn More', link: '#', variant: 'secondary' }
+          ],
+          style: 'video-background',
+          videoUrl: '/videos/hero-background.mp4',
+          overlayOpacity: 0.4
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#ffffff',
+          textAlign: 'center',
+          position: 'relative',
+          overflow: 'hidden'
+        },
+        children: []
+      }
+    ]
+  },
+  {
+    id: 'hero-split-screen',
+    name: 'Split Screen Hero',
+    category: 'Heroes',
+    thumbnail: '/blocks/hero-split-screen.svg',
+    elements: [
+      {
+        id: 'hero-split-block',
+        type: 'hero',
+        props: {
+          title: 'Split Screen Design',
+          subtitle: 'Modern layout with content and visual elements side by side',
+          ctaButtons: [
+            { text: 'Get Started', link: '#', variant: 'primary' }
+          ],
+          style: 'split-screen',
+          imageUrl: '/images/hero-split.jpg',
+          layout: 'image-text'
+        },
+        style: {
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      }
+    ]
+  },
+  
+  // Feature Grid Variants
+  {
+    id: 'features-asymmetric',
+    name: 'Asymmetric Features',
+    category: 'Features',
+    thumbnail: '/blocks/features-asymmetric.svg',
+    elements: [
+      {
+        id: 'features-asymmetric-block',
+        type: 'feature-grid',
+        props: {
+          title: 'Asymmetric Layout',
+          subtitle: 'Creative feature showcase with asymmetric design',
+          features: [
+            {
+              icon: 'design',
+              title: 'Creative Design',
+              description: 'Unique asymmetric layouts that stand out'
+            },
+            {
+              icon: 'responsive',
+              title: 'Fully Responsive',
+              description: 'Perfect on all devices and screen sizes'
+            },
+            {
+              icon: 'customizable',
+              title: 'Highly Customizable',
+              description: 'Easy to modify and adapt to your needs'
+            }
+          ],
+          columns: 3,
+          layout: 'asymmetric',
+          showIcons: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      }
+    ]
+  },
+  {
+    id: 'features-timeline',
+    name: 'Features Timeline',
+    category: 'Features',
+    thumbnail: '/blocks/features-timeline.svg',
+    elements: [
+      {
+        id: 'features-timeline-block',
+        type: 'timeline',
+        props: {
+          title: 'Our Journey',
+          subtitle: 'Key milestones in our company development',
+          items: [
+            {
+              year: '2020',
+              title: 'Company Founded',
+              description: 'Started with a vision to revolutionize web design'
+            },
+            {
+              year: '2021',
+              title: 'First Product Launch',
+              description: 'Released our flagship website builder'
+            },
+            {
+              year: '2022',
+              title: 'Global Expansion',
+              description: 'Expanded to serve customers worldwide'
+            },
+            {
+              year: '2023',
+              title: 'AI Integration',
+              description: 'Added AI-powered design assistance'
+            }
+          ]
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      }
+    ]
+  },
+  
+  // Testimonial Variants
+  {
+    id: 'testimonial-cards',
+    name: 'Testimonial Cards',
+    category: 'Testimonials',
+    thumbnail: '/blocks/testimonial-cards.svg',
+    elements: [
+      {
+        id: 'testimonial-cards-block',
+        type: 'testimonials',
+        props: {
+          title: 'What Our Clients Say',
+          subtitle: 'Real feedback from satisfied customers',
+          testimonials: [
+            {
+              name: 'Ahmed Hassan',
+              role: 'CEO, TechCorp',
+              company: 'Karachi',
+              content: 'Exceptional service and amazing results. Highly recommended!',
+              avatar: '/avatars/ahmed.jpg',
+              rating: 5
+            },
+            {
+              name: 'Fatima Ali',
+              role: 'Marketing Director',
+              company: 'Lahore',
+              content: 'The best investment we made for our online presence.',
+              avatar: '/avatars/fatima.jpg',
+              rating: 5
+            },
+            {
+              name: 'Omar Khan',
+              role: 'Founder',
+              company: 'Islamabad',
+              content: 'Professional, reliable, and delivers beyond expectations.',
+              avatar: '/avatars/omar.jpg',
+              rating: 5
+            }
+          ],
+          layout: 'cards',
+          showRating: true,
+          showAvatars: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      }
+    ]
+  },
+  {
+    id: 'testimonial-masonry',
+    name: 'Testimonial Masonry',
+    category: 'Testimonials',
+    thumbnail: '/blocks/testimonial-masonry.svg',
+    elements: [
+      {
+        id: 'testimonial-masonry-block',
+        type: 'testimonials',
+        props: {
+          title: 'Customer Stories',
+          subtitle: 'Real experiences from our community',
+          testimonials: [
+            {
+              name: 'Sarah Ahmed',
+              content: 'Amazing platform that helped us grow our business exponentially.',
+              rating: 5
+            },
+            {
+              name: 'Hassan Sheikh',
+              content: 'The support team is incredible. They helped us every step of the way.',
+              rating: 5
+            },
+            {
+              name: 'Ayesha Malik',
+              content: 'Clean, modern design that perfectly represents our brand.',
+              rating: 5
+            }
+          ],
+          layout: 'masonry',
+          showRating: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      }
+    ]
+  },
+  
+  // Pricing Variants
+  {
+    id: 'pricing-toggle',
+    name: 'Pricing with Toggle',
+    category: 'Pricing',
+    thumbnail: '/blocks/pricing-toggle.svg',
+    elements: [
+      {
+        id: 'pricing-toggle-block',
+        type: 'pricing-table',
+        props: {
+          title: 'Choose Your Plan',
+          subtitle: 'Flexible pricing options for every business size',
+          currency: 'PKR',
+          showToggle: true,
+          toggleOptions: ['Monthly', 'Yearly'],
+          plans: [
+            {
+              name: 'Starter',
+              monthlyPrice: 999,
+              yearlyPrice: 9999,
+              features: ['1 Website', 'Basic Support', '5GB Storage'],
+              highlighted: false
+            },
+            {
+              name: 'Professional',
+              monthlyPrice: 2499,
+              yearlyPrice: 24999,
+              features: ['5 Websites', 'Priority Support', '50GB Storage', 'Custom Domain'],
+              highlighted: true
+            },
+            {
+              name: 'Enterprise',
+              monthlyPrice: 4999,
+              yearlyPrice: 49999,
+              features: ['Unlimited Websites', '24/7 Support', 'Unlimited Storage', 'White Label'],
+              highlighted: false
+            }
+          ]
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      }
+    ]
+  },
+  
+  // CTA Variants
+  {
+    id: 'cta-split',
+    name: 'Split CTA',
+    category: 'Call to Action',
+    thumbnail: '/blocks/cta-split.svg',
+    elements: [
+      {
+        id: 'cta-split-block',
+        type: 'cta-section',
+        props: {
+          title: 'Ready to Get Started?',
+          subtitle: 'Join thousands of satisfied customers',
+          ctaButtons: [
+            { text: 'Start Free Trial', link: '#', variant: 'primary' },
+            { text: 'View Demo', link: '#', variant: 'secondary' }
+          ],
+          style: 'split',
+          imageUrl: '/images/cta-split.jpg',
+          layout: 'text-image'
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#3b82f6',
+          color: '#ffffff'
+        },
+        children: []
+      }
+    ]
+  },
+  {
+    id: 'cta-fullwidth',
+    name: 'Full Width CTA',
+    category: 'Call to Action',
+    thumbnail: '/blocks/cta-fullwidth.svg',
+    elements: [
+      {
+        id: 'cta-fullwidth-block',
+        type: 'cta-section',
+        props: {
+          title: 'Transform Your Business Today',
+          subtitle: 'Don\'t wait - start your journey to success now',
+          ctaButtons: [
+            { text: 'Get Started Now', link: '#', variant: 'primary' }
+          ],
+          style: 'fullwidth',
+          backgroundImage: '/images/cta-fullwidth.jpg',
+          overlayOpacity: 0.7
+        },
+        style: {
+          padding: '6rem 0',
+          backgroundColor: '#1f2937',
+          color: '#ffffff',
+          textAlign: 'center'
+        },
+        children: []
+      }
+    ]
+  },
+  
+  // Team Variants
+  {
+    id: 'team-circles',
+    name: 'Team Circles',
+    category: 'Team',
+    thumbnail: '/blocks/team-circles.svg',
+    elements: [
+      {
+        id: 'team-circles-block',
+        type: 'team-section',
+        props: {
+          title: 'Meet Our Team',
+          subtitle: 'The talented people behind our success',
+          members: [
+            {
+              name: 'Ahmed Khan',
+              role: 'CEO & Founder',
+              bio: 'Visionary leader with 15+ years experience',
+              avatar: '/team/ahmed.jpg',
+              socialLinks: [
+                { platform: 'linkedin', url: 'https://linkedin.com/in/ahmed' },
+                { platform: 'twitter', url: 'https://twitter.com/ahmed' }
+              ]
+            },
+            {
+              name: 'Fatima Ali',
+              role: 'CTO',
+              bio: 'Technical expert and innovation driver',
+              avatar: '/team/fatima.jpg',
+              socialLinks: [
+                { platform: 'linkedin', url: 'https://linkedin.com/in/fatima' },
+                { platform: 'github', url: 'https://github.com/fatima' }
+              ]
+            },
+            {
+              name: 'Omar Hassan',
+              role: 'Design Director',
+              bio: 'Creative genius behind our beautiful designs',
+              avatar: '/team/omar.jpg',
+              socialLinks: [
+                { platform: 'dribbble', url: 'https://dribbble.com/omar' },
+                { platform: 'behance', url: 'https://behance.com/omar' }
+              ]
+            }
+          ],
+          layout: 'circles',
+          showSocialLinks: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      }
+    ]
+  },
+  {
+    id: 'team-minimal',
+    name: 'Team Minimal',
+    category: 'Team',
+    thumbnail: '/blocks/team-minimal.svg',
+    elements: [
+      {
+        id: 'team-minimal-block',
+        type: 'team-section',
+        props: {
+          title: 'Our People',
+          subtitle: 'Simple, clean team showcase',
+          members: [
+            {
+              name: 'Sarah Ahmed',
+              role: 'Product Manager',
+              bio: 'Passionate about creating great user experiences'
+            },
+            {
+              name: 'Hassan Sheikh',
+              role: 'Lead Developer',
+              bio: 'Building the future with clean, efficient code'
+            },
+            {
+              name: 'Ayesha Malik',
+              role: 'UX Designer',
+              bio: 'Making complex things simple and beautiful'
+            }
+          ],
+          layout: 'minimal',
+          showSocialLinks: false
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      }
+    ]
+  },
+  
+  // Stats Variants
+  {
+    id: 'stats-with-charts',
+    name: 'Stats with Charts',
+    category: 'Statistics',
+    thumbnail: '/blocks/stats-with-charts.svg',
+    elements: [
+      {
+        id: 'stats-charts-block',
+        type: 'stats-counter',
+        props: {
+          title: 'Our Impact',
+          subtitle: 'Numbers that speak for themselves',
+          stats: [
+            { number: '500+', label: 'Projects', suffix: 'Completed', icon: 'projects', chartType: 'bar' },
+            { number: '1000+', label: 'Happy', suffix: 'Clients', icon: 'clients', chartType: 'line' },
+            { number: '99%', label: 'Success', suffix: 'Rate', icon: 'success', chartType: 'pie' },
+            { number: '24/7', label: 'Support', suffix: '', icon: 'support', chartType: 'donut' }
+          ],
+          animation: true,
+          showCharts: true,
+          duration: 2000
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#3b82f6',
+          color: '#ffffff'
+        },
+        children: []
+      }
+    ]
+  },
+  
+  // Gallery Variants
+  {
+    id: 'gallery-masonry',
+    name: 'Gallery Masonry',
+    category: 'Gallery',
+    thumbnail: '/blocks/gallery-masonry.svg',
+    elements: [
+      {
+        id: 'gallery-masonry-block',
+        type: 'gallery',
+        props: {
+          title: 'Our Work',
+          subtitle: 'A showcase of our best projects',
+          images: [
+            {
+              src: '/gallery/project1.jpg',
+              alt: 'Project 1',
+              caption: 'E-commerce Website Design'
+            },
+            {
+              src: '/gallery/project2.jpg',
+              alt: 'Project 2',
+              caption: 'Mobile App Interface'
+            },
+            {
+              src: '/gallery/project3.jpg',
+              alt: 'Project 3',
+              caption: 'Brand Identity Design'
+            },
+            {
+              src: '/gallery/project4.jpg',
+              alt: 'Project 4',
+              caption: 'Corporate Website'
+            }
+          ],
+          layout: 'masonry',
+          showLightbox: true,
+          columns: 3
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      }
+    ]
+  },
+  {
+    id: 'gallery-slider',
+    name: 'Gallery Slider',
+    category: 'Gallery',
+    thumbnail: '/blocks/gallery-slider.svg',
+    elements: [
+      {
+        id: 'gallery-slider-block',
+        type: 'gallery',
+        props: {
+          title: 'Portfolio Showcase',
+          subtitle: 'Swipe through our latest work',
+          images: [
+            {
+              src: '/gallery/slide1.jpg',
+              alt: 'Slide 1',
+              caption: 'Modern Web Design'
+            },
+            {
+              src: '/gallery/slide2.jpg',
+              alt: 'Slide 2',
+              caption: 'Mobile App Design'
+            },
+            {
+              src: '/gallery/slide3.jpg',
+              alt: 'Slide 3',
+              caption: 'Brand Design'
+            }
+          ],
+          layout: 'slider',
+          showLightbox: true,
+          autoPlay: true,
+          showArrows: true,
+          showDots: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
+      }
+    ]
+  },
+  
+  // Contact Variants
+  {
+    id: 'contact-multistep',
+    name: 'Multi-step Contact',
+    category: 'Contact',
+    thumbnail: '/blocks/contact-multistep.svg',
+    elements: [
+      {
+        id: 'contact-multistep-block',
+        type: 'contact-form',
+        props: {
+          title: 'Get In Touch',
+          subtitle: 'Tell us about your project in a few simple steps',
+          fields: [
+            { name: 'name', type: 'text', required: true, placeholder: 'Your Name', step: 1 },
+            { name: 'email', type: 'email', required: true, placeholder: 'Your Email', step: 1 },
+            { name: 'project-type', type: 'select', required: true, placeholder: 'Project Type', step: 2 },
+            { name: 'budget', type: 'select', required: true, placeholder: 'Budget Range', step: 2 },
+            { name: 'timeline', type: 'select', required: true, placeholder: 'Timeline', step: 3 },
+            { name: 'message', type: 'textarea', required: true, placeholder: 'Project Details', step: 3 }
+          ],
+          submitText: 'Send Message',
+          showSteps: true,
+          showProgress: true
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#ffffff'
+        },
+        children: []
+      }
+    ]
+  },
+  {
+    id: 'contact-with-map',
+    name: 'Contact with Map',
+    category: 'Contact',
+    thumbnail: '/blocks/contact-with-map.svg',
+    elements: [
+      {
+        id: 'contact-map-block',
+        type: 'contact-form',
+        props: {
+          title: 'Visit Our Office',
+          subtitle: 'Come see us or send us a message',
+          fields: [
+            { name: 'name', type: 'text', required: true, placeholder: 'Your Name' },
+            { name: 'email', type: 'email', required: true, placeholder: 'Your Email' },
+            { name: 'phone', type: 'tel', required: false, placeholder: 'Your Phone' },
+            { name: 'message', type: 'textarea', required: true, placeholder: 'Your Message' }
+          ],
+          submitText: 'Send Message',
+          showMap: true,
+          mapLocation: 'Karachi, Pakistan',
+          mapZoom: 15,
+          showContactInfo: true,
+          contactInfo: [
+            { type: 'address', label: 'Address', value: '123 Business District, Karachi, Pakistan' },
+            { type: 'phone', label: 'Phone', value: '+92 21 1234567' },
+            { type: 'email', label: 'Email', value: 'info@company.com' },
+            { type: 'hours', label: 'Hours', value: 'Mon-Fri: 9AM-6PM' }
+          ]
+        },
+        style: {
+          padding: '4rem 0',
+          backgroundColor: '#f8f9fa'
+        },
+        children: []
       }
     ]
   }
