@@ -150,7 +150,7 @@ export default function DomainsPage() {
         domain: `${searchQuery}${ext}`,
         available: Math.random() > 0.5,
         extension: ext,
-        price: DOMAIN_PROVIDERS.find(p => p.id === selectedProvider)?.pricing[ext] || 9.99
+        price: DOMAIN_PROVIDERS.find(p => p.id === selectedProvider)?.pricing[ext as keyof typeof DOMAIN_PROVIDERS[0]['pricing']] || 9.99
       }));
       
       setSearchResults(results);
@@ -236,7 +236,7 @@ export default function DomainsPage() {
         ...prev,
         [domainId]: {
           autoRenew: domain.autoRenew,
-          privacyProtection: domain.privacyProtection || true,
+          privacyProtection: (domain as any).privacyProtection || true,
           emailNotifications: true,
           sslEnabled: domain.sslStatus === 'active',
           dnsVerificationInterval: 5
