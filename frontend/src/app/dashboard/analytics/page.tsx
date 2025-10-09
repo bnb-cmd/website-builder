@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -55,7 +55,7 @@ const analyticsData = {
   ]
 };
 
-export default function AnalyticsPage() {
+function AnalyticsPageContent() {
   const [selectedPeriod, setSelectedPeriod] = useState('7d');
   const [selectedWebsite, setSelectedWebsite] = useState('all');
   const [isLoading, setIsLoading] = useState(false);
@@ -411,5 +411,13 @@ export default function AnalyticsPage() {
         </Card>
       </div>
     </div>
+  );
+}
+
+export default function AnalyticsPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center h-64">Loading analytics...</div>}>
+      <AnalyticsPageContent />
+    </Suspense>
   );
 }

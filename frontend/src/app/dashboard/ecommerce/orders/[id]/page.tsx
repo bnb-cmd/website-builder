@@ -31,7 +31,7 @@ import { toast } from 'sonner'
 
 export default function OrderDetailPage() {
   const params = useParams()
-  const orderId = params.id as string
+  const orderId = params?.id as string
   
   const { 
     orders,

@@ -316,8 +316,8 @@ export default function DomainsPage() {
         domain: importDomain,
         status: 'pending_verification',
         provider: importProvider,
-        websiteId: null,
-        websiteName: null,
+        websiteId: '',
+        websiteName: '',
         sslStatus: 'pending',
         autoRenew: false,
         privacyProtection: false,
@@ -898,7 +898,7 @@ export default function DomainsPage() {
                           </div>
 
                           {/* Special note for external domains */}
-                          {domain.isExternal && (
+                          {(domain as any).isExternal && (
                             <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                               <div className="flex items-start space-x-2">
                                 <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />

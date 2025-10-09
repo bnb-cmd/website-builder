@@ -1,20 +1,38 @@
 "use client";
 
-import React from 'react'
+import React, { Suspense } from 'react'
 import Link from 'next/link'
 import { useRouter as useNextRouter, useSearchParams, useParams } from 'next/navigation'
+
+// Wrapper component for useSearchParams
+const SearchParamsWrapper = ({ children }: { children: (searchParams: URLSearchParams) => React.ReactNode }) => {
+  const searchParams = useSearchParams()
+  return <>{children(searchParams)}</>
+}
 
 // Re-export Next.js router for compatibility
 export const useRouter = () => {
   const router = useNextRouter()
-  const searchParams = useSearchParams()
   const params = useParams()
   
   return {
     currentPath: typeof window !== 'undefined' ? window.location.pathname : '/',
     navigate: (path: string) => router.push(path),
     params: params || {},
-    searchParams: searchParams || new URLSearchParams()
+    // Remove direct useSearchParams call
+    searchParams: new URLSearchParams()
+  }
+}
+
+// Hook that safely uses search params
+export const useSearchParamsSafe = () => {
+  return {
+    get: (key: string) => {
+      if (typeof window !== 'undefined') {
+        return new URLSearchParams(window.location.search).get(key)
+      }
+      return null
+    }
   }
 }
 

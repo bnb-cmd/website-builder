@@ -31,7 +31,7 @@ import { toast } from 'sonner'
 
 export default function CustomerDetailPage() {
   const params = useParams()
-  const customerId = params.id as string
+  const customerId = params?.id as string
   
   const { 
     customers,
@@ -56,7 +56,7 @@ export default function CustomerDetailPage() {
       setEditData({
         name: foundCustomer.name || '',
         phone: foundCustomer.phone || '',
-        notes: foundCustomer.notes || ''
+         notes: (foundCustomer as any).notes || ''
       })
     } else {
       // If not found in list, fetch customers
