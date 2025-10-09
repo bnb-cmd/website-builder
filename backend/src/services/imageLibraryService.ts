@@ -31,7 +31,7 @@ export interface ImageSearchResult {
   hasMore: boolean
 }
 
-export class ImageLibraryService extends BaseService {
+export class ImageLibraryService extends BaseService<any> {
   private prisma: PrismaClient
 
   constructor() {
@@ -178,7 +178,7 @@ export class ImageLibraryService extends BaseService {
     }
   }
 
-  async addCustomImage(websiteId: string, imageData: ImageLibraryData): Promise<string> {
+  async addCustomImage(userId: string, imageData: ImageLibraryData): Promise<string> {
     try {
       const image = await this.prisma.imageLibrary.create({
         data: {

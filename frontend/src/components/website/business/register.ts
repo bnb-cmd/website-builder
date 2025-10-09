@@ -27,7 +27,19 @@ import {
   WebsiteReviews,
   ReviewsConfig,
   WebsiteCTA,
-  CTAConfig
+  CTAConfig,
+  AppointmentBooking,
+  AppointmentBookingConfig,
+  StatsCounter,
+  StatsCounterConfig,
+  Team,
+  TeamConfig,
+  PropertyGrid,
+  PropertyGridConfig,
+  PropertySearch,
+  PropertySearchConfig,
+  CauseGrid,
+  CauseGridConfig
 } from './index'
 
 // Register business components
@@ -45,3 +57,9 @@ registerComponent(LocationCardConfig, WebsiteLocationCard)
 registerComponent(HoursConfig, WebsiteHours)
 registerComponent(ReviewsConfig, WebsiteReviews)
 registerComponent(CTAConfig, WebsiteCTA)
+registerComponent(AppointmentBookingConfig, AppointmentBooking)
+registerComponent(StatsCounterConfig, StatsCounter)
+registerComponent(TeamConfig, Team)
+registerComponent(PropertyGridConfig, PropertyGrid)
+registerComponent(PropertySearchConfig, PropertySearch)
+registerComponent(CauseGridConfig, CauseGrid)

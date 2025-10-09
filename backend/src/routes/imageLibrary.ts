@@ -32,7 +32,7 @@ const customImageSchema = z.object({
 
 export async function imageLibraryRoutes(fastify: FastifyInstance) {
   // GET /api/v1/image-library - Browse all images
-  fastify.get('/image-library', {
+  fastify.get('/', {
     schema: {
       description: 'Browse all images in the library',
       tags: ['Image Library'],
@@ -95,7 +95,7 @@ export async function imageLibraryRoutes(fastify: FastifyInstance) {
   })
 
   // GET /api/v1/image-library/search - Search images
-  fastify.get('/image-library/search', {
+  fastify.get('/search', {
     schema: {
       description: 'Search images by query',
       tags: ['Image Library'],
@@ -160,7 +160,7 @@ export async function imageLibraryRoutes(fastify: FastifyInstance) {
   })
 
   // GET /api/v1/image-library/categories - Get categories
-  fastify.get('/image-library/categories', {
+  fastify.get('/categories', {
     schema: {
       description: 'Get all available image categories',
       tags: ['Image Library'],
@@ -194,7 +194,7 @@ export async function imageLibraryRoutes(fastify: FastifyInstance) {
   })
 
   // GET /api/v1/image-library/category/:category - Get images by category
-  fastify.get('/image-library/category/:category', {
+  fastify.get('/category/:category', {
     schema: {
       description: 'Get images by specific category',
       tags: ['Image Library'],
@@ -241,7 +241,7 @@ export async function imageLibraryRoutes(fastify: FastifyInstance) {
   })
 
   // GET /api/v1/image-library/hero-images - Get hero images
-  fastify.get('/image-library/hero-images', {
+  fastify.get('/hero-images', {
     schema: {
       description: 'Get hero background images',
       tags: ['Image Library'],
@@ -280,7 +280,7 @@ export async function imageLibraryRoutes(fastify: FastifyInstance) {
   })
 
   // GET /api/v1/image-library/popular - Get popular images
-  fastify.get('/image-library/popular', {
+  fastify.get('/popular', {
     schema: {
       description: 'Get most downloaded images',
       tags: ['Image Library'],
@@ -319,7 +319,7 @@ export async function imageLibraryRoutes(fastify: FastifyInstance) {
   })
 
   // GET /api/v1/image-library/:id - Get specific image
-  fastify.get('/image-library/:id', {
+  fastify.get('/:id', {
     schema: {
       description: 'Get specific image by ID',
       tags: ['Image Library'],
@@ -366,12 +366,27 @@ export async function imageLibraryRoutes(fastify: FastifyInstance) {
   })
 
   // POST /api/v1/image-library/custom - Upload custom image
-  fastify.post('/image-library/custom', {
+  fastify.post('/custom', {
     preHandler: [authenticate],
     schema: {
       description: 'Add custom image to library',
       tags: ['Image Library'],
-      body: customImageSchema,
+      body: {
+        type: 'object',
+        required: ['name', 'category', 'tags', 'url', 'thumbnail', 'width', 'height'],
+        properties: {
+          name: { type: 'string', minLength: 1, maxLength: 100 },
+          category: { type: 'string', minLength: 1 },
+          tags: { type: 'array', items: { type: 'string' } },
+          url: { type: 'string', format: 'uri' },
+          thumbnail: { type: 'string', format: 'uri' },
+          width: { type: 'number', minimum: 1 },
+          height: { type: 'number', minimum: 1 },
+          source: { type: 'string', default: 'custom' },
+          license: { type: 'string', default: 'free' },
+          isPremium: { type: 'boolean', default: false }
+        }
+      },
       response: {
         200: {
           type: 'object',
@@ -384,7 +399,7 @@ export async function imageLibraryRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const imageData = request.body as z.infer<typeof customImageSchema>
+      const imageData = request.body as any
       const userId = (request as any).user.id
       
       const imageId = await imageLibraryService.addCustomImage(userId, imageData)
@@ -402,7 +417,7 @@ export async function imageLibraryRoutes(fastify: FastifyInstance) {
   })
 
   // POST /api/v1/image-library/:id/download - Track download
-  fastify.post('/image-library/:id/download', {
+  fastify.post('/:id/download', {
     schema: {
       description: 'Track image download',
       tags: ['Image Library'],
@@ -440,7 +455,7 @@ export async function imageLibraryRoutes(fastify: FastifyInstance) {
   })
 
   // DELETE /api/v1/image-library/:id - Delete image (admin only)
-  fastify.delete('/image-library/:id', {
+  fastify.delete('/:id', {
     preHandler: [authenticate],
     schema: {
       description: 'Delete image from library',

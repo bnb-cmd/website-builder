@@ -25,7 +25,11 @@ import {
   WebsiteRelatedProducts,
   RelatedProductsConfig,
   WebsiteCartSummary,
-  CartSummaryConfig
+  CartSummaryConfig,
+  PaymentMethods,
+  PaymentMethodsConfig,
+  CourseGrid,
+  CourseGridConfig
 } from './index'
 
 // Register ecommerce components
@@ -42,3 +46,5 @@ registerComponent(ShippingInfoConfig, WebsiteShippingInfo)
 registerComponent(ProductReviewsConfig, WebsiteProductReviews)
 registerComponent(RelatedProductsConfig, WebsiteRelatedProducts)
 registerComponent(CartSummaryConfig, WebsiteCartSummary)
+registerComponent(PaymentMethodsConfig, PaymentMethods)
+registerComponent(CourseGridConfig, CourseGrid)

@@ -83,8 +83,11 @@ export default function OrdersPage() {
     }).format(amount)
   }
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-PK', {
+  const formatDate = (dateString: string | undefined | null) => {
+    if (!dateString) return 'No date'
+    const date = new Date(dateString)
+    if (isNaN(date.getTime())) return 'Invalid date'
+    return date.toLocaleDateString('en-PK', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',

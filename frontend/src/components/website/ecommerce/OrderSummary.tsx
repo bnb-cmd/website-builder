@@ -70,6 +70,7 @@ export const WebsiteOrderSummary: React.FC<OrderSummaryProps> = ({
   onTextDoubleClick 
 }) => {
   const getStatusColor = (status: string) => {
+    if (!status) return 'bg-gray-100 text-gray-800'
     switch (status.toLowerCase()) {
       case 'shipped': return 'bg-blue-100 text-blue-800'
       case 'delivered': return 'bg-green-100 text-green-800'
@@ -125,7 +126,7 @@ export const WebsiteOrderSummary: React.FC<OrderSummaryProps> = ({
         {/* Order Items */}
         <div className="space-y-3">
           <h3 className={cn("font-semibold", itemSize)}>Items Ordered</h3>
-          {items.map((item, index) => (
+          {(items || []).map((item, index) => (
             <div key={index} className="flex justify-between items-center p-2 bg-gray-50 rounded">
               <div>
                 <span 

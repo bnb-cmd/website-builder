@@ -25,7 +25,17 @@ import {
   WebsiteSearch,
   SearchConfig,
   WebsiteFilter,
-  FilterConfig
+  FilterConfig,
+  BlogFeatured,
+  BlogFeaturedConfig,
+  BlogGrid,
+  BlogGridConfig,
+  CategoryGrid,
+  CategoryGridConfig,
+  Features,
+  FeaturesConfig,
+  MenuSection,
+  MenuSectionConfig
 } from './index'
 
 // Register content components
@@ -42,3 +52,8 @@ registerComponent(NewsletterConfig, WebsiteNewsletter)
 registerComponent(SocialMediaConfig, WebsiteSocialMedia)
 registerComponent(SearchConfig, WebsiteSearch)
 registerComponent(FilterConfig, WebsiteFilter)
+registerComponent(BlogFeaturedConfig, BlogFeatured)
+registerComponent(BlogGridConfig, BlogGrid)
+registerComponent(CategoryGridConfig, CategoryGrid)
+registerComponent(FeaturesConfig, Features)
+registerComponent(MenuSectionConfig, MenuSection)

@@ -38,14 +38,18 @@ export class AuthService {
   // Generate JWT token
   generateAccessToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): string {
     return jwt.sign(payload, authConfig.jwtSecret, {
-      expiresIn: authConfig.jwtExpiresIn
+      expiresIn: authConfig.jwtExpiresIn,
+      issuer: 'pakistan-website-builder',
+      audience: 'pakistan-website-builder-users'
     } as jwt.SignOptions)
   }
 
   // Generate refresh token
   generateRefreshToken(payload: Omit<RefreshTokenPayload, 'iat' | 'exp'>): string {
     return jwt.sign(payload, authConfig.jwtSecret, {
-      expiresIn: authConfig.refreshTokenExpiresIn
+      expiresIn: authConfig.refreshTokenExpiresIn,
+      issuer: 'pakistan-website-builder',
+      audience: 'pakistan-website-builder-refresh'
     } as jwt.SignOptions)
   }
 
@@ -75,13 +79,21 @@ export class AuthService {
     }
   }
 
-  // Extract token from request
+  // Extract token from request (headers or cookies)
   extractTokenFromRequest(request: FastifyRequest): string | null {
+    // First try to get token from Authorization header
     const authHeader = request.headers.authorization
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return null
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      return authHeader.substring(7)
     }
-    return authHeader.substring(7)
+    
+    // Then try to get token from cookies
+    const cookies = request.cookies as any
+    if (cookies && cookies['access-token']) {
+      return cookies['access-token']
+    }
+    
+    return null
   }
 
   // Generate token pair
@@ -159,18 +171,6 @@ export async function authenticate(
   reply: FastifyReply
 ): Promise<void> {
   try {
-    // Skip authentication in development mode
-    if (process.env.NODE_ENV === 'development' || process.env.DISABLE_AUTH === 'true') {
-      // Set a mock user for development
-      request.user = {
-        id: 'dev-user-id',
-        email: 'dev@example.com',
-        name: 'Development User',
-        role: 'USER'
-      }
-      return
-    }
-
     const authService = new AuthService()
     const token = authService.extractTokenFromRequest(request)
     

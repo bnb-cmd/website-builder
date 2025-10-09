@@ -41,9 +41,10 @@ const statusMap = {
   ARCHIVED: { label: 'Archived', variant: 'destructive' as const }
 }
 
-const formatDate = (dateString: string) => {
+const formatDate = (dateString: string | undefined | null) => {
   if (!dateString) return 'Not published'
   const date = new Date(dateString)
+  if (isNaN(date.getTime())) return 'Invalid date'
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })
 }
 

@@ -112,15 +112,30 @@ export async function authRoutes(fastify: FastifyInstance) {
       // Return user data without password
       const { password, ...userData } = user
       
-      reply.status(201).send({
-        success: true,
-        data: {
-          user: userData,
-          accessToken,
-          refreshToken
-        },
-        timestamp: new Date().toISOString()
-      })
+      // Set httpOnly cookies for tokens
+      reply
+        .status(201)
+        .setCookie('access-token', accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 15 * 60 * 1000, // 15 minutes
+          path: '/'
+        })
+        .setCookie('refresh-token', refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          path: '/'
+        })
+        .send({
+          success: true,
+          data: {
+            user: userData
+          },
+          timestamp: new Date().toISOString()
+        })
     } catch (error) {
       if (error instanceof z.ZodError) {
         reply.status(400).send({
@@ -194,10 +209,13 @@ export async function authRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
+      console.log('Login attempt:', request.body)
       const { email, password } = loginSchema.parse(request.body)
       
+      console.log('Looking for user with email:', email)
       // Find user by email
       const user = await userService.findByEmail(email)
+      console.log('User found:', user ? 'Yes' : 'No')
       if (!user) {
         reply.status(401).send({
           success: false,
@@ -210,8 +228,10 @@ export async function authRoutes(fastify: FastifyInstance) {
         return
       }
       
+      console.log('Validating password...')
       // Validate password
       const isValidPassword = await userService.validatePassword(user, password)
+      console.log('Password valid:', isValidPassword)
       if (!isValidPassword) {
         reply.status(401).send({
           success: false,
@@ -224,6 +244,7 @@ export async function authRoutes(fastify: FastifyInstance) {
         return
       }
       
+      console.log('Checking user status:', user.status)
       // Check if user is active
       if (user.status !== 'ACTIVE') {
         reply.status(401).send({
@@ -237,25 +258,47 @@ export async function authRoutes(fastify: FastifyInstance) {
         return
       }
       
+      console.log('Generating tokens...')
       // Generate tokens
       const { accessToken, refreshToken } = authService.generateTokenPair(user)
+      console.log('Tokens generated successfully')
       
+      console.log('Updating last login...')
       // Update last login
       await userService.updateLastLogin(user.id)
+      console.log('Last login updated')
       
       // Return user data without password
       const { password: _, ...userData } = user
       
-      reply.send({
-        success: true,
-        data: {
-          user: userData,
-          accessToken,
-          refreshToken
-        },
-        timestamp: new Date().toISOString()
-      })
+      console.log('Sending response...')
+      // Set httpOnly cookies for tokens
+      reply
+        .setCookie('access-token', accessToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 15 * 60 * 1000, // 15 minutes
+          path: '/'
+        })
+        .setCookie('refresh-token', refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+          path: '/'
+        })
+        .send({
+          success: true,
+          data: {
+            user: userData,
+            accessToken,
+            refreshToken
+          },
+          timestamp: new Date().toISOString()
+        })
     } catch (error) {
+      console.error('Login error:', error)
       if (error instanceof z.ZodError) {
         reply.status(400).send({
           success: false,

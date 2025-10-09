@@ -162,7 +162,7 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   const brandKitService = new BrandKitService()
 
   // Get user's brand kits
-  fastify.get('/api/brand-kits', { preHandler: authenticate }, async (request, reply) => {
+  fastify.get('/', { preHandler: authenticate }, async (request, reply) => {
     try {
       const userId = request.user.id
       const brandKits = await brandKitService.getUserBrandKits(userId)
@@ -173,7 +173,7 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   })
 
   // Get global brand kit
-  fastify.get('/api/brand-kits/global', { preHandler: authenticate }, async (request, reply) => {
+  fastify.get('/global', { preHandler: authenticate }, async (request, reply) => {
     try {
       const userId = request.user.id
       const globalBrandKit = await brandKitService.getGlobalBrandKit(userId)
@@ -184,7 +184,7 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   })
 
   // Get specific brand kit
-  fastify.get('/api/brand-kits/:id', { 
+  fastify.get('/:id', { 
     preHandler: authenticate,
     schema: brandKitParamsSchema 
   }, async (request, reply) => {
@@ -204,7 +204,7 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   })
 
   // Create brand kit
-  fastify.post('/api/brand-kits', { 
+  fastify.post('/', { 
     preHandler: authenticate,
     schema: createBrandKitSchema 
   }, async (request, reply) => {
@@ -224,7 +224,7 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   })
 
   // Update brand kit
-  fastify.put('/api/brand-kits/:id', { 
+  fastify.put('/:id', { 
     preHandler: authenticate,
     schema: updateBrandKitSchema 
   }, async (request, reply) => {
@@ -246,7 +246,7 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   })
 
   // Delete brand kit
-  fastify.delete('/api/brand-kits/:id', { 
+  fastify.delete('/:id', { 
     preHandler: authenticate,
     schema: brandKitParamsSchema 
   }, async (request, reply) => {
@@ -267,7 +267,7 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   })
 
   // Duplicate brand kit
-  fastify.post('/api/brand-kits/:id/duplicate', { 
+  fastify.post('/:id/duplicate', { 
     preHandler: authenticate,
     schema: brandKitParamsSchema 
   }, async (request, reply) => {
@@ -288,7 +288,7 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   })
 
   // Apply brand kit to website
-  fastify.post('/api/brand-kits/:id/apply', { 
+  fastify.post('/:id/apply', { 
     preHandler: authenticate,
     schema: {
       params: {
@@ -325,7 +325,7 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   })
 
   // Export brand kit
-  fastify.get('/api/brand-kits/:id/export', { 
+  fastify.get('/:id/export', { 
     preHandler: authenticate,
     schema: brandKitParamsSchema 
   }, async (request, reply) => {
@@ -346,7 +346,7 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   })
 
   // Upload brand asset
-  fastify.post('/api/brand-kits/:id/assets', { 
+  fastify.post('/:id/assets', { 
     preHandler: authenticate,
     schema: {
       params: {
@@ -391,7 +391,7 @@ export async function brandKitRoutes(fastify: FastifyInstance) {
   })
 
   // Get brand kit usage statistics
-  fastify.get('/api/brand-kits/:id/stats', { 
+  fastify.get('/:id/stats', { 
     preHandler: authenticate,
     schema: brandKitParamsSchema 
   }, async (request, reply) => {

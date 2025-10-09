@@ -69,11 +69,15 @@ export async function templateRoutes(fastify: FastifyInstance) {
       const templates = filtered.slice(offset, offset + limit)
 
       return {
-        templates,
-        total,
-        limit,
-        offset,
-        hasMore: offset + limit < total
+        success: true,
+        data: {
+          templates,
+          total,
+          limit,
+          offset,
+          hasMore: offset + limit < total
+        },
+        timestamp: new Date().toISOString()
       }
     }
   )
@@ -86,7 +90,11 @@ export async function templateRoutes(fastify: FastifyInstance) {
       count: websiteTemplates.filter(t => t.category === cat).length
     }))
 
-    return { categories: categoriesWithCount }
+    return { 
+      success: true,
+      data: { categories: categoriesWithCount },
+      timestamp: new Date().toISOString()
+    }
   })
 
   // Get single template details
@@ -96,10 +104,21 @@ export async function templateRoutes(fastify: FastifyInstance) {
       const template = websiteTemplates.find(t => t.id === request.params.id)
       
       if (!template) {
-        return reply.code(404).send({ error: 'Template not found' })
+        return reply.code(404).send({ 
+          success: false,
+          error: {
+            message: 'Template not found',
+            code: 'TEMPLATE_NOT_FOUND',
+            timestamp: new Date().toISOString()
+          }
+        })
       }
 
-      return { template }
+      return {
+        success: true,
+        data: template,
+        timestamp: new Date().toISOString()
+      }
     }
   )
 

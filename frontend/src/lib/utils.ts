@@ -13,8 +13,10 @@ export function formatPKR(amount: number): string {
   }).format(amount)
 }
 
-export function formatDate(date: string | Date): string {
+export function formatDate(date: string | Date | undefined | null): string {
+  if (!date) return 'No date'
   const d = typeof date === 'string' ? new Date(date) : date
+  if (isNaN(d.getTime())) return 'Invalid date'
   return d.toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'short',
@@ -22,8 +24,10 @@ export function formatDate(date: string | Date): string {
   })
 }
 
-export function formatDateTime(date: string | Date): string {
+export function formatDateTime(date: string | Date | undefined | null): string {
+  if (!date) return 'No date'
   const d = typeof date === 'string' ? new Date(date) : date
+  if (isNaN(d.getTime())) return 'Invalid date'
   return d.toLocaleString('en-US', {
     year: 'numeric',
     month: 'short',

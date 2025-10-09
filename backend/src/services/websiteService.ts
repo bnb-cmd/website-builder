@@ -91,6 +91,9 @@ export class WebsiteService extends BaseService<Website> {
         }
       }
 
+      // Use provided content if available, otherwise use template content
+      const finalContent = data.content ? JSON.stringify(data.content) : templateContent
+
       console.log('🔧 Creating website with data:', {
         name: data.name,
         description: data.description || null,
@@ -111,7 +114,7 @@ export class WebsiteService extends BaseService<Website> {
           businessType: data.businessType || null,
           language: data.language || 'ENGLISH',
           user: data.userId ? { connect: { id: data.userId } } : undefined,
-          content: templateContent || data.content || null,
+          content: finalContent,
           settings: data.settings || null,
           customCSS: data.customCSS || null,
           customJS: data.customJS || null,

@@ -56,7 +56,7 @@ export async function dnsVerificationRoutes(fastify: FastifyInstance) {
   const dnsService = new DNSVerificationService()
 
   // Verify domain DNS configuration
-  fastify.post('/api/dns/verify', { 
+  fastify.post('/verify', { 
     preHandler: authenticate,
     schema: verifyDomainSchema 
   }, async (request: FastifyRequest, reply: FastifyReply) => {
@@ -101,7 +101,7 @@ export async function dnsVerificationRoutes(fastify: FastifyInstance) {
   })
 
   // Start automated verification for a domain
-  fastify.post('/api/dns/verify/:domainId/start', { 
+  fastify.post('/verify/:domainId/start', { 
     preHandler: authenticate,
     schema: startVerificationSchema 
   }, async (request: FastifyRequest, reply: FastifyReply) => {
@@ -142,7 +142,7 @@ export async function dnsVerificationRoutes(fastify: FastifyInstance) {
   })
 
   // Stop automated verification for a domain
-  fastify.post('/api/dns/verify/:domainId/stop', { 
+  fastify.post('/verify/:domainId/stop', { 
     preHandler: authenticate,
     schema: stopVerificationSchema 
   }, async (request: FastifyRequest, reply: FastifyReply) => {
@@ -180,7 +180,7 @@ export async function dnsVerificationRoutes(fastify: FastifyInstance) {
   })
 
   // Get verification statistics
-  fastify.get('/api/dns/stats', { 
+  fastify.get('/stats', { 
     preHandler: authenticate 
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
@@ -199,7 +199,7 @@ export async function dnsVerificationRoutes(fastify: FastifyInstance) {
   })
 
   // Get available DNS providers
-  fastify.get('/api/dns/providers', { 
+  fastify.get('/providers', { 
     preHandler: authenticate 
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
@@ -265,7 +265,7 @@ export async function dnsVerificationRoutes(fastify: FastifyInstance) {
   })
 
   // Test DNS provider connectivity
-  fastify.post('/api/dns/test-provider', { 
+  fastify.post('/test-provider', { 
     preHandler: authenticate,
     schema: {
       body: {

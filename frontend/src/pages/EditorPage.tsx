@@ -10,6 +10,7 @@ import { ComponentPalette } from '../components/editor/ComponentPalette'
 import EditorCanvas from '../components/editor/EditorCanvas'
 import { PropertiesPanel } from '../components/editor/PropertiesPanel'
 import { ComponentMetadata } from '../components/website/registry'
+import { apiHelpers } from '../lib/api'
 // Import website components to ensure they get registered
 import '../components/website'
 import { 
@@ -42,16 +43,87 @@ interface PageComponent {
 type DeviceMode = 'desktop' | 'tablet' | 'mobile'
 
 const EditorPage: React.FC = () => {
-  const { navigate, params } = useRouter()
-  const { currentWebsite, updateWebsite } = useWebsiteStore()
+  const { navigate, params, searchParams } = useRouter()
+  const { currentWebsite, updateWebsite, createWebsite } = useWebsiteStore()
   const { isPreviewMode, togglePreviewMode } = useEditorStore()
   
   const [components, setComponents] = useState<PageComponent[]>([])
   const [selectedComponent, setSelectedComponent] = useState<PageComponent | null>(null)
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [isLoadingTemplate, setIsLoadingTemplate] = useState(false)
+  const [templateName, setTemplateName] = useState<string>('')
 
   const websiteId = params.id
+  const templateId = searchParams.get('template')
+
+  // Initialize template when templateId is provided
+  useEffect(() => {
+    const initializeTemplate = async () => {
+      if (templateId && !websiteId) {
+        setIsLoadingTemplate(true)
+        try {
+          console.log('🔧 Initializing template:', templateId)
+          
+          // Fetch template data
+          const templateData = await apiHelpers.getTemplate(templateId)
+          console.log('🔧 Template data:', templateData)
+          
+          // Extract template from response - handle both old and new response formats
+          const template = templateData.success ? templateData.data : (templateData.template || templateData)
+          
+          if (template.elements && template.elements.length > 0) {
+            // Convert template elements to PageComponent format
+            const templateComponents: PageComponent[] = template.elements.map((element: any, index: number) => ({
+              id: element.id || `${element.type}-${index}`,
+              type: element.type,
+              props: element.props || {},
+              style: element.style || {},
+              position: { x: 0, y: index * 100 },
+              children: element.children || []
+            }))
+            
+            console.log('🔧 Converted template components:', templateComponents)
+            setComponents(templateComponents)
+            setTemplateName(template.name || 'Template')
+            
+            // Create website record with template data
+            const newWebsite = await createWebsite({
+              name: `${template.name} Website`,
+              template: templateId,
+              thumbnail: template.thumbnail,
+              content: {
+                pages: [{
+                  id: 'home',
+                  name: 'Home',
+                  path: '/',
+                  components: templateComponents,
+                  seo: {
+                    title: template.name,
+                    description: template.description,
+                    keywords: template.tags || []
+                  }
+                }]
+              }
+            })
+            
+            console.log('🔧 Created website:', newWebsite)
+            
+            // Navigate to the new website editor
+            navigate(`/dashboard/websites/${newWebsite.id}/edit`)
+          } else {
+            console.warn('⚠️ Template has no elements:', template)
+          }
+        } catch (error) {
+          console.error('❌ Failed to initialize template:', error)
+        } finally {
+          setIsLoadingTemplate(false)
+        }
+      }
+    }
+
+    initializeTemplate()
+  }, [templateId, websiteId, createWebsite, navigate])
 
   useEffect(() => {
     if (websiteId && currentWebsite?.id !== websiteId) {
@@ -153,6 +225,19 @@ const EditorPage: React.FC = () => {
 
   const deviceDimensions = getDeviceDimensions();
 
+  // Show loading overlay when initializing template
+  if (isLoadingTemplate) {
+    return (
+      <div className="h-screen bg-background flex flex-col items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <h2 className="text-xl font-semibold">Loading Template</h2>
+          <p className="text-muted-foreground">Setting up your website with the {templateId} template...</p>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="h-screen bg-background flex flex-col">
       {/* Top Toolbar */}
@@ -163,8 +248,11 @@ const EditorPage: React.FC = () => {
               <ArrowLeft className="w-4 h-4 mr-2" />
               Back to Websites
             </Button>
-            <h1 className="text-lg font-semibold">Untitled Website</h1>
+            <h1 className="text-lg font-semibold">
+              {isLoadingTemplate ? 'Loading Template...' : templateName || 'Untitled Website'}
+            </h1>
             {hasUnsavedChanges && <Badge variant="secondary">Unsaved changes</Badge>}
+            {isLoadingTemplate && <Badge variant="outline">Initializing...</Badge>}
           </div>
 
           <div className="flex items-center space-x-2">

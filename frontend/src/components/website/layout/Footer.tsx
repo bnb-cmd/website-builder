@@ -63,7 +63,7 @@ export const WebsiteFooter: React.FC<FooterProps> = ({
           <div>
             <h4 className={cn("font-semibold mb-4", linkSize)}>Quick Links</h4>
             <ul className="space-y-2">
-              {links.map((link, index) => (
+              {(links || []).map((link, index) => (
                 <li key={index}>
                   <a 
                     href="#"
@@ -81,7 +81,7 @@ export const WebsiteFooter: React.FC<FooterProps> = ({
           <div>
             <h4 className={cn("font-semibold mb-4", linkSize)}>Follow Us</h4>
             <div className="flex space-x-4">
-              {social.map((platform, index) => (
+              {(social || []).map((platform, index) => (
                 <a 
                   key={index}
                   href="#"

@@ -91,9 +91,11 @@ interface AuthState {
   user: User | null
   token: string | null
   isLoading: boolean
+  _hasHydrated: boolean
   login: (email: string, password: string) => Promise<void>
   register: (email: string, password: string, name: string) => Promise<void>
   logout: () => void
+  autoLogin: () => Promise<{ success: boolean; user?: User }>
   updateUser: (user: Partial<User>) => void
 }
 
@@ -103,37 +105,39 @@ export const useAuthStore = create<AuthState>()(
       user: null,
       token: null,
       isLoading: false,
+      _hasHydrated: false,
 
       login: async (email: string, password: string) => {
         set({ isLoading: true })
+        
         try {
-          // Mock API call - replace with actual API
-          const response = await fetch('/api/auth/login', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, password })
-          })
+          // Use real API for authentication
+          const response = await apiHelpers.login(email, password)
           
-          if (!response.ok) throw new Error('Login failed')
-          
-          const data = await response.json()
-          set({ 
-            user: data.user, 
-            token: data.token, 
-            isLoading: false 
-          })
-        } catch (error) {
-          // Mock successful login for demo
-          set({
-            user: {
-              id: '1',
-              email,
-              name: 'Demo User',
-              plan: 'free'
-            },
-            token: 'demo-token',
-            isLoading: false
-          })
+          if (response.success) {
+            const { user, accessToken, refreshToken } = response.data
+            
+            // Store tokens consistently - only on client side
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('auth-token', accessToken)
+              localStorage.setItem('refresh-token', refreshToken)
+            }
+            
+            set({ 
+              user, 
+              token: accessToken,
+              isLoading: false 
+            })
+            
+            return { success: true, user }
+          } else {
+            set({ isLoading: false })
+            return { success: false, error: response.error?.message || 'Login failed' }
+          }
+        } catch (error: any) {
+          console.error('Login error:', error)
+          set({ isLoading: false })
+          return { success: false, error: error.message || 'Login failed' }
         }
       },
 
@@ -172,6 +176,71 @@ export const useAuthStore = create<AuthState>()(
 
       logout: () => {
         set({ user: null, token: null })
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('auth-token')
+          localStorage.removeItem('refresh-token')
+        }
+      },
+
+      // Auto-login with admin credentials for development
+      autoLogin: async () => {
+        console.log('🔐 Auto-login function called')
+        
+        // Prevent multiple auto-login attempts
+        if (get().isLoading) {
+          console.log('⏳ Auto-login already in progress')
+          return { success: false, error: 'Login already in progress' }
+        }
+        
+        // Don't auto-login if user is already logged in
+        if (get().user) {
+          console.log('✅ User already logged in:', get().user.email)
+          return { success: true, user: get().user }
+        }
+        
+        console.log('🚀 Starting auto-login process...')
+        set({ isLoading: true })
+        
+        try {
+          console.log('📡 Making login API call...')
+          const response = await apiHelpers.login(
+            'admin@pakistan-website-builder.com', 
+            'Admin123!@#'
+          )
+          
+          console.log('📦 Login API response:', response)
+          
+          if (response.success) {
+            const { user, accessToken, refreshToken } = response.data
+            
+            console.log('🔑 Storing tokens...')
+            // Store tokens consistently - only on client side
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('auth-token', accessToken)
+              localStorage.setItem('refresh-token', refreshToken)
+            }
+            
+            // Update store state
+            set({ 
+              user, 
+              token: accessToken,
+              isLoading: false 
+            })
+            
+            // Wait a bit to ensure token is stored
+            await new Promise(resolve => setTimeout(resolve, 100))
+            
+            console.log('✅ Auto-login successful:', user.email)
+            return { success: true, user }
+          } else {
+            console.error('❌ Auto-login failed - API returned error:', response)
+          }
+        } catch (error) {
+          console.error('❌ Auto-login failed with error:', error)
+        }
+        
+        set({ isLoading: false })
+        return { success: false }
       },
 
       updateUser: (userData: Partial<User>) => {
@@ -186,7 +255,14 @@ export const useAuthStore = create<AuthState>()(
       partialize: (state) => ({ 
         user: state.user, 
         token: state.token 
-      })
+      }),
+      onRehydrateStorage: () => (state) => {
+        console.log('🔄 Zustand store rehydrating...', state)
+        if (state) {
+          state._hasHydrated = true
+          console.log('✅ Zustand store hydrated successfully')
+        }
+      }
     }
   )
 )
@@ -255,38 +331,31 @@ export const useWebsiteStore = create<WebsiteState>((set, get) => ({
   createWebsite: async (data: Partial<Website>) => {
     set({ isLoading: true })
     try {
-      // Mock API call
-      const newWebsite: Website = {
-        id: Date.now().toString(),
-        name: data.name || 'Untitled Website',
-        template: data.template || 'blank',
-        status: 'draft',
-        lastModified: new Date().toISOString(),
-        pages: [],
-        settings: {
-          language: 'en',
-          rtl: false,
-          theme: {
-            primaryColor: '#030213',
-            secondaryColor: '#e9ebef',
-            fontFamily: 'Inter'
-          },
-          integrations: {
-            ecommerce: false,
-            payments: {
-              jazzcash: false,
-              easypaisa: false,
-              stripe: false
-            }
-          }
-        },
-        ...data
-      }
+      console.log('🔧 Creating website with data:', data)
       
+      // Call real API
+      const response = await apiHelpers.createWebsite({
+        name: data.name || 'Untitled Website',
+        templateId: data.template,
+        description: data.description,
+        businessType: data.businessType || 'OTHER',
+        language: data.language || 'ENGLISH',
+        content: data.content,
+        settings: data.settings
+      })
+      
+      console.log('🔧 API response:', response)
+      
+      // Handle API response structure
+      const newWebsite = response.success ? response.data : response
+      
+      // Update local state
       const websites = [...get().websites, newWebsite]
       set({ websites, isLoading: false })
+      
       return newWebsite
     } catch (error) {
+      console.error('❌ Failed to create website:', error)
       set({ isLoading: false })
       throw error
     }

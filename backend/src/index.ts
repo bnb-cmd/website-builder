@@ -7,6 +7,7 @@ import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
 import compress from '@fastify/compress'
 import fastifyStatic from '@fastify/static'
+import cookie from '@fastify/cookie'
 import path from 'path'
 
 import { config, serverConfig } from '@/config/environment'
@@ -141,6 +142,11 @@ export async function createServer() {
     sign: {
       expiresIn: config.auth.jwtExpiresIn
     }
+  })
+
+  // Register cookie support
+  await fastify.register(cookie, {
+    secret: config.auth.jwtSecret
   })
 
   // Register multipart for file uploads
@@ -329,7 +335,7 @@ export async function createServer() {
       ['adminRoutes', adminRoutes, '/admin'],
       ['domainRoutes', domainRoutes, '/domains'],
       ['dnsVerificationRoutes', dnsVerificationRoutes, '/dns'],
-      ['pwaRoutes', pwaRoutes, '/'],
+      ['pwaRoutes', pwaRoutes, '/pwa'],
       ['analyticsRoutes', analyticsRoutes, '/analytics'],
       ['marketingRoutes', marketingRoutes, '/marketing'],
       ['integrationRoutes', integrationRoutes, '/integrations'],
@@ -340,9 +346,9 @@ export async function createServer() {
       ['notificationRoutes', notificationRoutes, '/notifications'],
       ['subscriptionRoutes', subscriptionRoutes, '/subscriptions'],
       ['aiOnboardingRoutes', aiOnboardingRoutes, '/ai-onboarding'],
-      ['conversationRoutes', conversationRoutes, '/'],
-      ['contentRoutes', contentRoutes, '/'],
-      ['performanceOptimizationRoutes', performanceOptimizationRoutes, '/'],
+      ['conversationRoutes', conversationRoutes, '/conversations'],
+      ['contentRoutes', contentRoutes, '/content'],
+      ['performanceOptimizationRoutes', performanceOptimizationRoutes, '/performance'],
       ['seoRoutes', seoRoutes, '/seo'],
       ['brandKitRoutes', brandKitRoutes, '/brand-kit'],
       ['productRoutes', productRoutes, '/products'],
@@ -350,7 +356,7 @@ export async function createServer() {
       ['customerRoutes', customerRoutes, '/customers'],
       ['ecommerceSettingsRoutes', ecommerceSettingsRoutes, '/websites'],
       ['storePaymentsRoutes', storePaymentsRoutes, '/store-payments'],
-      ['imageLibraryRoutes', imageLibraryRoutes, '/']
+      ['imageLibraryRoutes', imageLibraryRoutes, '/image-library']
     ]
 
     for (const [name, plugin, prefix] of routePlugins) {

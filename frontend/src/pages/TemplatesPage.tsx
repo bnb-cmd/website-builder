@@ -1,6 +1,8 @@
 "use client";
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import { apiHelpers } from '@/lib/api'
+import { useAuthStore } from '@/lib/store'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -64,6 +66,7 @@ const sortOptions = [
 
 const TemplatesPage: React.FC = () => {
   const router = useRouter()
+  const { _hasHydrated } = useAuthStore()
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
@@ -95,87 +98,54 @@ const TemplatesPage: React.FC = () => {
 
   // Fetch templates from API
   useEffect(() => {
+    console.log('🔧 TemplatesPage useEffect triggered:', { _hasHydrated, searchQuery, selectedCategory, priceFilter })
+    
+    // Wait for auth store to hydrate before making API calls
+    if (!_hasHydrated) {
+      console.log('⏳ Waiting for auth store to hydrate...')
+      return
+    }
+    
     const fetchTemplates = async () => {
       try {
+        console.log('🚀 Starting to fetch templates...')
         setLoading(true)
         setError(null)
         
-        // Mock data for now - will be replaced with real API call
-        const mockTemplates: Template[] = [
-          {
-            id: '1',
-            name: 'Modern Business',
-            description: 'Professional business website with modern design',
-            category: 'Business',
-            thumbnail: '/templates/business-1.svg',
-            preview: '/templates/business-1-preview.jpg',
-            pages: ['Home', 'About', 'Services', 'Contact'],
-            isPremium: false,
-            tags: ['business', 'professional', 'modern'],
-            features: ['Responsive Design', 'SEO Optimized', 'Fast Loading'],
-            elements: [],
-            rating: 4.8,
-            downloads: 1200,
-            difficulty: 'Easy',
-            estimatedTime: '15 mins',
-            price: 0
-          },
-          {
-            id: '2',
-            name: 'E-commerce Store',
-            description: 'Complete online store with product catalog',
-            category: 'E-commerce',
-            thumbnail: '/templates/ecommerce-1.svg',
-            preview: '/templates/ecommerce-1-preview.jpg',
-            pages: ['Home', 'Products', 'Cart', 'Checkout'],
-            isPremium: true,
-            tags: ['ecommerce', 'shop', 'products'],
-            features: ['Shopping Cart', 'Payment Integration', 'Product Gallery'],
-            elements: [],
-            rating: 4.9,
-            downloads: 800,
-            difficulty: 'Medium',
-            estimatedTime: '30 mins',
-            price: 2999
-          },
-          {
-            id: '3',
-            name: 'Restaurant Menu',
-            description: 'Beautiful restaurant website with menu display',
-            category: 'Restaurant',
-            thumbnail: '/templates/restaurant-1.svg',
-            preview: '/templates/restaurant-1-preview.jpg',
-            pages: ['Home', 'Menu', 'About', 'Contact'],
-            isPremium: false,
-            tags: ['restaurant', 'food', 'menu'],
-            features: ['Menu Display', 'Online Ordering', 'Location Map'],
-            elements: [],
-            rating: 4.7,
-            downloads: 950,
-            difficulty: 'Easy',
-            estimatedTime: '20 mins',
-            price: 0
-          }
-        ]
+        // Real API call to fetch templates
+        const response = await apiHelpers.getTemplates({
+          limit: 50,
+          category: selectedCategory === 'all' ? undefined : selectedCategory,
+          search: searchQuery || undefined
+        })
         
-        setTemplates(mockTemplates)
-        setTotal(mockTemplates.length)
+        console.log('📦 Template API response:', response)
         
-        // Generate categories from fetched templates
-        const allTemplates = mockTemplates
-        const uniqueCategories = [...new Set(allTemplates.map((t: Template) => t.category))] as string[]
-        const categoriesWithCount = [
-          { value: 'all', label: 'All Categories', count: allTemplates.length },
-          ...uniqueCategories.map((cat: string) => ({
-            value: cat.toLowerCase(),
-            label: cat,
-            count: allTemplates.filter((t: Template) => t.category === cat).length
-          }))
-        ]
-        setCategories(categoriesWithCount)
+        // Backend returns data in { success: true, data: { templates: [...] } } format
+        if (response.success && response.data && response.data.templates) {
+          const templates = response.data.templates
+          console.log('✅ Templates loaded successfully:', templates.length, 'templates')
+          setTemplates(templates || [])
+          setTotal(response.data.total || 0)
+          
+          // Update categories with counts
+          const uniqueCategories = [...new Set(templates?.map((t: Template) => t.category) || [])] as string[]
+          const categoriesWithCount = [
+            { value: 'all', label: 'All Categories', count: response.data.total || 0 },
+            ...uniqueCategories.map((cat: string) => ({
+              value: cat.toLowerCase(),
+              label: cat,
+              count: templates?.filter((t: Template) => t.category === cat).length || 0
+            }))
+          ]
+          setCategories(categoriesWithCount)
+        } else {
+          console.error('❌ Failed to fetch templates - invalid response structure:', response)
+          setError('Failed to fetch templates')
+        }
         
       } catch (err: any) {
-        console.error('Failed to fetch templates:', err)
+        console.error('❌ Failed to fetch templates:', err)
         setError(`Failed to load templates: ${err.message || 'Unknown error'}`)
         setTemplates([])
         setTotal(0)
@@ -185,7 +155,7 @@ const TemplatesPage: React.FC = () => {
     }
 
     fetchTemplates()
-  }, [searchQuery, selectedCategory, priceFilter])
+  }, [searchQuery, selectedCategory, priceFilter, _hasHydrated])
 
   const filteredTemplates = templates.filter(template => {
     const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -259,6 +229,18 @@ const TemplatesPage: React.FC = () => {
   const exitComparison = () => {
     setComparisonMode(false)
     setTemplatesToCompare([])
+  }
+
+  // Show loading while store is hydrating
+  if (!_hasHydrated) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading...</p>
+        </div>
+      </div>
+    )
   }
 
   return (

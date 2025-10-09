@@ -722,7 +722,10 @@ export default function DomainsPage() {
                           <div>
                             <span className="text-muted-foreground">Last Checked:</span>
                             <span className="ml-2 font-medium">
-                              {new Date(verificationStatus[domain.domain].lastChecked).toLocaleString()}
+                              {verificationStatus[domain.domain].lastChecked 
+                                ? new Date(verificationStatus[domain.domain].lastChecked).toLocaleString()
+                                : 'Never checked'
+                              }
                             </span>
                           </div>
                           <div>

@@ -31,7 +31,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   const domainService = new DomainService()
 
   // Search available domains
-  fastify.get('/api/domains/search', {
+  fastify.get('/search', {
     schema: {
       querystring: {
         type: 'object',
@@ -63,7 +63,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Get user's domains
-  fastify.get('/api/domains', {
+  fastify.get('/', {
     preHandler: authenticate
   }, async (request: FastifyRequest, reply: FastifyReply) => {
     try {
@@ -83,7 +83,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Register new domain
-  fastify.post('/api/domains/register', {
+  fastify.post('/register', {
     preHandler: authenticate,
     schema: {
       body: {
@@ -141,7 +141,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Get domain details
-  fastify.get('/api/domains/:id', {
+  fastify.get('/:id', {
     preHandler: authenticate
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
@@ -169,7 +169,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Update domain settings
-  fastify.put('/api/domains/:id', {
+  fastify.put('/:id', {
     preHandler: authenticate,
     schema: {
       body: {
@@ -206,7 +206,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Connect domain to website
-  fastify.post('/api/domains/:id/connect', {
+  fastify.post('/:id/connect', {
     preHandler: authenticate,
     schema: {
       body: {
@@ -243,7 +243,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Get DNS records for domain
-  fastify.get('/api/domains/:id/dns', {
+  fastify.get('/:id/dns', {
     preHandler: authenticate
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
@@ -265,7 +265,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Add DNS record
-  fastify.post('/api/domains/:id/dns', {
+  fastify.post('/:id/dns', {
     preHandler: authenticate,
     schema: {
       body: {
@@ -305,7 +305,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Update DNS record
-  fastify.put('/api/domains/:id/dns/:recordId', {
+  fastify.put('/:id/dns/:recordId', {
     preHandler: authenticate,
     schema: {
       body: {
@@ -345,7 +345,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Delete DNS record
-  fastify.delete('/api/domains/:id/dns/:recordId', {
+  fastify.delete('/:id/dns/:recordId', {
     preHandler: authenticate
   }, async (request: FastifyRequest<{ Params: { id: string, recordId: string } }>, reply: FastifyReply) => {
     try {
@@ -368,7 +368,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Renew domain
-  fastify.post('/api/domains/:id/renew', {
+  fastify.post('/:id/renew', {
     preHandler: authenticate,
     schema: {
       body: {
@@ -404,7 +404,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Transfer domain
-  fastify.post('/api/domains/:id/transfer', {
+  fastify.post('/:id/transfer', {
     preHandler: authenticate,
     schema: {
       body: {
@@ -441,7 +441,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Get domain pricing
-  fastify.get('/api/domains/pricing/:extension', async (request: FastifyRequest<{ Params: { extension: string } }>, reply: FastifyReply) => {
+  fastify.get('/pricing/:extension', async (request: FastifyRequest<{ Params: { extension: string } }>, reply: FastifyReply) => {
     try {
       const extension = request.params.extension
       const pricing = await domainService.getDomainPricing(extension)
@@ -459,7 +459,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Get SSL certificate status
-  fastify.get('/api/domains/:id/ssl', {
+  fastify.get('/:id/ssl', {
     preHandler: authenticate
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {
@@ -481,7 +481,7 @@ export async function domainRoutes(fastify: FastifyInstance) {
   })
 
   // Request SSL certificate
-  fastify.post('/api/domains/:id/ssl', {
+  fastify.post('/:id/ssl', {
     preHandler: authenticate
   }, async (request: FastifyRequest<{ Params: { id: string } }>, reply: FastifyReply) => {
     try {

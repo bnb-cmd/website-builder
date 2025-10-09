@@ -22,6 +22,8 @@ import {
   FooterConfig,
   WebsiteNavigation,
   NavigationConfig,
+  WebsiteNavbar,
+  NavbarConfig,
   WebsiteBreadcrumb,
   BreadcrumbConfig,
   WebsitePagination,
@@ -40,5 +42,6 @@ registerComponent(SidebarConfig, WebsiteSidebar)
 registerComponent(HeaderConfig, WebsiteHeader)
 registerComponent(FooterConfig, WebsiteFooter)
 registerComponent(NavigationConfig, WebsiteNavigation)
+registerComponent(NavbarConfig, WebsiteNavbar)
 registerComponent(BreadcrumbConfig, WebsiteBreadcrumb)
 registerComponent(PaginationConfig, WebsitePagination)

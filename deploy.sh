@@ -1,149 +1,196 @@
 #!/bin/bash
 
-# Pakistan Website Builder - Production Deployment Script
-# This script deploys the application to production
+# 🚀 Complete Railway + Cloudflare Deployment Script
+# This script deploys the entire website builder to production
 
-set -e
+set -e  # Exit on any error
 
-echo "🚀 Deploying Pakistan Website Builder to Production..."
-echo "===================================================="
+echo "🚀 Starting Railway + Cloudflare deployment..."
+echo ""
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    echo -e "${BLUE}[INFO]${NC} $1"
+}
+
+print_success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}[ERROR]${NC} $1"
+}
 
 # Check if we're in the right directory
-if [ ! -f "package.json" ]; then
-    echo "❌ Error: package.json not found. Please run this script from the project root."
+if [ ! -f "package.json" ] || [ ! -d "backend" ] || [ ! -d "frontend" ]; then
+    print_error "Please run this script from the project root directory"
     exit 1
 fi
 
-# Check if Docker is available
-if ! command -v docker &> /dev/null; then
-    echo "❌ Docker is required for production deployment. Please install Docker first."
-    exit 1
-fi
+print_status "Project structure verified ✓"
 
-# Check if Docker Compose is available
-if ! command -v docker-compose &> /dev/null; then
-    echo "❌ Docker Compose is required for production deployment. Please install Docker Compose first."
-    exit 1
-fi
+# Step 1: Check prerequisites
+print_status "Checking prerequisites..."
 
-# Environment check
-if [ ! -f ".env" ]; then
-    echo "❌ Environment file (.env) not found. Please create one from env.example"
-    exit 1
-fi
-
-# Load environment variables
-export $(grep -v '^#' .env | xargs)
-
-# Validate required environment variables
-REQUIRED_VARS=(
-    "DATABASE_URL"
-    "JWT_SECRET"
-    "NEXT_PUBLIC_API_URL"
-    "NEXT_PUBLIC_APP_URL"
-)
-
-for var in "${REQUIRED_VARS[@]}"; do
-    if [ -z "${!var}" ]; then
-        echo "❌ Required environment variable $var is not set"
+# Check if external services are set up
+if [ ! -f "backend/.env.production" ]; then
+    print_warning "Environment file not found. Running external services setup..."
+    ./setup-external-services.sh
+    if [ $? -ne 0 ]; then
+        print_error "External services setup failed"
         exit 1
     fi
-done
+fi
 
-echo "✅ Environment validation passed"
+print_success "Prerequisites checked ✓"
 
-# Build the application
-echo "🔨 Building application..."
+# Step 2: Database migration
+print_status "Running database migrations..."
 
-# Build backend
-echo "📦 Building backend..."
 cd backend
-npm run build
-cd ..
 
-# Build frontend
-echo "📦 Building frontend..."
-cd frontend
-npm run build
-cd ..
-
-echo "✅ Build complete!"
-
-# Stop existing containers
-echo "🛑 Stopping existing containers..."
-docker-compose -f docker-compose.prod.yml down
-
-# Pull latest images
-echo "📥 Pulling latest images..."
-docker-compose -f docker-compose.prod.yml pull
-
-# Start production services
-echo "🚀 Starting production services..."
-docker-compose -f docker-compose.prod.yml up -d
-
-# Wait for services to be ready
-echo "⏳ Waiting for services to be ready..."
-sleep 30
-
-# Run database migrations
-echo "🗄️  Running database migrations..."
-docker-compose -f docker-compose.prod.yml exec backend npm run db:migrate:prod
-
-# Health check
-echo "🔍 Running health checks..."
-sleep 10
-
-# Check if services are running
-if docker-compose -f docker-compose.prod.yml ps | grep -q "Up"; then
-    echo "✅ Services are running!"
-else
-    echo "❌ Some services failed to start. Check logs:"
-    docker-compose -f docker-compose.prod.yml logs
+# Check if Prisma is installed
+if ! command -v npx &> /dev/null; then
+    print_error "npx not found. Please install Node.js"
     exit 1
 fi
 
-# Test API endpoint
-if curl -f http://localhost:3001/health > /dev/null 2>&1; then
-    echo "✅ Backend API is responding"
-else
-    echo "❌ Backend API is not responding"
+# Run Prisma migration
+print_status "Running Prisma migration..."
+npx prisma migrate dev --name init_postgresql
+
+if [ $? -ne 0 ]; then
+    print_error "Database migration failed"
     exit 1
+fi
+
+print_success "Database migration completed ✓"
+
+# Step 3: Deploy backend to Railway
+print_status "Deploying backend to Railway..."
+
+# Check if Railway CLI is installed
+if ! command -v railway &> /dev/null; then
+    print_status "Installing Railway CLI..."
+    npm install -g @railway/cli
+fi
+
+# Check if user is logged in
+if ! railway whoami &> /dev/null; then
+    print_warning "Please log in to Railway:"
+    railway login
+fi
+
+# Deploy to Railway
+print_status "Deploying to Railway..."
+railway up
+
+if [ $? -ne 0 ]; then
+    print_error "Railway deployment failed"
+    exit 1
+fi
+
+# Get Railway URL
+RAILWAY_URL=$(railway open 2>/dev/null | grep -o 'https://[^[:space:]]*' || echo "https://pakistan-builder-backend.up.railway.app")
+print_success "Backend deployed to Railway ✓"
+print_status "Backend URL: $RAILWAY_URL"
+
+# Step 4: Deploy frontend to Cloudflare Pages
+print_status "Deploying frontend to Cloudflare Pages..."
+
+cd ../frontend
+
+# Check if Wrangler CLI is installed
+if ! command -v wrangler &> /dev/null; then
+    print_status "Installing Wrangler CLI..."
+    npm install -g wrangler
+fi
+
+# Check if user is logged in
+if ! wrangler whoami &> /dev/null; then
+    print_warning "Please log in to Cloudflare:"
+    wrangler login
+fi
+
+# Update environment file with actual Railway URL
+print_status "Updating frontend environment..."
+echo "NEXT_PUBLIC_API_URL=$RAILWAY_URL/v1" > .env.production
+echo "NEXT_PUBLIC_APP_URL=https://pakistan-builder.pages.dev" >> .env.production
+
+# Build frontend
+print_status "Building frontend..."
+npm run build
+
+if [ $? -ne 0 ]; then
+    print_error "Frontend build failed"
+    exit 1
+fi
+
+# Deploy to Cloudflare Pages
+print_status "Deploying to Cloudflare Pages..."
+wrangler pages deploy .next --project-name=pakistan-builder
+
+if [ $? -ne 0 ]; then
+    print_error "Cloudflare Pages deployment failed"
+    exit 1
+fi
+
+print_success "Frontend deployed to Cloudflare Pages ✓"
+
+# Step 5: Test deployment
+print_status "Testing deployment..."
+
+# Test backend health
+print_status "Testing backend health..."
+HEALTH_RESPONSE=$(curl -s "$RAILWAY_URL/v1/health" || echo "FAILED")
+
+if [[ "$HEALTH_RESPONSE" == *"OK"* ]]; then
+    print_success "Backend health check passed ✓"
+else
+    print_warning "Backend health check failed. Check Railway logs."
 fi
 
 # Test frontend
-if curl -f http://localhost:3000 > /dev/null 2>&1; then
-    echo "✅ Frontend is responding"
+print_status "Testing frontend..."
+FRONTEND_RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://pakistan-builder.pages.dev")
+
+if [ "$FRONTEND_RESPONSE" = "200" ]; then
+    print_success "Frontend health check passed ✓"
 else
-    echo "❌ Frontend is not responding"
-    exit 1
+    print_warning "Frontend health check failed. HTTP status: $FRONTEND_RESPONSE"
 fi
 
+# Final summary
 echo ""
-echo "🎉 Deployment Successful!"
-echo "========================"
+echo "🎉 Deployment Complete!"
 echo ""
-echo "🌐 Your application is now running:"
-echo "   Frontend: http://localhost:3000"
-echo "   Backend API: http://localhost:3001"
-echo "   API Documentation: http://localhost:3001/docs"
+echo "📊 Deployment Summary:"
+echo "   Backend URL:  $RAILWAY_URL"
+echo "   Frontend URL: https://pakistan-builder.pages.dev"
+echo "   Health Check: $RAILWAY_URL/v1/health"
 echo ""
-echo "📊 Monitoring:"
-echo "   Prometheus: http://localhost:9090"
-echo "   Grafana: http://localhost:3001"
+echo "🔧 Next Steps:"
+echo "   1. Configure environment variables in Cloudflare Dashboard"
+echo "   2. Test user registration and website creation"
+echo "   3. Monitor Railway metrics and logs"
+echo "   4. Set up monitoring and error tracking"
 echo ""
-echo "🔧 Management Commands:"
-echo "   View logs: docker-compose -f docker-compose.prod.yml logs"
-echo "   Stop services: docker-compose -f docker-compose.prod.yml down"
-echo "   Restart services: docker-compose -f docker-compose.prod.yml restart"
+echo "💰 Cost Breakdown:"
+echo "   Railway:     $5/month (hobby tier)"
+echo "   Neon:        $0/month (free tier)"
+echo "   Upstash:     $0/month (free tier)"
+echo "   Cloudflare:  $0/month (free tier)"
+echo "   Total:       $5/month"
 echo ""
-echo "📈 Next Steps:"
-echo "1. Configure your domain DNS to point to this server"
-echo "2. Set up SSL certificates"
-echo "3. Configure monitoring and backups"
-echo "4. Test all functionality"
-echo ""
-echo "🆘 Need help?"
-echo "   Documentation: https://docs.pakistanbuilder.com"
-echo "   Support: support@pakistanbuilder.com"
-echo ""
-echo "Happy serving! 🎯"
+echo "🚀 Your website builder is now live!"

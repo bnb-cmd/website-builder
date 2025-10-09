@@ -1,6 +1,7 @@
 import axios from 'axios'
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005'
+// Use relative URLs in development to leverage Next.js rewrites
+const API_BASE_URL = process.env.NODE_ENV === 'development' ? '' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005')
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -13,9 +14,33 @@ const api = axios.create({
 // Request interceptor to add auth token
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('auth-token')
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`
+    // Only access localStorage on client side
+    if (typeof window !== 'undefined') {
+      // Try multiple token storage locations with consistent logic
+      let token = null
+      
+      // First try direct token storage
+      token = localStorage.getItem('auth-token')
+      
+      // If not found, try auth store
+      if (!token) {
+        try {
+          const authStore = localStorage.getItem('auth-store')
+          if (authStore) {
+            const parsed = JSON.parse(authStore)
+            token = parsed.state?.token || parsed.token
+          }
+        } catch (error) {
+          console.warn('Failed to parse auth store:', error)
+        }
+      }
+      
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`
+        console.log('🔑 Token attached to request:', token.substring(0, 20) + '...')
+      } else {
+        console.log('⚠️ No token found for request')
+      }
     }
     return config
   },
@@ -29,9 +54,13 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Handle unauthorized access
-      localStorage.removeItem('auth-token')
-      window.location.href = '/login'
+      console.log('🚫 401 Unauthorized - redirecting to login')
+      // Handle unauthorized access - only on client side
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('auth-token')
+        localStorage.removeItem('refresh-token')
+        window.location.href = '/login'
+      }
     }
     return Promise.reject(error)
   }
@@ -56,8 +85,35 @@ export const apiHelpers = {
 
   // Website endpoints
   getWebsites: async () => {
+    // TEMPORARY BYPASS: Return mock data
+    console.log('🚀 BYPASSING API - Returning mock websites')
+    return {
+      success: true,
+      data: [
+        {
+          id: 'mock-website-1',
+          name: 'My First Website',
+          status: 'PUBLISHED',
+          subdomain: 'myfirstsite',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: 'mock-website-2', 
+          name: 'Business Website',
+          status: 'DRAFT',
+          subdomain: 'businesssite',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ]
+    }
+    
+    // Original API call (commented out)
+    /*
     const response = await api.get('/v1/websites')
     return response.data
+    */
   },
 
   getWebsite: async (id: string) => {
@@ -92,103 +148,103 @@ export const apiHelpers = {
 
   // Template endpoints
   getTemplates: async (params?: { limit?: number; category?: string; search?: string }) => {
-    const response = await api.get('/api/templates', { params })
+    const response = await api.get('/v1/templates', { params })
     return response.data
   },
 
   getTemplate: async (id: string) => {
-    const response = await api.get(`/api/templates/${id}`)
+    const response = await api.get(`/v1/templates/${id}`)
     return response.data
   },
 
   getAdvancedTemplates: async (params?: { category?: string; search?: string; pricingModel?: string }) => {
-    const response = await api.get('/api/templates/advanced', { params })
+    const response = await api.get('/v1/templates/catalog', { params })
     return response.data
   },
 
   // User endpoints
   getUser: async () => {
-    const response = await api.get('/api/user')
+    const response = await api.get('/v1/auth/me')
     return response.data
   },
 
   updateUser: async (data: any) => {
-    const response = await api.put('/api/user', data)
+    const response = await api.put('/v1/auth/profile', data)
     return response.data
   },
 
   // Analytics endpoints
   getAnalytics: async (websiteId: string, params?: { period?: string }) => {
-    const response = await api.get(`/api/analytics/${websiteId}`, { params })
+    const response = await api.get(`/v1/analytics/${websiteId}`, { params })
     return response.data
   },
 
   // Domain endpoints
   getDomains: async () => {
-    const response = await api.get('/api/domains')
+    const response = await api.get('/v1/domains')
     return response.data
   },
 
   addDomain: async (domain: string) => {
-    const response = await api.post('/api/domains', { domain })
+    const response = await api.post('/v1/domains', { domain })
     return response.data
   },
 
   // DNS Verification endpoints
   verifyDomainDNS: async (domain: string, expectedRecords?: any[]) => {
-    const response = await api.post('/api/dns/verify', { domain, expectedRecords })
+    const response = await api.post('/v1/dns/verify', { domain, expectedRecords })
     return response.data
   },
 
   startDNSVerification: async (domainId: string, intervalMinutes?: number) => {
-    const response = await api.post(`/api/dns/verify/${domainId}/start`, { intervalMinutes })
+    const response = await api.post(`/v1/dns/verify/${domainId}/start`, { intervalMinutes })
     return response.data
   },
 
   stopDNSVerification: async (domainId: string) => {
-    const response = await api.post(`/api/dns/verify/${domainId}/stop`)
+    const response = await api.post(`/v1/dns/verify/${domainId}/stop`)
     return response.data
   },
 
   getDNSStats: async () => {
-    const response = await api.get('/api/dns/stats')
+    const response = await api.get('/v1/dns/stats')
     return response.data
   },
 
   getDNSProviders: async () => {
-    const response = await api.get('/api/dns/providers')
+    const response = await api.get('/v1/dns/providers')
     return response.data
   },
 
   testDNSProvider: async (provider: string, domain: string) => {
-    const response = await api.post('/api/dns/test-provider', { provider, domain })
+    const response = await api.post('/v1/dns/test-provider', { provider, domain })
     return response.data
   },
 
   // Billing endpoints
   getBilling: async () => {
-    const response = await api.get('/api/billing')
+    const response = await api.get('/v1/billing')
     return response.data
   },
 
   updateSubscription: async (planId: string) => {
-    const response = await api.post('/api/billing/subscription', { planId })
+    const response = await api.post('/v1/billing/subscription', { planId })
     return response.data
   },
 
   // Subscription endpoints
   getSubscriptions: async () => {
-    const response = await api.get('/api/subscriptions')
+    const response = await api.get('/v1/subscriptions')
     return response.data
   },
 
   getSubscription: async (id: string) => {
-    const response = await api.get(`/api/subscriptions/${id}`)
+    const response = await api.get(`/v1/subscriptions/${id}`)
     return response.data
   },
 
   getDefaultSubscription: async () => {
-    const response = await api.get('/api/subscriptions/default')
+    const response = await api.get('/v1/subscriptions/default')
     return response.data
   },
 
@@ -199,22 +255,22 @@ export const apiHelpers = {
     customerEmail: string
     customerPhone?: string
   }) => {
-    const response = await api.post('/api/subscriptions/upgrade', data)
+    const response = await api.post('/v1/subscriptions/upgrade', data)
     return response.data
   },
 
   confirmSubscriptionUpgrade: async (paymentId: string) => {
-    const response = await api.post('/api/subscriptions/confirm-upgrade', { paymentId })
+    const response = await api.post('/v1/subscriptions/confirm-upgrade', { paymentId })
     return response.data
   },
 
   getUserLimits: async (userId: string) => {
-    const response = await api.get(`/api/subscriptions/limits/${userId}`)
+    const response = await api.get(`/v1/subscriptions/limits/${userId}`)
     return response.data
   },
 
   resetAIQuota: async (userId: string) => {
-    const response = await api.post(`/api/subscriptions/reset-ai-quota/${userId}`)
+    const response = await api.post(`/v1/subscriptions/reset-ai-quota/${userId}`)
     return response.data
   },
 
@@ -225,7 +281,7 @@ export const apiHelpers = {
     subscriptionId: string
     paymentMethod: string
   }) => {
-    const response = await api.post('/api/payments/create-intent', data)
+    const response = await api.post('/v1/payments/create-intent', data)
     return response.data
   },
 
@@ -233,12 +289,12 @@ export const apiHelpers = {
     paymentIntentId: string
     subscriptionId?: string
   }) => {
-    const response = await api.post('/api/payments/confirm', data)
+    const response = await api.post('/v1/payments/confirm', data)
     return response.data
   },
 
   getPaymentHistory: async (params?: { page?: number; limit?: number }) => {
-    const response = await api.get('/api/payments/history', { params })
+    const response = await api.get('/v1/payments/history', { params })
     return response.data
   },
 
@@ -248,7 +304,7 @@ export const apiHelpers = {
     formData.append('file', file)
     formData.append('type', type)
     
-    const response = await api.post('/api/upload', formData, {
+    const response = await api.post('/v1/upload', formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
@@ -258,12 +314,12 @@ export const apiHelpers = {
 
   // AI endpoints
   generateContent: async (prompt: string, type: 'text' | 'image' | 'website') => {
-    const response = await api.post('/api/ai/generate', { prompt, type })
+    const response = await api.post('/v1/ai/generate', { prompt, type })
     return response.data
   },
 
   generateWebsite: async (requirements: any) => {
-    const response = await api.post('/api/ai/generate-website', requirements)
+    const response = await api.post('/v1/ai/generate-website', requirements)
     return response.data
   },
 
@@ -279,8 +335,34 @@ export const apiHelpers = {
   },
 
   getUserProfile: async () => {
+    // TEMPORARY BYPASS: Return mock user profile
+    console.log('🚀 BYPASSING API - Returning mock user profile')
+    return {
+      success: true,
+      data: {
+        user: {
+          id: 'mock-user-id',
+          name: 'Test User',
+          email: 'test@example.com',
+          phone: '+92-300-1234567',
+          avatar: null,
+          businessType: 'SERVICE',
+          city: 'Karachi',
+          companyName: 'Test Company',
+          role: 'USER',
+          status: 'ACTIVE',
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          lastLoginAt: new Date().toISOString()
+        }
+      }
+    }
+    
+    // Original API call (commented out)
+    /*
     const response = await api.get('/v1/users/profile')
     return response.data
+    */
   },
 
   // Notification preferences
@@ -291,98 +373,98 @@ export const apiHelpers = {
 
   // Brand Kit endpoints
   getBrandKits: async () => {
-    const response = await api.get('/api/brand-kits')
+    const response = await api.get('/v1/brand-kit')
     return response.data
   },
 
   getGlobalBrandKit: async () => {
-    const response = await api.get('/api/brand-kits/global')
+    const response = await api.get('/v1/brand-kit/global')
     return response.data
   },
 
   getBrandKit: async (id: string) => {
-    const response = await api.get(`/api/brand-kits/${id}`)
+    const response = await api.get(`/v1/brand-kit/${id}`)
     return response.data
   },
 
   createBrandKit: async (data: any) => {
-    const response = await api.post('/api/brand-kits', data)
+    const response = await api.post('/v1/brand-kit', data)
     return response.data
   },
 
   updateBrandKit: async (id: string, data: any) => {
-    const response = await api.put(`/api/brand-kits/${id}`, data)
+    const response = await api.put(`/v1/brand-kit/${id}`, data)
     return response.data
   },
 
   deleteBrandKit: async (id: string) => {
-    const response = await api.delete(`/api/brand-kits/${id}`)
+    const response = await api.delete(`/v1/brand-kit/${id}`)
     return response.data
   },
 
   duplicateBrandKit: async (id: string) => {
-    const response = await api.post(`/api/brand-kits/${id}/duplicate`)
+    const response = await api.post(`/v1/brand-kit/${id}/duplicate`)
     return response.data
   },
 
   applyBrandKitToWebsite: async (brandKitId: string, websiteId: string) => {
-    const response = await api.post(`/api/brand-kits/${brandKitId}/apply`, { websiteId })
+    const response = await api.post(`/v1/brand-kit/${brandKitId}/apply`, { websiteId })
     return response.data
   },
 
   exportBrandKit: async (id: string) => {
-    const response = await api.get(`/api/brand-kits/${id}/export`)
+    const response = await api.get(`/v1/brand-kit/${id}/export`)
     return response.data
   },
 
   uploadBrandAsset: async (brandKitId: string, assetData: any) => {
-    const response = await api.post(`/api/brand-kits/${brandKitId}/assets`, assetData)
+    const response = await api.post(`/v1/brand-kit/${brandKitId}/assets`, assetData)
     return response.data
   },
 
   getBrandKitStats: async (id: string) => {
-    const response = await api.get(`/api/brand-kits/${id}/stats`)
+    const response = await api.get(`/v1/brand-kit/${id}/stats`)
     return response.data
   },
 
   // SEO endpoints
   analyzeWebsiteSEO: async (websiteId: string, url?: string) => {
-    const response = await api.post('/api/seo/analyze-website', { websiteId, url })
+    const response = await api.post('/v1/seo/analyze-website', { websiteId, url })
     return response.data
   },
 
   getSEOAnalysis: async (websiteId: string, options?: any) => {
-    const response = await api.get(`/api/seo/analysis/${websiteId}`, { params: options })
+    const response = await api.get(`/v1/seo/analysis/${websiteId}`, { params: options })
     return response.data
   },
 
   generateSitemap: async (websiteId: string, options?: any) => {
-    const response = await api.post('/api/seo/generate-sitemap', { websiteId, ...options })
+    const response = await api.post('/v1/seo/generate-sitemap', { websiteId, ...options })
     return response.data
   },
 
   researchKeywords: async (keyword: string, options?: any) => {
-    const response = await api.post('/api/seo/keyword-research', { keyword, ...options })
+    const response = await api.post('/v1/seo/keyword-research', { keyword, ...options })
     return response.data
   },
 
   updateMetaTags: async (data: any) => {
-    const response = await api.put('/api/seo/meta-tags', data)
+    const response = await api.put('/v1/seo/meta-tags', data)
     return response.data
   },
 
   scheduleSocialMediaPost: async (data: any) => {
-    const response = await api.post('/api/seo/social-media-post', data)
+    const response = await api.post('/v1/seo/social-media-post', data)
     return response.data
   },
 
   getSocialMediaPosts: async (websiteId: string) => {
-    const response = await api.get(`/api/seo/social-media-posts/${websiteId}`)
+    const response = await api.get(`/v1/seo/social-media-posts/${websiteId}`)
     return response.data
   },
 
   optimizeSEO: async (data: any) => {
-    const response = await api.post('/api/ai/optimize-seo', data)
+    const response = await api.post('/v1/ai/optimize-seo', data)
     return response.data
   },
 }

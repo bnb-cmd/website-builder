@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: __dirname,
+  // Disable some development features that might cause issues
+  reactStrictMode: false,
   images: {
     remotePatterns: [
       {
@@ -10,18 +12,61 @@ const nextConfig = {
         pathname: '/**',
       },
       {
-        protocol: 'http',
-        hostname: 'localhost',
-        port: '3005',
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'pakistan-builder-backend.up.railway.app',
+        port: '',
         pathname: '/**',
       },
     ],
   },
   async rewrites() {
+    // Only rewrite in development
+    if (process.env.NODE_ENV === 'development') {
+      return [
+        {
+          source: '/api/:path*',
+          destination: 'http://localhost:3005/:path*',
+        },
+        {
+          source: '/api/v1/:path*',
+          destination: 'http://localhost:3005/v1/:path*',
+        },
+        {
+          source: '/v1/:path*',
+          destination: 'http://localhost:3005/v1/:path*',
+        },
+        {
+          source: '/templates/:path*',
+          destination: 'http://localhost:3005/templates/:path*',
+        },
+      ]
+    }
+    return []
+  },
+  async headers() {
     return [
       {
-        source: '/api/:path*',
-        destination: 'http://localhost:3005/api/:path*',
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+        ],
       },
     ]
   },
