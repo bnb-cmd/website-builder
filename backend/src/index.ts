@@ -323,6 +323,28 @@ export async function createServer() {
     }
   })
 
+  // API health check endpoint for Railway
+  fastify.get('/api/health', {
+    schema: {
+      description: 'API health check endpoint for Railway',
+      tags: ['Health'],
+      response: {
+        200: {
+          type: 'object',
+          properties: {
+            status: { type: 'string' },
+            timestamp: { type: 'string' }
+          }
+        }
+      }
+    }
+  }, async (request, reply) => {
+    return {
+      status: 'healthy',
+      timestamp: new Date().toISOString()
+    }
+  })
+
   // API versioning
   await fastify.register(async (scope) => {
     const routePlugins: Array<[string, any, string]> = [
@@ -331,31 +353,31 @@ export async function createServer() {
       ['templateRoutes', templateRoutes, '/templates'],
       ['aiRoutes', aiRoutes, '/ai'],
       ['userRoutes', userRoutes, '/users'],
-      ['paymentRoutes', paymentRoutes, '/payments'],
+      // ['paymentRoutes', paymentRoutes, '/payments'],
       ['adminRoutes', adminRoutes, '/admin'],
-      ['domainRoutes', domainRoutes, '/domains'],
-      ['dnsVerificationRoutes', dnsVerificationRoutes, '/dns'],
-      ['pwaRoutes', pwaRoutes, '/pwa'],
-      ['analyticsRoutes', analyticsRoutes, '/analytics'],
-      ['marketingRoutes', marketingRoutes, '/marketing'],
-      ['integrationRoutes', integrationRoutes, '/integrations'],
-      ['mediaRoutes', mediaRoutes, '/media'],
-      ['designSystemRoutes', designSystemRoutes, '/design-systems'],
-      ['agencyRoutes', agencyRoutes, '/agency'],
-      ['blockchainRoutes', blockchainRoutes, '/blockchain'],
-      ['notificationRoutes', notificationRoutes, '/notifications'],
-      ['subscriptionRoutes', subscriptionRoutes, '/subscriptions'],
-      ['aiOnboardingRoutes', aiOnboardingRoutes, '/ai-onboarding'],
-      ['conversationRoutes', conversationRoutes, '/conversations'],
-      ['contentRoutes', contentRoutes, '/content'],
-      ['performanceOptimizationRoutes', performanceOptimizationRoutes, '/performance'],
-      ['seoRoutes', seoRoutes, '/seo'],
+      // ['domainRoutes', domainRoutes, '/domains'],
+      // ['dnsVerificationRoutes', dnsVerificationRoutes, '/dns'],
+      // ['pwaRoutes', pwaRoutes, '/pwa'],
+      // ['analyticsRoutes', analyticsRoutes, '/analytics'],
+      // ['marketingRoutes', marketingRoutes, '/marketing'],
+      // ['integrationRoutes', integrationRoutes, '/integrations'],
+      // ['mediaRoutes', mediaRoutes, '/media'],
+      // ['designSystemRoutes', designSystemRoutes, '/design-systems'],
+      // ['agencyRoutes', agencyRoutes, '/agency'],
+      // ['blockchainRoutes', blockchainRoutes, '/blockchain'],
+      // ['notificationRoutes', notificationRoutes, '/notifications'],
+      // ['subscriptionRoutes', subscriptionRoutes, '/subscriptions'],
+      // ['aiOnboardingRoutes', aiOnboardingRoutes, '/ai-onboarding'],
+      // ['conversationRoutes', conversationRoutes, '/conversations'],
+      // ['contentRoutes', contentRoutes, '/content'],
+      // ['performanceOptimizationRoutes', performanceOptimizationRoutes, '/performance'],
+      // ['seoRoutes', seoRoutes, '/seo'],
       ['brandKitRoutes', brandKitRoutes, '/brand-kit'],
-      ['productRoutes', productRoutes, '/products'],
-      ['orderRoutes', orderRoutes, '/orders'],
-      ['customerRoutes', customerRoutes, '/customers'],
-      ['ecommerceSettingsRoutes', ecommerceSettingsRoutes, '/websites'],
-      ['storePaymentsRoutes', storePaymentsRoutes, '/store-payments'],
+      // ['productRoutes', productRoutes, '/products'],
+      // ['orderRoutes', orderRoutes, '/orders'],
+      // ['customerRoutes', customerRoutes, '/customers'],
+      // ['ecommerceSettingsRoutes', ecommerceSettingsRoutes, '/websites'],
+      // ['storePaymentsRoutes', storePaymentsRoutes, '/store-payments'],
       ['imageLibraryRoutes', imageLibraryRoutes, '/image-library']
     ]
 
