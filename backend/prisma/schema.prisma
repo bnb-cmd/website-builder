@@ -11,7 +11,455 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Note: SQLite doesn't support enums, so we use String fields with constraints
+// Comprehensive enum definitions for all features
+
+// AI & Advanced Features
+enum AISessionType {
+  CHAT
+  CODE_GENERATION
+  CONTENT_CREATION
+  DESIGN_ASSISTANCE
+  ANALYSIS
+  TRANSLATION
+  OPTIMIZATION
+}
+
+enum AISessionStatus {
+  ACTIVE
+  COMPLETED
+  FAILED
+  CANCELLED
+  PAUSED
+}
+
+enum ARVRType {
+  AR_EXPERIENCE
+  VR_TOUR
+  INTERACTIVE_3D
+  PRODUCT_VISUALIZATION
+  VIRTUAL_SHOWROOM
+}
+
+enum ARVRStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  PROCESSING
+}
+
+// Agency Management
+enum AgencyPlan {
+  STARTER
+  PROFESSIONAL
+  ENTERPRISE
+  CUSTOM
+}
+
+enum AgencyStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING_APPROVAL
+}
+
+enum ClientStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  ONBOARDING
+  COMPLETED
+}
+
+// Notifications
+enum NotificationType {
+  INFO
+  WARNING
+  ERROR
+  SUCCESS
+  SYSTEM
+  MARKETING
+  REMINDER
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+  WHATSAPP
+  TELEGRAM
+}
+
+enum NotificationStatus {
+  PENDING
+  SENT
+  DELIVERED
+  FAILED
+  READ
+  CLICKED
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+  CRITICAL
+}
+
+// Content Management
+enum ContentType {
+  BLOG_POST
+  PAGE_CONTENT
+  PRODUCT_DESCRIPTION
+  NEWS_ARTICLE
+  TUTORIAL
+  FAQ
+  LANDING_PAGE
+}
+
+enum ContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  SCHEDULED
+  REVIEW
+}
+
+enum ScheduleStatus {
+  SCHEDULED
+  PUBLISHED
+  FAILED
+  CANCELLED
+  PROCESSING
+}
+
+// Media & Assets
+enum MediaType {
+  IMAGE
+  VIDEO
+  AUDIO
+  GIF
+  SVG
+  PDF
+  DOCUMENT
+}
+
+enum AssetStatus {
+  ACTIVE
+  ARCHIVED
+  DELETED
+  PROCESSING
+  FAILED
+}
+
+enum ProjectStatus {
+  DRAFT
+  PROCESSING
+  COMPLETED
+  FAILED
+  REVIEW
+}
+
+// Marketing & Campaigns
+enum CampaignType {
+  EMAIL
+  SMS
+  SOCIAL
+  PUSH
+  RETARGETING
+  AB_TEST
+}
+
+enum CampaignChannel {
+  EMAIL
+  SMS
+  FACEBOOK
+  INSTAGRAM
+  TWITTER
+  LINKEDIN
+  PUSH_NOTIFICATION
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  CANCELLED
+}
+
+enum MessageType {
+  EMAIL
+  SMS
+  SOCIAL_POST
+  PUSH_NOTIFICATION
+  IN_APP
+}
+
+enum MessageStatus {
+  DRAFT
+  SENT
+  DELIVERED
+  FAILED
+  BOUNCED
+  OPENED
+  CLICKED
+}
+
+// Integrations
+enum IntegrationCategory {
+  ANALYTICS
+  MARKETING
+  PAYMENT
+  SOCIAL
+  CRM
+  EMAIL
+  CUSTOMER_SUPPORT
+  PRODUCTIVITY
+  ECOMMERCE
+  OTHER
+}
+
+enum IntegrationStatus {
+  ACTIVE
+  INACTIVE
+  DEPRECATED
+  BETA
+  MAINTENANCE
+}
+
+enum AuthType {
+  API_KEY
+  OAUTH2
+  BASIC_AUTH
+  NO_AUTH
+  CUSTOM
+}
+
+// Blockchain & Web3
+enum BlockchainNetwork {
+  ETHEREUM
+  POLYGON
+  BSC
+  ARBITRUM
+  OPTIMISM
+  AVALANCHE
+  SOLANA
+}
+
+enum WalletType {
+  METAMASK
+  WALLETCONNECT
+  COINBASE
+  TRUST_WALLET
+  PHANTOM
+  CUSTOM
+}
+
+enum WalletStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  COMPROMISED
+}
+
+enum NFTStandard {
+  ERC721
+  ERC1155
+  SPL
+  CUSTOM
+}
+
+enum CollectionStatus {
+  DRAFT
+  DEPLOYED
+  ACTIVE
+  PAUSED
+  COMPLETED
+}
+
+enum ContractStatus {
+  DRAFT
+  DEPLOYED
+  ACTIVE
+  PAUSED
+  UPGRADED
+}
+
+enum Web3IntegrationType {
+  NFT_GALLERY
+  CRYPTO_PAYMENTS
+  DAO_VOTING
+  TOKEN_GATING
+  METAVERSE_INTEGRATION
+  DEFI_INTEGRATION
+}
+
+enum TransactionType {
+  SEND
+  RECEIVE
+  CONTRACT_INTERACTION
+  NFT_MINT
+  NFT_TRANSFER
+  STAKING
+  UNSTAKING
+  SWAP
+}
+
+// Design Systems
+enum DesignSystemStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+  VERSION_CONTROL
+}
+
+// Analytics
+enum AnalyticsPeriod {
+  HOURLY
+  DAILY
+  WEEKLY
+  MONTHLY
+  QUARTERLY
+  YEARLY
+}
+
+// Product & E-commerce
+enum ProductStatus {
+  ACTIVE
+  INACTIVE
+  OUT_OF_STOCK
+  DISCONTINUED
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+  CANCELLED
+  PARTIAL
+}
+
+enum ShippingStatus {
+  PENDING
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+}
+
+enum PaymentGateway {
+  STRIPE
+  JAZZCASH
+  EASYPAISA
+  BANK_TRANSFER
+  PAYPAL
+  SQUARE
+}
+
+enum PaymentPurpose {
+  PLATFORM_SUBSCRIPTION
+  WEBSITE_CHECKOUT
+  ADDON_PURCHASE
+  UPGRADE
+  RENEWAL
+}
+
+// Subscription Management
+enum SubscriptionTier {
+  FREE
+  PRO
+  AGENCY
+  ENTERPRISE
+}
+
+enum SubscriptionInterval {
+  MONTHLY
+  YEARLY
+  LIFETIME
+}
+
+// AI Generation Types
+enum AIGenerationType {
+  CONTENT
+  IMAGE
+  SEO
+  COLORS
+  DESIGN
+  COPYWRITING
+  TRANSLATION
+  CODE
+}
+
+// Language Support
+enum Language {
+  ENGLISH
+  URDU
+  PUNJABI
+  SINDHI
+  BALOCHI
+  PASHTO
+  ARABIC
+  FRENCH
+  SPANISH
+  GERMAN
+  CHINESE
+  HINDI
+  PORTUGUESE
+  RUSSIAN
+  JAPANESE
+  KOREAN
+}
+
+// User Management Enums
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+  AGENCY
+  AGENCY_CLIENT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum BusinessType {
+  RESTAURANT
+  RETAIL
+  SERVICE
+  HEALTHCARE
+  EDUCATION
+  TECHNOLOGY
+  FINANCE
+  REAL_ESTATE
+  ENTERTAINMENT
+  NON_PROFIT
+  OTHER
+}
+
+// Website Management Enums
+enum WebsiteStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+  MAINTENANCE
+}
 
 // User Management
 model User {
@@ -21,16 +469,16 @@ model User {
   password String
   phone    String?
   avatar   String?
-  role     String @default("USER") // USER, ADMIN, SUPER_ADMIN
-  status   String @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED, PENDING
+  role     UserRole @default(USER)
+  status   UserStatus @default(ACTIVE)
 
   // Business Information
-  businessType String? // RESTAURANT, RETAIL, SERVICE, etc.
+  businessType BusinessType?
   city         String?
   companyName  String?
 
   // Localisation & AI usage
-  preferredLanguage String? @default("ENGLISH") // ENGLISH, URDU, PUNJABI, etc.
+  preferredLanguage Language @default(ENGLISH)
   aiQuotaUsed       Int     @default(0)
   aiQuotaResetAt    DateTime?
 
@@ -66,7 +514,7 @@ model Website {
   id          String @id @default(cuid())
   name        String
   description String?
-  status      String @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  status      WebsiteStatus @default(DRAFT)
 
   // Content (using String instead of Json for SQLite)
   content   String? // Main website content
@@ -79,8 +527,8 @@ model Website {
   customDomain String? @unique
 
   // Business
-  businessType String? // RESTAURANT, RETAIL, SERVICE, etc.
-  language     String  @default("ENGLISH") // ENGLISH, URDU, PUNJABI, etc.
+  businessType BusinessType?
+  language     Language @default(ENGLISH)
   templateId   String? // Template used to create this website
 
   // SEO
@@ -160,8 +608,8 @@ model Template {
   name         String
   description  String?
   category     String // BUSINESS, PORTFOLIO, ECOMMERCE, etc.
-  businessType String? // RESTAURANT, RETAIL, SERVICE, etc.
-  language     String  @default("ENGLISH") // ENGLISH, URDU, PUNJABI, etc.
+  businessType BusinessType?
+  language     Language @default(ENGLISH)
 
   // Template Data (using String instead of Json for SQLite)
   content String // Template structure
@@ -243,7 +691,7 @@ model Product {
   metaKeywords    String? // Comma-separated keywords
 
   // Status
-  status String @default("ACTIVE") // ACTIVE, INACTIVE, OUT_OF_STOCK
+  status ProductStatus @default(ACTIVE)
 
   // Variants (JSON as string)
   hasVariants Boolean @default(false)
@@ -285,12 +733,12 @@ model Order {
   total    Decimal
 
   // Payment
-  paymentStatus String @default("PENDING") // PENDING, COMPLETED, FAILED, REFUNDED, CANCELLED
+  paymentStatus PaymentStatus @default(PENDING)
   paymentMethod String?
   paymentId     String?
 
   // Shipping
-  shippingStatus String @default("PENDING") // PENDING, PROCESSING, SHIPPED, DELIVERED, CANCELLED
+  shippingStatus ShippingStatus @default(PENDING)
   trackingNumber String?
 
   // Notes
@@ -324,19 +772,29 @@ model OrderItem {
 model AIGeneration {
   id        String @id @default(cuid())
   userId    String?
+  websiteId String?
 
   // Generation Details
-  type     String // CONTENT, IMAGE, SEO, COLORS, etc.
+  type     AIGenerationType
   prompt   String
   response String
   model    String
+  temperature Decimal?
+  maxTokens Int?
 
   // Metadata
   tokens   Int?
   cost     Decimal?
-  language String? // ENGLISH, URDU, PUNJABI, etc.
+  language Language @default(ENGLISH)
+  status   String @default("COMPLETED") // COMPLETED, FAILED, PROCESSING
+  
+  // Additional Data
+  metadata String? // JSON additional data
+  errorMessage String?
+  processingTime Int? // milliseconds
 
   createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user User? @relation(fields: [userId], references: [id])
 
@@ -349,12 +807,12 @@ model Subscription {
   name        String
   description String?
   slug        String  @unique
-  tier        String  @default("FREE") // FREE, PRO, AGENCY
+  tier        SubscriptionTier @default(FREE)
 
   // Pricing
   price    Decimal
   currency String @default("PKR")
-  interval String // MONTHLY, YEARLY, LIFETIME
+  interval SubscriptionInterval
 
   // Features
   maxWebsites     Int
@@ -364,6 +822,13 @@ model Subscription {
   customDomain    Boolean @default(false)
   aiGenerations   Int?
   prioritySupport Boolean @default(false)
+  whiteLabel      Boolean @default(false)
+  apiAccess       Boolean @default(false)
+  analytics       Boolean @default(true)
+  seoTools        Boolean @default(false)
+  ecommerce       Boolean @default(false)
+  marketing       Boolean @default(false)
+  integrations    Int @default(5)
 
   // Status
   status String @default("ACTIVE") // ACTIVE, INACTIVE, CANCELLED
@@ -382,17 +847,25 @@ model Payment {
   userId         String?
   subscriptionId String?
   websiteId      String?
-  purpose        String @default("PLATFORM_SUBSCRIPTION") // PLATFORM_SUBSCRIPTION, WEBSITE_CHECKOUT, ADDON_PURCHASE
+  purpose        PaymentPurpose @default(PLATFORM_SUBSCRIPTION)
 
   // Payment Details
   amount   Decimal
   currency String @default("PKR")
-  status   String @default("PENDING") // PENDING, COMPLETED, FAILED, REFUNDED, CANCELLED
+  status   PaymentStatus @default(PENDING)
 
   // Gateway Information
-  gateway     String // STRIPE, JAZZCASH, EASYPAISA, BANK_TRANSFER
+  gateway     PaymentGateway
   gatewayId   String?
   gatewayData String? // JSON as string
+  gatewayFee  Decimal @default(0)
+  
+  // Additional Details
+  description String?
+  metadata    String? // JSON additional data
+  refundedAt  DateTime?
+  refundAmount Decimal?
+  refundReason String?
 
   // Subscription
   subscription Subscription? @relation(fields: [subscriptionId], references: [id])
@@ -453,103 +926,22 @@ model WebsiteEcommerceSettings {
   @@map("website_ecommerce_settings")
 }
 
-// Enums for various features
-enum UserRole {
-  USER
-  ADMIN
-  SUPER_ADMIN
-  AGENCY
-  AGENCY_CLIENT
-}
-
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-  PENDING
-}
-
-enum BusinessType {
-  RESTAURANT
-  RETAIL
-  SERVICE
-  HEALTHCARE
-  EDUCATION
-  TECHNOLOGY
-  FINANCE
-  REAL_ESTATE
-  ENTERTAINMENT
-  NON_PROFIT
-  OTHER
-}
-
-enum Language {
-  ENGLISH
-  URDU
-  PUNJABI
-  SINDHI
-  BALOCHI
-  PASHTO
-  ARABIC
-  FRENCH
-  SPANISH
-  GERMAN
-  CHINESE
-  HINDI
-}
-
-enum SubscriptionTier {
-  FREE
-  PRO
-  AGENCY
-  ENTERPRISE
-}
-
-enum SubscriptionInterval {
-  MONTHLY
-  YEARLY
-  LIFETIME
-}
-
-enum PaymentGateway {
-  STRIPE
-  JAZZCASH
-  EASYPAISA
-  BANK_TRANSFER
-  PAYPAL
-  SQUARE
-}
-
-enum PaymentPurpose {
-  PLATFORM_SUBSCRIPTION
-  WEBSITE_CHECKOUT
-  ADDON_PURCHASE
-  UPGRADE
-  RENEWAL
-}
-
-enum AIGenerationType {
-  CONTENT
-  IMAGE
-  SEO
-  COLORS
-  DESIGN
-  COPYWRITING
-  TRANSLATION
-  CODE
-}
-
 // AI Services
 model AISession {
   id        String @id @default(cuid())
   websiteId String
   userId    String?
-  type      String // CONTENT_GENERATION, DESIGN_ASSISTANCE, SEO_OPTIMIZATION, etc.
+  sessionId String? @unique
+  type      AISessionType
   context   String? // JSON context data
   model     String?
   temperature Decimal?
   maxTokens Int?
-  status    String @default("ACTIVE") // ACTIVE, COMPLETED, FAILED, CANCELLED
+  status    AISessionStatus @default(ACTIVE)
+  history   String? // JSON conversation history
+  messageCount Int @default(0)
+  tokenUsage   Int @default(0)
+  cost         Decimal @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
@@ -563,10 +955,20 @@ model ARVRContent {
   id        String @id @default(cuid())
   websiteId String
   userId    String?
-  type      String // AR_EXPERIENCE, VR_TOUR, INTERACTIVE_3D, etc.
+  name      String?
+  type      ARVRType
+  description String?
   content   String // JSON content data
   assets    String? // Asset URLs
-  status    String @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  modelUrl  String?
+  textureUrl String?
+  animationUrl String?
+  scale     String? // JSON scale data
+  position  String? // JSON position data
+  rotation  String? // JSON rotation data
+  interactions String? // JSON interactions
+  polygonCount Int?
+  status    ARVRStatus @default(DRAFT)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
@@ -746,18 +1148,20 @@ model Content {
   userId      String?
   title       String
   content     String
-  type        String // BLOG_POST, PAGE_CONTENT, PRODUCT_DESCRIPTION, etc.
-  status      String @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
-  language    String @default("ENGLISH")
+  type        ContentType
+  status      ContentStatus @default(DRAFT)
+  language    Language @default(ENGLISH)
+  slug        String?
   seoTitle    String?
   seoDescription String?
   seoKeywords String?
   tags        String? // Comma-separated tags
   featuredImage String?
+  author      String? // Author name
+  publishedAt DateTime?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  publishedAt DateTime?
   
   website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
   user    User?   @relation(fields: [userId], references: [id])
@@ -788,7 +1192,7 @@ model ContentSchedule {
   id          String @id @default(cuid())
   contentId   String
   scheduledAt DateTime
-  status      String @default("SCHEDULED") // SCHEDULED, PUBLISHED, FAILED, CANCELLED
+  status      ScheduleStatus @default(SCHEDULED)
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -844,7 +1248,11 @@ model DesignSystem {
   typography  String // JSON typography settings
   spacing     String // JSON spacing system
   components  String // JSON component library
-  status      String @default("DRAFT") // DRAFT, ACTIVE, ARCHIVED
+  icons       String? // JSON icon library
+  animations  String? // JSON animation presets
+  breakpoints String? // JSON responsive breakpoints
+  status      DesignSystemStatus @default(DRAFT)
+  version     String @default("1.0.0")
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -860,13 +1268,15 @@ model MarketingCampaign {
   websiteId   String
   name        String
   description String?
-  type        String // EMAIL, SMS, SOCIAL, PUSH, etc.
-  status      String @default("DRAFT") // DRAFT, ACTIVE, PAUSED, COMPLETED
-  channel     String // EMAIL, SMS, FACEBOOK, INSTAGRAM, etc.
+  type        CampaignType
+  status      CampaignStatus @default(DRAFT)
+  channel     CampaignChannel
   targetAudience String? // JSON audience criteria
   budget      Decimal?
   startDate   DateTime?
   endDate     DateTime?
+  goals       String? // JSON campaign goals
+  metrics     String? // JSON metrics tracking
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -882,10 +1292,15 @@ model CampaignMessage {
   campaignId  String
   subject     String?
   content     String
-  type        String // EMAIL, SMS, SOCIAL_POST, etc.
-  status      String @default("DRAFT") // DRAFT, SENT, DELIVERED, FAILED
+  type        MessageType
+  status      MessageStatus @default(DRAFT)
   scheduledAt DateTime?
   sentAt      DateTime?
+  deliveredAt DateTime?
+  openedAt    DateTime?
+  clickedAt   DateTime?
+  bouncedAt   DateTime?
+  errorMessage String?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -924,12 +1339,18 @@ model Notification {
   websiteId   String?
   title       String
   message     String
-  type        String // INFO, WARNING, ERROR, SUCCESS
-  channel     String // EMAIL, SMS, PUSH, IN_APP
-  status      String @default("PENDING") // PENDING, SENT, DELIVERED, FAILED
+  type        NotificationType
+  channel     NotificationChannel
+  status      NotificationStatus @default(PENDING)
+  priority    NotificationPriority @default(NORMAL)
+  actions     String? // JSON array of actions
+  data        String? // JSON additional data
+  imageUrl    String?
   scheduledAt DateTime?
   sentAt      DateTime?
   readAt      DateTime?
+  clickedAt   DateTime?
+  expiresAt   DateTime?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -977,15 +1398,23 @@ model NotificationDigest {
 // Agency Management
 model Agency {
   id          String @id @default(cuid())
+  userId      String? // Agency owner
   name        String
   description String?
   website     String?
   email       String
   phone       String?
   address     String?
-  status      String @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
-  plan        String @default("BASIC") // BASIC, PRO, ENTERPRISE
+  logo        String?
+  brandName   String?
+  brandColors String? // JSON brand colors
+  customDomain String?
+  customLogo  String?
+  features    String? // JSON feature flags
+  status      AgencyStatus @default(ACTIVE)
+  plan        AgencyPlan @default(STARTER)
   maxClients  Int @default(10)
+  billingEmail String?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -999,8 +1428,14 @@ model AgencyClient {
   id          String @id @default(cuid())
   agencyId    String
   userId      String @unique
-  status      String @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  websiteId   String?
+  status      ClientStatus @default(ACTIVE)
   permissions String? // JSON permissions
+  companyName String?
+  projectType String?
+  budget      Decimal?
+  timeline    String?
+  notes       String?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1016,10 +1451,14 @@ model Integration {
   id          String @id @default(cuid())
   name        String
   description String?
-  category    String // ANALYTICS, MARKETING, PAYMENT, SOCIAL, etc.
+  category    IntegrationCategory
   provider    String // GOOGLE, FACEBOOK, STRIPE, etc.
+  authType    AuthType @default(API_KEY)
   config      String? // JSON configuration
-  status      String @default("ACTIVE") // ACTIVE, INACTIVE, DEPRECATED
+  status      IntegrationStatus @default(ACTIVE)
+  version     String @default("1.0.0")
+  documentation String?
+  iconUrl     String?
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1034,8 +1473,11 @@ model WebsiteIntegration {
   websiteId      String
   integrationId  String
   config         String? // JSON configuration
-  status         String @default("ACTIVE") // ACTIVE, INACTIVE, ERROR
+  status         IntegrationStatus @default(ACTIVE)
   lastSyncAt     DateTime?
+  lastErrorAt   DateTime?
+  errorMessage   String?
+  syncFrequency  Int @default(3600) // seconds
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1081,18 +1523,26 @@ model MediaAsset {
   websiteId   String
   userId      String?
   name        String
-  type        String // IMAGE, VIDEO, AUDIO, DOCUMENT
+  type        MediaType
   url         String
   thumbnail   String?
   size        Int
   mimeType    String
-  status      String @default("ACTIVE") // ACTIVE, ARCHIVED, DELETED
+  width       Int?
+  height      Int?
+  duration    Int? // for videos/audio
+  metadata    String? // JSON metadata
+  tags        String? // Comma-separated tags
+  aiGenerated Boolean @default(false)
+  aiPrompt    String?
+  status      AssetStatus @default(ACTIVE)
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
   website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
   user    User?   @relation(fields: [userId], references: [id])
+  clips   VideoClip[]
   
   @@map("media_assets")
 }
@@ -1103,9 +1553,12 @@ model VideoProject {
   userId      String?
   name        String
   description String?
-  status      String @default("DRAFT") // DRAFT, PROCESSING, COMPLETED, FAILED
+  status      ProjectStatus @default(DRAFT)
   duration    Int? // in seconds
   resolution  String? // 1080p, 720p, etc.
+  frameRate   Int?
+  timeline    String? // JSON timeline data
+  exportSettings String? // JSON export settings
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -1120,16 +1573,20 @@ model VideoProject {
 model VideoClip {
   id          String @id @default(cuid())
   projectId   String
+  assetId     String? // Link to MediaAsset
   name        String
   startTime   Int // in seconds
   endTime     Int // in seconds
-  url         String?
-  thumbnail   String?
+  position    Int @default(0) // position in timeline
+  effects     String? // JSON effects
+  filters     String? // JSON filters
+  transform   String? // JSON transform data
   
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   
   project VideoProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  asset   MediaAsset?  @relation(fields: [assetId], references: [id])
   
   @@map("video_clips")
 }

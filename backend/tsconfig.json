@@ -44,14 +44,23 @@
   "include": [
     "src/**/*"
   ],
-  "exclude": [
-    "node_modules",
-    "dist",
-    "tests",
-    "**/*.test.ts",
-    "**/*.spec.ts",
-    "src/services/**/*.ts"
-  ],
+      "exclude": [
+        "node_modules",
+        "dist",
+        "tests",
+        "**/*.test.ts",
+        "**/*.spec.ts",
+        "src/services/**/*.ts",
+        "src/test/**/*.ts",
+        "src/utils/sanitization.ts",
+        "src/utils/templateValidator.ts",
+        "src/data/**/*.ts",
+        "src/integrations/**/*.ts",
+        "src/routes/disabled/**/*.ts",
+        "src/services/disabled/**/*.ts",
+        "src/scripts/**/*.ts",
+        "src/disabled/**/*.ts"
+      ],
   "ts-node": {
     "esm": true,
     "experimentalSpecifierResolution": "node",

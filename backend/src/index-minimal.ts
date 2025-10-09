@@ -17,17 +17,6 @@ import { securityHeaders, requestLogger } from '@/middleware/auth'
 import type { FastifyServerOptions, FastifyPluginAsync } from 'fastify'
 import type { FastifyJWTOptions } from '@fastify/jwt'
 
-// Import routes - temporarily disabled for minimal deployment
-// import { authRoutes } from '@/routes/auth'
-// import { websiteRoutes } from '@/routes/websites'
-// import { templateRoutes } from '@/routes/templates'
-// import { aiRoutes } from '@/routes/ai'
-// import { userRoutes } from '@/routes/users'
-// import { paymentRoutes } from '@/routes/payments'
-// import { adminRoutes } from '@/routes/admin'
-// import { brandKitRoutes } from '@/routes/brandKit'
-// import { imageLibraryRoutes } from '@/routes/imageLibrary'
-
 // Import error handlers
 import { errorHandler } from '@/utils/errorHandler'
 import { notFoundHandler } from '@/utils/notFoundHandler'
@@ -247,9 +236,6 @@ export async function createServer() {
     })
   }
 
-  // Register global hooks
-  // Hooks are registered within plugins above
-
   // Register Prisma client as decorator
   fastify.decorate('prisma', db.getClient())
 
@@ -323,27 +309,119 @@ export async function createServer() {
     }
   })
 
-  // API versioning - temporarily disabled for minimal deployment
-  // await fastify.register(async (scope) => {
-  //   const routePlugins: Array<[string, any, string]> = [
-  //     ['authRoutes', authRoutes, '/auth'],
-  //     ['websiteRoutes', websiteRoutes, '/websites'],
-  //     ['templateRoutes', templateRoutes, '/templates'],
-  //     ['aiRoutes', aiRoutes, '/ai'],
-  //     ['userRoutes', userRoutes, '/users'],
-  //     ['paymentRoutes', paymentRoutes, '/payments'],
-  //     ['adminRoutes', adminRoutes, '/admin'],
-  //     ['brandKitRoutes', brandKitRoutes, '/brand-kit'],
-  //     ['imageLibraryRoutes', imageLibraryRoutes, '/image-library']
-  //   ]
+  // Simple auth routes without services
+  fastify.post('/v1/auth/register', {
+    schema: {
+      description: 'Register a new user',
+      tags: ['Authentication'],
+      body: {
+        type: 'object',
+        required: ['name', 'email', 'password'],
+        properties: {
+          name: { type: 'string', minLength: 2, maxLength: 100 },
+          email: { type: 'string', format: 'email' },
+          password: { type: 'string', minLength: 6, maxLength: 100 },
+          phone: { type: 'string' },
+          businessType: { type: 'string' },
+          city: { type: 'string' },
+          companyName: { type: 'string' }
+        }
+      },
+        response: {
+          201: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              data: {
+                type: 'object',
+                properties: {
+                  user: { type: 'object' },
+                  accessToken: { type: 'string' },
+                  refreshToken: { type: 'string' }
+                }
+              }
+            }
+          },
+          501: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              error: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' },
+                  code: { type: 'string' },
+                  timestamp: { type: 'string' }
+                }
+              }
+            }
+          }
+        }
+    }
+  }, async (request, reply) => {
+    return reply.status(501).send({
+      success: false,
+      error: {
+        message: 'Registration temporarily disabled - services being updated',
+        code: 'SERVICE_UNAVAILABLE',
+        timestamp: new Date().toISOString()
+      }
+    })
+  })
 
-  //   for (const [name, plugin, prefix] of routePlugins) {
-  //     if (typeof plugin !== 'function') {
-  //       throw new Error(`Route plugin ${name} is undefined or not a function`)
-  //     }
-  //     await scope.register(plugin, { prefix })
-  //   }
-  // }, { prefix: '/v1' })
+  fastify.post('/v1/auth/login', {
+    schema: {
+      description: 'Login user',
+      tags: ['Authentication'],
+      body: {
+        type: 'object',
+        required: ['email', 'password'],
+        properties: {
+          email: { type: 'string', format: 'email' },
+          password: { type: 'string' }
+        }
+      },
+        response: {
+          200: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              data: {
+                type: 'object',
+                properties: {
+                  user: { type: 'object' },
+                  accessToken: { type: 'string' },
+                  refreshToken: { type: 'string' }
+                }
+              }
+            }
+          },
+          501: {
+            type: 'object',
+            properties: {
+              success: { type: 'boolean' },
+              error: {
+                type: 'object',
+                properties: {
+                  message: { type: 'string' },
+                  code: { type: 'string' },
+                  timestamp: { type: 'string' }
+                }
+              }
+            }
+          }
+        }
+    }
+  }, async (request, reply) => {
+    return reply.status(501).send({
+      success: false,
+      error: {
+        message: 'Login temporarily disabled - services being updated',
+        code: 'SERVICE_UNAVAILABLE',
+        timestamp: new Date().toISOString()
+      }
+    })
+  })
 
   // Root endpoint
   fastify.get('/', {
@@ -364,10 +442,11 @@ export async function createServer() {
     }
   }, async (request, reply) => {
     return {
-      message: 'Pakistan Website Builder API',
+      message: 'Pakistan Website Builder API - Minimal Version',
       version: '1.0.0',
       documentation: serverConfig.enableSwagger ? '/docs' : 'Documentation not available',
-      timestamp: new Date().toISOString()
+      timestamp: new Date().toISOString(),
+      note: 'This is a minimal version for Railway deployment. Full services are being updated.'
     }
   })
 
