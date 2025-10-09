@@ -44,6 +44,19 @@ model User {
   payments Payment[]
   orders   Order[]
   aiGenerations AIGeneration[]
+  aiSessions AISession[]
+  arvrContent ARVRContent[]
+  blockchainWallets BlockchainWallet[]
+  smartContractInteractions SmartContractInteraction[]
+  content Content[]
+  aiOnboardingProfile AiOnboardingProfile?
+  notifications Notification[]
+  notificationPreferences NotificationPreferences?
+  notificationDigests NotificationDigest[]
+  agencyClient AgencyClient?
+  mediaAssets MediaAsset[]
+  videoProjects VideoProject[]
+  sessions UserSession[]
 
   @@map("users")
 }
@@ -89,6 +102,30 @@ model Website {
   products Product[]
   orders   Order[]
   ecommerceSettings WebsiteEcommerceSettings?
+  aiSessions AISession[]
+  arvrContent ARVRContent[]
+  analytics WebsiteAnalytics[]
+  blockchainWallets BlockchainWallet[]
+  smartContracts SmartContract[]
+  web3Integrations Web3Integration[]
+  blockchainTransactions BlockchainTransaction[]
+  contentItems Content[]
+  contentCategories ContentCategory[]
+  contentTemplates ContentTemplate[]
+  designSystems DesignSystem[]
+  marketingCampaigns MarketingCampaign[]
+  aiOnboardingProfile AiOnboardingProfile?
+  notifications Notification[]
+  websiteIntegrations WebsiteIntegration[]
+  mediaAssets MediaAsset[]
+  videoProjects VideoProject[]
+  pwaSettings PwaSettings?
+  socialAccounts SocialAccount[]
+  socialCampaigns SocialCampaign[]
+  socialAutomationRules SocialAutomationRule[]
+  domains Domain[]
+  visitors WebsiteVisitor[]
+  nftCollections NFTCollection[]
 
   @@map("websites")
 }
@@ -414,4 +451,852 @@ model WebsiteEcommerceSettings {
   website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
   
   @@map("website_ecommerce_settings")
+}
+
+// Enums for various features
+enum UserRole {
+  USER
+  ADMIN
+  SUPER_ADMIN
+  AGENCY
+  AGENCY_CLIENT
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  PENDING
+}
+
+enum BusinessType {
+  RESTAURANT
+  RETAIL
+  SERVICE
+  HEALTHCARE
+  EDUCATION
+  TECHNOLOGY
+  FINANCE
+  REAL_ESTATE
+  ENTERTAINMENT
+  NON_PROFIT
+  OTHER
+}
+
+enum Language {
+  ENGLISH
+  URDU
+  PUNJABI
+  SINDHI
+  BALOCHI
+  PASHTO
+  ARABIC
+  FRENCH
+  SPANISH
+  GERMAN
+  CHINESE
+  HINDI
+}
+
+enum SubscriptionTier {
+  FREE
+  PRO
+  AGENCY
+  ENTERPRISE
+}
+
+enum SubscriptionInterval {
+  MONTHLY
+  YEARLY
+  LIFETIME
+}
+
+enum PaymentGateway {
+  STRIPE
+  JAZZCASH
+  EASYPAISA
+  BANK_TRANSFER
+  PAYPAL
+  SQUARE
+}
+
+enum PaymentPurpose {
+  PLATFORM_SUBSCRIPTION
+  WEBSITE_CHECKOUT
+  ADDON_PURCHASE
+  UPGRADE
+  RENEWAL
+}
+
+enum AIGenerationType {
+  CONTENT
+  IMAGE
+  SEO
+  COLORS
+  DESIGN
+  COPYWRITING
+  TRANSLATION
+  CODE
+}
+
+// AI Services
+model AISession {
+  id        String @id @default(cuid())
+  websiteId String
+  userId    String?
+  type      String // CONTENT_GENERATION, DESIGN_ASSISTANCE, SEO_OPTIMIZATION, etc.
+  context   String? // JSON context data
+  model     String?
+  temperature Decimal?
+  maxTokens Int?
+  status    String @default("ACTIVE") // ACTIVE, COMPLETED, FAILED, CANCELLED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id])
+  
+  @@map("ai_sessions")
+}
+
+model ARVRContent {
+  id        String @id @default(cuid())
+  websiteId String
+  userId    String?
+  type      String // AR_EXPERIENCE, VR_TOUR, INTERACTIVE_3D, etc.
+  content   String // JSON content data
+  assets    String? // Asset URLs
+  status    String @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id])
+  
+  @@map("arvr_content")
+}
+
+// Analytics
+model WebsiteAnalytics {
+  id        String @id @default(cuid())
+  websiteId String
+  date      DateTime
+  period    String // DAILY, WEEKLY, MONTHLY, YEARLY
+  visitors  Int @default(0)
+  pageViews Int @default(0)
+  bounceRate Decimal?
+  avgSessionDuration Decimal?
+  conversionRate Decimal?
+  revenue   Decimal?
+  metadata  String? // JSON additional metrics
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  @@unique([websiteId, date, period])
+  @@map("website_analytics")
+}
+
+// Blockchain & Web3
+model BlockchainWallet {
+  id        String @id @default(cuid())
+  userId    String?
+  websiteId String?
+  address   String @unique
+  type      String // METAMASK, WALLETCONNECT, COINBASE, etc.
+  network   String // ETHEREUM, POLYGON, BSC, etc.
+  status    String @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  metadata  String? // JSON wallet metadata
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user    User?    @relation(fields: [userId], references: [id])
+  website Website? @relation(fields: [websiteId], references: [id])
+  transactions BlockchainTransaction[]
+  
+  @@map("blockchain_wallets")
+}
+
+model NFTCollection {
+  id          String @id @default(cuid())
+  websiteId   String
+  name        String
+  description String?
+  symbol      String?
+  standard    String // ERC721, ERC1155, etc.
+  contractAddress String?
+  status      String @default("DRAFT") // DRAFT, DEPLOYED, ACTIVE, PAUSED
+  metadata    String? // JSON collection metadata
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  nfts    NFT[]
+  
+  @@map("nft_collections")
+}
+
+model NFT {
+  id             String @id @default(cuid())
+  collectionId   String
+  tokenId        String
+  name           String
+  description    String?
+  imageUrl       String?
+  metadata       String? // JSON NFT metadata
+  ownerAddress   String?
+  status         String @default("MINTED") // MINTED, TRANSFERRED, BURNED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  collection NFTCollection @relation(fields: [collectionId], references: [id], onDelete: Cascade)
+  
+  @@unique([collectionId, tokenId])
+  @@map("nfts")
+}
+
+model SmartContract {
+  id          String @id @default(cuid())
+  websiteId   String
+  name        String
+  description String?
+  address     String?
+  abi         String? // JSON ABI
+  bytecode    String?
+  status      String @default("DRAFT") // DRAFT, DEPLOYED, ACTIVE, PAUSED
+  network     String // ETHEREUM, POLYGON, BSC, etc.
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  interactions SmartContractInteraction[]
+  
+  @@map("smart_contracts")
+}
+
+model SmartContractInteraction {
+  id          String @id @default(cuid())
+  contractId  String
+  userId      String?
+  method      String
+  parameters  String? // JSON parameters
+  txHash      String?
+  status      String @default("PENDING") // PENDING, SUCCESS, FAILED
+  gasUsed     Decimal?
+  gasPrice    Decimal?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  contract SmartContract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  user    User?         @relation(fields: [userId], references: [id])
+  
+  @@map("smart_contract_interactions")
+}
+
+model Web3Integration {
+  id          String @id @default(cuid())
+  websiteId   String
+  type        String // NFT_GALLERY, CRYPTO_PAYMENTS, DAO_VOTING, etc.
+  config      String // JSON configuration
+  status      String @default("ACTIVE") // ACTIVE, INACTIVE, PAUSED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  @@map("web3_integrations")
+}
+
+model BlockchainTransaction {
+  id          String @id @default(cuid())
+  walletId    String?
+  websiteId   String?
+  txHash      String @unique
+  type        String // SEND, RECEIVE, CONTRACT_INTERACTION, NFT_MINT, etc.
+  amount      Decimal?
+  token       String?
+  fromAddress String?
+  toAddress   String?
+  status      String @default("PENDING") // PENDING, CONFIRMED, FAILED
+  blockNumber Int?
+  gasUsed     Decimal?
+  gasPrice    Decimal?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  wallet  BlockchainWallet? @relation(fields: [walletId], references: [id])
+  website Website?          @relation(fields: [websiteId], references: [id])
+  
+  @@map("blockchain_transactions")
+}
+
+// Content Management
+model Content {
+  id          String @id @default(cuid())
+  websiteId   String
+  userId      String?
+  title       String
+  content     String
+  type        String // BLOG_POST, PAGE_CONTENT, PRODUCT_DESCRIPTION, etc.
+  status      String @default("DRAFT") // DRAFT, PUBLISHED, ARCHIVED
+  language    String @default("ENGLISH")
+  seoTitle    String?
+  seoDescription String?
+  seoKeywords String?
+  tags        String? // Comma-separated tags
+  featuredImage String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  publishedAt DateTime?
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id])
+  schedules ContentSchedule[]
+  analytics ContentAnalytics[]
+  
+  @@map("content")
+}
+
+model ContentCategory {
+  id          String @id @default(cuid())
+  websiteId   String
+  name        String
+  description String?
+  slug        String
+  parentId    String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  @@unique([websiteId, slug])
+  @@map("content_categories")
+}
+
+model ContentSchedule {
+  id          String @id @default(cuid())
+  contentId   String
+  scheduledAt DateTime
+  status      String @default("SCHEDULED") // SCHEDULED, PUBLISHED, FAILED, CANCELLED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  
+  @@map("content_schedules")
+}
+
+model ContentTemplate {
+  id          String @id @default(cuid())
+  websiteId   String
+  name        String
+  description String?
+  template    String // JSON template structure
+  category    String?
+  isDefault   Boolean @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  @@map("content_templates")
+}
+
+model ContentAnalytics {
+  id          String @id @default(cuid())
+  contentId   String
+  date        DateTime
+  views       Int @default(0)
+  uniqueViews Int @default(0)
+  shares      Int @default(0)
+  likes       Int @default(0)
+  comments    Int @default(0)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  content Content @relation(fields: [contentId], references: [id], onDelete: Cascade)
+  
+  @@unique([contentId, date])
+  @@map("content_analytics")
+}
+
+// Design System
+model DesignSystem {
+  id          String @id @default(cuid())
+  websiteId   String
+  name        String
+  description String?
+  colors      String // JSON color palette
+  typography  String // JSON typography settings
+  spacing     String // JSON spacing system
+  components  String // JSON component library
+  status      String @default("DRAFT") // DRAFT, ACTIVE, ARCHIVED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  @@map("design_systems")
+}
+
+// Marketing & Campaigns
+model MarketingCampaign {
+  id          String @id @default(cuid())
+  websiteId   String
+  name        String
+  description String?
+  type        String // EMAIL, SMS, SOCIAL, PUSH, etc.
+  status      String @default("DRAFT") // DRAFT, ACTIVE, PAUSED, COMPLETED
+  channel     String // EMAIL, SMS, FACEBOOK, INSTAGRAM, etc.
+  targetAudience String? // JSON audience criteria
+  budget      Decimal?
+  startDate   DateTime?
+  endDate     DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  messages CampaignMessage[]
+  
+  @@map("marketing_campaigns")
+}
+
+model CampaignMessage {
+  id          String @id @default(cuid())
+  campaignId  String
+  subject     String?
+  content     String
+  type        String // EMAIL, SMS, SOCIAL_POST, etc.
+  status      String @default("DRAFT") // DRAFT, SENT, DELIVERED, FAILED
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  campaign MarketingCampaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  
+  @@map("campaign_messages")
+}
+
+// AI Onboarding
+model AiOnboardingProfile {
+  id          String @id @default(cuid())
+  userId      String @unique
+  websiteId   String? @unique
+  industry    String?
+  businessGoals String? // JSON array of goals
+  targetAudience String? // JSON audience description
+  brandPersonality String? // JSON brand traits
+  contentPreferences String? // JSON content preferences
+  language    String @default("ENGLISH")
+  completed   Boolean @default(false)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  website Website? @relation(fields: [websiteId], references: [id])
+  
+  @@map("ai_onboarding_profiles")
+}
+
+// Notifications
+model Notification {
+  id          String @id @default(cuid())
+  userId      String?
+  websiteId   String?
+  title       String
+  message     String
+  type        String // INFO, WARNING, ERROR, SUCCESS
+  channel     String // EMAIL, SMS, PUSH, IN_APP
+  status      String @default("PENDING") // PENDING, SENT, DELIVERED, FAILED
+  scheduledAt DateTime?
+  sentAt      DateTime?
+  readAt      DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user    User?    @relation(fields: [userId], references: [id])
+  website Website? @relation(fields: [websiteId], references: [id])
+  
+  @@map("notifications")
+}
+
+model NotificationPreferences {
+  id          String @id @default(cuid())
+  userId      String @unique
+  emailEnabled Boolean @default(true)
+  smsEnabled  Boolean @default(false)
+  pushEnabled Boolean @default(true)
+  inAppEnabled Boolean @default(true)
+  marketingEmails Boolean @default(false)
+  frequency   String @default("IMMEDIATE") // IMMEDIATE, DAILY, WEEKLY
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("notification_preferences")
+}
+
+model NotificationDigest {
+  id          String @id @default(cuid())
+  userId      String
+  type        String // DAILY, WEEKLY, MONTHLY
+  content     String // JSON digest content
+  sentAt      DateTime?
+  status      String @default("PENDING") // PENDING, SENT, FAILED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("notification_digests")
+}
+
+// Agency Management
+model Agency {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  website     String?
+  email       String
+  phone       String?
+  address     String?
+  status      String @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  plan        String @default("BASIC") // BASIC, PRO, ENTERPRISE
+  maxClients  Int @default(10)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  clients AgencyClient[]
+  
+  @@map("agencies")
+}
+
+model AgencyClient {
+  id          String @id @default(cuid())
+  agencyId    String
+  userId      String @unique
+  status      String @default("ACTIVE") // ACTIVE, INACTIVE, SUSPENDED
+  permissions String? // JSON permissions
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  agency Agency @relation(fields: [agencyId], references: [id], onDelete: Cascade)
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("agency_clients")
+}
+
+// Integrations
+model Integration {
+  id          String @id @default(cuid())
+  name        String
+  description String?
+  category    String // ANALYTICS, MARKETING, PAYMENT, SOCIAL, etc.
+  provider    String // GOOGLE, FACEBOOK, STRIPE, etc.
+  config      String? // JSON configuration
+  status      String @default("ACTIVE") // ACTIVE, INACTIVE, DEPRECATED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  websiteIntegrations WebsiteIntegration[]
+  
+  @@map("integrations")
+}
+
+model WebsiteIntegration {
+  id             String @id @default(cuid())
+  websiteId      String
+  integrationId  String
+  config         String? // JSON configuration
+  status         String @default("ACTIVE") // ACTIVE, INACTIVE, ERROR
+  lastSyncAt     DateTime?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website     Website     @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  integration Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  
+  @@unique([websiteId, integrationId])
+  @@map("website_integrations")
+}
+
+model IntegrationWebhook {
+  id             String @id @default(cuid())
+  integrationId  String
+  url            String
+  events         String // JSON array of events
+  secret         String?
+  status         String @default("ACTIVE") // ACTIVE, INACTIVE
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@map("integration_webhooks")
+}
+
+model IntegrationLog {
+  id             String @id @default(cuid())
+  integrationId  String
+  websiteId      String?
+  event          String
+  data           String? // JSON event data
+  status         String // SUCCESS, ERROR, WARNING
+  errorMessage   String?
+  
+  createdAt DateTime @default(now())
+  
+  @@map("integration_logs")
+}
+
+// Media & Assets
+model MediaAsset {
+  id          String @id @default(cuid())
+  websiteId   String
+  userId      String?
+  name        String
+  type        String // IMAGE, VIDEO, AUDIO, DOCUMENT
+  url         String
+  thumbnail   String?
+  size        Int
+  mimeType    String
+  status      String @default("ACTIVE") // ACTIVE, ARCHIVED, DELETED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id])
+  
+  @@map("media_assets")
+}
+
+model VideoProject {
+  id          String @id @default(cuid())
+  websiteId   String
+  userId      String?
+  name        String
+  description String?
+  status      String @default("DRAFT") // DRAFT, PROCESSING, COMPLETED, FAILED
+  duration    Int? // in seconds
+  resolution  String? // 1080p, 720p, etc.
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id])
+  clips   VideoClip[]
+  
+  @@map("video_projects")
+}
+
+model VideoClip {
+  id          String @id @default(cuid())
+  projectId   String
+  name        String
+  startTime   Int // in seconds
+  endTime     Int // in seconds
+  url         String?
+  thumbnail   String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  project VideoProject @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  
+  @@map("video_clips")
+}
+
+// PWA Settings
+model PwaSettings {
+  id          String @id @default(cuid())
+  websiteId   String @unique
+  name        String?
+  shortName   String?
+  description String?
+  themeColor  String?
+  backgroundColor String?
+  display     String @default("standalone") // standalone, fullscreen, minimal-ui
+  orientation String @default("portrait") // portrait, landscape, any
+  startUrl    String @default("/")
+  scope       String @default("/")
+  icons       String? // JSON array of icon objects
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  @@map("pwa_settings")
+}
+
+// Social Media Hub
+model SocialAccount {
+  id          String @id @default(cuid())
+  websiteId   String
+  platform    String // FACEBOOK, INSTAGRAM, TWITTER, LINKEDIN, etc.
+  accountId   String
+  accountName String
+  accessToken String?
+  refreshToken String?
+  status      String @default("ACTIVE") // ACTIVE, INACTIVE, EXPIRED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  posts   SocialPost[]
+  
+  @@unique([websiteId, platform, accountId])
+  @@map("social_accounts")
+}
+
+model SocialPost {
+  id          String @id @default(cuid())
+  accountId   String
+  content     String
+  mediaUrls   String? // JSON array of media URLs
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  status      String @default("DRAFT") // DRAFT, SCHEDULED, PUBLISHED, FAILED
+  platformPostId String?
+  engagement  String? // JSON engagement metrics
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  account SocialAccount @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  
+  @@map("social_posts")
+}
+
+model SocialCampaign {
+  id          String @id @default(cuid())
+  websiteId   String
+  name        String
+  description String?
+  startDate   DateTime?
+  endDate     DateTime?
+  status      String @default("DRAFT") // DRAFT, ACTIVE, PAUSED, COMPLETED
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  @@map("social_campaigns")
+}
+
+model SocialAutomationRule {
+  id          String @id @default(cuid())
+  websiteId   String
+  name        String
+  trigger     String // NEW_POST, ENGAGEMENT_THRESHOLD, etc.
+  action      String // AUTO_LIKE, AUTO_COMMENT, AUTO_SHARE, etc.
+  config      String? // JSON configuration
+  status      String @default("ACTIVE") // ACTIVE, INACTIVE
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  @@map("social_automation_rules")
+}
+
+// Domain Management
+model Domain {
+  id          String @id @default(cuid())
+  websiteId   String
+  domain      String @unique
+  status      String @default("PENDING") // PENDING, ACTIVE, FAILED, EXPIRED
+  verified    Boolean @default(false)
+  sslEnabled  Boolean @default(false)
+  dnsRecords String? // JSON DNS records
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  records DNSRecord[]
+  
+  @@map("domains")
+}
+
+model DNSRecord {
+  id       String @id @default(cuid())
+  domainId String
+  type     String // A, AAAA, CNAME, MX, TXT, etc.
+  name     String
+  value    String
+  ttl      Int @default(3600)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  domain Domain @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  
+  @@map("dns_records")
+}
+
+// Website Visitors
+model WebsiteVisitor {
+  id          String @id @default(cuid())
+  websiteId   String
+  sessionId   String
+  ipAddress   String?
+  userAgent   String?
+  country     String?
+  city        String?
+  referrer    String?
+  landingPage String?
+  exitPage    String?
+  duration    Int? // in seconds
+  pageViews   Int @default(1)
+  
+  createdAt DateTime @default(now())
+  
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  @@map("website_visitors")
+}
+
+// User Sessions
+model UserSession {
+  id        String @id @default(cuid())
+  userId    String
+  token     String @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("user_sessions")
 }

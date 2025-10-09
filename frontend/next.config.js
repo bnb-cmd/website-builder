@@ -1,8 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: __dirname,
-  // Disable some development features that might cause issues
-  reactStrictMode: false,
+  // Enable React Strict Mode for better development experience
+  reactStrictMode: true,
   images: {
     remotePatterns: [
       {
@@ -20,6 +20,18 @@ const nextConfig = {
       {
         protocol: 'https',
         hostname: 'pakistan-builder-backend.up.railway.app',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.vercel.app',
+        port: '',
+        pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.pages.dev',
         port: '',
         pathname: '/**',
       },
