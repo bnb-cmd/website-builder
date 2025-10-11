@@ -50,7 +50,6 @@
         "tests",
         "**/*.test.ts",
         "**/*.spec.ts",
-        "src/services/**/*.ts",
         "src/test/**/*.ts",
         "src/utils/sanitization.ts",
         "src/utils/templateValidator.ts",

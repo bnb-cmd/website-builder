@@ -20,6 +20,7 @@ import type { FastifyJWTOptions } from '@fastify/jwt'
 // Import routes - temporarily disabled for minimal deployment
 // import { authRoutes } from '@/routes/auth'
 // import { websiteRoutes } from '@/routes/websites'
+// import { analyticsRoutes } from '@/routes/analytics'
 // import { templateRoutes } from '@/routes/templates'
 // import { aiRoutes } from '@/routes/ai'
 // import { userRoutes } from '@/routes/users'

@@ -22,6 +22,8 @@ export interface UpdateUserData {
   city?: string
   companyName?: string
   status?: UserStatus
+  password?: string
+  lastLoginAt?: Date
 }
 
 export interface UserFilters {
@@ -155,6 +157,7 @@ export class UserService extends BaseService<User> {
           id: true,
           email: true,
           name: true,
+          password: true,
           phone: true,
           avatar: true,
           role: true,
@@ -164,7 +167,10 @@ export class UserService extends BaseService<User> {
           companyName: true,
           createdAt: true,
           updatedAt: true,
-          lastLoginAt: true
+          lastLoginAt: true,
+          preferredLanguage: true,
+          aiQuotaUsed: true,
+          aiQuotaResetAt: true
         }
       })
       
@@ -307,27 +313,11 @@ export class UserService extends BaseService<User> {
     }
   }
 
-  // Subscription methods
-  async updateSubscription(id: string, subscriptionId: string): Promise<User> {
-    try {
-      this.validateId(id)
-      
-      const user = await this.prisma.user.update({
-        where: { id },
-        data: {
-          subscriptionId,
-          updatedAt: new Date()
-        }
-      })
-      
-      // Invalidate cache
-      await this.invalidateCache(`user:${id}`)
-      
-      return user
-    } catch (error) {
-      this.handleError(error)
-    }
-  }
+  // Subscription methods - removed as User model doesn't have subscriptionId field
+  // async updateSubscription(id: string, subscriptionId: string): Promise<User> {
+  //   // This method is not valid with current schema
+  //   throw new Error('Subscription management not implemented')
+  // }
 
   // Statistics methods
   async getStats(): Promise<{
@@ -340,7 +330,15 @@ export class UserService extends BaseService<User> {
     try {
       const cacheKey = 'user:stats'
       const cached = await this.getCached(cacheKey)
-      if (cached) return cached
+      if (cached && typeof cached === 'object' && 'totalUsers' in cached) {
+        return cached as {
+          totalUsers: number
+          activeUsers: number
+          newUsersThisMonth: number
+          usersByRole: Record<string, number>
+          usersByBusinessType: Record<string, number>
+        }
+      }
       
       const [
         totalUsers,
