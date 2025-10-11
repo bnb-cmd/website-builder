@@ -503,6 +503,7 @@ model User {
   notificationDigests NotificationDigest[]
   agencyClient AgencyClient?
   mediaAssets MediaAsset[]
+  brandKits BrandKit[]
   videoProjects VideoProject[]
   sessions UserSession[]
 
@@ -571,6 +572,7 @@ model Website {
   socialAccounts SocialAccount[]
   socialCampaigns SocialCampaign[]
   socialAutomationRules SocialAutomationRule[]
+  brandKits BrandKit[]
   domains Domain[]
   visitors WebsiteVisitor[]
   nftCollections NFTCollection[]
@@ -706,6 +708,9 @@ model Product {
 
   website    Website     @relation(fields: [websiteId], references: [id], onDelete: Cascade)
   orderItems OrderItem[]
+  cartItems  CartItem[]
+  inventoryTransactions InventoryTransaction[]
+  inventoryReservations  InventoryReservation[]
 
   @@map("products")
 }
@@ -1756,4 +1761,159 @@ model UserSession {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   
   @@map("user_sessions")
+}
+
+// Shopping Cart
+model Cart {
+  id        String @id @default(cuid())
+  userId    String?
+  sessionId String?
+  websiteId String
+  
+  // Cart Totals
+  subtotal Decimal @default(0)
+  tax      Decimal @default(0)
+  shipping Decimal @default(0)
+  discount Decimal @default(0)
+  total    Decimal @default(0)
+  
+  // Expiration
+  expiresAt DateTime
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  items CartItem[]
+  
+  @@map("carts")
+}
+
+model CartItem {
+  id        String @id @default(cuid())
+  cartId    String
+  productId String
+  
+  quantity Int
+  price    Decimal
+  variant  String? // JSON as string
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  cart    Cart    @relation(fields: [cartId], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [productId], references: [id])
+  
+  @@map("cart_items")
+}
+
+// Inventory Management
+model InventoryTransaction {
+  id        String @id @default(cuid())
+  productId String
+  
+  type     InventoryTransactionType
+  quantity Int
+  reason   String?
+  reference String? // Order ID, PO ID, etc.
+  notes    String?
+  cost     Decimal?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  product Product @relation(fields: [productId], references: [id])
+  
+  @@map("inventory_transactions")
+}
+
+model InventoryReservation {
+  id        String @id @default(cuid())
+  productId String
+  orderId   String
+  
+  quantity Int
+  status   InventoryReservationStatus @default(ACTIVE)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  product Product @relation(fields: [productId], references: [id])
+  
+  @@map("inventory_reservations")
+}
+
+// Inventory Enums
+enum InventoryTransactionType {
+  IN
+  OUT
+  ADJUSTMENT
+  RETURN
+  DAMAGE
+  LOSS
+}
+
+enum InventoryReservationStatus {
+  ACTIVE
+  FULFILLED
+  RELEASED
+  EXPIRED
+}
+
+// Brand Management
+model BrandKit {
+  id          String @id @default(cuid())
+  userId      String
+  websiteId   String?
+  name        String
+  description String?
+  inheritsFrom String?
+  isDefault   Boolean @default(false)
+  
+  // Logo Management
+  logoPrimary   String?
+  logoSecondary String?
+  logoFavicon   String?
+  logoVariations String? // JSON array of URLs
+  
+  // Color Palette
+  colorPrimary   String?
+  colorSecondary String?
+  colorAccent    String?
+  colorNeutral   String? // JSON array of colors
+  colorSuccess   String?
+  colorWarning   String?
+  colorError     String?
+  
+  // Typography
+  fontHeading    String?
+  fontBody       String?
+  fontAccent     String?
+  fontSizeH1     String?
+  fontSizeH2     String?
+  fontSizeH3     String?
+  fontSizeH4     String?
+  fontSizeH5     String?
+  fontSizeH6     String?
+  fontSizeBody   String?
+  fontSizeSmall  String?
+  
+  // Imagery Guidelines
+  imageStyle     String?
+  imageMood      String?
+  imageTemplates String? // JSON array of template IDs
+  
+  // Brand Guidelines
+  logoUsageRules    String?
+  colorUsageRules   String?
+  spacingRules      String?
+  typographyRules   String?
+  imageGuidelines   String?
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  website Website? @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  
+  @@map("brand_kits")
 }

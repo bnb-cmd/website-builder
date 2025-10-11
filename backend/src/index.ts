@@ -17,17 +17,24 @@ import { securityHeaders, requestLogger } from '@/middleware/auth'
 import type { FastifyServerOptions, FastifyPluginAsync } from 'fastify'
 import type { FastifyJWTOptions } from '@fastify/jwt'
 
-// Import routes - temporarily disabled for minimal deployment
+// Import routes - All services enabled
 // import { authRoutes } from '@/routes/auth'
 // import { websiteRoutes } from '@/routes/websites'
 // import { analyticsRoutes } from '@/routes/analytics'
-// import { templateRoutes } from '@/routes/templates'
-// import { aiRoutes } from '@/routes/ai'
+import { templateRoutes } from '@/routes/templates'
+import { aiRoutes } from '@/routes/ai'
+import { aiMarketingRoutes } from '@/routes/aiMarketing'
+import { paymentRoutes } from '@/routes/payments'
+import { orderRoutes } from '@/routes/orders'
+import { productRoutes } from '@/routes/products'
+import { cartRoutes } from '@/routes/cart'
+import { inventoryRoutes } from '@/routes/inventory'
+import contentRoutes from '@/routes/content'
+import mediaRoutes from '@/routes/media'
+import imageLibraryRoutes from '@/routes/imageLibrary'
+import brandKitRoutes from '@/routes/brandKit'
 // import { userRoutes } from '@/routes/users'
-// import { paymentRoutes } from '@/routes/payments'
 // import { adminRoutes } from '@/routes/admin'
-// import { brandKitRoutes } from '@/routes/brandKit'
-// import { imageLibraryRoutes } from '@/routes/imageLibrary'
 
 // Import error handlers
 import { errorHandler } from '@/utils/errorHandler'
@@ -324,27 +331,21 @@ export async function createServer() {
     }
   })
 
-  // API versioning - temporarily disabled for minimal deployment
-  // await fastify.register(async (scope) => {
-  //   const routePlugins: Array<[string, any, string]> = [
-  //     ['authRoutes', authRoutes, '/auth'],
-  //     ['websiteRoutes', websiteRoutes, '/websites'],
-  //     ['templateRoutes', templateRoutes, '/templates'],
-  //     ['aiRoutes', aiRoutes, '/ai'],
-  //     ['userRoutes', userRoutes, '/users'],
-  //     ['paymentRoutes', paymentRoutes, '/payments'],
-  //     ['adminRoutes', adminRoutes, '/admin'],
-  //     ['brandKitRoutes', brandKitRoutes, '/brand-kit'],
-  //     ['imageLibraryRoutes', imageLibraryRoutes, '/image-library']
-  //   ]
-
-  //   for (const [name, plugin, prefix] of routePlugins) {
-  //     if (typeof plugin !== 'function') {
-  //       throw new Error(`Route plugin ${name} is undefined or not a function`)
-  //     }
-  //     await scope.register(plugin, { prefix })
-  //   }
-  // }, { prefix: '/v1' })
+    // API versioning - All services enabled
+    await fastify.register(async (scope) => {
+      await scope.register(templateRoutes, { prefix: '/templates' })
+      await scope.register(aiRoutes, { prefix: '/ai' })
+      await scope.register(aiMarketingRoutes, { prefix: '/ai-marketing' })
+      await scope.register(paymentRoutes, { prefix: '/payments' })
+      await scope.register(orderRoutes, { prefix: '/orders' })
+      await scope.register(productRoutes, { prefix: '/products' })
+      await scope.register(cartRoutes, { prefix: '/cart' })
+      await scope.register(inventoryRoutes, { prefix: '/inventory' })
+      await scope.register(contentRoutes, { prefix: '/content' })
+      await scope.register(mediaRoutes, { prefix: '/media' })
+      await scope.register(imageLibraryRoutes, { prefix: '/image-library' })
+      await scope.register(brandKitRoutes, { prefix: '/brand-kits' })
+    }, { prefix: '/api/v1' })
 
   // Root endpoint
   fastify.get('/', {

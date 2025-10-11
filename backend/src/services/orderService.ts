@@ -1,0 +1,743 @@
+import { Order, OrderItem, Prisma, PaymentStatus, ShippingStatus } from '@prisma/client'
+import { BaseService } from './baseService'
+import { Decimal } from '@prisma/client/runtime/library'
+
+export interface CreateOrderData {
+  websiteId: string
+  customerEmail: string
+  customerName?: string
+  customerPhone?: string
+  shippingAddress: {
+    name: string
+    address: string
+    city: string
+    state: string
+    postalCode: string
+    country: string
+  }
+  billingAddress?: {
+    name: string
+    address: string
+    city: string
+    state: string
+    postalCode: string
+    country: string
+  }
+  items: Array<{
+    productId: string
+    quantity: number
+    price: number
+  }>
+  subtotal: number
+  tax?: number
+  shipping?: number
+  discount?: number
+  total: number
+  notes?: string
+}
+
+export interface UpdateOrderData {
+  customerEmail?: string
+  customerName?: string
+  customerPhone?: string
+  shippingAddress?: any
+  billingAddress?: any
+  paymentStatus?: PaymentStatus
+  shippingStatus?: ShippingStatus
+  trackingNumber?: string
+  notes?: string
+}
+
+export interface OrderFilters {
+  websiteId?: string
+  customerEmail?: string
+  paymentStatus?: PaymentStatus
+  shippingStatus?: ShippingStatus
+  dateFrom?: Date
+  dateTo?: Date
+  search?: string
+  page?: number
+  limit?: number
+  sortBy?: string
+  sortOrder?: 'asc' | 'desc'
+}
+
+export interface OrderWithDetails extends Order {
+  items: (OrderItem & {
+    product: {
+      id: string
+      name: string
+      images: string
+    }
+  })[]
+}
+
+export class OrderService extends BaseService<Order> {
+  constructor() {
+    super()
+  }
+
+  protected getModelName(): string {
+    return 'order'
+  }
+
+  // Implement required BaseService methods
+  override async create(data: Partial<Order>): Promise<Order> {
+    try {
+      const order = await this.prisma.order.create({
+        data: data as any
+      })
+      return order
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  override async findById(id: string): Promise<Order | null> {
+    try {
+      this.validateId(id)
+      
+      const cacheKey = `order:${id}`
+      const cached = await this.getCached(cacheKey)
+      if (cached && typeof cached === 'object' && 'id' in cached) {
+        return cached as Order
+      }
+
+      const order = await this.prisma.order.findUnique({
+        where: { id }
+      })
+
+      if (order) {
+        await this.setCached(cacheKey, order, 1800) // 30 minutes
+      }
+
+      return order
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  override async findAll(filters?: OrderFilters): Promise<Order[]> {
+    try {
+      const {
+        page = 1,
+        limit = 10,
+        sortBy = 'createdAt',
+        sortOrder = 'desc',
+        search,
+        dateFrom,
+        dateTo,
+        ...whereFilters
+      } = filters || {}
+      
+      const skip = (page - 1) * limit
+      const take = limit
+      
+      // Build where clause
+      const where: Prisma.OrderWhereInput = {
+        ...whereFilters
+      }
+      
+      // Add search functionality
+      if (search) {
+        where.OR = [
+          { orderNumber: { contains: search } },
+          { customerEmail: { contains: search } },
+          { customerName: { contains: search } }
+        ]
+      }
+      
+      // Date range filter
+      if (dateFrom || dateTo) {
+        where.createdAt = {}
+        if (dateFrom) where.createdAt.gte = dateFrom
+        if (dateTo) where.createdAt.lte = dateTo
+      }
+      
+      const orders = await this.prisma.order.findMany({
+        where,
+        skip,
+        take,
+        orderBy: { [sortBy]: sortOrder }
+      })
+      
+      return orders
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  override async update(id: string, data: Partial<Order>): Promise<Order> {
+    try {
+      this.validateId(id)
+      
+      const order = await this.prisma.order.update({
+        where: { id },
+        data: {
+          ...data,
+          updatedAt: new Date()
+        }
+      })
+      
+      // Invalidate cache
+      await this.invalidateCache(`order:${id}`)
+      
+      return order
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  override async delete(id: string): Promise<boolean> {
+    try {
+      this.validateId(id)
+      
+      // In e-commerce, orders are typically not deleted but cancelled
+      await this.update(id, { 
+        paymentStatus: PaymentStatus.CANCELLED,
+        shippingStatus: ShippingStatus.CANCELLED
+      })
+      
+      return true
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  // Custom order creation method
+  async createOrder(data: CreateOrderData): Promise<OrderWithDetails> {
+    try {
+      this.validateRequired(data, ['websiteId', 'customerEmail', 'items', 'total'])
+      
+      // Generate unique order number
+      const orderNumber = await this.generateOrderNumber()
+      
+      const order = await this.prisma.$transaction(async (prisma) => {
+        // Create order
+        const createdOrder = await prisma.order.create({
+          data: {
+            websiteId: data.websiteId,
+            orderNumber,
+            customerEmail: data.customerEmail,
+            customerName: data.customerName,
+            customerPhone: data.customerPhone,
+            shippingAddress: JSON.stringify(data.shippingAddress),
+            billingAddress: JSON.stringify(data.billingAddress || data.shippingAddress),
+            subtotal: new Decimal(data.subtotal),
+            tax: new Decimal(data.tax || 0),
+            shipping: new Decimal(data.shipping || 0),
+            discount: new Decimal(data.discount || 0),
+            total: new Decimal(data.total),
+            notes: data.notes,
+            paymentStatus: PaymentStatus.PENDING,
+            shippingStatus: ShippingStatus.PENDING,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          }
+        })
+        
+        // Create order items
+        await prisma.orderItem.createMany({
+          data: data.items.map(item => ({
+            orderId: createdOrder.id,
+            productId: item.productId,
+            quantity: item.quantity,
+            price: new Decimal(item.price)
+          }))
+        })
+        
+        return createdOrder
+      })
+      
+      await this.invalidateCache('orders:*')
+      
+      // Return order with items
+      return await this.findByIdWithDetails(order.id) as OrderWithDetails
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async findByIdWithDetails(id: string): Promise<OrderWithDetails | null> {
+    try {
+      this.validateId(id)
+      
+      const cacheKey = `order:details:${id}`
+      const cached = await this.getCached(cacheKey)
+      if (cached && typeof cached === 'object' && 'id' in cached) {
+        return cached as OrderWithDetails
+      }
+      
+      const order = await this.prisma.order.findUnique({
+        where: { id },
+        include: {
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  images: true
+                }
+              }
+            }
+          }
+        }
+      }) as OrderWithDetails
+      
+      if (order) {
+        await this.setCached(cacheKey, order, 1800) // 30 minutes
+      }
+      
+      return order
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async findByOrderNumber(orderNumber: string): Promise<OrderWithDetails | null> {
+    try {
+      const cacheKey = `order:number:${orderNumber}`
+      const cached = await this.getCached(cacheKey)
+      if (cached && typeof cached === 'object' && 'id' in cached) {
+        return cached as OrderWithDetails
+      }
+      
+      const order = await this.prisma.order.findUnique({
+        where: { orderNumber },
+        include: {
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  images: true
+                }
+              }
+            }
+          }
+        }
+      }) as OrderWithDetails
+      
+      if (order) {
+        await this.setCached(cacheKey, order, 1800) // 30 minutes
+      }
+      
+      return order
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  // Order Status Management
+  async updatePaymentStatus(id: string, status: PaymentStatus, paymentId?: string): Promise<OrderWithDetails> {
+    try {
+      const updateData: UpdateOrderData = { paymentStatus: status }
+      
+      const order = await this.update(id, updateData)
+      
+      // If payment is completed, update shipping status
+      if (status === PaymentStatus.COMPLETED) {
+        await this.update(id, { shippingStatus: ShippingStatus.PROCESSING })
+      }
+      
+      return await this.findByIdWithDetails(id) as OrderWithDetails
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async updateShippingStatus(id: string, status: ShippingStatus, trackingNumber?: string): Promise<OrderWithDetails> {
+    try {
+      const updateData: UpdateOrderData = { shippingStatus: status }
+      if (trackingNumber) {
+        updateData.trackingNumber = trackingNumber
+      }
+      
+      await this.update(id, updateData)
+      return await this.findByIdWithDetails(id) as OrderWithDetails
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  // Order Analytics
+  async getOrderStats(websiteId: string, dateRange?: { from: Date; to: Date }): Promise<{
+    totalOrders: number
+    totalRevenue: number
+    averageOrderValue: number
+    pendingOrders: number
+    completedOrders: number
+    cancelledOrders: number
+    topProducts: Array<{ productId: string; productName: string; quantity: number; revenue: number }>
+  }> {
+    try {
+      const cacheKey = `order:stats:${websiteId}:${dateRange?.from}:${dateRange?.to}`
+      const cached = await this.getCached(cacheKey)
+      if (cached && typeof cached === 'object' && 'totalOrders' in cached) {
+        return cached as any
+      }
+      
+      const whereClause: Prisma.OrderWhereInput = { websiteId }
+      if (dateRange) {
+        whereClause.createdAt = {
+          gte: dateRange.from,
+          lte: dateRange.to
+        }
+      }
+      
+      const [
+        totalOrders,
+        pendingOrders,
+        completedOrders,
+        cancelledOrders,
+        revenueStats,
+        topProductsData
+      ] = await Promise.all([
+        this.prisma.order.count({ where: whereClause }),
+        this.prisma.order.count({ 
+          where: { ...whereClause, paymentStatus: PaymentStatus.PENDING } 
+        }),
+        this.prisma.order.count({ 
+          where: { ...whereClause, paymentStatus: PaymentStatus.COMPLETED } 
+        }),
+        this.prisma.order.count({ 
+          where: { ...whereClause, paymentStatus: PaymentStatus.CANCELLED } 
+        }),
+        this.prisma.order.aggregate({
+          where: { ...whereClause, paymentStatus: PaymentStatus.COMPLETED },
+          _sum: { total: true },
+          _avg: { total: true }
+        }),
+        this.prisma.orderItem.groupBy({
+          by: ['productId'],
+          where: {
+            order: whereClause
+          },
+          _sum: {
+            quantity: true,
+            price: true
+          },
+          orderBy: {
+            _sum: {
+              quantity: 'desc'
+            }
+          },
+          take: 10
+        })
+      ])
+      
+      // Get product names for top products
+      const productIds = topProductsData.map(item => item.productId)
+      const products = await this.prisma.product.findMany({
+        where: { id: { in: productIds } },
+        select: { id: true, name: true }
+      })
+      
+      const topProducts = topProductsData.map(item => {
+        const product = products.find(p => p.id === item.productId)
+        return {
+          productId: item.productId,
+          productName: product?.name || 'Unknown Product',
+          quantity: item._sum.quantity || 0,
+          revenue: item._sum.price?.toNumber() || 0
+        }
+      })
+      
+      const stats = {
+        totalOrders,
+        totalRevenue: revenueStats._sum.total?.toNumber() || 0,
+        averageOrderValue: revenueStats._avg.total?.toNumber() || 0,
+        pendingOrders,
+        completedOrders,
+        cancelledOrders,
+        topProducts
+      }
+      
+      await this.setCached(cacheKey, stats, 3600) // 1 hour
+      
+      return stats
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  // Customer Orders
+  async getCustomerOrders(customerEmail: string, websiteId?: string): Promise<OrderWithDetails[]> {
+    try {
+      const whereClause: Prisma.OrderWhereInput = { customerEmail }
+      if (websiteId) {
+        whereClause.websiteId = websiteId
+      }
+      
+      return await this.prisma.order.findMany({
+        where: whereClause,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  images: true
+                }
+              }
+            }
+          }
+        }
+      }) as OrderWithDetails[]
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  // Order Search
+  async searchOrders(websiteId: string, query: string): Promise<OrderWithDetails[]> {
+    try {
+      return await this.prisma.order.findMany({
+        where: {
+          websiteId,
+          OR: [
+            { orderNumber: { contains: query } },
+            { customerEmail: { contains: query } },
+            { customerName: { contains: query } }
+          ]
+        },
+        orderBy: { createdAt: 'desc' },
+        include: {
+          items: {
+            include: {
+              product: {
+                select: {
+                  id: true,
+                  name: true,
+                  images: true
+                }
+              }
+            }
+          }
+        }
+      }) as OrderWithDetails[]
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  // Helper Methods
+  private async generateOrderNumber(): Promise<string> {
+    const timestamp = Date.now().toString(36).toUpperCase()
+    const random = Math.random().toString(36).substring(2, 6).toUpperCase()
+    return `ORD-${timestamp}-${random}`
+  }
+
+  async calculateOrderTotal(
+    items: Array<{ productId: string; quantity: number }>, 
+    websiteId: string,
+    shippingAddress: { city: string; country: string }
+  ): Promise<{
+    subtotal: number
+    tax: number
+    shippingOptions: any[]
+    total: number
+  }> {
+    try {
+      let subtotal = 0
+      let totalWeight = 0
+      
+      for (const item of items) {
+        const product = await this.prisma.product.findUnique({
+          where: { id: item.productId }
+        })
+        if (product && product.websiteId === websiteId) {
+          subtotal += product.price.toNumber() * item.quantity
+          totalWeight += 0.5 * item.quantity // default weight 0.5kg
+        }
+      }
+      
+      // Calculate tax (configurable per website)
+      const taxRate = 0.1 // 10% tax
+      const tax = subtotal * taxRate
+      
+      // Mock shipping options
+      const shippingOptions = [
+        { name: 'Standard', rate: 5, days: '3-5' },
+        { name: 'Express', rate: 10, days: '1-2' },
+        { name: 'Overnight', rate: 20, days: '1' }
+      ]
+      
+      // Use the cheapest shipping option as default
+      const defaultShipping = shippingOptions.sort((a, b) => a.rate - b.rate)[0]?.rate || 0
+      
+      const total = subtotal + tax + defaultShipping
+      
+      return { subtotal, tax, shippingOptions, total }
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  // Bulk Operations
+  async bulkUpdateStatus(
+    orderIds: string[], 
+    status: { payment?: PaymentStatus; shipping?: ShippingStatus }
+  ): Promise<number> {
+    try {
+      const updateData: any = { updatedAt: new Date() }
+      if (status.payment) updateData.paymentStatus = status.payment
+      if (status.shipping) updateData.shippingStatus = status.shipping
+      
+      const result = await this.prisma.order.updateMany({
+        where: { id: { in: orderIds } },
+        data: updateData
+      })
+      
+      await this.invalidateCache('orders:*')
+      
+      return result.count
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  // Export Orders
+  async exportOrders(websiteId: string, filters?: OrderFilters): Promise<any[]> {
+    try {
+      const orders = await this.findAll({ ...filters, websiteId, limit: 10000 })
+      
+      return orders.map(order => ({
+        orderNumber: order.orderNumber,
+        customerEmail: order.customerEmail,
+        customerName: order.customerName,
+        total: order.total,
+        paymentStatus: order.paymentStatus,
+        shippingStatus: order.shippingStatus,
+        createdAt: order.createdAt
+      }))
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  // Additional methods for routes
+  async findMany(filters: OrderFilters = {}): Promise<{
+    orders: OrderWithDetails[]
+    pagination: {
+      page: number
+      limit: number
+      total: number
+      pages: number
+    }
+  }> {
+    try {
+      const orders = await this.findAll(filters)
+      const total = await this.prisma.order.count({
+        where: this.buildWhereClause(filters)
+      })
+      
+      return {
+        orders: orders as OrderWithDetails[],
+        pagination: {
+          page: filters.page || 1,
+          limit: filters.limit || 20,
+          total,
+          pages: Math.ceil(total / (filters.limit || 20))
+        }
+      }
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async updateStatus(id: string, status: ShippingStatus, notes?: string): Promise<OrderWithDetails> {
+    try {
+      const updateData: UpdateOrderData = { shippingStatus: status }
+      if (notes) {
+        updateData.notes = notes
+      }
+      
+      await this.update(id, updateData)
+      return await this.findByIdWithDetails(id) as OrderWithDetails
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async addTracking(id: string, trackingData: { trackingNumber: string; carrier: string; trackingUrl?: string }): Promise<OrderWithDetails> {
+    try {
+      const updateData: UpdateOrderData = {
+        trackingNumber: trackingData.trackingNumber,
+        shippingStatus: ShippingStatus.SHIPPED
+      }
+      
+      await this.update(id, updateData)
+      return await this.findByIdWithDetails(id) as OrderWithDetails
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async getAnalytics(filters: any): Promise<{
+    totalOrders: number
+    totalRevenue: number
+    averageOrderValue: number
+    ordersByStatus: any
+    revenueByPeriod: any[]
+    topProducts: any[]
+    ordersByDay: any[]
+  }> {
+    try {
+      const stats = await this.getOrderStats(filters.websiteId)
+      
+      return {
+        totalOrders: stats.totalOrders,
+        totalRevenue: stats.totalRevenue,
+        averageOrderValue: stats.averageOrderValue,
+        ordersByStatus: {
+          pending: stats.pendingOrders,
+          completed: stats.completedOrders,
+          cancelled: stats.cancelledOrders
+        },
+        revenueByPeriod: [], // Implement based on period filter
+        topProducts: stats.topProducts,
+        ordersByDay: [] // Implement based on period filter
+      }
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  private buildWhereClause(filters: OrderFilters): any {
+    const where: any = {}
+    
+    if (filters.websiteId) where.websiteId = filters.websiteId
+    if (filters.customerEmail) where.customerEmail = filters.customerEmail
+    if (filters.paymentStatus) where.paymentStatus = filters.paymentStatus
+    if (filters.shippingStatus) where.shippingStatus = filters.shippingStatus
+    if (filters.dateFrom || filters.dateTo) {
+      where.createdAt = {}
+      if (filters.dateFrom) where.createdAt.gte = filters.dateFrom
+      if (filters.dateTo) where.createdAt.lte = filters.dateTo
+    }
+    if (filters.search) {
+      where.OR = [
+        { orderNumber: { contains: filters.search, mode: 'insensitive' } },
+        { customerEmail: { contains: filters.search, mode: 'insensitive' } },
+        { customerName: { contains: filters.search, mode: 'insensitive' } }
+      ]
+    }
+    
+    return where
+  }
+
+  protected override validateRequired(data: any, requiredFields: string[]): void {
+    for (const field of requiredFields) {
+      if (data[field] === undefined || data[field] === null) {
+        throw new Error(`Required field '${field}' is missing`)
+      }
+    }
+  }
+}
+
+export const orderService = new OrderService()
