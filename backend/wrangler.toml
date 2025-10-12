@@ -1,0 +1,106 @@
+name = "pakistan-website-builder-backend"
+main = "src/workers/index.ts"
+compatibility_date = "2024-01-01"
+
+# D1 Database
+[[d1_databases]]
+binding = "DB"
+database_name = "pakistan-website-builder"
+database_id = "your-database-id-here"
+
+# KV Storage for caching and sessions
+[[kv_namespaces]]
+binding = "CACHE"
+id = "pakistan-website-builder-cache"
+preview_id = "pakistan-website-builder-cache-preview"
+
+# R2 Storage for assets
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "pakistan-website-builder-assets"
+
+# R2 Storage for product images
+[[r2_buckets]]
+binding = "PRODUCT_IMAGES"
+bucket_name = "pakistan-website-builder-products"
+
+# Cloudflare Images
+[[env.production.vars]]
+CLOUDFLARE_IMAGES_ACCOUNT_ID = "your-account-id"
+
+# Environment variables
+[env.production.vars]
+NODE_ENV = "production"
+JWT_SECRET = "your-jwt-secret"
+OPENAI_API_KEY = "your-openai-key"
+ANTHROPIC_API_KEY = "your-anthropic-key"
+GOOGLE_AI_API_KEY = "your-google-key"
+# E-commerce payment gateways
+EASYPAISA_STORE_ID = "your-easypaisa-store-id"
+EASYPAISA_MERCHANT_KEY = "your-easypaisa-merchant-key"
+JAZZCASH_MERCHANT_ID = "your-jazzcash-merchant-id"
+JAZZCASH_PASSWORD = "your-jazzcash-password"
+# Social media OAuth
+INSTAGRAM_APP_ID = "your-instagram-app-id"
+INSTAGRAM_APP_SECRET = "your-instagram-app-secret"
+TIKTOK_APP_KEY = "your-tiktok-app-key"
+TIKTOK_APP_SECRET = "your-tiktok-app-secret"
+FACEBOOK_APP_ID = "your-facebook-app-id"
+FACEBOOK_APP_SECRET = "your-facebook-app-secret"
+PINTEREST_APP_ID = "your-pinterest-app-id"
+PINTEREST_APP_SECRET = "your-pinterest-app-secret"
+WHATSAPP_ACCESS_TOKEN = "your-whatsapp-access-token"
+
+[env.development.vars]
+NODE_ENV = "development"
+JWT_SECRET = "dev-jwt-secret"
+OPENAI_API_KEY = "dev-openai-key"
+ANTHROPIC_API_KEY = "dev-anthropic-key"
+GOOGLE_AI_API_KEY = "dev-google-key"
+# E-commerce payment gateways (sandbox)
+EASYPAISA_STORE_ID = "dev-easypaisa-store-id"
+EASYPAISA_MERCHANT_KEY = "dev-easypaisa-merchant-key"
+JAZZCASH_MERCHANT_ID = "dev-jazzcash-merchant-id"
+JAZZCASH_PASSWORD = "dev-jazzcash-password"
+# Social media OAuth (test apps)
+INSTAGRAM_APP_ID = "dev-instagram-app-id"
+INSTAGRAM_APP_SECRET = "dev-instagram-app-secret"
+TIKTOK_APP_KEY = "dev-tiktok-app-key"
+TIKTOK_APP_SECRET = "dev-tiktok-app-secret"
+FACEBOOK_APP_ID = "dev-facebook-app-id"
+FACEBOOK_APP_SECRET = "dev-facebook-app-secret"
+PINTEREST_APP_ID = "dev-pinterest-app-id"
+PINTEREST_APP_SECRET = "dev-pinterest-app-secret"
+WHATSAPP_ACCESS_TOKEN = "dev-whatsapp-access-token"
+
+# Queues for async jobs
+[[queues.producers]]
+binding = "PUBLISH_QUEUE"
+queue = "publish-jobs"
+
+[[queues.consumers]]
+queue = "publish-jobs"
+max_batch_size = 10
+max_batch_timeout = 30
+max_retries = 3
+retry_delay = 5
+
+# Durable Objects for real-time collaboration
+[[durable_objects.bindings]]
+name = "COLLABORATION"
+class_name = "CollaborationRoom"
+
+# Build configuration
+[build]
+command = "npm run build:workers"
+
+# Routes
+routes = [
+  { pattern = "api.pakistanbuilder.com/*", zone_name = "pakistanbuilder.com" }
+]
+
+# Development
+[dev]
+ip = "127.0.0.1"
+port = 8787
+local_protocol = "http"

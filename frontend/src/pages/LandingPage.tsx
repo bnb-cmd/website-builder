@@ -21,7 +21,10 @@ import {
   ArrowRight,
   Play,
   Sparkles,
-  Award
+  Award,
+  ShoppingCart,
+  Instagram,
+  Download
 } from 'lucide-react'
 
 const features = [
@@ -67,13 +70,22 @@ const templates = [
   },
   {
     id: '2',
+    name: 'Micro Store',
+    category: 'E-commerce',
+    image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=500&h=300&fit=crop',
+    isPremium: false,
+    isStarter: true,
+    description: 'Perfect for social media sellers'
+  },
+  {
+    id: '3',
     name: 'E-commerce Store',
     category: 'E-commerce',
     image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=500&h=300&fit=crop',
     isPremium: true
   },
   {
-    id: '3',
+    id: '4',
     name: 'Restaurant Menu',
     category: 'Restaurant',
     image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=500&h=300&fit=crop',
@@ -96,20 +108,37 @@ const pricing = [
     popular: false
   },
   {
+    name: 'Starter',
+    price: 999,
+    description: 'Perfect for social media sellers',
+    features: [
+      'Everything in Free',
+      'Micro-Store template',
+      'Up to 50 products',
+      'Pakistani payments (Easypaisa, JazzCash, COD)',
+      'Social media import (manual)',
+      'Order management',
+      'Mobile-optimized store',
+      'Urdu/RTL support'
+    ],
+    popular: true,
+    badge: 'NEW'
+  },
+  {
     name: 'Pro',
     price: 2499,
     description: 'Best for growing businesses',
     features: [
-      'Unlimited websites',
-      'Premium templates',
+      'Everything in Starter',
+      'Up to 500 products',
       'AI assistant',
+      'OAuth social media sync',
+      'Stripe payments',
       'Custom domain',
-      'E-commerce features',
-      'Analytics dashboard',
-      'Priority support',
-      'Remove WebBuilder branding'
+      'Advanced analytics',
+      'Priority support'
     ],
-    popular: true
+    popular: false
   },
   {
     name: 'Enterprise',
@@ -117,6 +146,8 @@ const pricing = [
     description: 'For large organizations',
     features: [
       'Everything in Pro',
+      'Unlimited products',
+      'WhatsApp Business API',
       'White-label solution',
       'Team collaboration',
       'Advanced integrations',
@@ -139,6 +170,12 @@ const testimonials = [
     name: 'Fatima Sheikh',
     business: 'Elegant Boutique, Lahore',
     content: 'The Urdu support and mobile responsiveness are excellent. My customers love browsing my fashion collection on their phones.',
+    rating: 5
+  },
+  {
+    name: 'Sara Ahmed',
+    business: 'Sara\'s Handmade Jewelry, Instagram',
+    content: 'The Micro Store template is perfect! I can import my Instagram posts directly and my customers can buy through Easypaisa. My sales doubled!',
     rating: 5
   },
   {
@@ -276,12 +313,21 @@ const LandingPage: React.FC = () => {
                       Premium
                     </Badge>
                   )}
+                  {template.isStarter && (
+                    <Badge className="absolute top-3 right-3 bg-green-500 text-white">
+                      <Zap className="mr-1 h-3 w-3" />
+                      Starter
+                    </Badge>
+                  )}
                 </div>
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <h3 className="font-medium text-base mb-1">{template.name}</h3>
                       <p className="text-sm text-muted-foreground">{template.category}</p>
+                      {template.description && (
+                        <p className="text-xs text-green-600 mt-1">{template.description}</p>
+                      )}
                     </div>
                     <Button size="sm" variant="outline">
                       Preview
@@ -303,6 +349,112 @@ const LandingPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Micro Store Feature Section */}
+      <section className="py-24 bg-gradient-to-r from-green-50 to-blue-50">
+        <div className="container mx-auto px-4">
+          <div className="grid gap-12 lg:grid-cols-2 items-center">
+            <div>
+              <Badge className="mb-4 bg-green-500 text-white">
+                <Zap className="mr-2 h-4 w-4" />
+                NEW FEATURE
+              </Badge>
+              <h2 className="mb-6 text-3xl lg:text-4xl font-semibold">
+                Turn Your Social Media Into a Store
+              </h2>
+              <p className="text-lg text-muted-foreground leading-relaxed mb-8">
+                Perfect for Instagram sellers, TikTok creators, and social media entrepreneurs. 
+                Import products directly from your posts and start selling in minutes.
+              </p>
+              
+              <div className="space-y-4 mb-8">
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                    <ShoppingCart className="h-4 w-4 text-green-600" />
+                  </div>
+                  <span className="text-sm font-medium">Import products from Instagram, TikTok, Facebook</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                    <CreditCard className="h-4 w-4 text-green-600" />
+                  </div>
+                  <span className="text-sm font-medium">Pakistani payments: Easypaisa, JazzCash, COD</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                    <Smartphone className="h-4 w-4 text-green-600" />
+                  </div>
+                  <span className="text-sm font-medium">Mobile-optimized for Pakistani customers</span>
+                </div>
+                <div className="flex items-center space-x-3">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
+                    <Globe className="h-4 w-4 text-green-600" />
+                  </div>
+                  <span className="text-sm font-medium">Urdu/RTL support for local customers</span>
+                </div>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-4">
+                <Link href="/dashboard/templates">
+                  <Button size="lg" className="px-8 py-3">
+                    Try Micro Store Template
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
+                <Button variant="outline" size="lg" className="px-8 py-3">
+                  Watch Demo
+                  <Play className="ml-2 h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            
+            <div className="relative">
+              <div className="bg-white rounded-lg shadow-xl p-6">
+                <div className="flex items-center space-x-2 mb-4">
+                  <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                </div>
+                <div className="space-y-4">
+                  <div className="bg-gray-50 rounded-lg p-4">
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-lg flex items-center justify-center">
+                        <Instagram className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium">Instagram Post</h4>
+                        <p className="text-sm text-gray-600">Beautiful handmade jewelry - Rs. 2,500</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Button size="sm" className="bg-green-500 hover:bg-green-600">
+                        <Download className="h-4 w-4 mr-1" />
+                        Import to Store
+                      </Button>
+                    </div>
+                  </div>
+                  
+                  <div className="bg-green-50 rounded-lg p-4 border-2 border-green-200">
+                    <div className="flex items-center space-x-3 mb-3">
+                      <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
+                        <ShoppingCart className="h-6 w-6 text-white" />
+                      </div>
+                      <div>
+                        <h4 className="font-medium text-green-800">Product Added!</h4>
+                        <p className="text-sm text-green-600">Ready to sell in your store</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Badge className="bg-green-500 text-white">Rs. 2,500</Badge>
+                      <Badge variant="outline">In Stock</Badge>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Pricing Section */}
       <section id="pricing" className="py-24 bg-muted">
         <div className="container mx-auto px-4">
@@ -319,12 +471,17 @@ const LandingPage: React.FC = () => {
             </p>
           </div>
           
-          <div className="grid gap-6 md:grid-cols-3 max-w-5xl mx-auto">
+          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4 max-w-7xl mx-auto">
             {pricing.map((plan) => (
               <Card key={plan.name} className={`relative ${plan.popular ? 'ring-2 ring-primary shadow-lg' : 'shadow-sm'} transition-shadow duration-200 hover:shadow-md`}>
                 {plan.popular && (
                   <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-primary text-primary-foreground px-4 py-1">
                     Most Popular
+                  </Badge>
+                )}
+                {plan.badge && (
+                  <Badge className="absolute -top-3 right-4 bg-green-500 text-white px-3 py-1 text-xs">
+                    {plan.badge}
                   </Badge>
                 )}
                 <CardHeader className="text-center pb-4">

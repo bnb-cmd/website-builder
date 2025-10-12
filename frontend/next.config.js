@@ -1,79 +1,13 @@
+const { setupDevPlatform } = require('@cloudflare/next-on-pages/next-dev')
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  outputFileTracingRoot: __dirname,
-  // Enable React Strict Mode for better development experience
-  reactStrictMode: true,
-  // Temporarily disable TypeScript checking for deployment
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  // Disable static generation to avoid useSearchParams issues
-  output: 'standalone',
-  trailingSlash: true,
-  // Disable static optimization for pages with dynamic content
   experimental: {
-    missingSuspenseWithCSRBailout: false,
+    runtime: 'edge',
   },
   images: {
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'images.unsplash.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'res.cloudinary.com',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'pakistan-builder-backend.up.railway.app',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.vercel.app',
-        port: '',
-        pathname: '/**',
-      },
-      {
-        protocol: 'https',
-        hostname: '*.pages.dev',
-        port: '',
-        pathname: '/**',
-      },
-    ],
-  },
-  async rewrites() {
-    // Only rewrite in development
-    if (process.env.NODE_ENV === 'development') {
-      return [
-        {
-          source: '/api/:path*',
-          destination: 'http://localhost:3005/:path*',
-        },
-        {
-          source: '/api/v1/:path*',
-          destination: 'http://localhost:3005/v1/:path*',
-        },
-        {
-          source: '/v1/:path*',
-          destination: 'http://localhost:3005/v1/:path*',
-        },
-        {
-          source: '/templates/:path*',
-          destination: 'http://localhost:3005/templates/:path*',
-        },
-      ]
-    }
-    return []
+    domains: ['assets.pakistanbuilder.com', 'images.unsplash.com'],
+    formats: ['image/webp', 'image/avif'],
   },
   async headers() {
     return [
@@ -96,14 +30,19 @@ const nextConfig = {
       },
     ]
   },
-  turbopack: {
-    rules: {
-      '*.svg': {
-        loaders: ['@svgr/webpack'],
-        as: '*.js',
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
       },
-    },
+    ]
   },
+}
+
+// Setup Cloudflare Pages development
+if (process.env.NODE_ENV === 'development') {
+  setupDevPlatform()
 }
 
 module.exports = nextConfig

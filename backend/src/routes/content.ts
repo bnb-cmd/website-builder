@@ -36,7 +36,7 @@ const contentRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.post<{
     Params: { websiteId: string }
     Body: any
-  }>('/content/:websiteId', {
+  }>('/content/website/:websiteId', {
     preHandler: [authenticate],
     schema: {
       params: z.object({ websiteId: z.string().cuid() }),
@@ -88,7 +88,7 @@ const contentRoutes: FastifyPluginAsync = async (fastify) => {
       page?: string
       limit?: string
     }
-  }>('/content/:websiteId', {
+  }>('/content/website/:websiteId', {
     preHandler: [authenticate],
     schema: {
       params: z.object({ websiteId: z.string().cuid() }),
