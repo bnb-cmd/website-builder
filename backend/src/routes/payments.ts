@@ -114,7 +114,14 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       description: 'Confirm payment',
       tags: ['Payments'],
       security: [{ bearerAuth: [] }],
-      body: confirmPaymentSchema
+      body: {
+        type: 'object',
+        required: ['paymentId'],
+        properties: {
+          paymentId: { type: 'string' },
+          gatewayData: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -177,7 +184,15 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       description: 'Process refund',
       tags: ['Payments'],
       security: [{ bearerAuth: [] }],
-      body: refundSchema
+      body: {
+        type: 'object',
+        required: ['paymentId'],
+        properties: {
+          paymentId: { type: 'string' },
+          amount: { type: 'number', minimum: 0.01 },
+          reason: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
