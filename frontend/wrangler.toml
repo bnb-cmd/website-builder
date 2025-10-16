@@ -4,12 +4,14 @@ pages_build_output_dir = ".next"
 
 # Environment variables
 [env.production.vars]
-NEXT_PUBLIC_API_URL = "https://api.pakistanbuilder.com/v1"
-NEXT_PUBLIC_APP_URL = "https://pakistan-builder.pages.dev"
+NEXT_PUBLIC_API_URL = "https://your-railway-backend.railway.app"
+NEXT_PUBLIC_APP_URL = "https://your-frontend.pages.dev"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = "pk_live_your-stripe-publishable-key"
 
 [env.development.vars]
-NEXT_PUBLIC_API_URL = "http://localhost:8787/v1"
+NEXT_PUBLIC_API_URL = "http://localhost:3001"
 NEXT_PUBLIC_APP_URL = "http://localhost:3000"
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = "pk_test_your-stripe-publishable-key"
 
 # Build configuration
 [build]
@@ -19,3 +21,8 @@ command = "npm run build"
 routes = [
   { pattern = "pakistanbuilder.com/*", zone_name = "pakistanbuilder.com" }
 ]
+
+# Custom domains (optional)
+# [[env.production.routes]]
+# pattern = "your-domain.com/*"
+# zone_name = "your-domain.com"

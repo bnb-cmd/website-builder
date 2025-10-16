@@ -2,6 +2,7 @@ import { MediaAsset, VideoProject, VideoClip, MediaType, AssetStatus, ProjectSta
 import { BaseService } from './baseService'
 import { config } from '@/config/environment'
 import { v2 as cloudinary } from 'cloudinary'
+import { r2Storage } from './r2Storage'
 
 // Configure Cloudinary
 if (config.storage.provider === 'cloudinary') {
@@ -308,8 +309,33 @@ export class MediaService extends BaseService<MediaAsset> {
     bytes: number
   }> {
     try {
+      if (config.storage.provider === 'r2') {
+        // Use R2 storage
+        const filename = options.publicId || `media-${Date.now()}-${Math.random().toString(36).substring(7)}`
+        const folder = options.folder || 'media'
+        const key = `${folder}/${filename}`
+        
+        const result = await r2Storage.uploadFile(file, key, {
+          contentType: this.getMimeType('IMAGE', 'jpg'), // Default to image
+          metadata: {
+            uploadedAt: new Date().toISOString(),
+            ...options.transformation
+          }
+        })
+        
+        return {
+          publicId: key,
+          url: result.url,
+          secureUrl: result.url,
+          width: options.transformation?.width,
+          height: options.transformation?.height,
+          format: 'jpg', // Default format
+          bytes: Buffer.isBuffer(file) ? file.length : 0
+        }
+      }
+
       if (config.storage.provider !== 'cloudinary') {
-        throw new Error('Cloudinary is not configured as the storage provider')
+        throw new Error('Storage provider not configured')
       }
 
       const uploadOptions: any = {
@@ -334,15 +360,21 @@ export class MediaService extends BaseService<MediaAsset> {
         bytes: result.bytes
       }
     } catch (error) {
-      console.error('Cloudinary upload error:', error)
-      throw new Error('Failed to upload to Cloudinary')
+      console.error('Upload error:', error)
+      throw new Error('Failed to upload file')
     }
   }
 
   async deleteFromCloudinary(publicId: string, resourceType: 'image' | 'video' | 'raw' = 'image'): Promise<boolean> {
     try {
+      if (config.storage.provider === 'r2') {
+        // Use R2 storage
+        await r2Storage.deleteFile(publicId)
+        return true
+      }
+
       if (config.storage.provider !== 'cloudinary') {
-        throw new Error('Cloudinary is not configured as the storage provider')
+        throw new Error('Storage provider not configured')
       }
 
       const result = await cloudinary.uploader.destroy(publicId, {
@@ -351,15 +383,20 @@ export class MediaService extends BaseService<MediaAsset> {
       
       return result.result === 'ok'
     } catch (error) {
-      console.error('Cloudinary delete error:', error)
+      console.error('Delete error:', error)
       return false
     }
   }
 
   async generateCloudinaryUrl(publicId: string, transformations: any = {}): Promise<string> {
     try {
+      if (config.storage.provider === 'r2') {
+        // Use R2 storage - return direct URL
+        return `${config.storage.r2?.publicUrl}/${publicId}`
+      }
+
       if (config.storage.provider !== 'cloudinary') {
-        throw new Error('Cloudinary is not configured as the storage provider')
+        throw new Error('Storage provider not configured')
       }
 
       return cloudinary.url(publicId, {
@@ -367,8 +404,8 @@ export class MediaService extends BaseService<MediaAsset> {
         secure: true
       })
     } catch (error) {
-      console.error('Cloudinary URL generation error:', error)
-      throw new Error('Failed to generate Cloudinary URL')
+      console.error('URL generation error:', error)
+      throw new Error('Failed to generate URL')
     }
   }
 
@@ -398,7 +435,8 @@ export class MediaService extends BaseService<MediaAsset> {
           height: uploadResult.height,
           duration: data.duration,
           metadata: JSON.stringify({
-            cloudinary: {
+            storage: {
+              provider: config.storage.provider,
               publicId: uploadResult.publicId,
               format: uploadResult.format,
               originalUrl: uploadResult.url
@@ -456,6 +494,12 @@ export class MediaService extends BaseService<MediaAsset> {
   }
 
   private generateThumbnailUrl(publicId: string, type: MediaType): string | null {
+    if (config.storage.provider === 'r2') {
+      // For R2, we'll use the same URL for now (no thumbnail generation)
+      // In production, you might want to generate thumbnails server-side
+      return `${config.storage.r2?.publicUrl}/${publicId}`
+    }
+
     if (type === 'VIDEO') {
       return cloudinary.url(publicId, {
         resource_type: 'video',

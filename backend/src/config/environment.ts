@@ -36,7 +36,7 @@ export interface AIConfig {
 }
 
 export interface StorageConfig {
-  provider: 'cloudinary' | 's3' | 'local'
+  provider: 'cloudinary' | 's3' | 'r2' | 'local'
   cloudinary?: {
     cloudName: string
     apiKey: string
@@ -47,6 +47,13 @@ export interface StorageConfig {
     region: string
     accessKey: string
     secretKey: string
+  }
+  r2?: {
+    accountId: string
+    accessKeyId: string
+    secretAccessKey: string
+    bucket: string
+    publicUrl: string
   }
   local?: {
     uploadPath: string
@@ -181,7 +188,7 @@ export const config: Config = {
   },
   
   storage: {
-    provider: (process.env.STORAGE_PROVIDER as any) || 'cloudinary',
+    provider: (process.env.STORAGE_PROVIDER as any) || 'r2',
     cloudinary: {
       cloudName: process.env.CLOUDINARY_CLOUD_NAME || '',
       apiKey: process.env.CLOUDINARY_API_KEY || '',
@@ -192,6 +199,13 @@ export const config: Config = {
       region: process.env.S3_REGION || 'us-east-1',
       accessKey: process.env.S3_ACCESS_KEY || '',
       secretKey: process.env.S3_SECRET_KEY || ''
+    },
+    r2: {
+      accountId: process.env.R2_ACCOUNT_ID || '',
+      accessKeyId: process.env.R2_ACCESS_KEY_ID || '',
+      secretAccessKey: process.env.R2_SECRET_ACCESS_KEY || '',
+      bucket: process.env.R2_BUCKET || '',
+      publicUrl: process.env.R2_PUBLIC_URL || ''
     },
     local: {
       uploadPath: process.env.UPLOAD_PATH || './uploads'
