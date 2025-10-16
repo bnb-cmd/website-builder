@@ -13,19 +13,24 @@ class RedisService {
 
   async connect(): Promise<void> {
     try {
-      // Priority 1: Upstash (serverless, REST API)
+      // Priority 1: Upstash (serverless, REST API) - Force this if Upstash vars are present
       if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
+        console.log('🔗 Connecting to Upstash Redis...')
         this.upstashClient = new UpstashRedis({
           url: process.env.UPSTASH_REDIS_REST_URL,
           token: process.env.UPSTASH_REDIS_REST_TOKEN,
         })
+        
+        // Test the connection
+        await this.upstashClient.ping()
         console.log('✅ Redis connected (Upstash)')
         this.connected = true
         return
       }
       
-      // Priority 2: Railway/Standard Redis (native protocol)
-      if (process.env.REDIS_URL) {
+      // Priority 2: Railway/Standard Redis (native protocol) - Only if Upstash not configured
+      if (process.env.REDIS_URL && !process.env.UPSTASH_REDIS_REST_URL) {
+        console.log('🔗 Connecting to Railway/Standard Redis...')
         this.ioredisClient = new IORedis(process.env.REDIS_URL, {
           maxRetriesPerRequest: 3,
           enableReadyCheck: true,
