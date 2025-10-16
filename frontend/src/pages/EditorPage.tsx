@@ -9,7 +9,8 @@ import { useWebsiteStore, useEditorStore } from '../lib/store'
 import { ComponentPalette } from '../components/editor/ComponentPalette'
 import EditorCanvas from '../components/editor/EditorCanvas'
 import { PropertiesPanel } from '../components/editor/PropertiesPanel'
-import { ComponentMetadata, ComponentNode } from '@/lib/component-config'
+import { ComponentMetadata } from '@/lib/component-config'
+import { ComponentNode, PageSchema } from '@/lib/schema'
 import { apiHelpers } from '../lib/api'
 // Import website components to ensure they get registered
 import '../components/website'
@@ -27,18 +28,7 @@ import {
   Rocket
 } from 'lucide-react'
 
-interface PageComponent {
-  id: string
-  type: string
-  props: Record<string, any>
-  children?: PageComponent[]
-  style?: Record<string, any>
-  position?: { x: number; y: number }
-  locked?: boolean
-  visible?: boolean
-  width?: number;
-  height?: number;
-}
+// Remove PageComponent interface - use ComponentNode instead
 
 type DeviceMode = 'desktop' | 'tablet' | 'mobile'
 
@@ -47,15 +37,53 @@ const EditorPage: React.FC = () => {
   const { currentWebsite, updateWebsite, createWebsite } = useWebsiteStore()
   const { isPreviewMode, togglePreviewMode } = useEditorStore()
   
-  const [components, setComponents] = useState<PageComponent[]>([])
-  const [selectedComponent, setSelectedComponent] = useState<PageComponent | null>(null)
+  const [components, setComponents] = useState<ComponentNode[]>([])
+  const [selectedComponent, setSelectedComponent] = useState<ComponentNode | null>(null)
   const [deviceMode, setDeviceMode] = useState<DeviceMode>('desktop')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isLoadingTemplate, setIsLoadingTemplate] = useState(false)
   const [templateName, setTemplateName] = useState<string>('')
+  
+  // Initialize pageSchema with default values
+  const [pageSchema, setPageSchema] = useState<PageSchema>({
+    id: 'home',
+    name: 'Home',
+    slug: '/',
+    schemaVersion: 1,
+    components: [],
+    settings: {
+      language: 'ENGLISH',
+      direction: 'ltr',
+      theme: 'light'
+    },
+    responsive: {
+      breakpoints: {
+        tablet: 768,
+        mobile: 480
+      },
+      defaultDevice: 'desktop'
+    },
+    metadata: {
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      author: 'user',
+      version: 1
+    },
+    publishing: {
+      status: 'draft'
+    }
+  })
 
   const websiteId = params.id
   const templateId = searchParams.get('template')
+
+  // Sync components with pageSchema
+  useEffect(() => {
+    setPageSchema(prev => ({
+      ...prev,
+      components: components
+    }))
+  }, [components])
 
   // Initialize template when templateId is provided
   useEffect(() => {
@@ -73,14 +101,44 @@ const EditorPage: React.FC = () => {
           const template = templateData.success ? templateData.data : (templateData.template || templateData)
           
           if (template.elements && template.elements.length > 0) {
-            // Convert template elements to PageComponent format
-            const templateComponents: PageComponent[] = template.elements.map((element: any, index: number) => ({
+            // Convert template elements to ComponentNode format
+            const templateComponents: ComponentNode[] = template.elements.map((element: any, index: number) => ({
               id: element.id || `${element.type}-${index}`,
               type: element.type,
               props: element.props || {},
-              style: element.style || {},
-              position: { x: 0, y: index * 100 },
-              children: element.children || []
+              layout: {
+                default: {
+                  x: 0,
+                  y: index * 100,
+                  width: element.width || 200,
+                  height: element.height || 100,
+                  zIndex: 1
+                }
+              },
+              styles: {
+                default: element.style || {}
+              },
+              locked: element.locked || false,
+              visible: element.visible !== false,
+              children: element.children?.map((child: any, childIndex: number) => ({
+                id: child.id || `${child.type}-${childIndex}`,
+                type: child.type,
+                props: child.props || {},
+                layout: {
+                  default: {
+                    x: child.position?.x || 0,
+                    y: child.position?.y || 0,
+                    width: child.width || 200,
+                    height: child.height || 100,
+                    zIndex: 1
+                  }
+                },
+                styles: {
+                  default: child.style || {}
+                },
+                locked: child.locked || false,
+                visible: child.visible !== false
+              })) || []
             }))
             
             console.log('🔧 Converted template components:', templateComponents)
@@ -175,7 +233,7 @@ const EditorPage: React.FC = () => {
     console.log('Save as template:', components)
   }
 
-  const handleComponentUpdate = useCallback((updatedComponent: PageComponent) => {
+  const handleComponentUpdate = useCallback((updatedComponent: ComponentNode) => {
     setComponents(prev => 
       prev.map(c => (c.id === updatedComponent.id ? updatedComponent : c))
     )
@@ -191,12 +249,16 @@ const EditorPage: React.FC = () => {
 
   const handleComponentDuplicate = () => {
     if (selectedComponent) {
-      const duplicated: PageComponent = {
+      const duplicated: ComponentNode = {
         ...selectedComponent,
         id: `${selectedComponent.id}_copy_${Date.now()}`,
-        position: {
-          x: (selectedComponent.position?.x || 0) + 20,
-          y: (selectedComponent.position?.y || 0) + 20
+        layout: {
+          ...selectedComponent.layout,
+          default: {
+            ...selectedComponent.layout.default,
+            x: selectedComponent.layout.default.x + 20,
+            y: selectedComponent.layout.default.y + 20
+          }
         }
       }
       setComponents(prev => [...prev, duplicated])
@@ -344,6 +406,8 @@ const EditorPage: React.FC = () => {
               selectedComponent={selectedComponent}
               deviceMode={deviceMode}
               deviceDimensions={deviceDimensions}
+              pageSchema={pageSchema}
+              onPageSchemaChange={setPageSchema}
             />
           </div>
         </div>

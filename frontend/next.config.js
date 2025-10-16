@@ -1,13 +1,24 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    runtime: 'edge',
-  },
+  outputFileTracingRoot: '/Volumes/T7/website builder/frontend',
   webpack: (config) => {
+    // Ignore macOS metadata files
     config.module.rules.push({
       test: /\._/,
       use: 'ignore-loader',
     })
+    
+    // Ignore files starting with ._
+    config.resolve.alias = {
+      ...config.resolve.alias,
+    }
+    
+    // Add ignore pattern for ._ files
+    config.module.rules.push({
+      test: /\._/,
+      loader: 'ignore-loader'
+    })
+    
     return config
   },
   images: {

@@ -25,21 +25,11 @@ import {
   Upload
 } from 'lucide-react'
 import ImagePicker from './ImagePicker'
-
-interface PageComponent {
-  id: string
-  type: string
-  props: Record<string, any>
-  children?: PageComponent[]
-  style?: Record<string, any>
-  position?: { x: number; y: number }
-  locked?: boolean
-  visible?: boolean
-}
+import { ComponentNode } from '../../lib/schema'
 
 interface PropertiesPanelProps {
-  selectedComponent: PageComponent | null
-  onComponentUpdate: (component: PageComponent) => void
+  selectedComponent: ComponentNode | null
+  onComponentUpdate: (component: ComponentNode) => void
   onComponentDelete: () => void
   onComponentDuplicate: () => void
 }
@@ -80,9 +70,12 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   const updateStyle = (key: string, value: any) => {
     onComponentUpdate({
       ...selectedComponent,
-      style: {
-        ...selectedComponent.style,
-        [key]: value
+      styles: {
+        ...selectedComponent.styles,
+        default: {
+          ...selectedComponent.styles.default,
+          [key]: value
+        }
       }
     })
   }
@@ -90,7 +83,14 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   const updatePosition = (x: number, y: number) => {
     onComponentUpdate({
       ...selectedComponent,
-      position: { x, y }
+      layout: {
+        ...selectedComponent.layout,
+        default: {
+          ...selectedComponent.layout.default,
+          x,
+          y
+        }
+      }
     })
   }
 
@@ -429,10 +429,10 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                   <Input
                     id="pos-x"
                     type="number"
-                    value={selectedComponent.position?.x || 0}
+                    value={selectedComponent.layout?.default?.x || 0}
                     onChange={(e) => updatePosition(
                       parseInt(e.target.value), 
-                      selectedComponent.position?.y || 0
+                      selectedComponent.layout?.default?.y || 0
                     )}
                   />
                 </div>
@@ -442,9 +442,9 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                   <Input
                     id="pos-y"
                     type="number"
-                    value={selectedComponent.position?.y || 0}
+                    value={selectedComponent.layout?.default?.y || 0}
                     onChange={(e) => updatePosition(
-                      selectedComponent.position?.x || 0,
+                      selectedComponent.layout?.default?.x || 0,
                       parseInt(e.target.value)
                     )}
                   />
@@ -480,7 +480,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                 <Input
                   id="text-color"
                   type="color"
-                  value={selectedComponent.style?.color || '#000000'}
+                  value={selectedComponent.styles?.default?.color || '#000000'}
                   onChange={(e) => updateStyle('color', e.target.value)}
                 />
               </div>
@@ -490,7 +490,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                 <Input
                   id="bg-color"
                   type="color"
-                  value={selectedComponent.style?.backgroundColor || '#ffffff'}
+                  value={selectedComponent.styles?.default?.backgroundColor || '#ffffff'}
                   onChange={(e) => updateStyle('backgroundColor', e.target.value)}
                 />
               </div>
@@ -498,7 +498,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
               <div>
                 <Label htmlFor="opacity">Opacity</Label>
                 <Slider
-                  value={[selectedComponent.style?.opacity || 1]}
+                  value={[selectedComponent.styles?.default?.opacity || 1]}
                   onValueChange={(value) => updateStyle('opacity', value[0])}
                   max={1}
                   min={0}
@@ -506,7 +506,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                   className="w-full"
                 />
                 <div className="text-xs text-muted-foreground mt-1">
-                  {Math.round((selectedComponent.style?.opacity || 1) * 100)}%
+                  {Math.round((selectedComponent.styles?.default?.opacity || 1) * 100)}%
                 </div>
               </div>
               
@@ -515,7 +515,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
                 <Input
                   id="border-radius"
                   type="number"
-                  value={parseInt(selectedComponent.style?.borderRadius) || 0}
+                  value={parseInt(selectedComponent.styles?.default?.borderRadius?.toString() || '0') || 0}
                   onChange={(e) => updateStyle('borderRadius', `${e.target.value}px`)}
                   placeholder="0"
                 />

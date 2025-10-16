@@ -108,7 +108,7 @@ const LoginPage: React.FC = () => {
                   <Checkbox
                     id="remember"
                     checked={rememberMe}
-                    onCheckedChange={setRememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked === true)}
                   />
                   <Label htmlFor="remember" className="text-sm">
                     Remember me

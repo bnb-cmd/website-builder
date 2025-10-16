@@ -190,7 +190,7 @@ const RegisterPage: React.FC = () => {
                 <Checkbox
                   id="terms"
                   checked={agreeToTerms}
-                  onCheckedChange={setAgreeToTerms}
+                    onCheckedChange={(checked) => setAgreeToTerms(checked === true)}
                 />
                 <Label htmlFor="terms" className="text-sm">
                   I agree to the{' '}

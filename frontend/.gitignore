@@ -36,3 +36,5 @@ next-env.d.ts
 ._*
 .DS_Store
 ._*
+._*
+**/._*
