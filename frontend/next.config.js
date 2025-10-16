@@ -1,8 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: '/Volumes/T7/website builder/frontend',
+  // Cloudflare Pages configuration
   trailingSlash: true,
-  distDir: 'out',
+  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
   webpack: (config, { isServer }) => {
     // Ignore macOS metadata files
     config.module.rules.push({
