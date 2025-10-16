@@ -55,7 +55,12 @@ export async function createServer() {
     },
     trustProxy: true,
     bodyLimit: 10 * 1024 * 1024, // 10MB
-    maxParamLength: 200
+    maxParamLength: 200,
+    // Temporarily disable schema validation to avoid Zod conversion issues
+    schemaErrorFormatter: (errors, dataVar) => {
+      console.warn('Schema validation warning:', errors)
+      return new Error('Schema validation temporarily disabled')
+    }
   })
 
   // Register shared schemas for $ref usage in route schemas
