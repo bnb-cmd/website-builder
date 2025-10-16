@@ -48,8 +48,53 @@ const brandKitRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/brand-kits/:userId', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ userId: z.string().cuid() }),
-      body: createBrandKitSchema
+      params: {
+        type: 'object',
+        required: ['userId'],
+        properties: {
+          userId: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['name'],
+        properties: {
+          name: { type: 'string' },
+          description: { type: 'string' },
+          inheritsFrom: { type: 'string' },
+          isDefault: { type: 'boolean' },
+          logoPrimary: { type: 'string' },
+          logoSecondary: { type: 'string' },
+          logoFavicon: { type: 'string' },
+          logoVariations: { type: 'string' },
+          colorPrimary: { type: 'string' },
+          colorSecondary: { type: 'string' },
+          colorAccent: { type: 'string' },
+          colorNeutral: { type: 'string' },
+          colorSuccess: { type: 'string' },
+          colorWarning: { type: 'string' },
+          colorError: { type: 'string' },
+          fontHeading: { type: 'string' },
+          fontBody: { type: 'string' },
+          fontAccent: { type: 'string' },
+          fontSizeH1: { type: 'string' },
+          fontSizeH2: { type: 'string' },
+          fontSizeH3: { type: 'string' },
+          fontSizeH4: { type: 'string' },
+          fontSizeH5: { type: 'string' },
+          fontSizeH6: { type: 'string' },
+          fontSizeBody: { type: 'string' },
+          fontSizeSmall: { type: 'string' },
+          imageStyle: { type: 'string' },
+          imageMood: { type: 'string' },
+          imageTemplates: { type: 'string' },
+          logoUsageRules: { type: 'string' },
+          colorUsageRules: { type: 'string' },
+          spacingRules: { type: 'string' },
+          typographyRules: { type: 'string' },
+          imageGuidelines: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { userId } = request.params as { userId: string }
@@ -111,7 +156,13 @@ const brandKitRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/brand-kits/:id', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -146,8 +197,52 @@ const brandKitRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/brand-kits/:id', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() }),
-      body: createBrandKitSchema.partial()
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          description: { type: 'string' },
+          inheritsFrom: { type: 'string' },
+          isDefault: { type: 'boolean' },
+          logoPrimary: { type: 'string' },
+          logoSecondary: { type: 'string' },
+          logoFavicon: { type: 'string' },
+          logoVariations: { type: 'string' },
+          colorPrimary: { type: 'string' },
+          colorSecondary: { type: 'string' },
+          colorAccent: { type: 'string' },
+          colorNeutral: { type: 'string' },
+          colorSuccess: { type: 'string' },
+          colorWarning: { type: 'string' },
+          colorError: { type: 'string' },
+          fontHeading: { type: 'string' },
+          fontBody: { type: 'string' },
+          fontAccent: { type: 'string' },
+          fontSizeH1: { type: 'string' },
+          fontSizeH2: { type: 'string' },
+          fontSizeH3: { type: 'string' },
+          fontSizeH4: { type: 'string' },
+          fontSizeH5: { type: 'string' },
+          fontSizeH6: { type: 'string' },
+          fontSizeBody: { type: 'string' },
+          fontSizeSmall: { type: 'string' },
+          imageStyle: { type: 'string' },
+          imageMood: { type: 'string' },
+          imageTemplates: { type: 'string' },
+          logoUsageRules: { type: 'string' },
+          colorUsageRules: { type: 'string' },
+          spacingRules: { type: 'string' },
+          typographyRules: { type: 'string' },
+          imageGuidelines: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
