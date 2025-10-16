@@ -1,5 +1,3 @@
-const { setupDevPlatform } = require('@cloudflare/next-on-pages/next-dev')
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
@@ -40,9 +38,15 @@ const nextConfig = {
   },
 }
 
-// Setup Cloudflare Pages development
+// Setup Cloudflare Pages development (only in development)
 if (process.env.NODE_ENV === 'development') {
-  setupDevPlatform()
+  try {
+    const { setupDevPlatform } = require('@cloudflare/next-on-pages/next-dev')
+    setupDevPlatform()
+  } catch (error) {
+    // Ignore if wrangler is not available
+    console.log('Cloudflare Pages dev platform not available')
+  }
 }
 
 module.exports = nextConfig
