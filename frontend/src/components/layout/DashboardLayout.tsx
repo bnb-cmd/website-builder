@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react'
-import { Header } from './Header'
+import { Header } from './Header.tsx'
 import { DashboardSidebar } from './DashboardSidebar'
 import { useAuthStore } from '@/lib/store'
 
