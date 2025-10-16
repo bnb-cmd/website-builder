@@ -58,7 +58,8 @@
         "src/routes/disabled/**/*.ts",
         "src/services/disabled/**/*.ts",
         "src/scripts/**/*.ts",
-        "src/disabled/**/*.ts"
+        "src/disabled/**/*.ts",
+        "src/workers/**/*.ts"
       ],
   "ts-node": {
     "esm": true,

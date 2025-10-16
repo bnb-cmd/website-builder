@@ -315,12 +315,11 @@ export class MediaService extends BaseService<MediaAsset> {
         const folder = options.folder || 'media'
         const key = `${folder}/${filename}`
         
-        const result = await r2Storage.uploadFile(file, key, {
-          contentType: this.getMimeType('IMAGE', 'jpg'), // Default to image
-          metadata: {
-            uploadedAt: new Date().toISOString(),
-            ...options.transformation
-          }
+        const result = await r2Storage.uploadFile(Buffer.isBuffer(file) ? file : Buffer.from(file), {
+          folder: folder,
+          filename: filename,
+          contentType: this.getMimeType('IMAGE', 'jpg'),
+          generateThumbnail: false
         })
         
         return {

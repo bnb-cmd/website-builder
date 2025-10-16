@@ -140,11 +140,8 @@ class R2StorageService {
       const chunks: Uint8Array[] = []
       const reader = response.Body.transformToByteArray()
       
-      for await (const chunk of reader) {
-        chunks.push(chunk)
-      }
-
-      return Buffer.concat(chunks)
+      const chunks_array = await reader
+      return Buffer.from(chunks_array)
     } catch (error) {
       console.error('R2 get file error:', error)
       return null

@@ -30,7 +30,6 @@ class RedisService {
           maxRetriesPerRequest: 3,
           enableReadyCheck: true,
           lazyConnect: false,
-          retryDelayOnFailover: 100,
           connectTimeout: 10000,
           commandTimeout: 5000,
         })
