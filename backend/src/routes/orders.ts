@@ -72,7 +72,18 @@ export async function orderRoutes(fastify: FastifyInstance) {
       description: 'Create a new order',
       tags: ['Orders'],
       security: [{ bearerAuth: [] }],
-      body: createOrderSchema
+      body: {
+        type: 'object',
+        required: ['customerEmail', 'items'],
+        properties: {
+          customerEmail: { type: 'string', format: 'email' },
+          items: { type: 'array', items: { type: 'object' } },
+          shippingAddress: { type: 'object' },
+          billingAddress: { type: 'object' },
+          paymentMethod: { type: 'string' },
+          notes: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -274,7 +285,14 @@ export async function orderRoutes(fastify: FastifyInstance) {
       params: z.object({
         id: z.string()
       }),
-      body: updateOrderSchema
+      body: {
+        type: 'object',
+        properties: {
+          status: { type: 'string' },
+          notes: { type: 'string' },
+          shippingAddress: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
