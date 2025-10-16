@@ -175,12 +175,12 @@ export const ecommerceApi = {
   },
 
   enableEcommerce: async (websiteId: string) => {
-    const response = await api.post(`/websites/${websiteId}/ecommerce/enable`)
+    const response = await api.post(`/websites/${websiteId}/ecommerce/enable`, {})
     return response.data
   },
 
   disableEcommerce: async (websiteId: string) => {
-    const response = await api.post(`/websites/${websiteId}/ecommerce/disable`)
+    const response = await api.post(`/websites/${websiteId}/ecommerce/disable`, {})
     return response.data
   },
 

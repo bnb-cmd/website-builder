@@ -3,6 +3,13 @@ const nextConfig = {
   experimental: {
     runtime: 'edge',
   },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\._/,
+      use: 'ignore-loader',
+    })
+    return config
+  },
   images: {
     domains: ['assets.pakistanbuilder.com', 'images.unsplash.com'],
     formats: ['image/webp', 'image/avif'],

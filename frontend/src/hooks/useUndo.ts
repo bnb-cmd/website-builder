@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { EditorHistoryManager, PatchManager, ImmerStateManager, KeyboardShortcutsManager } from './history'
 import { ComponentNode, PageSchema, ComponentOperation, PatchOperation } from './schema'
 
@@ -153,7 +153,10 @@ export function useUndoRedo(
     if (!stateManagerRef.current) return
 
     const beforeState = stateManagerRef.current.getState()
-    const afterState = stateManagerRef.current.updateState(updater)
+    const afterState = stateManagerRef.current.updateState((state) => {
+      updater(state)
+      return state
+    })
     
     // Create patch
     const patch = PatchManager.createPatch(beforeState, afterState)
@@ -186,7 +189,8 @@ export function useUndoRedo(
     if (!stateManagerRef.current) return
 
     const beforeState = stateManagerRef.current.getState()
-    const afterState = stateManagerRef.current.applyPatchToState(patch)
+    const afterState = PatchManager.applyPatch(beforeState, patch)
+    stateManagerRef.current.setState(afterState)
     
     onStateChange?.(afterState)
   }, [onStateChange])
@@ -195,20 +199,20 @@ export function useUndoRedo(
   const currentState = stateManagerRef.current?.getState() || initialState
 
   // Get history info
-  const historyInfo = historyManagerRef.current?.getHistoryInfo() || {
-    states: 0,
-    currentIndex: -1,
-    maxStates
+  const historyInfo = {
+    canUndo: historyManagerRef.current?.canUndo() || false,
+    canRedo: historyManagerRef.current?.canRedo() || false,
+    currentState: historyManagerRef.current?.getCurrentState() || null
   }
 
   return {
     currentState,
-    canUndo: historyInfo.currentIndex > 0,
-    canRedo: historyInfo.currentIndex < historyInfo.states - 1,
+    canUndo: historyInfo.canUndo,
+    canRedo: historyInfo.canRedo,
     historyInfo: {
-      states: historyInfo.states,
-      currentIndex: historyInfo.currentIndex,
-      maxStates: historyInfo.maxStates
+      states: 0,
+      currentIndex: -1,
+      maxStates
     },
     undo,
     redo,
@@ -240,8 +244,8 @@ export function useAutosave(
     enabled = true
   } = options
 
-  const lastSavedStateRef = useRef<string>()
-  const intervalRef = useRef<NodeJS.Timeout>()
+  const lastSavedStateRef = useRef<string | null>(null)
+  const intervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Check if state has changed
   const hasStateChanged = useCallback(() => {

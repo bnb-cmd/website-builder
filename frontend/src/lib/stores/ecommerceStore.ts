@@ -266,7 +266,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             set({ error: data.error, isLoading: false })
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
         }
       },
 
@@ -294,7 +294,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             throw new Error(data.error)
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
           throw error
         }
       },
@@ -320,7 +320,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             throw new Error(data.error)
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
           throw error
         }
       },
@@ -342,7 +342,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             throw new Error(data.error)
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
           throw error
         }
       },
@@ -364,7 +364,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             throw new Error(data.error)
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
           throw error
         }
       },
@@ -402,7 +402,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             set({ error: data.error, isLoading: false })
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
         }
       },
 
@@ -430,7 +430,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             throw new Error(data.error)
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
           throw error
         }
       },
@@ -456,7 +456,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             throw new Error(data.error)
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
           throw error
         }
       },
@@ -482,7 +482,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             throw new Error(data.error)
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
           throw error
         }
       },
@@ -506,7 +506,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             set({ error: data.error, isLoading: false })
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
         }
       },
 
@@ -539,7 +539,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             set({ error: data.error, isLoading: false })
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
         }
       },
 
@@ -564,7 +564,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             throw new Error(data.error)
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
           throw error
         }
       },
@@ -582,7 +582,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             set({ error: data.error, isLoading: false })
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
         }
       },
 
@@ -603,7 +603,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             throw new Error(data.error)
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
           throw error
         }
       },
@@ -622,7 +622,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             throw new Error(data.error)
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
           throw error
         }
       },
@@ -641,7 +641,7 @@ export const useEcommerceStore = create<EcommerceState>()(
             throw new Error(data.error)
           }
         } catch (error) {
-          set({ error: error.message, isLoading: false })
+          set({ error: (error as Error).message, isLoading: false })
           throw error
         }
       },

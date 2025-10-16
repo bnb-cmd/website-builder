@@ -92,7 +92,7 @@ interface AuthState {
   token: string | null
   isLoading: boolean
   _hasHydrated: boolean
-  login: (email: string, password: string) => Promise<void>
+  login: (email: string, password: string) => Promise<{ success: boolean; user?: any; error?: any }>
   register: (email: string, password: string, name: string) => Promise<void>
   logout: () => void
   autoLogin: () => Promise<{ success: boolean; user?: User }>
@@ -107,7 +107,7 @@ export const useAuthStore = create<AuthState>()(
       isLoading: false,
       _hasHydrated: false,
 
-      login: async (email: string, password: string) => {
+      login: async (email: string, password: string): Promise<{ success: boolean; user?: any; error?: any }> => {
         set({ isLoading: true })
         
         try {
@@ -194,7 +194,7 @@ export const useAuthStore = create<AuthState>()(
         
         // Don't auto-login if user is already logged in
         if (get().user) {
-          console.log('✅ User already logged in:', get().user.email)
+          console.log('✅ User already logged in:', get().user?.email)
           return { success: true, user: get().user }
         }
         
@@ -290,7 +290,7 @@ export const useWebsiteStore = create<WebsiteState>((set, get) => ({
       const response = await apiHelpers.getWebsites()
       // Handle the API response structure: { success: true, data: [...] }
       const websites = response.success ? response.data : response
-      set({ websites: Array.isArray(websites) ? websites : [], isLoading: false })
+      set({ websites: Array.isArray(websites) ? websites as unknown as Website[] : [], isLoading: false })
     } catch (error) {
       console.error('Failed to fetch websites:', error)
       // Mock data for demo
@@ -337,11 +337,11 @@ export const useWebsiteStore = create<WebsiteState>((set, get) => ({
       const response = await apiHelpers.createWebsite({
         name: data.name || 'Untitled Website',
         templateId: data.template,
-        description: data.description,
-        businessType: data.businessType || 'OTHER',
-        language: data.language || 'ENGLISH',
-        content: data.content,
-        settings: data.settings
+        description: (data as any).description,
+        businessType: (data as any).businessType || 'OTHER',
+        language: (data as any).language || 'ENGLISH',
+        content: (data as any).content,
+        settings: (data as any).settings
       })
       
       console.log('🔧 API response:', response)

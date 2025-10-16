@@ -9,7 +9,7 @@ import { useWebsiteStore, useEditorStore } from '../lib/store'
 import { ComponentPalette } from '../components/editor/ComponentPalette'
 import EditorCanvas from '../components/editor/EditorCanvas'
 import { PropertiesPanel } from '../components/editor/PropertiesPanel'
-import { ComponentMetadata } from '../components/website/registry'
+import { ComponentMetadata, ComponentNode } from '@/lib/component-config'
 import { apiHelpers } from '../lib/api'
 // Import website components to ensure they get registered
 import '../components/website'
@@ -92,8 +92,7 @@ const EditorPage: React.FC = () => {
               name: `${template.name} Website`,
               template: templateId,
               thumbnail: template.thumbnail,
-              content: {
-                pages: [{
+              pages: [{
                   id: 'home',
                   name: 'Home',
                   path: '/',
@@ -102,9 +101,8 @@ const EditorPage: React.FC = () => {
                     title: template.name,
                     description: template.description,
                     keywords: template.tags || []
-                  }
-                }]
-              }
+                }
+              }],
             })
             
             console.log('🔧 Created website:', newWebsite)
@@ -170,6 +168,11 @@ const EditorPage: React.FC = () => {
 
   const handleComponentDragStart = (component: ComponentMetadata) => {
     console.log('EditorPage: Dragging component:', component.config.name)
+  }
+
+  const handleSaveAsTemplate = (components: ComponentNode[]) => {
+    // TODO: Implement save as template functionality
+    console.log('Save as template:', components)
   }
 
   const handleComponentUpdate = useCallback((updatedComponent: PageComponent) => {
@@ -328,7 +331,7 @@ const EditorPage: React.FC = () => {
       <div className="flex flex-1 overflow-hidden">
         {/* Component Palette */}
         {!isPreviewMode && (
-          <ComponentPalette onDragStart={handleComponentDragStart} />
+          <ComponentPalette onComponentDragStart={handleComponentDragStart} onSaveAsTemplate={handleSaveAsTemplate} pageSchema={pageSchema} />
         )}
 
         {/* Main Canvas Area */}

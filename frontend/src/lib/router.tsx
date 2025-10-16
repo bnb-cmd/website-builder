@@ -7,7 +7,7 @@ import { useRouter as useNextRouter, useSearchParams, useParams } from 'next/nav
 // Wrapper component for useSearchParams
 const SearchParamsWrapper = ({ children }: { children: (searchParams: URLSearchParams) => React.ReactNode }) => {
   const searchParams = useSearchParams()
-  return <>{children(searchParams)}</>
+  return <>{children(searchParams || new URLSearchParams())}</>
 }
 
 // Re-export Next.js router for compatibility

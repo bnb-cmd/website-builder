@@ -1,4 +1,5 @@
-import { applyPatch, createPatch, Operation } from 'fast-json-patch'
+import { applyPatch, Operation } from 'fast-json-patch'
+import * as jsonPatch from 'fast-json-patch'
 import { produce } from 'immer'
 import { ComponentNode, PageSchema, HistoryState, ComponentOperation } from './schema'
 
@@ -63,7 +64,7 @@ export class EditorHistoryManager {
 
     this.isUndoRedo = true
     this.currentIndex--
-    return this.states[this.currentIndex]
+    return this.states[this.currentIndex] || null
   }
 
   // Redo next operation
@@ -74,7 +75,7 @@ export class EditorHistoryManager {
 
     this.isUndoRedo = true
     this.currentIndex++
-    return this.states[this.currentIndex]
+    return this.states[this.currentIndex] || null
   }
 
   // Check if undo is possible
@@ -90,7 +91,7 @@ export class EditorHistoryManager {
   // Get current state
   getCurrentState(): HistoryState | null {
     if (this.currentIndex >= 0 && this.currentIndex < this.states.length) {
-      return this.states[this.currentIndex]
+      return this.states[this.currentIndex] || null
     }
     return null
   }
@@ -122,11 +123,11 @@ export class EditorHistoryManager {
 export class PatchManager {
   // Create patch between two objects
   static createPatch(before: any, after: any): PatchOperation[] {
-    return createPatch(before, after) as PatchOperation[]
+    return jsonPatch.generate(before, after) as PatchOperation[]
   }
 
   // Apply patch to object
-  static applyPatch(target: any, patch: PatchOperation[]): any {
+  static applyPatch(target: any, patch: Operation[]): any {
     const result = applyPatch(target, patch)
     return result.newDocument
   }
@@ -224,7 +225,7 @@ export class PatchManager {
     beforePage: PageSchema,
     afterPage: PageSchema
   ): PatchOperation[] {
-    return createPatch(beforePage, afterPage) as PatchOperation[]
+    return PatchManager.createPatch(beforePage, afterPage)
   }
 
   // Optimize patches (remove redundant operations)
@@ -237,12 +238,12 @@ export class PatchManager {
       
       // Skip redundant operations
       if (next && 
-          current.op === 'replace' && 
+          current?.op === 'replace' && 
           next.op === 'replace' && 
-          current.path === next.path) {
+          current?.path === next.path) {
         i++ // Skip the next patch
         optimized.push(next) // Use the later value
-      } else {
+      } else if (current) {
         optimized.push(current)
       }
     }
@@ -309,7 +310,7 @@ export class ImmerStateManager {
 
   // Apply patch to state
   applyPatchToState(patch: PatchOperation[]): PageSchema {
-    this.state = PatchManager.applyPatch(this.state, patch)
+    this.state = PatchManager.applyPatch(this.state, patch as Operation[])
     return this.state
   }
 }

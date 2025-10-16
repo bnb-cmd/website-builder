@@ -35,3 +35,4 @@ next-env.d.ts
 # Mac OS X resource forks
 ._*
 .DS_Store
+._*
