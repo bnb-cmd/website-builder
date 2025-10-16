@@ -35,7 +35,18 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       description: 'Create payment intent',
       tags: ['Payments'],
       security: [{ bearerAuth: [] }],
-      body: createPaymentIntentSchema
+      body: {
+        type: 'object',
+        required: ['amount', 'currency', 'orderId', 'customerEmail', 'gateway'],
+        properties: {
+          amount: { type: 'number', minimum: 0.01 },
+          currency: { type: 'string', minLength: 3, maxLength: 3 },
+          orderId: { type: 'string' },
+          customerEmail: { type: 'string', format: 'email' },
+          gateway: { type: 'string', enum: ['STRIPE', 'JAZZCASH', 'EASYPAISA', 'BANK_TRANSFER'] },
+          metadata: { type: 'object', additionalProperties: { type: 'string' } }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
