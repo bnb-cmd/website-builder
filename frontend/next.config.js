@@ -1,9 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  outputFileTracingRoot: '/Volumes/T7/website builder/frontend',
   // Cloudflare Pages configuration
   trailingSlash: true,
-  assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
   // Exclude cache files from build output
   outputFileTracingExcludes: {
     '*': [

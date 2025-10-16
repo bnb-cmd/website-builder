@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node clean-mac-files.js && next build && node clean-for-pages.js",
+    "build": "node clean-mac-files.js && next build && node copy-html-files.js && node clean-for-pages.js",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
