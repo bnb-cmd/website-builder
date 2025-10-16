@@ -30,6 +30,8 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 
+// Generate static params for static export
+
 export default function CustomerDetailPage() {
   const params = useParams()
   const customerId = params?.id as string

@@ -29,6 +29,8 @@ import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'
 
+// Generate static params for static export
+
 export default function OrderDetailPage() {
   const params = useParams()
   const orderId = params?.id as string

@@ -1,0 +1,20 @@
+# Cloudflare Pages configuration
+# This file tells Cloudflare Pages which files to deploy
+
+# Include only the necessary files for deployment
+.next/static/
+.next/server/
+.next/serverless/
+.next/standalone/
+
+# Exclude cache and build artifacts
+.next/cache/
+.next/server/chunks/
+.next/static/chunks/
+
+# Include public files
+public/
+
+# Include package files
+package.json
+package-lock.json

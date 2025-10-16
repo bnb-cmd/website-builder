@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: '/Volumes/T7/website builder/frontend',
+  trailingSlash: true,
+  distDir: 'out',
   webpack: (config, { isServer }) => {
     // Ignore macOS metadata files
     config.module.rules.push({
