@@ -1,11 +1,11 @@
 "use client"
 
 import React, { useState } from 'react'
-import { Card, CardContent, CardFooter } from '../ui/card'
-import { Button } from '../ui/button'
-import { Badge } from '../ui/badge'
-import { ImageWithFallback } from '../figma/ImageWithFallback'
-import { cn } from '../../lib/utils'
+import { Card, CardContent, CardFooter } from '../../ui/card'
+import { Button } from '../../ui/button'
+import { Badge } from '../../ui/badge'
+import { ImageWithFallback } from '../../figma/ImageWithFallback'
+import { cn } from '../../../lib/utils'
 import { ShoppingCart, ExternalLink, Heart } from 'lucide-react'
 
 export interface ProductCardProps {
@@ -91,7 +91,6 @@ const ProductCard: React.FC<ProductCardProps> = ({
         <ImageWithFallback
           src={imageUrl}
           alt={name}
-          fallbackSrc="/placeholder-product.jpg"
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
         />
         

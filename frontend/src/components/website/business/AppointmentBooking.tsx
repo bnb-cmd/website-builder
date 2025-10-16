@@ -30,9 +30,9 @@ export const AppointmentBookingConfig: ComponentConfig = {
   },
   defaultSize: { width: 400, height: 500 },
   editableFields: [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' },
-    { key: 'confirmationMessage', label: 'Confirmation Message', type: 'text' }
+    'title',
+    'subtitle',
+    'confirmationMessage'
   ]
 }
 

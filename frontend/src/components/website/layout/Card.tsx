@@ -2,6 +2,7 @@ import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../ui/card'
 import { getResponsivePadding, getResponsiveTextSize } from '../renderer'
+import { cn } from '@/lib/utils'
 
 export const CardConfig: ComponentConfig = {
   id: 'card',

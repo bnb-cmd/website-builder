@@ -13,7 +13,7 @@ import { useEditorStore } from '../../lib/store'
 import { ImageWithFallback } from '../figma/ImageWithFallback'
 import { ComponentRenderer, getResponsiveDimensions } from '../website/renderer'
 import { getDefaultProps, getDefaultSize } from '../website/registry'
-import { ComponentNode, PageSchema, ResponsiveLayout, ResponsiveStyles } from '../../lib/schema'
+import { ComponentNode, PageSchema, ResponsiveLayout, ResponsiveStyles, LayoutObject, StyleObject } from '../../lib/schema'
 import { useUndoRedo } from '../../hooks/useUndo'
 import { 
   Trash2, 
@@ -103,21 +103,56 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     return Math.round(value / gridSize) * gridSize
   }, [snapGrid])
 
+  // Helper function to safely get styles for a device
+  const getStyles = useCallback((styles: ResponsiveStyles, device: 'desktop' | 'tablet' | 'mobile'): StyleObject => {
+    if (device === 'desktop') {
+      return styles.default
+    }
+    
+    const deviceStyles = styles[device]
+    if (!deviceStyles) {
+      return styles.default
+    }
+    
+    // Merge partial styles with default styles
+    return {
+      ...styles.default,
+      ...deviceStyles
+    }
+  }, [])
+
+  // Helper function to safely get layout for a device
+  const getLayout = useCallback((layout: ResponsiveLayout, device: 'desktop' | 'tablet' | 'mobile'): LayoutObject => {
+    if (device === 'desktop') {
+      return layout.default
+    }
+    
+    const deviceLayout = layout[device]
+    if (!deviceLayout) {
+      return layout.default
+    }
+    
+    // Merge partial layout with default layout
+    return {
+      x: deviceLayout.x ?? layout.default.x,
+      y: deviceLayout.y ?? layout.default.y,
+      width: deviceLayout.width ?? layout.default.width,
+      height: deviceLayout.height ?? layout.default.height,
+      zIndex: deviceLayout.zIndex ?? layout.default.zIndex
+    }
+  }, [])
+
   // Calculate alignment guides
   const calculateAlignmentGuides = useCallback((component: ComponentNode): Array<{ x?: number; y?: number; type: 'horizontal' | 'vertical' }> => {
     if (!snapGuides) return []
 
     const guides: Array<{ x?: number; y?: number; type: 'horizontal' | 'vertical' }> = []
-    const currentLayout = component.layout[deviceMode === 'desktop' ? 'default' : deviceMode] || component.layout.default
-    
-    if (!currentLayout || typeof currentLayout.x !== 'number') return guides
+    const currentLayout = getLayout(component.layout, deviceMode)
 
     components.forEach(comp => {
       if (comp.id === component.id) return
       
-      const compLayout = comp.layout[deviceMode === 'desktop' ? 'default' : deviceMode] || comp.layout.default
-      
-      if (!compLayout || typeof compLayout.x !== 'number') return
+      const compLayout = getLayout(comp.layout, deviceMode)
       
       // Vertical alignment guides
       if (Math.abs(currentLayout.x - compLayout.x) < 5) {
@@ -137,7 +172,7 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     })
 
     return guides
-  }, [components, deviceMode, snapGuides])
+  }, [components, deviceMode, snapGuides, getLayout, getStyles])
 
   // Handle drag start
   const handleDragStart = (event: DragStartEvent) => {
@@ -156,8 +191,8 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     if (!over || !canvasRef.current) return
 
     const rect = canvasRef.current.getBoundingClientRect()
-    const x = event.activatorEvent?.clientX ? event.activatorEvent.clientX - rect.left : 0
-    const y = event.activatorEvent?.clientY ? event.activatorEvent.clientY - rect.top : 0
+    const x = event.activatorEvent && 'clientX' in event.activatorEvent ? (event.activatorEvent as MouseEvent).clientX - rect.left : 0
+    const y = event.activatorEvent && 'clientY' in event.activatorEvent ? (event.activatorEvent as MouseEvent).clientY - rect.top : 0
 
     // Calculate alignment guides
     if (draggedComponent) {
@@ -176,8 +211,8 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     if (!over || !canvasRef.current) return
 
     const rect = canvasRef.current.getBoundingClientRect()
-    const x = event.activatorEvent?.clientX ? event.activatorEvent.clientX - rect.left : 0
-    const y = event.activatorEvent?.clientY ? event.activatorEvent.clientY - rect.top : 0
+    const x = event.activatorEvent && 'clientX' in event.activatorEvent ? (event.activatorEvent as MouseEvent).clientX - rect.left : 0
+    const y = event.activatorEvent && 'clientY' in event.activatorEvent ? (event.activatorEvent as MouseEvent).clientY - rect.top : 0
 
     // Handle component reordering
     if (over.id === 'canvas' && active.id !== over.id) {
@@ -269,8 +304,8 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     
     setIsMovingComponent(true)
     setMoveStartPos({
-      x: e.clientX - (component.layout[deviceMode]?.x || component.layout.default.x),
-      y: e.clientY - (component.layout[deviceMode]?.y || component.layout.default.y)
+      x: e.clientX - getLayout(component.layout, deviceMode).x,
+      y: e.clientY - getLayout(component.layout, deviceMode).y
     })
     
     onComponentSelect(component)
@@ -286,7 +321,7 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     setIsResizingComponent(true)
     setResizeHandle(handle)
     
-    const layout = selectedComponent.layout[deviceMode] || selectedComponent.layout.default
+    const layout = getLayout(selectedComponent.layout, deviceMode)
     setResizeStartPos({
       x: e.clientX,
       y: e.clientY,
@@ -311,11 +346,16 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
         updateState((draft) => {
           const component = draft.components.find(c => c.id === selectedComponent.id)
           if (component) {
-            if (!component.layout[deviceMode]) {
-              component.layout[deviceMode] = { ...component.layout.default }
+            if (deviceMode === 'desktop') {
+              component.layout.default.x = Math.max(0, newX)
+              component.layout.default.y = Math.max(0, newY)
+            } else {
+              if (!component.layout[deviceMode]) {
+                component.layout[deviceMode] = { ...component.layout.default }
+              }
+              component.layout[deviceMode]!.x = Math.max(0, newX)
+              component.layout[deviceMode]!.y = Math.max(0, newY)
             }
-            component.layout[deviceMode]!.x = Math.max(0, newX)
-            component.layout[deviceMode]!.y = Math.max(0, newY)
           }
         })
 
@@ -331,33 +371,60 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
         updateState((draft) => {
           const component = draft.components.find(c => c.id === selectedComponent.id)
           if (component) {
-            if (!component.layout[deviceMode]) {
-              component.layout[deviceMode] = { ...component.layout.default }
-            }
-            
-            const layout = component.layout[deviceMode]!
-            
-            switch (resizeHandle) {
-              case 'se':
-                layout.width = Math.max(50, snapToGrid(resizeStartPos.width + deltaX))
-                layout.height = Math.max(50, snapToGrid(resizeStartPos.height + deltaY))
-                break
-              case 'sw':
-                layout.width = Math.max(50, snapToGrid(resizeStartPos.width - deltaX))
-                layout.height = Math.max(50, snapToGrid(resizeStartPos.height + deltaY))
-                layout.x = snapToGrid(component.layout.default.x + (resizeStartPos.width - layout.width))
-                break
-              case 'ne':
-                layout.width = Math.max(50, snapToGrid(resizeStartPos.width + deltaX))
-                layout.height = Math.max(50, snapToGrid(resizeStartPos.height - deltaY))
-                layout.y = snapToGrid(component.layout.default.y + (resizeStartPos.height - layout.height))
-                break
-              case 'nw':
-                layout.width = Math.max(50, snapToGrid(resizeStartPos.width - deltaX))
-                layout.height = Math.max(50, snapToGrid(resizeStartPos.height - deltaY))
-                layout.x = snapToGrid(component.layout.default.x + (resizeStartPos.width - layout.width))
-                layout.y = snapToGrid(component.layout.default.y + (resizeStartPos.height - layout.height))
-                break
+            if (deviceMode === 'desktop') {
+              const layout = component.layout.default
+              
+              switch (resizeHandle) {
+                case 'se':
+                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width + deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height + deltaY))
+                  break
+                case 'sw':
+                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width - deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height + deltaY))
+                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPos.width - layout.width))
+                  break
+                case 'ne':
+                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width + deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height - deltaY))
+                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPos.height - layout.height))
+                  break
+                case 'nw':
+                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width - deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height - deltaY))
+                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPos.width - layout.width))
+                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPos.height - layout.height))
+                  break
+              }
+            } else {
+              if (!component.layout[deviceMode]) {
+                component.layout[deviceMode] = { ...component.layout.default }
+              }
+              
+              const layout = component.layout[deviceMode]!
+              
+              switch (resizeHandle) {
+                case 'se':
+                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width + deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height + deltaY))
+                  break
+                case 'sw':
+                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width - deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height + deltaY))
+                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPos.width - layout.width))
+                  break
+                case 'ne':
+                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width + deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height - deltaY))
+                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPos.height - layout.height))
+                  break
+                case 'nw':
+                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width - deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height - deltaY))
+                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPos.width - layout.width))
+                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPos.height - layout.height))
+                  break
+              }
             }
           }
         })
@@ -577,8 +644,8 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
               {components.map((component) => {
                 if (!component.visible) return null
 
-                const layout = component.layout[deviceMode] || component.layout.default
-                const styles = component.styles[deviceMode] || component.styles.default
+                const layout = getLayout(component.layout, deviceMode)
+                const styles = getStyles(component.styles, deviceMode)
                 const isSelected = selectedComponent?.id === component.id
                 const isMultiSelected = multiSelect.includes(component.id)
 
@@ -605,9 +672,10 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
                     {/* Component Content */}
                     <div className="w-full h-full">
                       <ComponentRenderer
-                        component={component}
+                        componentType={component.type}
+                        props={component.props}
                         deviceMode={deviceMode}
-                        isPreview={isPreviewMode}
+                        isPreviewMode={isPreviewMode}
                       />
                     </div>
 
@@ -660,9 +728,10 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
             {draggedComponent ? (
               <div className="opacity-50">
                 <ComponentRenderer
-                  component={draggedComponent}
+                  componentType={draggedComponent.type}
+                  props={draggedComponent.props}
                   deviceMode={deviceMode}
-                  isPreview={false}
+                  isPreviewMode={false}
                 />
               </div>
             ) : null}

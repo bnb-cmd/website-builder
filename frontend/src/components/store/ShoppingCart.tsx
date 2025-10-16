@@ -7,7 +7,7 @@ import { Badge } from '../ui/badge'
 import { Separator } from '../ui/separator'
 import { Input } from '../ui/input'
 import { cn } from '../../lib/utils'
-import { ShoppingCart, Plus, Minus, Trash2, X } from 'lucide-react'
+import { ShoppingCart as ShoppingCartIcon, Plus, Minus, Trash2, X } from 'lucide-react'
 
 export interface CartItem {
   id: string
@@ -93,7 +93,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
         className="fixed top-4 right-4 z-50 bg-white shadow-lg"
         onClick={() => setIsOpen(true)}
       >
-        <ShoppingCart className="mr-2 h-5 w-5" />
+        <ShoppingCartIcon className="mr-2 h-5 w-5" />
         <span className="font-semibold">{t.cart}</span>
         {totalItems > 0 && (
           <Badge variant="destructive" className="ml-2">
@@ -141,7 +141,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({
             <CardContent className="flex-1 overflow-y-auto">
               {items.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-64 text-center">
-                  <ShoppingCart className="h-16 w-16 text-gray-300 mb-4" />
+                  <ShoppingCartIcon className="h-16 w-16 text-gray-300 mb-4" />
                   <p className="text-gray-500 text-lg" dir={language === 'URDU' ? 'rtl' : 'ltr'}>
                     {t.empty}
                   </p>

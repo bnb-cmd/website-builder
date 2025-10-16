@@ -56,10 +56,7 @@ export interface StyleObject {
   rowGap?: number | string
   columnGap?: number | string
   justifyItems?: 'start' | 'end' | 'center' | 'stretch'
-  alignItems?: 'start' | 'end' | 'center' | 'stretch'
   placeItems?: string
-  justifyContent?: 'start' | 'end' | 'center' | 'stretch' | 'space-around' | 'space-between' | 'space-evenly'
-  alignContent?: 'start' | 'end' | 'center' | 'stretch' | 'space-around' | 'space-between' | 'space-evenly'
   placeContent?: string
   
   // Typography
@@ -194,6 +191,7 @@ export interface ComponentOperation {
   data?: any
   position?: { x: number; y: number }
   parentId?: string
+  targetIndex?: number
 }
 
 export interface PatchOperation {

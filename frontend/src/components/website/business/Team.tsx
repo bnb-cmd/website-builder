@@ -67,10 +67,10 @@ export const TeamConfig: ComponentConfig = {
   },
   defaultSize: { width: 800, height: 600 },
   editableFields: [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' },
-    { key: 'layout', label: 'Layout', type: 'select', options: ['grid', 'horizontal'] },
-    { key: 'columns', label: 'Columns', type: 'number' }
+    'title',
+    'subtitle',
+    'layout',
+    'columns'
   ]
 }
 

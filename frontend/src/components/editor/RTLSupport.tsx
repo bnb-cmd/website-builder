@@ -82,7 +82,7 @@ const RTLSupport: React.FC<RTLSupportProps> = ({
   pageSchema,
   onPageSchemaUpdate
 }) => {
-  const [currentLanguage, setCurrentLanguage] = useState<'ENGLISH' | 'URDU'>(
+  const [currentLanguage, setCurrentLanguage] = useState<'ENGLISH' | 'URDU' | 'اردو'>(
     pageSchema.settings.language || 'ENGLISH'
   )
   const [currentDirection, setCurrentDirection] = useState<'ltr' | 'rtl'>(
@@ -112,10 +112,10 @@ const RTLSupport: React.FC<RTLSupportProps> = ({
 
   // Load Urdu fonts
   useEffect(() => {
-    if (currentLanguage === 'URDU' && languageConfigs.URDU.fontUrl) {
+    if (currentLanguage === 'URDU' && languageConfigs.URDU?.fontUrl) {
       const link = document.createElement('link')
       link.rel = 'stylesheet'
-      link.href = languageConfigs.URDU.fontUrl
+      link.href = languageConfigs.URDU!.fontUrl
       document.head.appendChild(link)
       
       link.onload = () => setFontLoaded(true)
@@ -206,11 +206,13 @@ const RTLSupport: React.FC<RTLSupportProps> = ({
   }, [isRTLMode])
 
   // Handle language change
-  const handleLanguageChange = useCallback((language: 'ENGLISH' | 'URDU') => {
+  const handleLanguageChange = useCallback((language: 'ENGLISH' | 'URDU' | 'اردو') => {
     setCurrentLanguage(language)
     const config = languageConfigs[language]
-    setCurrentDirection(config.direction)
-    setIsRTLMode(config.direction === 'rtl')
+    if (config) {
+      setCurrentDirection(config.direction)
+      setIsRTLMode(config.direction === 'rtl')
+    }
     
     // Update page schema
     const updatedSchema = {
@@ -218,7 +220,7 @@ const RTLSupport: React.FC<RTLSupportProps> = ({
       settings: {
         ...pageSchema.settings,
         language: language,
-        direction: config.direction
+        direction: config?.direction || 'ltr'
       }
     }
     onPageSchemaUpdate(updatedSchema)
@@ -392,7 +394,7 @@ const RTLSupport: React.FC<RTLSupportProps> = ({
           <div className="text-sm text-gray-600">
             <Label className="block mb-1">Current Font:</Label>
             <code className="text-xs bg-gray-100 px-2 py-1 rounded">
-              {currentConfig.fontFamily}
+              {currentConfig?.fontFamily || 'Default'}
             </code>
           </div>
         </div>
@@ -457,7 +459,7 @@ const RTLSupport: React.FC<RTLSupportProps> = ({
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-lg font-semibold text-gray-900">RTL Preview</h3>
           <Badge variant="outline" className="text-xs">
-            {currentConfig.nativeName}
+            {currentConfig?.nativeName || 'Default'}
           </Badge>
         </div>
 
@@ -471,7 +473,7 @@ const RTLSupport: React.FC<RTLSupportProps> = ({
                 isRTLMode && "text-right"
               )}
               style={{
-                fontFamily: currentConfig.fontFamily,
+                fontFamily: currentConfig?.fontFamily || 'inherit',
                 direction: currentDirection
               }}
             >

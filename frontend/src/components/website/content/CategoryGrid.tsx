@@ -77,9 +77,9 @@ export const CategoryGridConfig: ComponentConfig = {
   },
   defaultSize: { width: 800, height: 600 },
   editableFields: [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' },
-    { key: 'columns', label: 'Columns', type: 'number' }
+    'title',
+    'subtitle',
+    'columns'
   ]
 }
 
@@ -205,8 +205,8 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                     ) : (
-                      <div className={`w-full h-full ${colorClasses.bg} flex items-center justify-center`}>
-                        <div className={`${colorClasses.text}`}>
+                      <div className={`w-full h-full ${colorClasses?.bg || 'bg-gray-100'} flex items-center justify-center`}>
+                        <div className={`${colorClasses?.text || 'text-gray-600'}`}>
                           {getCategoryIcon(category.icon)}
                         </div>
                       </div>
@@ -230,7 +230,7 @@ export const CategoryGrid: React.FC<CategoryGridProps> = ({
                         {category.postCount} articles
                       </span>
                     )}
-                    <Button size="sm" variant="outline" className={`${colorClasses.hover}`}>
+                    <Button size="sm" variant="outline" className={`${colorClasses?.hover || 'hover:bg-gray-100'}`}>
                       Explore
                     </Button>
                   </div>

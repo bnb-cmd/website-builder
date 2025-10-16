@@ -24,7 +24,7 @@ export const Heading: React.FC<HeadingProps> = ({
   deviceMode = 'desktop',
   onTextDoubleClick 
 }) => {
-  const Tag = `h${level}` as keyof JSX.IntrinsicElements
+  const Tag = `h${level}` as keyof React.JSX.IntrinsicElements
   const textSize = getResponsiveTextSize(`text-${level === 1 ? '3xl' : level === 2 ? '2xl' : 'xl'}`, deviceMode)
   
   return (

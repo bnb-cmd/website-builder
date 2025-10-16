@@ -8,7 +8,7 @@ import { Input } from '../ui/input'
 import { Switch } from '../ui/switch'
 import { Label } from '../ui/label'
 import { cn } from '../../lib/utils'
-import { ComponentNode, PageSchema, ResponsiveLayout, ResponsiveStyles } from '../../lib/schema'
+import { ComponentNode, PageSchema, ResponsiveLayout, ResponsiveStyles, LayoutObject } from '../../lib/schema'
 import { 
   Monitor,
   Tablet,
@@ -108,14 +108,29 @@ const ResponsiveDesign: React.FC<ResponsiveDesignProps> = ({
 
   // Get component styles for current device mode
   const getComponentStyles = (component: ComponentNode): Record<string, any> => {
-    const styles = component.styles[deviceMode] || component.styles.default
+    const styles = deviceMode === 'desktop' ? component.styles.default : component.styles[deviceMode] || component.styles.default
     return styles || {}
   }
 
   // Get component layout for current device mode
-  const getComponentLayout = (component: ComponentNode): ResponsiveLayout => {
-    const layout = component.layout[deviceMode] || component.layout.default
-    return layout || { x: 0, y: 0, width: 100, height: 100, zIndex: 1 }
+  const getComponentLayout = (component: ComponentNode): LayoutObject => {
+    if (deviceMode === 'desktop') {
+      return component.layout.default
+    }
+    
+    const deviceLayout = component.layout[deviceMode]
+    if (!deviceLayout) {
+      return component.layout.default
+    }
+    
+    // Merge partial layout with default layout
+    return {
+      x: deviceLayout.x ?? component.layout.default.x,
+      y: deviceLayout.y ?? component.layout.default.y,
+      width: deviceLayout.width ?? component.layout.default.width,
+      height: deviceLayout.height ?? component.layout.default.height,
+      zIndex: deviceLayout.zIndex ?? component.layout.default.zIndex
+    }
   }
 
   // Update component styles for current device mode
@@ -124,8 +139,8 @@ const ResponsiveDesign: React.FC<ResponsiveDesignProps> = ({
       ...component,
       styles: {
         ...component.styles,
-        [deviceMode]: {
-          ...component.styles[deviceMode],
+        [deviceMode === 'desktop' ? 'default' : deviceMode]: {
+          ...(deviceMode === 'desktop' ? component.styles.default : component.styles[deviceMode]),
           ...newStyles
         }
       }
@@ -134,13 +149,13 @@ const ResponsiveDesign: React.FC<ResponsiveDesignProps> = ({
   }, [deviceMode, onComponentUpdate])
 
   // Update component layout for current device mode
-  const updateComponentLayout = useCallback((component: ComponentNode, newLayout: Partial<ResponsiveLayout>) => {
+  const updateComponentLayout = useCallback((component: ComponentNode, newLayout: Partial<LayoutObject>) => {
     const updatedComponent = {
       ...component,
       layout: {
         ...component.layout,
-        [deviceMode]: {
-          ...component.layout[deviceMode],
+        [deviceMode === 'desktop' ? 'default' : deviceMode]: {
+          ...(deviceMode === 'desktop' ? component.layout.default : component.layout[deviceMode]),
           ...newLayout
         }
       }
@@ -151,18 +166,18 @@ const ResponsiveDesign: React.FC<ResponsiveDesignProps> = ({
   // Copy styles from one breakpoint to another
   const copyStylesToBreakpoint = useCallback((fromBreakpoint: DeviceMode, toBreakpoint: DeviceMode) => {
     const updatedComponents = components.map(component => {
-      const fromStyles = component.styles[fromBreakpoint] || component.styles.default
-      const fromLayout = component.layout[fromBreakpoint] || component.layout.default
+      const fromStyles = fromBreakpoint === 'desktop' ? component.styles.default : component.styles[fromBreakpoint] || component.styles.default
+      const fromLayout = fromBreakpoint === 'desktop' ? component.layout.default : component.layout[fromBreakpoint] || component.layout.default
 
       return {
         ...component,
         styles: {
           ...component.styles,
-          [toBreakpoint]: fromStyles
+          [toBreakpoint === 'desktop' ? 'default' : toBreakpoint]: fromStyles
         },
         layout: {
           ...component.layout,
-          [toBreakpoint]: fromLayout
+          [toBreakpoint === 'desktop' ? 'default' : toBreakpoint]: fromLayout
         }
       }
     })
@@ -206,8 +221,8 @@ const ResponsiveDesign: React.FC<ResponsiveDesignProps> = ({
         // Tablet adjustments
         responsiveStyles = {
           ...responsiveStyles,
-          fontSize: Math.max(14, (responsiveStyles.fontSize || 16) * 0.9),
-          padding: Math.max(10, (responsiveStyles.padding || 20) * 0.8)
+          fontSize: Math.max(14, (Number(responsiveStyles.fontSize) || 16) * 0.9),
+          padding: Math.max(10, (Number(responsiveStyles.padding) || 20) * 0.8)
         }
         responsiveLayout = {
           ...responsiveLayout,
@@ -217,8 +232,8 @@ const ResponsiveDesign: React.FC<ResponsiveDesignProps> = ({
         // Mobile adjustments
         responsiveStyles = {
           ...responsiveStyles,
-          fontSize: Math.max(12, (responsiveStyles.fontSize || 16) * 0.8),
-          padding: Math.max(8, (responsiveStyles.padding || 20) * 0.6),
+          fontSize: Math.max(12, (Number(responsiveStyles.fontSize) || 16) * 0.8),
+          padding: Math.max(8, (Number(responsiveStyles.padding) || 20) * 0.6),
           textAlign: 'center'
         }
         responsiveLayout = {
@@ -247,8 +262,8 @@ const ResponsiveDesign: React.FC<ResponsiveDesignProps> = ({
   // Get breakpoint override count
   const getBreakpointOverrideCount = (breakpoint: DeviceMode): number => {
     return components.filter(component => {
-      const styles = component.styles[breakpoint]
-      const layout = component.layout[breakpoint]
+      const styles = breakpoint === 'desktop' ? component.styles.default : component.styles[breakpoint]
+      const layout = breakpoint === 'desktop' ? component.layout.default : component.layout[breakpoint]
       return styles && Object.keys(styles).length > 0 || layout && Object.keys(layout).length > 0
     }).length
   }

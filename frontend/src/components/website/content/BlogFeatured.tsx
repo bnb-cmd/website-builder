@@ -38,8 +38,8 @@ export const BlogFeaturedConfig: ComponentConfig = {
   },
   defaultSize: { width: 800, height: 500 },
   editableFields: [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' }
+    'title',
+    'subtitle'
   ]
 }
 

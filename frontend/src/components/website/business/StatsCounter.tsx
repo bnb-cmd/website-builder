@@ -25,9 +25,9 @@ export const StatsCounterConfig: ComponentConfig = {
   },
   defaultSize: { width: 600, height: 300 },
   editableFields: [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' },
-    { key: 'animationDuration', label: 'Animation Duration (ms)', type: 'number' }
+    'title',
+    'subtitle',
+    'animationDuration'
   ]
 }
 

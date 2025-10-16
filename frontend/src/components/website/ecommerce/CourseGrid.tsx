@@ -158,9 +158,9 @@ export const CourseGridConfig: ComponentConfig = {
   },
   defaultSize: { width: 1200, height: 1000 },
   editableFields: [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' },
-    { key: 'columns', label: 'Columns', type: 'number' }
+    'title',
+    'subtitle',
+    'columns'
   ]
 }
 

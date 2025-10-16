@@ -71,9 +71,9 @@ export const FeaturesConfig: ComponentConfig = {
   },
   defaultSize: { width: 1000, height: 800 },
   editableFields: [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' },
-    { key: 'columns', label: 'Columns', type: 'number' }
+    'title',
+    'subtitle',
+    'columns'
   ]
 }
 
@@ -189,8 +189,8 @@ export const Features: React.FC<FeaturesProps> = ({
                 className={`${cardStyle === 'modern' ? 'bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow' : 'text-center'} group`}
               >
                 {showIcons && feature.icon && (
-                  <div className={`w-12 h-12 ${colorClasses.bg} rounded-lg flex items-center justify-center mb-4 mx-auto`}>
-                    <div className={`${colorClasses.text}`}>
+                  <div className={`w-12 h-12 ${colorClasses?.bg || 'bg-gray-100'} rounded-lg flex items-center justify-center mb-4 mx-auto`}>
+                    <div className={`${colorClasses?.text || 'text-gray-600'}`}>
                       {getFeatureIcon(feature.icon)}
                     </div>
                   </div>
@@ -213,7 +213,7 @@ export const Features: React.FC<FeaturesProps> = ({
                 )}
                 
                 <div className="mt-4">
-                  <Button size="sm" variant="outline" className={`${colorClasses.border} ${colorClasses.text}`}>
+                  <Button size="sm" variant="outline" className={`${colorClasses?.border || 'border-gray-300'} ${colorClasses?.text || 'text-gray-600'}`}>
                     Learn More
                   </Button>
                 </div>

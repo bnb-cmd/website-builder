@@ -36,8 +36,8 @@ export const PropertySearchConfig: ComponentConfig = {
   },
   defaultSize: { width: 500, height: 600 },
   editableFields: [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' }
+    'title',
+    'subtitle'
   ]
 }
 

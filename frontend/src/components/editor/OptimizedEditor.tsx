@@ -83,6 +83,8 @@ const ComponentListItem: React.FC<{
   const { components, selectedComponent, onComponentSelect, onComponentUpdate } = data
   const component = components[index]
   
+  if (!component) return null
+  
   const isSelected = selectedComponent?.id === component.id
   
   const handleClick = useCallback(() => {
@@ -241,8 +243,8 @@ const OptimizedEditor: React.FC<OptimizedEditorProps> = ({
         ...component,
         layout: {
           ...component.layout,
-          [deviceMode]: {
-            ...component.layout[deviceMode],
+          [deviceMode === 'desktop' ? 'default' : deviceMode]: {
+            ...(deviceMode === 'desktop' ? component.layout.default : component.layout[deviceMode]),
             x: newPosition.x,
             y: newPosition.y
           }
@@ -259,8 +261,8 @@ const OptimizedEditor: React.FC<OptimizedEditorProps> = ({
         ...component,
         layout: {
           ...component.layout,
-          [deviceMode]: {
-            ...component.layout[deviceMode],
+          [deviceMode === 'desktop' ? 'default' : deviceMode]: {
+            ...(deviceMode === 'desktop' ? component.layout.default : component.layout[deviceMode]),
             width: newSize.width,
             height: newSize.height
           }

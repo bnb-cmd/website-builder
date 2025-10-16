@@ -47,10 +47,10 @@ export function useUndoRedo(
   } = options
 
   // Refs for managers
-  const historyManagerRef = useRef<EditorHistoryManager>()
-  const stateManagerRef = useRef<ImmerStateManager>()
-  const keyboardShortcutsRef = useRef<KeyboardShortcutsManager>()
-  const debounceTimeoutRef = useRef<NodeJS.Timeout>()
+  const historyManagerRef = useRef<EditorHistoryManager | null>(null)
+  const stateManagerRef = useRef<ImmerStateManager | null>(null)
+  const keyboardShortcutsRef = useRef<KeyboardShortcutsManager | null>(null)
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   // Initialize managers
   useEffect(() => {
@@ -107,8 +107,8 @@ export function useUndoRedo(
 
     const previousState = historyManagerRef.current.undo()
     if (previousState && stateManagerRef.current) {
-      stateManagerRef.current.setState(previousState.pageSchema)
-      onStateChange?.(previousState.pageSchema)
+      stateManagerRef.current.setState(previousState)
+      onStateChange?.(previousState)
     }
   }, [onStateChange])
 
@@ -118,8 +118,8 @@ export function useUndoRedo(
 
     const nextState = historyManagerRef.current.redo()
     if (nextState && stateManagerRef.current) {
-      stateManagerRef.current.setState(nextState.pageSchema)
-      onStateChange?.(nextState.pageSchema)
+      stateManagerRef.current.setState(nextState)
+      onStateChange?.(nextState)
     }
   }, [onStateChange])
 
@@ -139,7 +139,7 @@ export function useUndoRedo(
 
     // Debounce state addition
     debounceTimeoutRef.current = setTimeout(() => {
-      historyManagerRef.current?.addState(operation, components, currentState)
+      historyManagerRef.current?.push(currentState)
     }, debounceMs)
   }, [debounceMs])
 

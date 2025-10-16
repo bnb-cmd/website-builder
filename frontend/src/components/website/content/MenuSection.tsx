@@ -121,8 +121,8 @@ export const MenuSectionConfig: ComponentConfig = {
   },
   defaultSize: { width: 800, height: 1000 },
   editableFields: [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' }
+    'title',
+    'subtitle'
   ]
 }
 

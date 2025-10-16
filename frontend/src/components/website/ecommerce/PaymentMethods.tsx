@@ -76,9 +76,9 @@ export const PaymentMethodsConfig: ComponentConfig = {
   },
   defaultSize: { width: 800, height: 600 },
   editableFields: [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' },
-    { key: 'columns', label: 'Columns', type: 'number' }
+    'title',
+    'subtitle',
+    'columns'
   ]
 }
 
@@ -194,8 +194,8 @@ export const PaymentMethods: React.FC<PaymentMethodsProps> = ({
                 className={`${cardStyle === 'modern' ? 'bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow' : 'text-center'} ${!method.enabled ? 'opacity-50' : ''}`}
               >
                 <div className="flex flex-col items-center text-center">
-                  <div className={`w-16 h-16 ${colorClasses.bg} rounded-lg flex items-center justify-center mb-4`}>
-                    <div className={`${colorClasses.text}`}>
+                  <div className={`w-16 h-16 ${colorClasses?.bg || 'bg-gray-100'} rounded-lg flex items-center justify-center mb-4`}>
+                    <div className={`${colorClasses?.text || 'text-gray-600'}`}>
                       {getPaymentIcon(method.icon)}
                     </div>
                   </div>

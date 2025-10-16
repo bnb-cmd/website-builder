@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -9,7 +9,7 @@ import { ScrollArea } from '../ui/scroll-area'
 import { Separator } from '../ui/separator'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '../ui/dialog'
 import { cn } from '../../lib/utils'
-import { ComponentNode, PageSchema } from '../../lib/schema'
+import { ComponentNode, PageSchema, ResponsiveLayout, LayoutObject } from '../../lib/schema'
 import { 
   Search,
   Eye,
@@ -71,9 +71,30 @@ const LayersPanel: React.FC<LayersPanelProps> = ({
   const [filterVisible, setFilterVisible] = useState(false)
   const [filterLocked, setFilterLocked] = useState(false)
 
+  // Helper function to safely get layout for a device
+  const getLayout = useCallback((layout: ResponsiveLayout, device: 'desktop' | 'tablet' | 'mobile'): LayoutObject => {
+    if (device === 'desktop') {
+      return layout.default
+    }
+    
+    const deviceLayout = layout[device]
+    if (!deviceLayout) {
+      return layout.default
+    }
+    
+    // Merge partial layout with default layout
+    return {
+      x: deviceLayout.x ?? layout.default.x,
+      y: deviceLayout.y ?? layout.default.y,
+      width: deviceLayout.width ?? layout.default.width,
+      height: deviceLayout.height ?? layout.default.height,
+      zIndex: deviceLayout.zIndex ?? layout.default.zIndex
+    }
+  }, [])
+
   // Convert components to layer items
   const layerItems: LayerItem[] = components.map(component => {
-    const layout = component.layout[deviceMode] || component.layout.default
+    const layout = getLayout(component.layout, deviceMode)
     return {
       id: component.id,
       name: component.props.title || component.props.name || component.type,
@@ -91,7 +112,7 @@ const LayersPanel: React.FC<LayersPanelProps> = ({
       if (!acc[item.parentId]) {
         acc[item.parentId] = []
       }
-      acc[item.parentId].push(item)
+      acc[item.parentId]!.push(item)
     } else {
       acc['ungrouped'] = acc['ungrouped'] || []
       acc['ungrouped'].push(item)
@@ -122,7 +143,7 @@ const LayersPanel: React.FC<LayersPanelProps> = ({
   // Filter items
   const filteredItems = sortedItems.filter(([groupId, items]) => {
     if (searchQuery) {
-      return items.some(item => 
+      return Array.isArray(items) && items.some(item => 
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         item.type.toLowerCase().includes(searchQuery.toLowerCase())
       )
@@ -130,12 +151,12 @@ const LayersPanel: React.FC<LayersPanelProps> = ({
     return true
   }).map(([groupId, items]) => [
     groupId,
-    items.filter(item => {
+    Array.isArray(items) ? items.filter(item => {
       if (filterVisible && !item.visible) return false
       if (filterLocked && !item.locked) return false
       return true
-    })
-  ]).filter(([groupId, items]) => items.length > 0)
+    }) : []
+  ]).filter(([groupId, items]) => items && items.length > 0)
 
   const handleToggleVisibility = (componentId: string) => {
     const component = components.find(c => c.id === componentId)
@@ -434,48 +455,48 @@ const LayersPanel: React.FC<LayersPanelProps> = ({
           ) : (
             <div className="space-y-1">
               {filteredItems.map(([groupId, items]) => (
-                <div key={groupId}>
+                <div key={String(groupId)}>
                   {groupId !== 'ungrouped' && (
                     <div
                       className="flex items-center space-x-2 p-2 rounded hover:bg-gray-50 cursor-pointer"
-                      onClick={() => toggleGroupExpansion(groupId)}
+                      onClick={() => toggleGroupExpansion(String(groupId))}
                     >
                       <div className="flex-shrink-0">
-                        {expandedGroups.has(groupId) ? (
+                        {expandedGroups.has(String(groupId)) ? (
                           <ChevronDown className="w-4 h-4 text-gray-500" />
                         ) : (
                           <ChevronRight className="w-4 h-4 text-gray-500" />
                         )}
                       </div>
                       <div className="flex-shrink-0">
-                        {expandedGroups.has(groupId) ? (
+                        {expandedGroups.has(String(groupId)) ? (
                           <FolderOpen className="w-4 h-4 text-gray-500" />
                         ) : (
                           <Folder className="w-4 h-4 text-gray-500" />
                         )}
                       </div>
                       <div className="flex-1 text-sm font-medium text-gray-900">
-                        Group {groupId}
+                        Group {String(groupId)}
                       </div>
                       <Badge variant="secondary" className="text-xs">
-                        {items.length}
+                        {Array.isArray(items) ? items.length : 0}
                       </Badge>
                     </div>
                   )}
                   
-                  {expandedGroups.has(groupId) && (
+                  {expandedGroups.has(String(groupId)) && (
                     <div className="ml-4 space-y-1">
-                      {items.map((item) => (
+                      {Array.isArray(items) ? items.map((item) => (
                         <LayerItemComponent key={item.id} item={item} />
-                      ))}
+                      )) : null}
                     </div>
                   )}
                   
                   {groupId === 'ungrouped' && (
                     <div className="space-y-1">
-                      {items.map((item) => (
+                      {Array.isArray(items) ? items.map((item) => (
                         <LayerItemComponent key={item.id} item={item} />
-                      ))}
+                      )) : null}
                     </div>
                   )}
                 </div>

@@ -49,7 +49,7 @@ export const Typography: React.FC<TypographyProps> = ({
   }
 
   const textSize = getResponsiveTextSize(getVariantSize(), deviceMode)
-  const Tag = variant as keyof JSX.IntrinsicElements
+  const Tag = variant as keyof React.JSX.IntrinsicElements
 
   return (
     <Tag 

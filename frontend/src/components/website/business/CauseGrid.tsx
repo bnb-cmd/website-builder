@@ -71,9 +71,9 @@ export const CauseGridConfig: ComponentConfig = {
   },
   defaultSize: { width: 1000, height: 800 },
   editableFields: [
-    { key: 'title', label: 'Title', type: 'text' },
-    { key: 'subtitle', label: 'Subtitle', type: 'text' },
-    { key: 'columns', label: 'Columns', type: 'number' }
+    'title',
+    'subtitle',
+    'columns'
   ]
 }
 

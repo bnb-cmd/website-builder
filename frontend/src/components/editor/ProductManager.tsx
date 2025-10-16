@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { cn } from '../../lib/utils'
-import { Plus, Edit, Trash2, Upload, Link, Instagram, TikTok, Facebook, Pinterest, RefreshCw } from 'lucide-react'
+import { Plus, Edit, Trash2, Upload, Link, Instagram, Facebook, RefreshCw } from 'lucide-react'
 
 export interface Product {
   id: string
@@ -254,11 +254,11 @@ const ProductManager: React.FC<ProductManagerProps> = ({
       case 'instagram':
         return <Instagram className="h-4 w-4" />
       case 'tiktok':
-        return <TikTok className="h-4 w-4" />
+        return <Instagram className="h-4 w-4" />
       case 'facebook':
         return <Facebook className="h-4 w-4" />
       case 'pinterest':
-        return <Pinterest className="h-4 w-4" />
+        return <Instagram className="h-4 w-4" />
       default:
         return <Link className="h-4 w-4" />
     }
@@ -411,7 +411,7 @@ const ProductManager: React.FC<ProductManagerProps> = ({
                       <span className="font-medium">{formatPrice(product.price)}</span>
                     </TableCell>
                     <TableCell>
-                      <Badge variant={product.stock === 0 ? "destructive" : product.stock <= 5 ? "secondary" : "default"}>
+                      <Badge variant={(product.stock || 0) === 0 ? "destructive" : (product.stock || 0) <= 5 ? "secondary" : "default"}>
                         {product.stock || 0}
                       </Badge>
                     </TableCell>
