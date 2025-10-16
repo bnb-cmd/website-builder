@@ -611,4 +611,5 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
   )
 }
 
+export { ComponentPalette }
 export default ComponentPalette

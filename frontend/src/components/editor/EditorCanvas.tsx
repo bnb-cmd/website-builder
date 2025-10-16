@@ -32,7 +32,7 @@ import {
   AlignCenter,
   AlignRight,
   AlignJustify,
-  Grid3X3,
+  Grid,
   Ruler,
   MousePointer,
   Square
@@ -459,7 +459,7 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
               size="sm"
               onClick={() => setSnapGrid(!snapGrid)}
             >
-              <Grid3X3 className="w-4 h-4" />
+              <Grid className="w-4 h-4" />
             </Button>
             <Button
               variant={snapGuides ? "default" : "outline"}
