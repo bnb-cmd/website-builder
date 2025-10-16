@@ -1,58 +1,51 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   outputFileTracingRoot: '/Volumes/T7/website builder/frontend',
-  webpack: (config) => {
+  webpack: (config, { isServer }) => {
     // Ignore macOS metadata files
     config.module.rules.push({
       test: /\._/,
       use: 'ignore-loader',
     })
     
-    // Ignore files starting with ._
-    config.resolve.alias = {
-      ...config.resolve.alias,
+    // Optimize bundle size for Cloudflare Pages
+    if (!isServer) {
+      config.optimization.splitChunks = {
+        chunks: 'all',
+        cacheGroups: {
+          default: {
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+          },
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            priority: -10,
+            chunks: 'all',
+            maxSize: 200000, // 200KB max chunk size
+          },
+          common: {
+            name: 'common',
+            minChunks: 2,
+            priority: -5,
+            reuseExistingChunk: true,
+            maxSize: 200000, // 200KB max chunk size
+          },
+        },
+      }
     }
     
-    // Add ignore pattern for ._ files
-    config.module.rules.push({
-      test: /\._/,
-      loader: 'ignore-loader'
-    })
+    // Reduce bundle size
+    config.optimization.usedExports = true
+    config.optimization.sideEffects = false
     
     return config
   },
   images: {
+    unoptimized: true,
     domains: ['assets.pakistanbuilder.com', 'images.unsplash.com'],
     formats: ['image/webp', 'image/avif'],
-  },
-  async headers() {
-    return [
-      {
-        source: '/(.*)',
-        headers: [
-          {
-            key: 'X-Frame-Options',
-            value: 'DENY',
-          },
-          {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
-          },
-          {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
-          },
-        ],
-      },
-    ]
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL}/:path*`,
-      },
-    ]
   },
 }
 
