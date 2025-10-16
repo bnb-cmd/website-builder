@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react'
-import { Header } from './Header.tsx'
+// import { Header } from './Header'
 import { DashboardSidebar } from './DashboardSidebar'
 import { useAuthStore } from '@/lib/store'
 
@@ -51,12 +51,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
 
   return (
     <div className="h-screen bg-background">
-      <Header 
+      {/* <Header 
         variant="dashboard" 
         onMenuClick={() => setSidebarOpen(true)}
         onToggleSidebar={toggleSidebarCollapse}
         sidebarCollapsed={sidebarCollapsed}
-      />
+      /> */}
       
       <div className="flex h-[calc(100vh-4rem)]">
         {isHydrated && _hasHydrated ? (

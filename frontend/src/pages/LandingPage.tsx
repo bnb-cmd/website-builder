@@ -1,6 +1,6 @@
 "use client";
 import React from 'react'
-import { Header } from '../components/layout/Header.tsx'
+// import { Header } from '../components/layout/Header'
 import { Button } from '../components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../components/ui/card'
 import { Badge } from '../components/ui/badge'
@@ -196,7 +196,7 @@ const stats = [
 const LandingPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
-      <Header variant="landing" />
+      {/* <Header variant="landing" /> */}
       
       {/* Hero Section */}
       <section className="py-20 lg:py-32">
