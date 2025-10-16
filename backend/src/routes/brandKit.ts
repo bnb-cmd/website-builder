@@ -81,7 +81,7 @@ const brandKitRoutes: FastifyPluginAsync = async (fastify) => {
   // Get brand kits by user
   fastify.get<{
     Params: { userId: string }
-  }>('/brand-kits/:userId', {
+  }>('/brand-kits/user/:userId', {
     preHandler: [authenticate],
     schema: {
       params: z.object({ userId: z.string().cuid() })

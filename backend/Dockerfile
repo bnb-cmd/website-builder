@@ -78,6 +78,9 @@ RUN useradd -r -u 1001 -g nodejs nodejs
 # Create uploads directory
 RUN mkdir -p uploads && chown -R nodejs:nodejs uploads
 
+# Create public directory for static files
+RUN mkdir -p public && chown -R nodejs:nodejs public
+
 # Switch to non-root user
 USER nodejs
 
