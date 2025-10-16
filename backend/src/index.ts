@@ -409,6 +409,9 @@ export async function startServer() {
     await db.connect()
     console.log('✅ Database connected')
 
+    // Connect to Redis
+    await redis.connect()
+    
     // Test Redis connection
     const redisHealth = await redis.healthCheck()
     if (redisHealth) {
