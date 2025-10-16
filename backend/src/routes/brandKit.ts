@@ -407,6 +407,7 @@ const brandKitRoutes: FastifyPluginAsync = async (fastify) => {
           mimeType: { type: 'string' }
         }
       }
+    }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
     const { type, file, filename, mimeType } = request.body as any
