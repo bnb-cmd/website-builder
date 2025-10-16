@@ -593,7 +593,6 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
                 </div>
                   </div>
             ))}
-          )}
 
           {/* Empty State */}
           {filteredCategories.length === 0 && (
