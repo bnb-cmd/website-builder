@@ -4,6 +4,15 @@ const nextConfig = {
   // Cloudflare Pages configuration
   trailingSlash: true,
   assetPrefix: process.env.NODE_ENV === 'production' ? '' : '',
+  // Exclude cache files from build output
+  outputFileTracingExcludes: {
+    '*': [
+      'node_modules/@swc/core-*',
+      'node_modules/.cache',
+      '.next/cache/**/*',
+      '.next/server/chunks/**/*',
+    ],
+  },
   webpack: (config, { isServer }) => {
     // Ignore macOS metadata files
     config.module.rules.push({

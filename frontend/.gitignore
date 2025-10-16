@@ -8,6 +8,11 @@ yarn-error.log*
 .next/
 out/
 
+# Cloudflare Pages deployment exclusions
+.next/cache/
+.next/server/chunks/
+.next/static/chunks/
+
 # macOS metadata files
 ._*
 .DS_Store
