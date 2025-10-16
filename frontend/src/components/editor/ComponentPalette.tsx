@@ -8,7 +8,7 @@ import { Input } from '../ui/input'
 import { ScrollArea } from '../ui/scroll-area'
 import { Separator } from '../ui/separator'
 import { cn } from '../../lib/utils'
-import { ComponentMetadata } from '../website/registry'
+import { ComponentMetadata } from '@/lib/component-config'
 import { ComponentNode, PageSchema } from '../../lib/schema'
 import { 
   Search,
@@ -79,30 +79,24 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
     {
       id: 'layout',
       name: 'Layout',
-      icon: <Layout className="w-4 h-4" />,
+      icon: 'layout',
       components: [
         {
           id: 'container',
           config: {
+            id: 'container',
             name: 'Container',
             description: 'Flexible container for grouping elements',
             category: 'layout',
-            icon: <Layout className="w-4 h-4" />,
-            schema: {
-              props: {
-                padding: { type: 'number', default: 20, min: 0, max: 100 },
-                backgroundColor: { type: 'color', default: '#ffffff' },
-                borderRadius: { type: 'number', default: 0, min: 0, max: 50 },
-                maxWidth: { type: 'number', default: 1200, min: 100, max: 2000 }
-              },
-              defaultProps: {
-                padding: 20,
-                backgroundColor: '#ffffff',
-                borderRadius: 0,
-                maxWidth: 1200
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 200, zIndex: 1 }
-            }
+            icon: 'layout',
+            defaultProps: {
+              padding: 20,
+              backgroundColor: '#ffffff',
+              borderRadius: 0,
+              maxWidth: 1200
+            },
+            defaultSize: { width: 100, height: 200 },
+            editableFields: ['padding', 'backgroundColor', 'borderRadius', 'maxWidth']
           }
         },
         {
@@ -111,7 +105,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             name: 'Grid',
             description: 'CSS Grid layout system',
             category: 'layout',
-            icon: <Layout className="w-4 h-4" />,
+            icon: 'layout',
             schema: {
               props: {
                 columns: { type: 'number', default: 3, min: 1, max: 12 },
@@ -133,7 +127,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             name: 'Flexbox',
             description: 'Flexible box layout',
             category: 'layout',
-            icon: <Layout className="w-4 h-4" />,
+            icon: 'layout',
             schema: {
               props: {
                 direction: { type: 'select', options: ['row', 'column', 'row-reverse', 'column-reverse'], default: 'row' },
@@ -156,7 +150,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
     {
       id: 'content',
       name: 'Content',
-      icon: <Type className="w-4 h-4" />,
+      icon: 'type',
       components: [
         {
           id: 'hero',
@@ -164,7 +158,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             name: 'Hero Section',
             description: 'Eye-catching hero section with title and CTA',
             category: 'content',
-            icon: <Star className="w-4 h-4" />,
+            icon: 'star',
             schema: {
               props: {
                 title: { type: 'text', default: 'Welcome to Our Website' },
@@ -194,7 +188,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             name: 'Features Grid',
             description: 'Showcase your key features',
             category: 'content',
-            icon: <Zap className="w-4 h-4" />,
+            icon: 'zap',
             schema: {
               props: {
                 title: { type: 'text', default: 'Our Features' },
@@ -224,7 +218,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             name: 'Testimonials',
             description: 'Customer testimonials and reviews',
             category: 'content',
-            icon: <MessageCircle className="w-4 h-4" />,
+            icon: 'message-circle',
             schema: {
               props: {
                 title: { type: 'text', default: 'What Our Customers Say' },
@@ -250,7 +244,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             name: 'Blog Grid',
             description: 'Display blog posts in a grid layout',
             category: 'content',
-            icon: <FileText className="w-4 h-4" />,
+            icon: 'file-text',
             schema: {
               props: {
                 title: { type: 'text', default: 'Latest Blog Posts' },
@@ -277,7 +271,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
     {
       id: 'ecommerce',
       name: 'E-commerce',
-      icon: <ShoppingCart className="w-4 h-4" />,
+      icon: 'shopping-cart',
       components: [
         {
           id: 'product-grid',
@@ -285,7 +279,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             name: 'Product Grid',
             description: 'Display products in a grid layout',
             category: 'ecommerce',
-            icon: <ShoppingCart className="w-4 h-4" />,
+            icon: 'shopping-cart',
             schema: {
               props: {
                 title: { type: 'text', default: 'Our Products' },
@@ -317,7 +311,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             name: 'Pricing Table',
             description: 'Display pricing plans',
             category: 'ecommerce',
-            icon: <BarChart className="w-4 h-4" />,
+            icon: 'bar-chart',
             schema: {
               props: {
                 title: { type: 'text', default: 'Choose Your Plan' },
@@ -344,7 +338,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
     {
       id: 'forms',
       name: 'Forms',
-      icon: <FileText className="w-4 h-4" />,
+      icon: 'file-text',
       components: [
         {
           id: 'contact-form',
@@ -352,7 +346,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             name: 'Contact Form',
             description: 'Contact form with validation',
             category: 'forms',
-            icon: <Mail className="w-4 h-4" />,
+            icon: 'mail',
             schema: {
               props: {
                 title: { type: 'text', default: 'Get In Touch' },
@@ -384,7 +378,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             name: 'Newsletter Signup',
             description: 'Email newsletter subscription form',
             category: 'forms',
-            icon: <Mail className="w-4 h-4" />,
+            icon: 'mail',
             schema: {
               props: {
                 title: { type: 'text', default: 'Subscribe to Our Newsletter' },
@@ -409,7 +403,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
     {
       id: 'media',
       name: 'Media',
-      icon: <Image className="w-4 h-4" />,
+      icon: 'image',
       components: [
         {
           id: 'gallery',
@@ -417,7 +411,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             name: 'Image Gallery',
             description: 'Responsive image gallery with lightbox',
             category: 'media',
-            icon: <Image className="w-4 h-4" />,
+            icon: 'image',
             schema: {
               props: {
                 title: { type: 'text', default: 'Our Gallery' },
@@ -451,7 +445,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             name: 'Video Player',
             description: 'Embedded video player',
             category: 'media',
-            icon: <Video className="w-4 h-4" />,
+            icon: 'video',
             schema: {
               props: {
                 title: { type: 'text', default: 'Watch Our Video' },

@@ -78,7 +78,7 @@ const ComponentGrouping: React.FC<ComponentGroupingProps> = ({
           locked: false
         }
       }
-      acc[component.groupId].components.push(component)
+      acc[component.groupId]!.components.push(component)
     }
     return acc
   }, {} as Record<string, ComponentGroup>)
@@ -93,7 +93,7 @@ const ComponentGrouping: React.FC<ComponentGroupingProps> = ({
     let maxY = -Infinity
 
     groupComponents.forEach(component => {
-      const layout = component.layout[deviceMode] || component.layout.default
+      const layout = (component.layout as any)[deviceMode] || component.layout.default
       minX = Math.min(minX, layout.x)
       minY = Math.min(minY, layout.y)
       maxX = Math.max(maxX, layout.x + layout.width)
@@ -113,7 +113,7 @@ const ComponentGrouping: React.FC<ComponentGroupingProps> = ({
     if (selectedComponents.length < 2) return
 
     const groupId = `group_${Date.now()}`
-    const groupName = groupName.trim() || `Group ${groupId.slice(-4)}`
+    const finalGroupName = groupName.trim() || `Group ${groupId.slice(-4)}`
 
     // Calculate group bounds
     const bounds = calculateGroupBounds(selectedComponents)
@@ -121,7 +121,7 @@ const ComponentGrouping: React.FC<ComponentGroupingProps> = ({
     // Update components with groupId and relative positions
     const updatedComponents = components.map(component => {
       if (selectedComponents.some(selected => selected.id === component.id)) {
-        const layout = component.layout[deviceMode] || component.layout.default
+        const layout = (component.layout as any)[deviceMode] || component.layout.default
         return {
           ...component,
           groupId,
@@ -151,7 +151,7 @@ const ComponentGrouping: React.FC<ComponentGroupingProps> = ({
     
     const updatedComponents = components.map(component => {
       if (groupIds.has(component.groupId)) {
-        const layout = component.layout[deviceMode] || component.layout.default
+        const layout = (component.layout as any)[deviceMode] || component.layout.default
         const groupBounds = calculateGroupBounds(components.filter(c => c.groupId === component.groupId))
         
         return {
@@ -179,7 +179,7 @@ const ComponentGrouping: React.FC<ComponentGroupingProps> = ({
   const handleMoveGroup = useCallback((groupId: string, deltaX: number, deltaY: number) => {
     const updatedComponents = components.map(component => {
       if (component.groupId === groupId) {
-        const layout = component.layout[deviceMode] || component.layout.default
+        const layout = (component.layout as any)[deviceMode] || component.layout.default
         return {
           ...component,
           layout: {
@@ -205,7 +205,7 @@ const ComponentGrouping: React.FC<ComponentGroupingProps> = ({
 
     const updatedComponents = components.map(component => {
       if (component.groupId === groupId) {
-        const layout = component.layout[deviceMode] || component.layout.default
+        const layout = (component.layout as any)[deviceMode] || component.layout.default
         const scaleX = (bounds.width + deltaWidth) / bounds.width
         const scaleY = (bounds.height + deltaHeight) / bounds.height
 
@@ -465,7 +465,7 @@ const ComponentGrouping: React.FC<ComponentGroupingProps> = ({
                   {isExpanded && (
                     <div className="mt-3 ml-6 space-y-1">
                       {group.components.map((component) => {
-                        const layout = component.layout[deviceMode] || component.layout.default
+                        const layout = (component.layout as any)[deviceMode] || component.layout.default
                         return (
                           <div
                             key={component.id}
@@ -505,7 +505,7 @@ const ComponentGrouping: React.FC<ComponentGroupingProps> = ({
           {components
             .filter(component => !component.groupId)
             .map((component) => {
-              const layout = component.layout[deviceMode] || component.layout.default
+              const layout = (component.layout as any)[deviceMode] || component.layout.default
               const isSelected = selectedComponents.some(c => c.id === component.id)
 
               return (
