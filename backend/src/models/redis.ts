@@ -21,16 +21,27 @@ class RedisService {
       // Priority 1: Upstash (serverless, REST API) - Force this if Upstash vars are present
       if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
         console.log('🔗 Connecting to Upstash Redis...')
-        this.upstashClient = new UpstashRedis({
-          url: process.env.UPSTASH_REDIS_REST_URL,
-          token: process.env.UPSTASH_REDIS_REST_TOKEN,
-        })
+        console.log('  URL:', process.env.UPSTASH_REDIS_REST_URL)
+        console.log('  Token length:', process.env.UPSTASH_REDIS_REST_TOKEN?.length)
         
-        // Test the connection
-        await this.upstashClient.ping()
-        console.log('✅ Redis connected (Upstash)')
-        this.connected = true
-        return
+        try {
+          this.upstashClient = new UpstashRedis({
+            url: process.env.UPSTASH_REDIS_REST_URL,
+            token: process.env.UPSTASH_REDIS_REST_TOKEN,
+          })
+          
+          // Test the connection
+          console.log('  Testing Upstash connection...')
+          await this.upstashClient.ping()
+          console.log('✅ Redis connected (Upstash)')
+          this.connected = true
+          return
+        } catch (upstashError) {
+          console.error('❌ Upstash Redis connection failed:', upstashError)
+          console.log('⚠️  Falling back to in-memory cache due to Upstash error')
+          this.connected = true
+          return
+        }
       }
       
       // Priority 2: Railway/Standard Redis (native protocol) - Only if Upstash not configured
