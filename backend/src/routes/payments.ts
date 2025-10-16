@@ -257,9 +257,13 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       description: 'Get payment details',
       tags: ['Payments'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -303,14 +307,17 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       description: 'List payments',
       tags: ['Payments'],
       security: [{ bearerAuth: [] }],
-      querystring: z.object({
-        page: z.string().transform(Number).default('1'),
-        limit: z.string().transform(Number).default('20'),
-        status: z.enum(['PENDING', 'COMPLETED', 'FAILED', 'REFUNDED']).optional(),
-        gateway: z.enum(['STRIPE', 'JAZZCASH', 'EASYPAISA', 'BANK_TRANSFER']).optional(),
-        dateFrom: z.string().optional(),
-        dateTo: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          page: { type: 'string', default: '1' },
+          limit: { type: 'string', default: '20' },
+          status: { type: 'string', enum: ['PENDING', 'COMPLETED', 'FAILED', 'REFUNDED'] },
+          gateway: { type: 'string', enum: ['STRIPE', 'JAZZCASH', 'EASYPAISA', 'BANK_TRANSFER'] },
+          dateFrom: { type: 'string' },
+          dateTo: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -361,11 +368,14 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       description: 'Get payment statistics',
       tags: ['Payments'],
       security: [{ bearerAuth: [] }],
-      querystring: z.object({
-        websiteId: z.string().optional(),
-        dateFrom: z.string().optional(),
-        dateTo: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          websiteId: { type: 'string' },
+          dateFrom: { type: 'string' },
+          dateTo: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
