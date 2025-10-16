@@ -13,6 +13,11 @@ class RedisService {
 
   async connect(): Promise<void> {
     try {
+      console.log('🔍 Redis connection debug:')
+      console.log('  UPSTASH_REDIS_REST_URL:', process.env.UPSTASH_REDIS_REST_URL ? 'SET' : 'NOT SET')
+      console.log('  UPSTASH_REDIS_REST_TOKEN:', process.env.UPSTASH_REDIS_REST_TOKEN ? 'SET' : 'NOT SET')
+      console.log('  REDIS_URL:', process.env.REDIS_URL ? 'SET' : 'NOT SET')
+      
       // Priority 1: Upstash (serverless, REST API) - Force this if Upstash vars are present
       if (process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN) {
         console.log('🔗 Connecting to Upstash Redis...')
