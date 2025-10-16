@@ -6,7 +6,7 @@
   "scripts": {
     "start": "node dist/index.js",
     "dev": "wrangler dev",
-    "build": "tsc",
+    "build": "tsc && tsc-alias",
     "build:workers": "tsc && wrangler deploy",
     "deploy": "wrangler deploy",
     "test": "vitest",
@@ -68,6 +68,7 @@
     "eslint": "^8.55.0",
     "prettier": "^3.1.0",
     "typescript": "^5.3.3",
+    "tsc-alias": "^1.8.8",
     "vitest": "^3.2.4",
     "wrangler": "^3.22.1"
   },
