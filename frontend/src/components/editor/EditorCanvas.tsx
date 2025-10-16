@@ -108,12 +108,16 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     if (!snapGuides) return []
 
     const guides: Array<{ x?: number; y?: number; type: 'horizontal' | 'vertical' }> = []
-    const currentLayout = component.layout[deviceMode] || component.layout.default
+    const currentLayout = component.layout[deviceMode === 'desktop' ? 'default' : deviceMode] || component.layout.default
+    
+    if (!currentLayout || typeof currentLayout.x !== 'number') return guides
 
     components.forEach(comp => {
       if (comp.id === component.id) return
       
-      const compLayout = comp.layout[deviceMode] || comp.layout.default
+      const compLayout = comp.layout[deviceMode === 'desktop' ? 'default' : deviceMode] || comp.layout.default
+      
+      if (!compLayout || typeof compLayout.x !== 'number') return
       
       // Vertical alignment guides
       if (Math.abs(currentLayout.x - compLayout.x) < 5) {

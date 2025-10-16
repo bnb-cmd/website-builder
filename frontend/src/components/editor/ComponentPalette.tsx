@@ -217,7 +217,6 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
               ],
               columns: 3
             },
-          component: () => null,
             defaultSize: { width: 100, height: 600 },
             editableFields: ['title', 'posts', 'columns']
           },
@@ -247,7 +246,6 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
               showPrices: true,
               showAddToCart: true
             },
-          component: () => null,
             defaultSize: { width: 100, height: 600 },
             editableFields: ['title', 'products', 'columns', 'showPrices', 'showAddToCart']
           },
@@ -268,7 +266,6 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
                 { name: 'Enterprise', price: 99, features: ['All Features'], popular: false }
               ]
             },
-          component: () => null,
             defaultSize: { width: 100, height: 500 },
             editableFields: ['title', 'plans']
           },
@@ -286,7 +283,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             id: 'contact-form',
             name: 'Contact Form',
             description: 'Contact form with validation',
-            category: 'forms',
+            category: 'content',
             icon: 'mail',
             defaultProps: {
               title: 'Get In Touch',
@@ -298,7 +295,6 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
               submitText: 'Send Message',
               successMessage: 'Thank you for your message!'
             },
-          component: () => null,
             defaultSize: { width: 100, height: 400 },
             editableFields: ['title', 'fields', 'submitText', 'successMessage']
           },
@@ -309,7 +305,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             id: 'newsletter',
             name: 'Newsletter Signup',
             description: 'Email newsletter subscription form',
-            category: 'forms',
+            category: 'content',
             icon: 'mail',
             defaultProps: {
               title: 'Subscribe to Our Newsletter',
@@ -318,7 +314,6 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
               buttonText: 'Subscribe',
               successMessage: 'Thank you for subscribing!'
             },
-          component: () => null,
             defaultSize: { width: 100, height: 200 },
             editableFields: ['title', 'description', 'placeholder', 'buttonText', 'successMessage']
           },
@@ -349,7 +344,6 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
               showCaptions: true,
               lightbox: true
             },
-          component: () => null,
             defaultSize: { width: 100, height: 500 },
             editableFields: ['title', 'images', 'columns', 'aspectRatio', 'showCaptions', 'lightbox']
           },
@@ -370,7 +364,6 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
               controls: true,
               loop: false
             },
-          component: () => null,
             defaultSize: { width: 100, height: 400 },
             editableFields: ['title', 'videoUrl', 'posterImage', 'autoplay', 'controls', 'loop']
           },
@@ -473,7 +466,7 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
                 <div className="grid grid-cols-1 gap-2">
                   {category.components.map((component) => (
                     <div
-                      key={component.id}
+                      key={component.config.id}
                       className="p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 cursor-move transition-colors"
                       draggable
                       onDragStart={() => handleDragStart(component)}
