@@ -4,6 +4,7 @@
   "description": "Backend API for Pakistan Website Builder",
   "main": "dist/index.js",
   "scripts": {
+    "start": "node dist/index.js",
     "dev": "wrangler dev",
     "build": "tsc",
     "build:workers": "tsc && wrangler deploy",
