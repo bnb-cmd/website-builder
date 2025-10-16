@@ -82,7 +82,6 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
       icon: 'layout',
       components: [
         {
-          id: 'container',
           config: {
             id: 'container',
             name: 'Container',
@@ -97,53 +96,43 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             },
             defaultSize: { width: 100, height: 200 },
             editableFields: ['padding', 'backgroundColor', 'borderRadius', 'maxWidth']
-          }
+          },
+          component: () => null
         },
         {
-          id: 'grid',
           config: {
+            id: 'grid',
             name: 'Grid',
             description: 'CSS Grid layout system',
             category: 'layout',
             icon: 'layout',
-            schema: {
-              props: {
-                columns: { type: 'number', default: 3, min: 1, max: 12 },
-                gap: { type: 'number', default: 20, min: 0, max: 100 },
-                alignItems: { type: 'select', options: ['start', 'center', 'end', 'stretch'], default: 'stretch' }
-              },
-              defaultProps: {
-                columns: 3,
-                gap: 20,
-                alignItems: 'stretch'
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 300, zIndex: 1 }
-            }
-          }
+            defaultProps: {
+              columns: 3,
+              gap: 20,
+              alignItems: 'stretch'
+            },
+            defaultSize: { width: 100, height: 300 },
+            editableFields: ['columns', 'gap', 'alignItems']
+          },
+          component: () => null
         },
         {
-          id: 'flexbox',
           config: {
+            id: 'flexbox',
             name: 'Flexbox',
             description: 'Flexible box layout',
             category: 'layout',
             icon: 'layout',
-            schema: {
-              props: {
-                direction: { type: 'select', options: ['row', 'column', 'row-reverse', 'column-reverse'], default: 'row' },
-                justifyContent: { type: 'select', options: ['flex-start', 'center', 'flex-end', 'space-between', 'space-around'], default: 'flex-start' },
-                alignItems: { type: 'select', options: ['flex-start', 'center', 'flex-end', 'stretch'], default: 'stretch' },
-                gap: { type: 'number', default: 20, min: 0, max: 100 }
-              },
-              defaultProps: {
-                direction: 'row',
-                justifyContent: 'flex-start',
-                alignItems: 'stretch',
-                gap: 20
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 200, zIndex: 1 }
-            }
-          }
+            defaultProps: {
+              direction: 'row',
+              justifyContent: 'flex-start',
+              alignItems: 'stretch',
+              gap: 20
+            },
+            defaultSize: { width: 100, height: 200 },
+            editableFields: ['direction', 'justifyContent', 'alignItems', 'gap']
+          },
+          component: () => null
         }
       ]
     },
@@ -153,118 +142,86 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
       icon: 'type',
       components: [
         {
-          id: 'hero',
           config: {
+            id: 'hero',
             name: 'Hero Section',
             description: 'Eye-catching hero section with title and CTA',
             category: 'content',
             icon: 'star',
-            schema: {
-              props: {
-                title: { type: 'text', default: 'Welcome to Our Website' },
-                subtitle: { type: 'text', default: 'Create amazing experiences' },
-                buttonText: { type: 'text', default: 'Get Started' },
-                buttonUrl: { type: 'url', default: '#' },
-                backgroundImage: { type: 'image', default: '' },
-                textColor: { type: 'color', default: '#ffffff' },
-                buttonColor: { type: 'color', default: '#3b82f6' }
-              },
-              defaultProps: {
-                title: 'Welcome to Our Website',
-                subtitle: 'Create amazing experiences',
-                buttonText: 'Get Started',
-                buttonUrl: '#',
-                backgroundImage: '',
-                textColor: '#ffffff',
-                buttonColor: '#3b82f6'
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 400, zIndex: 1 }
-            }
-          }
+            defaultProps: {
+              title: 'Welcome to Our Website',
+              subtitle: 'Create amazing experiences',
+              buttonText: 'Get Started',
+              buttonUrl: '#',
+              backgroundImage: '',
+              textColor: '#ffffff',
+              buttonColor: '#3b82f6'
+            },
+            defaultSize: { width: 100, height: 400 },
+            editableFields: ['title', 'subtitle', 'buttonText', 'buttonUrl', 'backgroundImage', 'textColor', 'buttonColor']
+          },
+          component: () => null
         },
         {
-          id: 'features',
           config: {
+            id: 'features',
             name: 'Features Grid',
             description: 'Showcase your key features',
             category: 'content',
             icon: 'zap',
-            schema: {
-              props: {
-                title: { type: 'text', default: 'Our Features' },
-                features: { type: 'array', default: [
-                  { title: 'Feature 1', description: 'Description of feature 1', icon: 'star' },
-                  { title: 'Feature 2', description: 'Description of feature 2', icon: 'heart' },
-                  { title: 'Feature 3', description: 'Description of feature 3', icon: 'shield' }
-                ] },
-                columns: { type: 'number', default: 3, min: 1, max: 4 }
-              },
-              defaultProps: {
-                title: 'Our Features',
-                features: [
-                  { title: 'Feature 1', description: 'Description of feature 1', icon: 'star' },
-                  { title: 'Feature 2', description: 'Description of feature 2', icon: 'heart' },
-                  { title: 'Feature 3', description: 'Description of feature 3', icon: 'shield' }
-                ],
-                columns: 3
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 500, zIndex: 1 }
-            }
-          }
+            defaultProps: {
+              title: 'Our Features',
+              features: [
+                { title: 'Feature 1', description: 'Description of feature 1', icon: 'star' },
+                { title: 'Feature 2', description: 'Description of feature 2', icon: 'heart' },
+                { title: 'Feature 3', description: 'Description of feature 3', icon: 'shield' }
+              ],
+              columns: 3
+            },
+            defaultSize: { width: 100, height: 500 },
+            editableFields: ['title', 'features', 'columns']
+          },
+          component: () => null
         },
         {
-          id: 'testimonials',
           config: {
+            id: 'testimonials',
             name: 'Testimonials',
             description: 'Customer testimonials and reviews',
             category: 'content',
             icon: 'message-circle',
-            schema: {
-              props: {
-                title: { type: 'text', default: 'What Our Customers Say' },
-                testimonials: { type: 'array', default: [
-                  { name: 'John Doe', role: 'CEO', company: 'Company Inc.', content: 'Amazing service!', rating: 5 },
-                  { name: 'Jane Smith', role: 'Manager', company: 'Corp Ltd.', content: 'Highly recommended!', rating: 5 }
-                ] }
-              },
-              defaultProps: {
-                title: 'What Our Customers Say',
-                testimonials: [
-                  { name: 'John Doe', role: 'CEO', company: 'Company Inc.', content: 'Amazing service!', rating: 5 },
-                  { name: 'Jane Smith', role: 'Manager', company: 'Corp Ltd.', content: 'Highly recommended!', rating: 5 }
-                ]
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 400, zIndex: 1 }
-            }
-          }
+            defaultProps: {
+              title: 'What Our Customers Say',
+              testimonials: [
+                { name: 'John Doe', role: 'CEO', company: 'Company Inc.', content: 'Amazing service!', rating: 5 },
+                { name: 'Jane Smith', role: 'Manager', company: 'Corp Ltd.', content: 'Highly recommended!', rating: 5 }
+              ]
+            },
+            defaultSize: { width: 100, height: 400 },
+            editableFields: ['title', 'testimonials']
+          },
+          component: () => null
         },
         {
-          id: 'blog',
           config: {
+            id: 'blog',
             name: 'Blog Grid',
             description: 'Display blog posts in a grid layout',
             category: 'content',
             icon: 'file-text',
-            schema: {
-              props: {
-                title: { type: 'text', default: 'Latest Blog Posts' },
-                posts: { type: 'array', default: [
-                  { title: 'Post 1', excerpt: 'Excerpt of post 1', date: '2024-01-01', image: '' },
-                  { title: 'Post 2', excerpt: 'Excerpt of post 2', date: '2024-01-02', image: '' }
-                ] },
-                columns: { type: 'number', default: 3, min: 1, max: 4 }
-              },
-              defaultProps: {
-                title: 'Latest Blog Posts',
-                posts: [
-                  { title: 'Post 1', excerpt: 'Excerpt of post 1', date: '2024-01-01', image: '' },
-                  { title: 'Post 2', excerpt: 'Excerpt of post 2', date: '2024-01-02', image: '' }
-                ],
-                columns: 3
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 600, zIndex: 1 }
-            }
-          }
+            defaultProps: {
+              title: 'Latest Blog Posts',
+              posts: [
+                { title: 'Post 1', excerpt: 'Excerpt of post 1', date: '2024-01-01', image: '' },
+                { title: 'Post 2', excerpt: 'Excerpt of post 2', date: '2024-01-02', image: '' }
+              ],
+              columns: 3
+            },
+          component: () => null,
+            defaultSize: { width: 100, height: 600 },
+            editableFields: ['title', 'posts', 'columns']
+          },
+          component: () => null
         }
       ]
     },
@@ -274,64 +231,48 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
       icon: 'shopping-cart',
       components: [
         {
-          id: 'product-grid',
           config: {
+            id: 'product-grid',
             name: 'Product Grid',
             description: 'Display products in a grid layout',
             category: 'ecommerce',
             icon: 'shopping-cart',
-            schema: {
-              props: {
-                title: { type: 'text', default: 'Our Products' },
-                products: { type: 'array', default: [
-                  { name: 'Product 1', price: 99, image: '', description: 'Product description' },
-                  { name: 'Product 2', price: 149, image: '', description: 'Product description' }
-                ] },
-                columns: { type: 'number', default: 3, min: 1, max: 4 },
-                showPrices: { type: 'boolean', default: true },
-                showAddToCart: { type: 'boolean', default: true }
-              },
-              defaultProps: {
-                title: 'Our Products',
-                products: [
-                  { name: 'Product 1', price: 99, image: '', description: 'Product description' },
-                  { name: 'Product 2', price: 149, image: '', description: 'Product description' }
-                ],
-                columns: 3,
-                showPrices: true,
-                showAddToCart: true
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 600, zIndex: 1 }
-            }
-          }
+            defaultProps: {
+              title: 'Our Products',
+              products: [
+                { name: 'Product 1', price: 99, image: '', description: 'Product description' },
+                { name: 'Product 2', price: 149, image: '', description: 'Product description' }
+              ],
+              columns: 3,
+              showPrices: true,
+              showAddToCart: true
+            },
+          component: () => null,
+            defaultSize: { width: 100, height: 600 },
+            editableFields: ['title', 'products', 'columns', 'showPrices', 'showAddToCart']
+          },
+          component: () => null
         },
         {
-          id: 'pricing-table',
           config: {
+            id: 'pricing-table',
             name: 'Pricing Table',
             description: 'Display pricing plans',
             category: 'ecommerce',
             icon: 'bar-chart',
-            schema: {
-              props: {
-                title: { type: 'text', default: 'Choose Your Plan' },
-                plans: { type: 'array', default: [
-                  { name: 'Basic', price: 29, features: ['Feature 1', 'Feature 2'], popular: false },
-                  { name: 'Pro', price: 59, features: ['Feature 1', 'Feature 2', 'Feature 3'], popular: true },
-                  { name: 'Enterprise', price: 99, features: ['All Features'], popular: false }
-                ] }
-              },
-              defaultProps: {
-                title: 'Choose Your Plan',
-                plans: [
-                  { name: 'Basic', price: 29, features: ['Feature 1', 'Feature 2'], popular: false },
-                  { name: 'Pro', price: 59, features: ['Feature 1', 'Feature 2', 'Feature 3'], popular: true },
-                  { name: 'Enterprise', price: 99, features: ['All Features'], popular: false }
-                ]
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 500, zIndex: 1 }
-            }
-          }
+            defaultProps: {
+              title: 'Choose Your Plan',
+              plans: [
+                { name: 'Basic', price: 29, features: ['Feature 1', 'Feature 2'], popular: false },
+                { name: 'Pro', price: 59, features: ['Feature 1', 'Feature 2', 'Feature 3'], popular: true },
+                { name: 'Enterprise', price: 99, features: ['All Features'], popular: false }
+              ]
+            },
+          component: () => null,
+            defaultSize: { width: 100, height: 500 },
+            editableFields: ['title', 'plans']
+          },
+          component: () => null
         }
       ]
     },
@@ -341,62 +282,47 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
       icon: 'file-text',
       components: [
         {
-          id: 'contact-form',
           config: {
+            id: 'contact-form',
             name: 'Contact Form',
             description: 'Contact form with validation',
             category: 'forms',
             icon: 'mail',
-            schema: {
-              props: {
-                title: { type: 'text', default: 'Get In Touch' },
-                fields: { type: 'array', default: [
-                  { name: 'name', label: 'Name', type: 'text', required: true },
-                  { name: 'email', label: 'Email', type: 'email', required: true },
-                  { name: 'message', label: 'Message', type: 'textarea', required: true }
-                ] },
-                submitText: { type: 'text', default: 'Send Message' },
-                successMessage: { type: 'text', default: 'Thank you for your message!' }
-              },
-              defaultProps: {
-                title: 'Get In Touch',
-                fields: [
-                  { name: 'name', label: 'Name', type: 'text', required: true },
-                  { name: 'email', label: 'Email', type: 'email', required: true },
-                  { name: 'message', label: 'Message', type: 'textarea', required: true }
-                ],
-                submitText: 'Send Message',
-                successMessage: 'Thank you for your message!'
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 400, zIndex: 1 }
-            }
-          }
+            defaultProps: {
+              title: 'Get In Touch',
+              fields: [
+                { name: 'name', label: 'Name', type: 'text', required: true },
+                { name: 'email', label: 'Email', type: 'email', required: true },
+                { name: 'message', label: 'Message', type: 'textarea', required: true }
+              ],
+              submitText: 'Send Message',
+              successMessage: 'Thank you for your message!'
+            },
+          component: () => null,
+            defaultSize: { width: 100, height: 400 },
+            editableFields: ['title', 'fields', 'submitText', 'successMessage']
+          },
+          component: () => null
         },
         {
-          id: 'newsletter',
           config: {
+            id: 'newsletter',
             name: 'Newsletter Signup',
             description: 'Email newsletter subscription form',
             category: 'forms',
             icon: 'mail',
-            schema: {
-              props: {
-                title: { type: 'text', default: 'Subscribe to Our Newsletter' },
-                description: { type: 'text', default: 'Get the latest updates and news' },
-                placeholder: { type: 'text', default: 'Enter your email' },
-                buttonText: { type: 'text', default: 'Subscribe' },
-                successMessage: { type: 'text', default: 'Thank you for subscribing!' }
-              },
-              defaultProps: {
-                title: 'Subscribe to Our Newsletter',
-                description: 'Get the latest updates and news',
-                placeholder: 'Enter your email',
-                buttonText: 'Subscribe',
-                successMessage: 'Thank you for subscribing!'
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 200, zIndex: 1 }
-            }
-          }
+            defaultProps: {
+              title: 'Subscribe to Our Newsletter',
+              description: 'Get the latest updates and news',
+              placeholder: 'Enter your email',
+              buttonText: 'Subscribe',
+              successMessage: 'Thank you for subscribing!'
+            },
+          component: () => null,
+            defaultSize: { width: 100, height: 200 },
+            editableFields: ['title', 'description', 'placeholder', 'buttonText', 'successMessage']
+          },
+          component: () => null
         }
       ]
     },
@@ -406,66 +332,49 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
       icon: 'image',
       components: [
         {
-          id: 'gallery',
           config: {
+            id: 'gallery',
             name: 'Image Gallery',
             description: 'Responsive image gallery with lightbox',
             category: 'media',
             icon: 'image',
-            schema: {
-              props: {
-                title: { type: 'text', default: 'Our Gallery' },
-                images: { type: 'array', default: [
-                  { src: '', alt: 'Image 1', caption: 'Caption 1' },
-                  { src: '', alt: 'Image 2', caption: 'Caption 2' }
-                ] },
-                columns: { type: 'number', default: 3, min: 1, max: 6 },
-                aspectRatio: { type: 'select', options: ['1:1', '4:3', '16:9', '3:2'], default: '4:3' },
-                showCaptions: { type: 'boolean', default: true },
-                lightbox: { type: 'boolean', default: true }
-              },
-              defaultProps: {
-                title: 'Our Gallery',
-                images: [
-                  { src: '', alt: 'Image 1', caption: 'Caption 1' },
-                  { src: '', alt: 'Image 2', caption: 'Caption 2' }
-                ],
-                columns: 3,
-                aspectRatio: '4:3',
-                showCaptions: true,
-                lightbox: true
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 500, zIndex: 1 }
-            }
-          }
+            defaultProps: {
+              title: 'Our Gallery',
+              images: [
+                { src: '', alt: 'Image 1', caption: 'Caption 1' },
+                { src: '', alt: 'Image 2', caption: 'Caption 2' }
+              ],
+              columns: 3,
+              aspectRatio: '4:3',
+              showCaptions: true,
+              lightbox: true
+            },
+          component: () => null,
+            defaultSize: { width: 100, height: 500 },
+            editableFields: ['title', 'images', 'columns', 'aspectRatio', 'showCaptions', 'lightbox']
+          },
+          component: () => null
         },
         {
-          id: 'video',
           config: {
+            id: 'video',
             name: 'Video Player',
             description: 'Embedded video player',
             category: 'media',
             icon: 'video',
-            schema: {
-              props: {
-                title: { type: 'text', default: 'Watch Our Video' },
-                videoUrl: { type: 'url', default: '' },
-                posterImage: { type: 'image', default: '' },
-                autoplay: { type: 'boolean', default: false },
-                controls: { type: 'boolean', default: true },
-                loop: { type: 'boolean', default: false }
-              },
-              defaultProps: {
-                title: 'Watch Our Video',
-                videoUrl: '',
-                posterImage: '',
-                autoplay: false,
-                controls: true,
-                loop: false
-              },
-              defaultLayout: { x: 0, y: 0, width: 100, height: 400, zIndex: 1 }
-            }
-          }
+            defaultProps: {
+              title: 'Watch Our Video',
+              videoUrl: '',
+              posterImage: '',
+              autoplay: false,
+              controls: true,
+              loop: false
+            },
+          component: () => null,
+            defaultSize: { width: 100, height: 400 },
+            editableFields: ['title', 'videoUrl', 'posterImage', 'autoplay', 'controls', 'loop']
+          },
+          component: () => null
         }
       ]
     }
