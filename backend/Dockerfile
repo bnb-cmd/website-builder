@@ -1,7 +1,7 @@
 # Multi-stage Dockerfile for Pakistan Website Builder Backend
 
 # Stage 1: Development
-FROM node:22-slim AS development
+FROM node:20-slim AS development
 
 WORKDIR /app
 
@@ -28,7 +28,7 @@ EXPOSE 3001
 CMD ["npm", "run", "dev"]
 
 # Stage 2: Build
-FROM node:22-slim AS build
+FROM node:20-slim AS build
 
 WORKDIR /app
 
@@ -52,7 +52,7 @@ RUN npx prisma generate
 RUN npm run build
 
 # Stage 3: Production
-FROM node:22-slim AS production
+FROM node:20-slim AS production
 
 WORKDIR /app
 
