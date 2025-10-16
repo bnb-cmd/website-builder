@@ -37,11 +37,14 @@ export async function cartRoutes(fastify: FastifyInstance) {
       description: 'Get or create cart',
       tags: ['Cart'],
       security: [{ bearerAuth: [] }],
-      querystring: z.object({
-        userId: z.string().optional(),
-        sessionId: z.string().optional(),
-        websiteId: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          userId: { type: 'string' },
+          sessionId: { type: 'string' },
+          websiteId: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -78,12 +81,29 @@ export async function cartRoutes(fastify: FastifyInstance) {
       description: 'Create cart',
       tags: ['Cart'],
       security: [{ bearerAuth: [] }],
-      body: z.object({
-        userId: z.string().optional(),
-        sessionId: z.string().optional(),
-        websiteId: z.string(),
-        items: z.array(addItemSchema).default([])
-      })
+      body: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          userId: { type: 'string' },
+          sessionId: { type: 'string' },
+          websiteId: { type: 'string' },
+          items: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['productId', 'quantity'],
+              properties: {
+                productId: { type: 'string' },
+                quantity: { type: 'number', minimum: 1 },
+                variantId: { type: 'string' },
+                metadata: { type: 'object' }
+              }
+            },
+            default: []
+          }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -123,9 +143,13 @@ export async function cartRoutes(fastify: FastifyInstance) {
       description: 'Get cart by ID',
       tags: ['Cart'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -169,15 +193,28 @@ export async function cartRoutes(fastify: FastifyInstance) {
       description: 'Add item to cart',
       tags: ['Cart'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      }),
-      body: addItemSchema
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['productId', 'quantity'],
+        properties: {
+          productId: { type: 'string' },
+          quantity: { type: 'number', minimum: 1 },
+          variantId: { type: 'string' },
+          metadata: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
       const { id } = request.params as { id: string }
-      const validatedData = addItemSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const cart = await cartService.addItem(id, validatedData as any)
 
@@ -188,17 +225,6 @@ export async function cartRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Add item to cart error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -218,15 +244,27 @@ export async function cartRoutes(fastify: FastifyInstance) {
       description: 'Update item in cart',
       tags: ['Cart'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      }),
-      body: updateItemSchema
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['itemId', 'quantity'],
+        properties: {
+          itemId: { type: 'string' },
+          quantity: { type: 'number', minimum: 1 },
+          metadata: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
       const { id } = request.params as { id: string }
-      const validatedData = updateItemSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const cart = await cartService.updateItem(
         id,
@@ -242,17 +280,6 @@ export async function cartRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Update item in cart error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -272,15 +299,26 @@ export async function cartRoutes(fastify: FastifyInstance) {
       description: 'Remove item from cart',
       tags: ['Cart'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      }),
-      body: removeItemSchema
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['productId'],
+        properties: {
+          productId: { type: 'string' },
+          variant: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
       const { id } = request.params as { id: string }
-      const validatedData = removeItemSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const cart = await cartService.removeItem(
         id,
@@ -295,17 +333,6 @@ export async function cartRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Remove item from cart error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -325,9 +352,13 @@ export async function cartRoutes(fastify: FastifyInstance) {
       description: 'Clear cart',
       tags: ['Cart'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -360,12 +391,20 @@ export async function cartRoutes(fastify: FastifyInstance) {
       description: 'Merge carts',
       tags: ['Cart'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      }),
-      body: z.object({
-        sourceCartId: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['sourceCartId'],
+        properties: {
+          sourceCartId: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -399,9 +438,13 @@ export async function cartRoutes(fastify: FastifyInstance) {
       description: 'Validate cart',
       tags: ['Cart'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -434,11 +477,14 @@ export async function cartRoutes(fastify: FastifyInstance) {
       description: 'Get cart statistics',
       tags: ['Cart'],
       security: [{ bearerAuth: [] }],
-      querystring: z.object({
-        websiteId: z.string().optional(),
-        dateFrom: z.string().optional(),
-        dateTo: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          websiteId: { type: 'string' },
+          dateFrom: { type: 'string' },
+          dateTo: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {

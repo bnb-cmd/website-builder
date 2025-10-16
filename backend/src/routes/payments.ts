@@ -50,7 +50,7 @@ export async function paymentRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = createPaymentIntentSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const paymentIntent = await paymentService.createPaymentIntent({
         amount: validatedData.amount,
@@ -84,17 +84,6 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Create payment intent error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -125,7 +114,7 @@ export async function paymentRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = confirmPaymentSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const result = await paymentService.confirmPayment(
         validatedData.paymentId,
@@ -154,17 +143,6 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Confirm payment error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -196,7 +174,7 @@ export async function paymentRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = refundSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const result = await paymentService.processRefund(
         validatedData.paymentId,
@@ -227,17 +205,6 @@ export async function paymentRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Refund error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,

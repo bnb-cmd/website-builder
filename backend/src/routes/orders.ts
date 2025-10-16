@@ -87,7 +87,7 @@ export async function orderRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = createOrderSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const order = await orderService.createOrder(validatedData as any)
 
@@ -98,17 +98,6 @@ export async function orderRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Create order error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -128,19 +117,22 @@ export async function orderRoutes(fastify: FastifyInstance) {
       description: 'List orders',
       tags: ['Orders'],
       security: [{ bearerAuth: [] }],
-      querystring: z.object({
-        page: z.string().transform(Number).default('1'),
-        limit: z.string().transform(Number).default('20'),
-        websiteId: z.string().optional(),
-        customerEmail: z.string().email().optional(),
-        paymentStatus: z.enum(['PENDING', 'COMPLETED', 'FAILED', 'CANCELLED', 'REFUNDED']).optional(),
-        shippingStatus: z.enum(['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED']).optional(),
-        search: z.string().optional(),
-        dateFrom: z.string().optional(),
-        dateTo: z.string().optional(),
-        sortBy: z.string().default('createdAt'),
-        sortOrder: z.enum(['asc', 'desc']).default('desc')
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          page: { type: 'string', default: '1' },
+          limit: { type: 'string', default: '20' },
+          websiteId: { type: 'string' },
+          customerEmail: { type: 'string', format: 'email' },
+          paymentStatus: { type: 'string', enum: ['PENDING', 'COMPLETED', 'FAILED', 'CANCELLED', 'REFUNDED'] },
+          shippingStatus: { type: 'string', enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'] },
+          search: { type: 'string' },
+          dateFrom: { type: 'string' },
+          dateTo: { type: 'string' },
+          sortBy: { type: 'string', default: 'createdAt' },
+          sortOrder: { type: 'string', enum: ['asc', 'desc'], default: 'desc' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -190,9 +182,13 @@ export async function orderRoutes(fastify: FastifyInstance) {
       description: 'Get order details',
       tags: ['Orders'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -236,9 +232,13 @@ export async function orderRoutes(fastify: FastifyInstance) {
       description: 'Get order by order number',
       tags: ['Orders'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        orderNumber: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['orderNumber'],
+        properties: {
+          orderNumber: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -282,9 +282,13 @@ export async function orderRoutes(fastify: FastifyInstance) {
       description: 'Update order',
       tags: ['Orders'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      }),
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
       body: {
         type: 'object',
         properties: {
@@ -297,7 +301,7 @@ export async function orderRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const { id } = request.params as { id: string }
-      const validatedData = updateOrderSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const order = await orderService.update(id, validatedData)
 
@@ -308,17 +312,6 @@ export async function orderRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Update order error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -338,15 +331,26 @@ export async function orderRoutes(fastify: FastifyInstance) {
       description: 'Update order status',
       tags: ['Orders'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      }),
-      body: updateOrderStatusSchema
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['status'],
+        properties: {
+          status: { type: 'string', enum: ['PENDING', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'] },
+          notes: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
       const { id } = request.params as { id: string }
-      const validatedData = updateOrderStatusSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const order = await orderService.updateStatus(id, validatedData.status as ShippingStatus, validatedData.notes)
 
@@ -357,17 +361,6 @@ export async function orderRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Update order status error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -387,15 +380,28 @@ export async function orderRoutes(fastify: FastifyInstance) {
       description: 'Add tracking information',
       tags: ['Orders'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      }),
-      body: addTrackingSchema
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['trackingNumber', 'carrier'],
+        properties: {
+          trackingNumber: { type: 'string' },
+          carrier: { type: 'string' },
+          trackingUrl: { type: 'string' },
+          estimatedDelivery: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
       const { id } = request.params as { id: string }
-      const validatedData = addTrackingSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const order = await orderService.addTracking(id, validatedData as any)
 
@@ -406,17 +412,6 @@ export async function orderRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Add tracking error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -436,9 +431,13 @@ export async function orderRoutes(fastify: FastifyInstance) {
       description: 'Cancel order',
       tags: ['Orders'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -482,12 +481,19 @@ export async function orderRoutes(fastify: FastifyInstance) {
       description: 'Get customer orders',
       tags: ['Orders'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        email: z.string().email()
-      }),
-      querystring: z.object({
-        websiteId: z.string().optional()
-      })
+      params: {
+        type: 'object',
+        required: ['email'],
+        properties: {
+          email: { type: 'string', format: 'email' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -521,12 +527,20 @@ export async function orderRoutes(fastify: FastifyInstance) {
       description: 'Search orders',
       tags: ['Orders'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        query: z.string()
-      }),
-      querystring: z.object({
-        websiteId: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['query'],
+        properties: {
+          query: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -560,11 +574,15 @@ export async function orderRoutes(fastify: FastifyInstance) {
       description: 'Get order statistics',
       tags: ['Orders'],
       security: [{ bearerAuth: [] }],
-      querystring: z.object({
-        websiteId: z.string(),
-        dateFrom: z.string().optional(),
-        dateTo: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' },
+          dateFrom: { type: 'string' },
+          dateTo: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -602,19 +620,38 @@ export async function orderRoutes(fastify: FastifyInstance) {
       description: 'Calculate order total',
       tags: ['Orders'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      }),
-      body: z.object({
-        items: z.array(z.object({
-          productId: z.string(),
-          quantity: z.number().int().positive()
-        })),
-        shippingAddress: z.object({
-          city: z.string(),
-          country: z.string()
-        })
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['items', 'shippingAddress'],
+        properties: {
+          items: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['productId', 'quantity'],
+              properties: {
+                productId: { type: 'string' },
+                quantity: { type: 'number', minimum: 1 }
+              }
+            }
+          },
+          shippingAddress: {
+            type: 'object',
+            required: ['city', 'country'],
+            properties: {
+              city: { type: 'string' },
+              country: { type: 'string' }
+            }
+          }
+        }
+      }
     }
   }, async (request, reply) => {
     try {

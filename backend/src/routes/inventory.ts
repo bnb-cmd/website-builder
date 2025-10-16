@@ -47,11 +47,22 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       description: 'Record inventory transaction',
       tags: ['Inventory'],
       security: [{ bearerAuth: [] }],
-      body: createTransactionSchema
+      body: {
+        type: 'object',
+        required: ['productId', 'type', 'quantity'],
+        properties: {
+          productId: { type: 'string' },
+          type: { type: 'string', enum: ['IN', 'OUT', 'ADJUSTMENT', 'TRANSFER'] },
+          quantity: { type: 'number', minimum: 1 },
+          reason: { type: 'string' },
+          reference: { type: 'string' },
+          metadata: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
-      const validatedData = createTransactionSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const transaction = await inventoryService.recordTransaction(validatedData as any)
 
@@ -62,17 +73,6 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Record inventory transaction error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -92,15 +92,18 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       description: 'List inventory transactions',
       tags: ['Inventory'],
       security: [{ bearerAuth: [] }],
-      querystring: z.object({
-        page: z.string().transform(Number).default('1'),
-        limit: z.string().transform(Number).default('20'),
-        productId: z.string().optional(),
-        websiteId: z.string().optional(),
-        type: z.enum(['IN', 'OUT', 'ADJUSTMENT', 'RETURN', 'DAMAGE', 'LOSS']).optional(),
-        dateFrom: z.string().optional(),
-        dateTo: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          page: { type: 'string', default: '1' },
+          limit: { type: 'string', default: '20' },
+          productId: { type: 'string' },
+          websiteId: { type: 'string' },
+          type: { type: 'string', enum: ['IN', 'OUT', 'ADJUSTMENT', 'RETURN', 'DAMAGE', 'LOSS'] },
+          dateFrom: { type: 'string' },
+          dateTo: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -141,9 +144,13 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       description: 'Get inventory transaction details',
       tags: ['Inventory'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -187,11 +194,20 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       description: 'Reserve inventory for order',
       tags: ['Inventory'],
       security: [{ bearerAuth: [] }],
-      body: reserveInventorySchema
+      body: {
+        type: 'object',
+        required: ['productId', 'quantity', 'orderId'],
+        properties: {
+          productId: { type: 'string' },
+          quantity: { type: 'number', minimum: 1 },
+          orderId: { type: 'string' },
+          expiresAt: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
-      const validatedData = reserveInventorySchema.parse(request.body)
+      const validatedData = request.body as any
       
       const success = await inventoryService.reserveInventory(
         validatedData.productId,
@@ -217,17 +233,6 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Reserve inventory error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -247,9 +252,13 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       description: 'Release inventory reservation',
       tags: ['Inventory'],
       security: [{ bearerAuth: [] }],
-      body: z.object({
-        orderId: z.string()
-      })
+      body: {
+        type: 'object',
+        required: ['orderId'],
+        properties: {
+          orderId: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -282,9 +291,13 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       description: 'Fulfill inventory reservation',
       tags: ['Inventory'],
       security: [{ bearerAuth: [] }],
-      body: z.object({
-        orderId: z.string()
-      })
+      body: {
+        type: 'object',
+        required: ['orderId'],
+        properties: {
+          orderId: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -317,9 +330,12 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       description: 'Get inventory alerts',
       tags: ['Inventory'],
       security: [{ bearerAuth: [] }],
-      querystring: z.object({
-        websiteId: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -352,9 +368,12 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       description: 'Get inventory report',
       tags: ['Inventory'],
       security: [{ bearerAuth: [] }],
-      querystring: z.object({
-        websiteId: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -387,12 +406,19 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       description: 'Get product inventory movements',
       tags: ['Inventory'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        productId: z.string()
-      }),
-      querystring: z.object({
-        limit: z.string().transform(Number).default('50')
-      })
+      params: {
+        type: 'object',
+        required: ['productId'],
+        properties: {
+          productId: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          limit: { type: 'string', default: '50' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -426,11 +452,30 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       description: 'Bulk adjust inventory',
       tags: ['Inventory'],
       security: [{ bearerAuth: [] }],
-      body: bulkAdjustmentSchema
+      body: {
+        type: 'object',
+        required: ['adjustments'],
+        properties: {
+          adjustments: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['productId', 'quantity', 'type'],
+              properties: {
+                productId: { type: 'string' },
+                quantity: { type: 'number', minimum: 1 },
+                type: { type: 'string', enum: ['IN', 'OUT', 'ADJUSTMENT'] },
+                reason: { type: 'string' },
+                reference: { type: 'string' }
+              }
+            }
+          }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
-      const validatedData = bulkAdjustmentSchema.parse(request.body)
+      const validatedData = request.body as any
       
       await inventoryService.bulkAdjustInventory(validatedData.adjustments as any)
 
@@ -441,17 +486,6 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Bulk adjust inventory error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -471,11 +505,32 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       description: 'Bulk receive inventory',
       tags: ['Inventory'],
       security: [{ bearerAuth: [] }],
-      body: bulkReceiptSchema
+      body: {
+        type: 'object',
+        required: ['receipts'],
+        properties: {
+          receipts: {
+            type: 'array',
+            items: {
+              type: 'object',
+              required: ['productId', 'quantity', 'supplier'],
+              properties: {
+                productId: { type: 'string' },
+                quantity: { type: 'number', minimum: 1 },
+                supplier: { type: 'string' },
+                cost: { type: 'number', minimum: 0 },
+                batchNumber: { type: 'string' },
+                expiryDate: { type: 'string' },
+                notes: { type: 'string' }
+              }
+            }
+          }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
-      const validatedData = bulkReceiptSchema.parse(request.body)
+      const validatedData = request.body as any
       
       await inventoryService.bulkReceiveInventory(validatedData.receipts as any)
 
@@ -486,17 +541,6 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Bulk receive inventory error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -516,11 +560,14 @@ export async function inventoryRoutes(fastify: FastifyInstance) {
       description: 'Get inventory analytics',
       tags: ['Inventory'],
       security: [{ bearerAuth: [] }],
-      querystring: z.object({
-        websiteId: z.string().optional(),
-        dateFrom: z.string().optional(),
-        dateTo: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          websiteId: { type: 'string' },
+          dateFrom: { type: 'string' },
+          dateTo: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {

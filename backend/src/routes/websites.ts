@@ -69,7 +69,7 @@ export async function websiteRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const userId = (request as any).user.id
-      const query = querySchema.parse(request.query)
+      const query = request.query as any
       
       const websites = await websiteService.findMany({
         userId,
@@ -95,17 +95,6 @@ export async function websiteRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('List websites error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -207,7 +196,7 @@ export async function websiteRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const userId = (request as any).user.id
-      const validatedData = createWebsiteSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const website = await websiteService.create({
         name: validatedData.name,
@@ -232,17 +221,6 @@ export async function websiteRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Create website error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -288,7 +266,7 @@ export async function websiteRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params as { id: string }
       const userId = (request as any).user.id
-      const validatedData = updateWebsiteSchema.parse(request.body)
+      const validatedData = request.body as any
       
       // Check if website exists and user owns it
       const existingWebsite = await websiteService.findById(id)
@@ -328,17 +306,6 @@ export async function websiteRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Update website error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -515,12 +482,21 @@ export async function websiteRoutes(fastify: FastifyInstance) {
       description: 'Get analytics for a website',
       tags: ['Website Management'],
       security: [{ bearerAuth: [] }],
-      params: z.object({ id: z.string() }),
-      querystring: z.object({
-        startDate: z.string().optional(),
-        endDate: z.string().optional(),
-        period: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']).default('DAILY')
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          startDate: { type: 'string' },
+          endDate: { type: 'string' },
+          period: { type: 'string', enum: ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'], default: 'DAILY' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -561,11 +537,20 @@ export async function websiteRoutes(fastify: FastifyInstance) {
       description: 'Get analytics summary for a website',
       tags: ['Website Management'],
       security: [{ bearerAuth: [] }],
-      params: z.object({ id: z.string() }),
-      querystring: z.object({
-        period: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']).default('DAILY'),
-        days: z.string().transform(Number).default('30')
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          period: { type: 'string', enum: ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'], default: 'DAILY' },
+          days: { type: 'string', default: '30' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -599,11 +584,20 @@ export async function websiteRoutes(fastify: FastifyInstance) {
       description: 'Get analytics trends for a website',
       tags: ['Website Management'],
       security: [{ bearerAuth: [] }],
-      params: z.object({ id: z.string() }),
-      querystring: z.object({
-        period: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']).default('DAILY'),
-        days: z.string().transform(Number).default('30')
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          period: { type: 'string', enum: ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'], default: 'DAILY' },
+          days: { type: 'string', default: '30' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -637,7 +631,13 @@ export async function websiteRoutes(fastify: FastifyInstance) {
       description: 'Get predictive insights for a website',
       tags: ['Website Management'],
       security: [{ bearerAuth: [] }],
-      params: z.object({ id: z.string() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -670,55 +670,83 @@ export async function websiteRoutes(fastify: FastifyInstance) {
       description: 'Create analytics record for website',
       tags: ['Website Management'],
       security: [{ bearerAuth: [] }],
-      params: z.object({ id: z.string() }),
-      body: z.object({
-        visitors: z.number().min(0),
-        pageViews: z.number().min(0),
-        bounceRate: z.number().min(0).max(1).optional(),
-        avgSessionDuration: z.number().min(0).optional(),
-        conversionRate: z.number().min(0).max(1).optional(),
-        revenue: z.number().min(0).optional(),
-        orders: z.number().min(0).optional(),
-        avgOrderValue: z.number().min(0).optional(),
-        organicTraffic: z.number().min(0).optional(),
-        socialTraffic: z.number().min(0).optional(),
-        directTraffic: z.number().min(0).optional(),
-        referralTraffic: z.number().min(0).optional(),
-        mobileTraffic: z.number().min(0).optional(),
-        desktopTraffic: z.number().min(0).optional(),
-        tabletTraffic: z.number().min(0).optional(),
-        topCountries: z.record(z.string(), z.number()).optional(),
-        topCities: z.record(z.string(), z.number()).optional(),
-        pageLoadTime: z.number().min(0).optional(),
-        coreWebVitals: z.object({
-          lcp: z.number().min(0),
-          fid: z.number().min(0),
-          cls: z.number().min(0)
-        }).optional(),
-        topPages: z.array(z.object({
-          path: z.string(),
-          views: z.number().min(0),
-          uniqueViews: z.number().min(0)
-        })).optional(),
-        referrers: z.array(z.object({
-          domain: z.string(),
-          visits: z.number().min(0)
-        })).optional(),
-        devices: z.object({
-          mobile: z.number().min(0),
-          desktop: z.number().min(0),
-          tablet: z.number().min(0)
-        }).optional(),
-        browsers: z.record(z.string(), z.number()).optional(),
-        operatingSystems: z.record(z.string(), z.number()).optional(),
-        screenResolutions: z.record(z.string(), z.number()).optional(),
-        timeOnSite: z.number().min(0).optional(),
-        exitRate: z.number().min(0).max(1).optional(),
-        newVisitors: z.number().min(0).optional(),
-        returningVisitors: z.number().min(0).optional(),
-        period: z.enum(['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY']).default('DAILY'),
-        date: z.string().optional()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['visitors', 'pageViews'],
+        properties: {
+          visitors: { type: 'number', minimum: 0 },
+          pageViews: { type: 'number', minimum: 0 },
+          bounceRate: { type: 'number', minimum: 0, maximum: 1 },
+          avgSessionDuration: { type: 'number', minimum: 0 },
+          conversionRate: { type: 'number', minimum: 0, maximum: 1 },
+          revenue: { type: 'number', minimum: 0 },
+          orders: { type: 'number', minimum: 0 },
+          avgOrderValue: { type: 'number', minimum: 0 },
+          organicTraffic: { type: 'number', minimum: 0 },
+          socialTraffic: { type: 'number', minimum: 0 },
+          directTraffic: { type: 'number', minimum: 0 },
+          referralTraffic: { type: 'number', minimum: 0 },
+          mobileTraffic: { type: 'number', minimum: 0 },
+          desktopTraffic: { type: 'number', minimum: 0 },
+          tabletTraffic: { type: 'number', minimum: 0 },
+          topCountries: { type: 'object' },
+          topCities: { type: 'object' },
+          pageLoadTime: { type: 'number', minimum: 0 },
+          coreWebVitals: {
+            type: 'object',
+            properties: {
+              lcp: { type: 'number', minimum: 0 },
+              fid: { type: 'number', minimum: 0 },
+              cls: { type: 'number', minimum: 0 }
+            }
+          },
+          topPages: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                path: { type: 'string' },
+                views: { type: 'number', minimum: 0 },
+                uniqueViews: { type: 'number', minimum: 0 }
+              }
+            }
+          },
+          referrers: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                domain: { type: 'string' },
+                visits: { type: 'number', minimum: 0 }
+              }
+            }
+          },
+          devices: {
+            type: 'object',
+            properties: {
+              mobile: { type: 'number', minimum: 0 },
+              desktop: { type: 'number', minimum: 0 },
+              tablet: { type: 'number', minimum: 0 }
+            }
+          },
+          browsers: { type: 'object' },
+          operatingSystems: { type: 'object' },
+          screenResolutions: { type: 'object' },
+          timeOnSite: { type: 'number', minimum: 0 },
+          exitRate: { type: 'number', minimum: 0, maximum: 1 },
+          newVisitors: { type: 'number', minimum: 0 },
+          returningVisitors: { type: 'number', minimum: 0 },
+          period: { type: 'string', enum: ['DAILY', 'WEEKLY', 'MONTHLY', 'YEARLY'], default: 'DAILY' },
+          date: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {

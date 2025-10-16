@@ -47,18 +47,21 @@ export async function productRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'List products',
       tags: ['Products'],
-      querystring: z.object({
-        page: z.string().transform(Number).default('1'),
-        limit: z.string().transform(Number).default('20'),
-        websiteId: z.string().optional(),
-        status: z.enum(['ACTIVE', 'INACTIVE', 'OUT_OF_STOCK']).optional(),
-        priceMin: z.string().transform(Number).optional(),
-        priceMax: z.string().transform(Number).optional(),
-        inStock: z.string().transform(val => val === 'true').optional(),
-        search: z.string().optional(),
-        sortBy: z.string().default('createdAt'),
-        sortOrder: z.enum(['asc', 'desc']).default('desc')
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          page: { type: 'string', default: '1' },
+          limit: { type: 'string', default: '20' },
+          websiteId: { type: 'string' },
+          status: { type: 'string', enum: ['ACTIVE', 'INACTIVE', 'OUT_OF_STOCK'] },
+          priceMin: { type: 'string' },
+          priceMax: { type: 'string' },
+          inStock: { type: 'string' },
+          search: { type: 'string' },
+          sortBy: { type: 'string', default: 'createdAt' },
+          sortOrder: { type: 'string', enum: ['asc', 'desc'], default: 'desc' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -103,9 +106,13 @@ export async function productRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Get product details',
       tags: ['Products'],
-      params: z.object({
-        id: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -149,11 +156,32 @@ export async function productRoutes(fastify: FastifyInstance) {
       description: 'Create a new product',
       tags: ['Products'],
       security: [{ bearerAuth: [] }],
-      body: createProductSchema
+      body: {
+        type: 'object',
+        required: ['name', 'price', 'websiteId'],
+        properties: {
+          name: { type: 'string' },
+          description: { type: 'string' },
+          price: { type: 'number', minimum: 0 },
+          comparePrice: { type: 'number', minimum: 0 },
+          costPrice: { type: 'number', minimum: 0 },
+          sku: { type: 'string' },
+          barcode: { type: 'string' },
+          websiteId: { type: 'string' },
+          categoryId: { type: 'string' },
+          status: { type: 'string', enum: ['ACTIVE', 'INACTIVE', 'DRAFT'] },
+          inventory: { type: 'number', minimum: 0 },
+          weight: { type: 'number', minimum: 0 },
+          dimensions: { type: 'object' },
+          images: { type: 'array', items: { type: 'string' } },
+          tags: { type: 'array', items: { type: 'string' } },
+          metadata: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
-      const validatedData = createProductSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const product = await productService.createProduct(validatedData as any)
 
@@ -164,17 +192,6 @@ export async function productRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Create product error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -194,15 +211,38 @@ export async function productRoutes(fastify: FastifyInstance) {
       description: 'Update product',
       tags: ['Products'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      }),
-      body: updateProductSchema
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string' },
+          description: { type: 'string' },
+          price: { type: 'number', minimum: 0 },
+          comparePrice: { type: 'number', minimum: 0 },
+          costPrice: { type: 'number', minimum: 0 },
+          sku: { type: 'string' },
+          barcode: { type: 'string' },
+          categoryId: { type: 'string' },
+          status: { type: 'string', enum: ['ACTIVE', 'INACTIVE', 'DRAFT'] },
+          inventory: { type: 'number', minimum: 0 },
+          weight: { type: 'number', minimum: 0 },
+          dimensions: { type: 'object' },
+          images: { type: 'array', items: { type: 'string' } },
+          tags: { type: 'array', items: { type: 'string' } },
+          metadata: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
       const { id } = request.params as { id: string }
-      const validatedData = updateProductSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const product = await productService.updateProduct(id, validatedData)
 
@@ -213,17 +253,6 @@ export async function productRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Update product error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -243,9 +272,13 @@ export async function productRoutes(fastify: FastifyInstance) {
       description: 'Delete product',
       tags: ['Products'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -289,15 +322,27 @@ export async function productRoutes(fastify: FastifyInstance) {
       description: 'Update product inventory',
       tags: ['Products'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      }),
-      body: inventoryUpdateSchema
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['quantity'],
+        properties: {
+          quantity: { type: 'number', minimum: 0 },
+          reason: { type: 'string' },
+          reference: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
       const { id } = request.params as { id: string }
-      const validatedData = inventoryUpdateSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const product = await productService.updateInventory(
         id,
@@ -312,17 +357,6 @@ export async function productRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Update inventory error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -342,9 +376,13 @@ export async function productRoutes(fastify: FastifyInstance) {
       description: 'Publish product',
       tags: ['Products'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -377,9 +415,13 @@ export async function productRoutes(fastify: FastifyInstance) {
       description: 'Unpublish product',
       tags: ['Products'],
       security: [{ bearerAuth: [] }],
-      params: z.object({
-        id: z.string()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -410,16 +452,24 @@ export async function productRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Search products',
       tags: ['Products'],
-      params: z.object({
-        query: z.string()
-      }),
-      querystring: z.object({
-        websiteId: z.string(),
-        category: z.string().optional(),
-        priceMin: z.string().transform(Number).optional(),
-        priceMax: z.string().transform(Number).optional(),
-        inStock: z.string().transform(val => val === 'true').optional()
-      })
+      params: {
+        type: 'object',
+        required: ['query'],
+        properties: {
+          query: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' },
+          category: { type: 'string' },
+          priceMin: { type: 'string' },
+          priceMax: { type: 'string' },
+          inStock: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -457,10 +507,14 @@ export async function productRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Get featured products',
       tags: ['Products'],
-      querystring: z.object({
-        websiteId: z.string(),
-        limit: z.string().transform(Number).default('8')
-      })
+      querystring: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' },
+          limit: { type: 'string', default: '8' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -491,12 +545,19 @@ export async function productRoutes(fastify: FastifyInstance) {
     schema: {
       description: 'Get related products',
       tags: ['Products'],
-      params: z.object({
-        id: z.string()
-      }),
-      querystring: z.object({
-        limit: z.string().transform(Number).default('4')
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          limit: { type: 'string', default: '4' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -530,9 +591,13 @@ export async function productRoutes(fastify: FastifyInstance) {
       description: 'Get product statistics',
       tags: ['Products'],
       security: [{ bearerAuth: [] }],
-      querystring: z.object({
-        websiteId: z.string()
-      })
+      querystring: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -565,11 +630,26 @@ export async function productRoutes(fastify: FastifyInstance) {
       description: 'Bulk update products',
       tags: ['Products'],
       security: [{ bearerAuth: [] }],
-      body: bulkUpdateSchema
+      body: {
+        type: 'object',
+        required: ['productIds', 'updates'],
+        properties: {
+          productIds: { type: 'array', items: { type: 'string' } },
+          updates: {
+            type: 'object',
+            properties: {
+              status: { type: 'string', enum: ['ACTIVE', 'INACTIVE', 'DRAFT'] },
+              price: { type: 'number', minimum: 0 },
+              inventory: { type: 'number', minimum: 0 },
+              categoryId: { type: 'string' }
+            }
+          }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
-      const validatedData = bulkUpdateSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const result = await productService.bulkUpdateByIds(validatedData.productIds, validatedData.updates)
 
@@ -580,17 +660,6 @@ export async function productRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Bulk update products error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,

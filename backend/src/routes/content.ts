@@ -39,8 +39,27 @@ const contentRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/content/website/:websiteId', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ websiteId: z.string().cuid() }),
-      body: createContentSchema
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['title', 'type'],
+        properties: {
+          title: { type: 'string' },
+          content: { type: 'string' },
+          type: { type: 'string', enum: ['page', 'post', 'section', 'component'] },
+          status: { type: 'string', enum: ['draft', 'published', 'archived'] },
+          metadata: { type: 'object' },
+          seoTitle: { type: 'string' },
+          seoDescription: { type: 'string' },
+          tags: { type: 'array', items: { type: 'string' } }
+        }
+      }
     }
   }, async (request, reply) => {
     const { websiteId } = request.params as { websiteId: string }
@@ -91,14 +110,23 @@ const contentRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/content/website/:websiteId', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ websiteId: z.string().cuid() }),
-      querystring: z.object({
-        search: z.string().optional(),
-        type: z.string().optional(),
-        status: z.string().optional(),
-        page: z.string().optional(),
-        limit: z.string().optional()
-      })
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          search: { type: 'string' },
+          type: { type: 'string' },
+          status: { type: 'string' },
+          page: { type: 'string' },
+          limit: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { websiteId } = request.params as { websiteId: string }
@@ -132,7 +160,13 @@ const contentRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/content/:id', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -167,8 +201,26 @@ const contentRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/content/:id', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() }),
-      body: updateContentSchema
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          title: { type: 'string' },
+          content: { type: 'string' },
+          type: { type: 'string', enum: ['page', 'post', 'section', 'component'] },
+          status: { type: 'string', enum: ['draft', 'published', 'archived'] },
+          metadata: { type: 'object' },
+          seoTitle: { type: 'string' },
+          seoDescription: { type: 'string' },
+          tags: { type: 'array', items: { type: 'string' } }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -195,7 +247,13 @@ const contentRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/content/:id', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -222,7 +280,13 @@ const contentRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/content/:id/publish', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -250,7 +314,13 @@ const contentRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/content/:id/analytics', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -277,10 +347,19 @@ const contentRoutes: FastifyPluginAsync = async (fastify) => {
     Body: { metadata?: any }
   }>('/content/:id/view', {
     schema: {
-      params: z.object({ id: z.string().cuid() }),
-      body: z.object({
-        metadata: z.any().optional()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          metadata: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }

@@ -70,7 +70,7 @@ export async function aiRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = generateContentSchema.parse(request.body)
+      const validatedData = request.body as any
       const userId = (request as any).user.id
 
       // Check AI quota if AI is requested
@@ -110,17 +110,6 @@ export async function aiRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Generate content error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       if (error.message === 'AI quota exceeded') {
         return reply.status(429).send({
@@ -166,7 +155,7 @@ export async function aiRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = optimizeSEOSchema.parse(request.body)
+      const validatedData = request.body as any
       const userId = (request as any).user.id
 
       // Check AI quota if AI is requested
@@ -206,17 +195,6 @@ export async function aiRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Optimize SEO error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       if (error.message === 'AI quota exceeded') {
         return reply.status(429).send({
@@ -262,7 +240,7 @@ export async function aiRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = generateColorsSchema.parse(request.body)
+      const validatedData = request.body as any
       const userId = (request as any).user.id
 
       // Check AI quota if AI is requested
@@ -302,17 +280,6 @@ export async function aiRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Generate colors error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       if (error.message === 'AI quota exceeded') {
         return reply.status(429).send({
@@ -358,7 +325,7 @@ export async function aiRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = suggestTemplatesSchema.parse(request.body)
+      const validatedData = request.body as any
       const userId = (request as any).user.id
 
       // Check AI quota if AI is requested
@@ -398,17 +365,6 @@ export async function aiRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Suggest templates error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       if (error.message === 'AI quota exceeded') {
         return reply.status(429).send({

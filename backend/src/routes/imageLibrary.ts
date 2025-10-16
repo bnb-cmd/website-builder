@@ -31,16 +31,19 @@ const imageLibraryRoutes: FastifyPluginAsync = async (fastify) => {
     }
   }>('/images', {
     schema: {
-      querystring: z.object({
-        category: z.string().optional(),
-        tags: z.string().optional(),
-        orientation: z.string().optional(),
-        color: z.string().optional(),
-        isPremium: z.string().optional(),
-        search: z.string().optional(),
-        page: z.string().optional(),
-        limit: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          category: { type: 'string' },
+          tags: { type: 'string' },
+          orientation: { type: 'string' },
+          color: { type: 'string' },
+          isPremium: { type: 'string' },
+          search: { type: 'string' },
+          page: { type: 'string' },
+          limit: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -74,7 +77,21 @@ const imageLibraryRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/images', {
     preHandler: [authenticate],
     schema: {
-      body: addImageSchema
+      body: {
+        type: 'object',
+        required: ['url', 'title', 'category'],
+        properties: {
+          url: { type: 'string' },
+          title: { type: 'string' },
+          description: { type: 'string' },
+          category: { type: 'string' },
+          tags: { type: 'array', items: { type: 'string' } },
+          orientation: { type: 'string', enum: ['landscape', 'portrait', 'square'] },
+          color: { type: 'string' },
+          isPremium: { type: 'boolean' },
+          metadata: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -98,7 +115,13 @@ const imageLibraryRoutes: FastifyPluginAsync = async (fastify) => {
     Params: { id: string }
   }>('/images/:id', {
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -133,14 +156,23 @@ const imageLibraryRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/images/:id', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() }),
-      body: z.object({
-        name: z.string().min(1).optional(),
-        category: z.string().min(1).optional(),
-        tags: z.array(z.string()).optional(),
-        license: z.string().min(1).optional(),
-        isPremium: z.boolean().optional()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', minLength: 1 },
+          category: { type: 'string', minLength: 1 },
+          tags: { type: 'array', items: { type: 'string' } },
+          license: { type: 'string', minLength: 1 },
+          isPremium: { type: 'boolean' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -167,7 +199,13 @@ const imageLibraryRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/images/:id', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -193,7 +231,13 @@ const imageLibraryRoutes: FastifyPluginAsync = async (fastify) => {
     Params: { id: string }
   }>('/images/:id/download', {
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -237,9 +281,12 @@ const imageLibraryRoutes: FastifyPluginAsync = async (fastify) => {
     Querystring: { limit?: string }
   }>('/images/popular', {
     schema: {
-      querystring: z.object({
-        limit: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          limit: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { limit } = request.query as { limit?: string }
@@ -265,9 +312,12 @@ const imageLibraryRoutes: FastifyPluginAsync = async (fastify) => {
     Querystring: { limit?: string }
   }>('/images/recent', {
     schema: {
-      querystring: z.object({
-        limit: z.string().optional()
-      })
+      querystring: {
+        type: 'object',
+        properties: {
+          limit: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { limit } = request.query as { limit?: string }
@@ -299,12 +349,16 @@ const imageLibraryRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/images/upload/cloudinary', {
     preHandler: [authenticate],
     schema: {
-      body: z.object({
-        file: z.string(),
-        folder: z.string().optional(),
-        publicId: z.string().optional(),
-        transformation: z.any().optional()
-      })
+      body: {
+        type: 'object',
+        required: ['file'],
+        properties: {
+          file: { type: 'string' },
+          folder: { type: 'string' },
+          publicId: { type: 'string' },
+          transformation: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -341,13 +395,17 @@ const imageLibraryRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/images/cloudinary/optimize', {
     preHandler: [authenticate],
     schema: {
-      body: z.object({
-        publicId: z.string(),
-        width: z.number().positive().optional(),
-        height: z.number().positive().optional(),
-        quality: z.string().optional(),
-        format: z.string().optional()
-      })
+      body: {
+        type: 'object',
+        required: ['publicId'],
+        properties: {
+          publicId: { type: 'string' },
+          width: { type: 'number', minimum: 1 },
+          height: { type: 'number', minimum: 1 },
+          quality: { type: 'string' },
+          format: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {

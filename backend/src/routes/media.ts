@@ -46,8 +46,27 @@ const mediaRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/media/:websiteId/assets', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ websiteId: z.string().cuid() }),
-      body: createMediaAssetSchema
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['type', 'url'],
+        properties: {
+          type: { type: 'string', enum: ['image', 'video', 'audio', 'document'] },
+          url: { type: 'string' },
+          title: { type: 'string' },
+          description: { type: 'string' },
+          altText: { type: 'string' },
+          metadata: { type: 'object' },
+          tags: { type: 'array', items: { type: 'string' } },
+          isPublic: { type: 'boolean' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { websiteId } = request.params as { websiteId: string }
@@ -100,12 +119,21 @@ const mediaRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/media/:websiteId/assets', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ websiteId: z.string().cuid() }),
-      querystring: z.object({
-        type: z.string().optional(),
-        page: z.string().optional(),
-        limit: z.string().optional()
-      })
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      },
+      querystring: {
+        type: 'object',
+        properties: {
+          type: { type: 'string' },
+          page: { type: 'string' },
+          limit: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { websiteId } = request.params as { websiteId: string }
@@ -137,7 +165,13 @@ const mediaRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/media/assets/:id', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -172,12 +206,21 @@ const mediaRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/media/assets/:id', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() }),
-      body: z.object({
-        name: z.string().min(1).optional(),
-        tags: z.array(z.string()).optional(),
-        metadata: z.any().optional()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        properties: {
+          name: { type: 'string', minLength: 1 },
+          tags: { type: 'array', items: { type: 'string' } },
+          metadata: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -204,7 +247,13 @@ const mediaRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/media/assets/:id', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -232,8 +281,25 @@ const mediaRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/media/:websiteId/video-projects', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ websiteId: z.string().cuid() }),
-      body: createVideoProjectSchema
+      params: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['name', 'description'],
+        properties: {
+          name: { type: 'string' },
+          description: { type: 'string' },
+          duration: { type: 'number', minimum: 0 },
+          resolution: { type: 'string' },
+          frameRate: { type: 'number', minimum: 0 },
+          metadata: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { websiteId } = request.params as { websiteId: string }
@@ -276,8 +342,24 @@ const mediaRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/media/video-projects/:projectId/clips', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ projectId: z.string().cuid() }),
-      body: createVideoClipSchema
+      params: {
+        type: 'object',
+        required: ['projectId'],
+        properties: {
+          projectId: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['name', 'startTime', 'endTime'],
+        properties: {
+          name: { type: 'string' },
+          startTime: { type: 'number', minimum: 0 },
+          endTime: { type: 'number', minimum: 0 },
+          description: { type: 'string' },
+          metadata: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { projectId } = request.params as { projectId: string }
@@ -318,12 +400,16 @@ const mediaRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/media/upload/cloudinary', {
     preHandler: [authenticate],
     schema: {
-      body: z.object({
-        file: z.string(),
-        folder: z.string().optional(),
-        publicId: z.string().optional(),
-        transformation: z.any().optional()
-      })
+      body: {
+        type: 'object',
+        required: ['file'],
+        properties: {
+          file: { type: 'string' },
+          folder: { type: 'string' },
+          publicId: { type: 'string' },
+          transformation: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {
@@ -357,10 +443,14 @@ const mediaRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/media/cloudinary/url', {
     preHandler: [authenticate],
     schema: {
-      body: z.object({
-        publicId: z.string(),
-        transformations: z.any().optional()
-      })
+      body: {
+        type: 'object',
+        required: ['publicId'],
+        properties: {
+          publicId: { type: 'string' },
+          transformations: { type: 'object' }
+        }
+      }
     }
   }, async (request, reply) => {
     try {

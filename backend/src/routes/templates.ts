@@ -80,7 +80,7 @@ export async function templateRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const query = querySchema.parse(request.query)
+      const query = request.query as any
       
       const result = await templateService.searchTemplates({
         page: query.page,
@@ -105,17 +105,6 @@ export async function templateRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('List templates error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -212,7 +201,7 @@ export async function templateRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = createTemplateSchema.parse(request.body)
+      const validatedData = request.body as any
       
       // Ensure required fields are present
       if (!validatedData.name || !validatedData.category || !validatedData.content || !validatedData.styles) {
@@ -235,17 +224,6 @@ export async function templateRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Create template error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -302,7 +280,7 @@ export async function templateRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const { id } = request.params as { id: string }
-      const validatedData = updateTemplateSchema.parse(request.body)
+      const validatedData = request.body as any
       
       // Validate content and styles if provided
       if (validatedData.content) {
@@ -342,17 +320,6 @@ export async function templateRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Update template error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -563,7 +530,7 @@ export async function templateRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const { id } = request.params as { id: string }
-      const { newName } = duplicateTemplateSchema.parse(request.body)
+      const { newName } = request.body as any
       
       const duplicatedTemplate = await templateService.duplicateTemplate(id, newName)
 
@@ -574,17 +541,6 @@ export async function templateRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Duplicate template error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,

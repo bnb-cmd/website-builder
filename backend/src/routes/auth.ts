@@ -62,7 +62,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = registerSchema.parse(request.body)
+      const validatedData = request.body as any
       
       // Check if user already exists
       const existingUser = await userService.findByEmail(validatedData.email)
@@ -130,17 +130,6 @@ export async function authRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Registration error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -169,7 +158,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = loginSchema.parse(request.body)
+      const validatedData = request.body as any
       
       // Find user
       const user = await userService.findByEmail(validatedData.email)
@@ -225,17 +214,6 @@ export async function authRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Login error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -263,7 +241,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = refreshTokenSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const tokenPair = await authService.refreshAccessToken(validatedData.refreshToken)
       if (!tokenPair) {
@@ -288,17 +266,6 @@ export async function authRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Token refresh error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -422,7 +389,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     preHandler: authenticate
   }, async (request, reply) => {
     try {
-      const validatedData = updateProfileSchema.parse(request.body)
+      const validatedData = request.body as any
       const userId = (request as any).user.id
 
       const updatedUser = await userService.update(userId, validatedData)
@@ -448,17 +415,6 @@ export async function authRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Profile update error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -489,7 +445,7 @@ export async function authRoutes(fastify: FastifyInstance) {
     preHandler: authenticate
   }, async (request, reply) => {
     try {
-      const validatedData = changePasswordSchema.parse(request.body)
+      const validatedData = request.body as any
       const userId = (request as any).user.id
 
       // Get current user
@@ -547,17 +503,6 @@ export async function authRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Password change error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,

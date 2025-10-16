@@ -148,7 +148,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const { websiteId } = request.params as { websiteId: string }
-      const validatedData = createAnalyticsSchema.parse(request.body)
+      const validatedData = request.body as any
       
       // Ensure required fields are present
       if (validatedData.visitors === undefined || validatedData.pageViews === undefined) {
@@ -171,17 +171,6 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Create analytics error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -219,7 +208,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const { websiteId } = request.params as { websiteId: string }
-      const query = querySchema.parse(request.query)
+      const query = request.query as any
       
       const analytics = await analyticsService.getWebsiteAnalytics(websiteId, {
         websiteId,
@@ -235,17 +224,6 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Get analytics error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -282,7 +260,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const { websiteId } = request.params as { websiteId: string }
-      const query = querySchema.parse(request.query)
+      const query = request.query as any
       
       const summary = await analyticsService.getAnalyticsSummary(
         websiteId, 
@@ -297,17 +275,6 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Get analytics summary error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -344,7 +311,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const { websiteId } = request.params as { websiteId: string }
-      const query = querySchema.parse(request.query)
+      const query = request.query as any
       
       const trends = await analyticsService.getAnalyticsTrends(
         websiteId, 
@@ -359,17 +326,6 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Get analytics trends error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -504,7 +460,7 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const { id } = request.params as { id: string }
-      const validatedData = updateAnalyticsSchema.parse(request.body)
+      const validatedData = request.body as any
       
       const analytics = await analyticsService.updateAnalytics(id, validatedData as any)
 
@@ -515,17 +471,6 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Update analytics error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -699,17 +644,6 @@ export async function analyticsRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Bulk create analytics error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,

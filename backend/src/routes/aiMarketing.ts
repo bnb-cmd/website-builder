@@ -81,7 +81,7 @@ export async function aiMarketingRoutes(fastify: FastifyInstance) {
     }
   }, async (request, reply) => {
     try {
-      const validatedData = createCampaignSchema.parse(request.body)
+      const validatedData = request.body as any
       const userId = (request as any).user.id
 
       // Check AI quota if AI features are requested
@@ -114,17 +114,6 @@ export async function aiMarketingRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Create campaign error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       
       return reply.status(500).send({
         success: false,
@@ -171,7 +160,7 @@ export async function aiMarketingRoutes(fastify: FastifyInstance) {
   }, async (request, reply) => {
     try {
       const { id } = request.params as { id: string }
-      const validatedData = updateCampaignSchema.parse(request.body)
+      const validatedData = request.body as any
 
       const campaign = await aiMarketingService.updateCampaign(id, validatedData as any)
 
@@ -182,17 +171,6 @@ export async function aiMarketingRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Update campaign error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       return reply.status(500).send({
         success: false,
         error: {
@@ -385,17 +363,6 @@ export async function aiMarketingRoutes(fastify: FastifyInstance) {
       })
     } catch (error) {
       console.error('Create A/B test error:', error)
-      if (error instanceof z.ZodError) {
-        return reply.status(400).send({
-          success: false,
-          error: {
-            message: 'Validation error',
-            code: 'VALIDATION_ERROR',
-            details: error.errors,
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
       return reply.status(500).send({
         success: false,
         error: {

@@ -129,7 +129,13 @@ const brandKitRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/brand-kits/user/:userId', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ userId: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['userId'],
+        properties: {
+          userId: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { userId } = request.params as { userId: string }
@@ -269,7 +275,13 @@ const brandKitRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/brand-kits/:id', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -297,10 +309,20 @@ const brandKitRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/brand-kits/:id/apply', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() }),
-      body: z.object({
-        websiteId: z.string().cuid()
-      })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['websiteId'],
+        properties: {
+          websiteId: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -329,7 +351,13 @@ const brandKitRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/brand-kits/:id/analytics', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
@@ -362,14 +390,23 @@ const brandKitRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/brand-kits/:id/assets', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() }),
-      body: z.object({
-        type: z.string(),
-        file: z.string(),
-        filename: z.string(),
-        mimeType: z.string()
-      })
-    }
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      },
+      body: {
+        type: 'object',
+        required: ['type', 'file', 'filename', 'mimeType'],
+        properties: {
+          type: { type: 'string' },
+          file: { type: 'string' },
+          filename: { type: 'string' },
+          mimeType: { type: 'string' }
+        }
+      }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
     const { type, file, filename, mimeType } = request.body as any
@@ -401,7 +438,13 @@ const brandKitRoutes: FastifyPluginAsync = async (fastify) => {
   }>('/brand-kits/:id/templates', {
     preHandler: [authenticate],
     schema: {
-      params: z.object({ id: z.string().cuid() })
+      params: {
+        type: 'object',
+        required: ['id'],
+        properties: {
+          id: { type: 'string' }
+        }
+      }
     }
   }, async (request, reply) => {
     const { id } = request.params as { id: string }
