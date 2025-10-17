@@ -1,18 +1,16 @@
 "use client";
 
 import React from "react";
-import { Root as AvatarPrimitiveRoot, Image as AvatarPrimitiveImage, Fallback as AvatarPrimitiveFallback } from "@radix-ui/react-avatar";
-
+import { Avatar as MantineAvatar } from "@mantine/core";
 import { cn } from "@/lib/utils";
 
-interface AvatarProps extends React.ComponentProps<typeof AvatarPrimitiveRoot> {
+interface AvatarProps extends React.ComponentProps<typeof MantineAvatar> {
   className?: string;
 }
 
 const Avatar = ({ className, ...props }: AvatarProps) => {
   return (
-    <AvatarPrimitiveRoot
-      data-slot="avatar"
+    <MantineAvatar
       className={cn(
         "relative flex size-10 shrink-0 overflow-hidden rounded-full",
         className,
@@ -24,14 +22,17 @@ const Avatar = ({ className, ...props }: AvatarProps) => {
 
 Avatar.displayName = "Avatar";
 
-interface AvatarImageProps extends React.ComponentProps<typeof AvatarPrimitiveImage> {
+interface AvatarImageProps {
+  src?: string;
+  alt?: string;
   className?: string;
 }
 
-const AvatarImage = ({ className, ...props }: AvatarImageProps) => {
+const AvatarImage = ({ src, alt, className, ...props }: AvatarImageProps) => {
   return (
-    <AvatarPrimitiveImage
-      data-slot="avatar-image"
+    <MantineAvatar
+      src={src}
+      alt={alt}
       className={cn("aspect-square size-full", className)}
       {...props}
     />
@@ -40,20 +41,22 @@ const AvatarImage = ({ className, ...props }: AvatarImageProps) => {
 
 AvatarImage.displayName = "AvatarImage";
 
-interface AvatarFallbackProps extends React.ComponentProps<typeof AvatarPrimitiveFallback> {
+interface AvatarFallbackProps {
+  children?: React.ReactNode;
   className?: string;
 }
 
-const AvatarFallback = ({ className, ...props }: AvatarFallbackProps) => {
+const AvatarFallback = ({ children, className, ...props }: AvatarFallbackProps) => {
   return (
-    <AvatarPrimitiveFallback
-      data-slot="avatar-fallback"
+    <MantineAvatar
       className={cn(
         "bg-muted flex size-full items-center justify-center rounded-full",
         className,
       )}
       {...props}
-    />
+    >
+      {children}
+    </MantineAvatar>
   );
 };
 

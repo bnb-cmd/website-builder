@@ -1,5 +1,4 @@
 import React from "react";
-import { Slot } from "@radix-ui/react-slot";
 import { ChevronRight, MoreHorizontal } from '@/lib/icons';
 
 import { cn } from "@/lib/utils";
@@ -38,7 +37,7 @@ function BreadcrumbLink({
 }: React.ComponentProps<"a"> & {
   asChild?: boolean;
 }) {
-  const Comp = asChild ? Slot : "a";
+  const Comp = asChild ? React.Fragment : "a";
 
   return (
     <Comp

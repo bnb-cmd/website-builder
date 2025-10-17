@@ -10,7 +10,22 @@ export const HeadingConfig: ComponentConfig = {
   description: 'Add titles and headings',
   defaultProps: { text: 'Your Heading Here', level: 2 },
   defaultSize: { width: 300, height: 60 },
-  editableFields: ['text', 'level']
+  editableFields: ['text', 'level'],
+  propertyConfig: {
+    text: {
+      label: 'Heading Text',
+      type: 'text' as const,
+      placeholder: 'Enter heading text',
+      required: true,
+      group: 'Content'
+    },
+    level: {
+      label: 'Heading Level',
+      type: 'select' as const,
+      options: ['1', '2', '3', '4', '5', '6'],
+      group: 'Content'
+    }
+  }
 }
 
 interface HeadingProps extends WebsiteComponentProps {

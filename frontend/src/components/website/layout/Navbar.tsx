@@ -23,7 +23,46 @@ export const NavbarConfig: ComponentConfig = {
     showSearchIcon: false
   },
   defaultSize: { width: 1200, height: 80 },
-  editableFields: ['logo', 'menuItems', 'style', 'isSticky', 'showMobileMenu', 'showCartIcon', 'showSearchIcon']
+  editableFields: ['logo', 'menuItems', 'style', 'isSticky', 'showMobileMenu', 'showCartIcon', 'showSearchIcon'],
+  propertyConfig: {
+    logo: {
+      label: 'Logo/Brand Name',
+      type: 'text' as const,
+      placeholder: 'Enter brand name',
+      group: 'Content'
+    },
+    menuItems: {
+      label: 'Menu Items',
+      type: 'array' as const,
+      group: 'Content'
+    },
+    style: {
+      label: 'Navbar Style',
+      type: 'select' as const,
+      options: ['minimalist', 'modern', 'classic'],
+      group: 'Style'
+    },
+    isSticky: {
+      label: 'Sticky Navigation',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    },
+    showMobileMenu: {
+      label: 'Show Mobile Menu',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    },
+    showCartIcon: {
+      label: 'Show Cart Icon',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    },
+    showSearchIcon: {
+      label: 'Show Search Icon',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    }
+  }
 }
 
 interface MenuItem {

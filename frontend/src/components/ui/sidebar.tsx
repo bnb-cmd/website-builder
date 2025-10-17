@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Slot } from "@radix-ui/react-slot";
 import { VariantProps, cva } from "class-variance-authority";
 import { PanelLeftIcon } from '@/lib/icons';
 
@@ -398,7 +397,7 @@ function SidebarGroupLabel({
   asChild = false,
   ...props
 }: React.ComponentProps<"div"> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot : "div";
+  const Comp = asChild ? React.Fragment : "div";
 
   return (
     <Comp
@@ -419,7 +418,7 @@ function SidebarGroupAction({
   asChild = false,
   ...props
 }: React.ComponentProps<"button"> & { asChild?: boolean }) {
-  const Comp = asChild ? Slot : "button";
+  const Comp = asChild ? React.Fragment : "button";
 
   return (
     <Comp
@@ -508,7 +507,7 @@ function SidebarMenuButton({
   isActive?: boolean;
   tooltip?: string | React.ComponentProps<typeof TooltipContent>;
 } & VariantProps<typeof sidebarMenuButtonVariants>) {
-  const Comp = asChild ? Slot : "button";
+  const Comp = asChild ? React.Fragment : "button";
   const { isMobile, state } = useSidebar();
 
   const button = (
@@ -554,7 +553,7 @@ function SidebarMenuAction({
   asChild?: boolean;
   showOnHover?: boolean;
 }) {
-  const Comp = asChild ? Slot : "button";
+  const Comp = asChild ? React.Fragment : "button";
 
   return (
     <Comp
@@ -677,7 +676,7 @@ function SidebarMenuSubButton({
   size?: "sm" | "md";
   isActive?: boolean;
 }) {
-  const Comp = asChild ? Slot : "a";
+  const Comp = asChild ? React.Fragment : "a";
 
   return (
     <Comp

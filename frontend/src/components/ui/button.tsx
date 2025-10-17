@@ -1,5 +1,5 @@
 import React from "react";
-import { Slot } from "@radix-ui/react-slot";
+import { Button as MantineButton } from "@mantine/core";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
@@ -40,15 +40,12 @@ const Button = ({
   size, 
   asChild = false, 
   ...props 
-}: React.ComponentProps<"button"> &
+}: React.ComponentProps<typeof MantineButton> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean;
   }) => {
-  const Comp = asChild ? Slot : "button";
-
   return (
-    <Comp
-      data-slot="button"
+    <MantineButton
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />

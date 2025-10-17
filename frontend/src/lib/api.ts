@@ -72,90 +72,90 @@ api.interceptors.response.use(
 export const apiHelpers = {
   // Auth endpoints
   login: async (email: string, password: string) => {
-    const response = await api.post('/api/api/v1/auth/login', { email, password })
+    const response = await api.post('/api/v1/auth/login', { email, password })
     return response.data
   },
 
   register: async (email: string, password: string, name: string) => {
-    const response = await api.post('/api/api/v1/auth/register', { email, password, name })
+    const response = await api.post('/api/v1/auth/register', { email, password, name })
     return response.data
   },
 
   logout: async () => {
-    const response = await api.post('/api/api/v1/auth/logout')
+    const response = await api.post('/api/v1/auth/logout')
     return response.data
   },
 
   // Website endpoints
   getWebsites: async () => {
-    const response = await api.get('/api/api/v1/websites')
+    const response = await api.get('/api/v1/websites')
     return response.data
   },
 
   getWebsite: async (id: string) => {
-    const response = await api.get(`/api/api/v1/websites/${id}`)
+    const response = await api.get(`/api/v1/websites/${id}`)
     return response.data
   },
 
   createWebsite: async (data: any) => {
-    const response = await api.post('/api/api/v1/websites', data)
+    const response = await api.post('/api/v1/websites', data)
     return response.data
   },
 
   updateWebsite: async (id: string, data: any) => {
-    const response = await api.put(`/api/api/v1/websites/${id}`, data)
+    const response = await api.put(`/api/v1/websites/${id}`, data)
     return response.data
   },
 
   deleteWebsite: async (id: string) => {
-    const response = await api.delete(`/api/api/v1/websites/${id}`)
+    const response = await api.delete(`/api/v1/websites/${id}`)
     return response.data
   },
 
   publishWebsite: async (id: string, customDomain?: string) => {
-    const response = await api.post(`/api/api/v1/websites/${id}/publish`, { customDomain })
+    const response = await api.post(`/api/v1/websites/${id}/publish`, { customDomain })
     return response.data
   },
 
   unpublishWebsite: async (id: string) => {
-    const response = await api.post(`/api/api/v1/websites/${id}/unpublish`)
+    const response = await api.post(`/api/v1/websites/${id}/unpublish`)
     return response.data
   },
 
   getPublishJobStatus: async (jobId: string) => {
-    const response = await api.get(`/api/api/v1/websites/publish/${jobId}/status`)
+    const response = await api.get(`/api/v1/websites/publish/${jobId}/status`)
     return response.data
   },
 
   // Template endpoints
   getTemplates: async (params?: { limit?: number; category?: string; search?: string }) => {
-    const response = await api.get('/api/api/v1/templates', { params })
+    const response = await api.get('/api/v1/templates', { params })
     return response.data
   },
 
   getTemplate: async (id: string) => {
-    const response = await api.get(`/api/api/v1/templates/${id}`)
+    const response = await api.get(`/api/v1/templates/${id}`)
     return response.data
   },
 
   createTemplate: async (data: any) => {
-    const response = await api.post('/api/api/v1/templates', data)
+    const response = await api.post('/api/v1/templates', data)
     return response.data
   },
 
   getAdvancedTemplates: async (params?: { category?: string; search?: string; pricingModel?: string }) => {
-    const response = await api.get('/api/api/v1/templates/catalog', { params })
+    const response = await api.get('/api/v1/templates/catalog', { params })
     return response.data
   },
 
   // User endpoints
   getUser: async () => {
-    const response = await api.get('/api/api/v1/auth/me')
+    const response = await api.get('/api/v1/auth/me')
     return response.data
   },
 
   updateUser: async (data: any) => {
-    const response = await api.put('/api/api/v1/auth/profile', data)
+    const response = await api.put('/api/v1/auth/profile', data)
     return response.data
   },
 

@@ -1,63 +1,38 @@
 "use client";
 
 import React from "react"
-import { 
-  Root as ScrollAreaPrimitiveRoot,
-  Viewport as ScrollAreaPrimitiveViewport,
-  ScrollAreaScrollbar as ScrollAreaPrimitiveScrollAreaScrollbar,
-  ScrollAreaThumb as ScrollAreaPrimitiveScrollAreaThumb,
-  Corner as ScrollAreaPrimitiveCorner
-} from "@radix-ui/react-scroll-area"
-
+import { ScrollArea as MantineScrollArea } from "@mantine/core"
 import { cn } from "@/lib/utils"
 
-interface ScrollAreaProps extends React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitiveRoot> {
+interface ScrollAreaProps extends React.ComponentPropsWithoutRef<typeof MantineScrollArea> {
   className?: string;
 }
 
-const ScrollArea = React.forwardRef<React.ElementRef<typeof ScrollAreaPrimitiveRoot>, ScrollAreaProps>(
+const ScrollArea = React.forwardRef<React.ElementRef<typeof MantineScrollArea>, ScrollAreaProps>(
   ({ className, children, ...props }, ref) => {
     return (
-      <ScrollAreaPrimitiveRoot
+      <MantineScrollArea
         ref={ref}
-        className={cn("relative overflow-hidden", className)}
+        className={cn("", className)}
         {...props}
       >
-        <ScrollAreaPrimitiveViewport className="h-full w-full rounded-[inherit]">
-          {children}
-        </ScrollAreaPrimitiveViewport>
-        <ScrollBar />
-        <ScrollAreaPrimitiveCorner />
-      </ScrollAreaPrimitiveRoot>
+        {children}
+      </MantineScrollArea>
     )
   }
 )
 
 ScrollArea.displayName = "ScrollArea"
 
-interface ScrollBarProps extends React.ComponentPropsWithoutRef<typeof ScrollAreaPrimitiveScrollAreaScrollbar> {
-  className?: string;
-  orientation?: "vertical" | "horizontal";
-}
-
-const ScrollBar = React.forwardRef<React.ElementRef<typeof ScrollAreaPrimitiveScrollAreaScrollbar>, ScrollBarProps>(
-  ({ className, orientation = "vertical", ...props }, ref) => {
+// ScrollBar is not needed with Mantine ScrollArea as it handles scrolling internally
+const ScrollBar = React.forwardRef<HTMLDivElement, React.ComponentProps<"div">>(
+  ({ className, ...props }, ref) => {
     return (
-      <ScrollAreaPrimitiveScrollAreaScrollbar
+      <div
         ref={ref}
-        orientation={orientation}
-        className={cn(
-          "flex touch-none select-none transition-colors",
-          orientation === "vertical" &&
-            "h-full w-2.5 border-l border-l-transparent p-[1px]",
-          orientation === "horizontal" &&
-            "h-2.5 flex-col border-t border-t-transparent p-[1px]",
-          className
-        )}
+        className={cn("", className)}
         {...props}
-      >
-        <ScrollAreaPrimitiveScrollAreaThumb className="relative flex-1 rounded-full bg-border" />
-      </ScrollAreaPrimitiveScrollAreaScrollbar>
+      />
     )
   }
 )

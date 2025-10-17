@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import * as TogglePrimitive from "@radix-ui/react-toggle";
+import { Switch as MantineSwitch } from "@mantine/core";
 import { cva, type VariantProps } from "class-variance-authority";
 
 import { cn } from "@/lib/utils";
@@ -18,7 +18,7 @@ const toggleVariants = cva(
       size: {
         default: "h-9 px-2 min-w-9",
         sm: "h-8 px-1.5 min-w-8",
-        lg: "h-10 px-2.5 min-w-10",
+        lg: "h-10 px-3 min-w-10",
       },
     },
     defaultVariants: {
@@ -32,13 +32,19 @@ function Toggle({
   className,
   variant,
   size,
+  pressed,
+  onPressedChange,
   ...props
-}: React.ComponentProps<typeof TogglePrimitive.Root> &
-  VariantProps<typeof toggleVariants>) {
+}: React.ComponentProps<typeof MantineSwitch> &
+  VariantProps<typeof toggleVariants> & {
+    pressed?: boolean;
+    onPressedChange?: (pressed: boolean) => void;
+  }) {
   return (
-    <TogglePrimitive.Root
-      data-slot="toggle"
-      className={cn(toggleVariants({ variant, size, className }))}
+    <MantineSwitch
+      checked={pressed || false}
+      onChange={(event) => onPressedChange?.(event.currentTarget.checked)}
+      className={cn(toggleVariants({ variant, size }), className)}
       {...props}
     />
   );

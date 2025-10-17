@@ -11,7 +11,28 @@ export const ButtonConfig: ComponentConfig = {
   description: 'Add clickable buttons',
   defaultProps: { text: 'Click Me', variant: 'default' },
   defaultSize: { width: 120, height: 40 },
-  editableFields: ['text', 'variant']
+  editableFields: ['text', 'variant', 'href'],
+  propertyConfig: {
+    text: {
+      label: 'Button Text',
+      type: 'text' as const,
+      placeholder: 'Enter button text',
+      required: true,
+      group: 'Content'
+    },
+    variant: {
+      label: 'Button Style',
+      type: 'select' as const,
+      options: ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'],
+      group: 'Style'
+    },
+    href: {
+      label: 'Link URL',
+      type: 'url' as const,
+      placeholder: 'https://example.com',
+      group: 'Content'
+    }
+  }
 }
 
 interface ButtonProps extends WebsiteComponentProps {

@@ -1,9 +1,14 @@
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import './globals.css'
 import { ThemeProvider } from '@/components/theme-provider'
 import { Toaster } from '@/components/ui/sonner'
 import ErrorBoundary from '@/components/ErrorBoundary'
+import { MantineProvider } from '@mantine/core'
+import { Notifications } from '@mantine/notifications'
+import { mantineTheme } from '@/styles/mantine-theme'
+import '@mantine/core/styles.css'
+import '@mantine/notifications/styles.css'
+import './globals.css'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -20,17 +25,20 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ErrorBoundary>
-            {children}
-          </ErrorBoundary>
-          <Toaster position="bottom-right" />
-        </ThemeProvider>
+        <MantineProvider theme={mantineTheme}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <ErrorBoundary>
+              {children}
+            </ErrorBoundary>
+            <Toaster position="bottom-right" />
+            <Notifications />
+          </ThemeProvider>
+        </MantineProvider>
       </body>
     </html>
   )

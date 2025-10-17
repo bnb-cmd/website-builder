@@ -1,33 +1,33 @@
 "use client";
 
-import * as CollapsiblePrimitive from "@radix-ui/react-collapsible";
+import React from "react";
+import { Collapse as MantineCollapse, Button } from "@mantine/core";
 
-function Collapsible({
-  ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.Root>) {
-  return <CollapsiblePrimitive.Root data-slot="collapsible" {...props} />;
-}
-
-function CollapsibleTrigger({
-  ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleTrigger>) {
+function Collapsible({ 
+  open, 
+  onOpenChange, 
+  children, 
+  ...props 
+}: React.ComponentProps<typeof MantineCollapse> & {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}) {
   return (
-    <CollapsiblePrimitive.CollapsibleTrigger
-      data-slot="collapsible-trigger"
+    <MantineCollapse
+      in={open || false}
       {...props}
-    />
+    >
+      {children}
+    </MantineCollapse>
   );
 }
 
-function CollapsibleContent({
-  ...props
-}: React.ComponentProps<typeof CollapsiblePrimitive.CollapsibleContent>) {
-  return (
-    <CollapsiblePrimitive.CollapsibleContent
-      data-slot="collapsible-content"
-      {...props}
-    />
-  );
+function CollapsibleTrigger({ children, ...props }: React.ComponentProps<typeof Button>) {
+  return <Button {...props}>{children}</Button>;
+}
+
+function CollapsibleContent({ children, ...props }: React.ComponentProps<"div">) {
+  return <div {...props}>{children}</div>;
 }
 
 export { Collapsible, CollapsibleTrigger, CollapsibleContent };

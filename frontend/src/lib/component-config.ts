@@ -9,6 +9,20 @@ export type ComponentCategory =
   | 'media'
   | 'interactive'
 
+export interface PropertyFieldConfig {
+  label?: string
+  type?: 'text' | 'textarea' | 'number' | 'boolean' | 'select' | 'array' | 'object' | 'color' | 'image' | 'url' | 'email' | 'tel'
+  options?: string[] // for select
+  min?: number
+  max?: number
+  step?: number
+  placeholder?: string
+  description?: string
+  validation?: (value: any) => boolean | string
+  group?: string
+  required?: boolean
+}
+
 export interface ComponentConfig {
   id: string
   name: string
@@ -19,6 +33,7 @@ export interface ComponentConfig {
   defaultProps: Record<string, any>
   defaultSize: { width: number; height: number }
   editableFields: string[]
+  propertyConfig?: Record<string, PropertyFieldConfig>
 }
 
 export interface ComponentProps {

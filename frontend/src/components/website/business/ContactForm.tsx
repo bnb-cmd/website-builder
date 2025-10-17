@@ -403,7 +403,6 @@ export const ContactFormConfig = {
   },
   defaultSize: { width: 100, height: 600 },
   editableFields: [
-    'fields',
     'showName',
     'showEmail',
     'showPhone',
@@ -418,5 +417,82 @@ export const ContactFormConfig = {
     'errorMessage',
     'layout',
     'theme'
-  ]
+  ],
+  propertyConfig: {
+    showName: {
+      label: 'Show Name Field',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    },
+    showEmail: {
+      label: 'Show Email Field',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    },
+    showPhone: {
+      label: 'Show Phone Field',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    },
+    showCompany: {
+      label: 'Show Company Field',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    },
+    showMessage: {
+      label: 'Show Message Field',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    },
+    showSubject: {
+      label: 'Show Subject Field',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    },
+    showAddress: {
+      label: 'Show Address Field',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    },
+    showWebsite: {
+      label: 'Show Website Field',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    },
+    showPrivacyConsent: {
+      label: 'Show Privacy Consent',
+      type: 'boolean' as const,
+      group: 'Behavior'
+    },
+    submitButtonText: {
+      label: 'Submit Button Text',
+      type: 'text' as const,
+      placeholder: 'Enter button text',
+      group: 'Content'
+    },
+    successMessage: {
+      label: 'Success Message',
+      type: 'textarea' as const,
+      placeholder: 'Enter success message',
+      group: 'Content'
+    },
+    errorMessage: {
+      label: 'Error Message',
+      type: 'textarea' as const,
+      placeholder: 'Enter error message',
+      group: 'Content'
+    },
+    layout: {
+      label: 'Form Layout',
+      type: 'select' as const,
+      options: ['single', 'two-column', 'three-column'],
+      group: 'Layout'
+    },
+    theme: {
+      label: 'Form Theme',
+      type: 'select' as const,
+      options: ['light', 'dark', 'minimal'],
+      group: 'Style'
+    }
+  }
 }
