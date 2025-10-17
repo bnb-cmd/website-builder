@@ -14,7 +14,6 @@ import { ImageWithFallback } from '../figma/ImageWithFallback'
 import { ComponentRenderer, getResponsiveDimensions } from '../website/renderer'
 import { getDefaultProps, getDefaultSize } from '../website/registry'
 import { ComponentNode, PageSchema, ResponsiveLayout, ResponsiveStyles, LayoutObject, StyleObject } from '../../lib/schema'
-import { useUndoRedo } from '../../hooks/useUndo'
 import { 
   Trash2, 
   Move, 
@@ -104,13 +103,13 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     })
   )
 
-  // Undo/Redo integration
-  const { addState, updateState } = useUndoRedo(pageSchema, {
-    onStateChange: onPageSchemaChange,
-    onPatchCreated: (patch) => {
-      console.log('Patch created:', patch)
-    }
-  })
+  // Direct state update function
+  const updateComponent = useCallback((componentId: string, updates: Partial<ComponentNode>) => {
+    const updatedComponents = components.map(comp => 
+      comp.id === componentId ? { ...comp, ...updates } : comp
+    )
+    onComponentsChange(updatedComponents)
+  }, [components, onComponentsChange])
 
   // Snap to grid function
   const snapToGrid = useCallback((value: number, gridSize: number = 10): number => {
@@ -237,12 +236,6 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
       if (activeIndex !== -1 && overIndex !== -1) {
         const newComponents = arrayMove(components, activeIndex, overIndex)
         onComponentsChange(newComponents)
-        
-        addState({
-          type: 'move',
-          componentId: active.id as string,
-          targetIndex: overIndex
-        }, newComponents)
       }
     }
 
@@ -282,11 +275,6 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
       const newComponents = [...components, newComponent]
       onComponentsChange(newComponents)
       onComponentSelect(newComponent)
-      
-      addState({
-        type: 'add',
-        componentId: newComponent.id
-      }, newComponents)
     }
   }
 
@@ -362,24 +350,22 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
         const newX = snapToGrid(x - moveStartPosRef.current.x)
         const newY = snapToGrid(y - moveStartPosRef.current.y)
 
-        updateState((draft) => {
-          const component = draft.components.find(c => c.id === selectedComponent.id)
-          if (component) {
-            if (deviceMode === 'desktop') {
-              component.layout.default.x = Math.max(0, newX)
-              component.layout.default.y = Math.max(0, newY)
-            } else {
-              if (!component.layout[deviceMode]) {
-                component.layout[deviceMode] = { ...component.layout.default }
-              }
-              component.layout[deviceMode]!.x = Math.max(0, newX)
-              component.layout[deviceMode]!.y = Math.max(0, newY)
-            }
+        const updatedComponent = { ...selectedComponent }
+        if (deviceMode === 'desktop') {
+          updatedComponent.layout.default.x = Math.max(0, newX)
+          updatedComponent.layout.default.y = Math.max(0, newY)
+        } else {
+          if (!updatedComponent.layout[deviceMode]) {
+            updatedComponent.layout[deviceMode] = { ...updatedComponent.layout.default }
           }
-        })
+          updatedComponent.layout[deviceMode]!.x = Math.max(0, newX)
+          updatedComponent.layout[deviceMode]!.y = Math.max(0, newY)
+        }
+
+        updateComponent(selectedComponent.id, updatedComponent)
 
         // Calculate alignment guides
-        const guides = calculateAlignmentGuides(selectedComponent)
+        const guides = calculateAlignmentGuides(updatedComponent)
         setAlignmentGuides(guides)
       }
 
@@ -387,85 +373,76 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
         const deltaX = e.clientX - resizeStartPosRef.current.x
         const deltaY = e.clientY - resizeStartPosRef.current.y
 
-        updateState((draft) => {
-          const component = draft.components.find(c => c.id === selectedComponent.id)
-          if (component) {
-            if (deviceMode === 'desktop') {
-              const layout = component.layout.default
-              
-              switch (resizeHandle) {
-                case 'se':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width + deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height + deltaY))
-                  break
-                case 'sw':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width - deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height + deltaY))
-                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPosRef.current.width - layout.width))
-                  break
-                case 'ne':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width + deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height - deltaY))
-                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPosRef.current.height - layout.height))
-                  break
-                case 'nw':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width - deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height - deltaY))
-                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPosRef.current.width - layout.width))
-                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPosRef.current.height - layout.height))
-                  break
-              }
-            } else {
-              if (!component.layout[deviceMode]) {
-                component.layout[deviceMode] = { ...component.layout.default }
-              }
-              
-              const layout = component.layout[deviceMode]!
-              
-              switch (resizeHandle) {
-                case 'se':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width + deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height + deltaY))
-                  break
-                case 'sw':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width - deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height + deltaY))
-                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPosRef.current.width - layout.width))
-                  break
-                case 'ne':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width + deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height - deltaY))
-                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPosRef.current.height - layout.height))
-                  break
-                case 'nw':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width - deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height - deltaY))
-                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPosRef.current.width - layout.width))
-                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPosRef.current.height - layout.height))
-                  break
-              }
-            }
+        const updatedComponent = { ...selectedComponent }
+        
+        if (deviceMode === 'desktop') {
+          const layout = updatedComponent.layout.default
+          
+          switch (resizeHandle) {
+            case 'se':
+              layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width + deltaX))
+              layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height + deltaY))
+              break
+            case 'sw':
+              layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width - deltaX))
+              layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height + deltaY))
+              layout.x = snapToGrid(updatedComponent.layout.default.x + (resizeStartPosRef.current.width - layout.width))
+              break
+            case 'ne':
+              layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width + deltaX))
+              layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height - deltaY))
+              layout.y = snapToGrid(updatedComponent.layout.default.y + (resizeStartPosRef.current.height - layout.height))
+              break
+            case 'nw':
+              layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width - deltaX))
+              layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height - deltaY))
+              layout.x = snapToGrid(updatedComponent.layout.default.x + (resizeStartPosRef.current.width - layout.width))
+              layout.y = snapToGrid(updatedComponent.layout.default.y + (resizeStartPosRef.current.height - layout.height))
+              break
           }
-        })
+        } else {
+          if (!updatedComponent.layout[deviceMode]) {
+            updatedComponent.layout[deviceMode] = { ...updatedComponent.layout.default }
+          }
+          
+          const layout = updatedComponent.layout[deviceMode]!
+          
+          switch (resizeHandle) {
+            case 'se':
+              layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width + deltaX))
+              layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height + deltaY))
+              break
+            case 'sw':
+              layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width - deltaX))
+              layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height + deltaY))
+              layout.x = snapToGrid(updatedComponent.layout.default.x + (resizeStartPosRef.current.width - layout.width))
+              break
+            case 'ne':
+              layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width + deltaX))
+              layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height - deltaY))
+              layout.y = snapToGrid(updatedComponent.layout.default.y + (resizeStartPosRef.current.height - layout.height))
+              break
+            case 'nw':
+              layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width - deltaX))
+              layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height - deltaY))
+              layout.x = snapToGrid(updatedComponent.layout.default.x + (resizeStartPosRef.current.width - layout.width))
+              layout.y = snapToGrid(updatedComponent.layout.default.y + (resizeStartPosRef.current.height - layout.height))
+              break
+          }
+        }
+
+        updateComponent(selectedComponent.id, updatedComponent)
       }
     }
 
     const handleMouseUp = () => {
       if (isMovingComponent) {
         setIsMovingComponent(false)
-        addState({
-          type: 'update',
-          componentId: selectedComponent?.id || ''
-        }, components)
       }
       
       if (isResizingComponent) {
         setIsResizingComponent(false)
         setResizeHandle(null)
-        addState({
-          type: 'update',
-          componentId: selectedComponent?.id || ''
-        }, components)
       }
     }
 
@@ -478,18 +455,13 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [isMovingComponent, isResizingComponent, selectedComponent, resizeHandle, deviceMode, snapToGrid, updateState, addState])
+  }, [isMovingComponent, isResizingComponent, selectedComponent, resizeHandle, deviceMode, snapToGrid, updateComponent])
 
   // Handle component deletion
   const handleDeleteComponent = (componentId: string) => {
     const newComponents = components.filter(c => c.id !== componentId)
     onComponentsChange(newComponents)
     onComponentSelect(null)
-    
-    addState({
-      type: 'remove',
-      componentId
-    }, newComponents)
   }
 
   // Handle component duplication
@@ -511,31 +483,16 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     const newComponents = [...components, newComponent]
     onComponentsChange(newComponents)
     onComponentSelect(newComponent)
-    
-    addState({
-      type: 'duplicate',
-      componentId: component.id
-    }, newComponents)
   }
 
   // Handle component lock/unlock
   const handleToggleLock = (component: ComponentNode) => {
-    updateState((draft) => {
-      const comp = draft.components.find(c => c.id === component.id)
-      if (comp) {
-        comp.locked = !comp.locked
-      }
-    })
+    updateComponent(component.id, { locked: !component.locked })
   }
 
   // Handle component visibility
   const handleToggleVisibility = (component: ComponentNode) => {
-    updateState((draft) => {
-      const comp = draft.components.find(c => c.id === component.id)
-      if (comp) {
-        comp.visible = !comp.visible
-      }
-    })
+    updateComponent(component.id, { visible: !component.visible })
   }
 
   return (

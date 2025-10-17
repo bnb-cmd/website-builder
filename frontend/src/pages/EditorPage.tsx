@@ -674,14 +674,16 @@ const EditorPage: React.FC = () => {
       >
         <div className="flex flex-1 overflow-hidden">
           {/* Component Palette */}
-          {!isPreviewMode && !paletteCollapsed && (
-            <ComponentPalette 
-              onComponentDragStart={handleComponentDragStart} 
-              onSaveAsTemplate={handleSaveAsTemplate} 
-              pageSchema={pageSchema}
-              collapsed={paletteCollapsed}
-              onToggleCollapse={togglePalette}
-            />
+          {!isPreviewMode && (
+            <div className={`transition-all duration-300 ${paletteCollapsed ? 'w-12' : 'w-80'} flex-shrink-0`}>
+              <ComponentPalette 
+                onComponentDragStart={handleComponentDragStart} 
+                onSaveAsTemplate={handleSaveAsTemplate} 
+                pageSchema={pageSchema}
+                collapsed={paletteCollapsed}
+                onToggleCollapse={togglePalette}
+              />
+            </div>
           )}
 
           {/* Main Canvas Area */}
@@ -716,15 +718,17 @@ const EditorPage: React.FC = () => {
           </div>
 
           {/* Properties Panel */}
-          {!isPreviewMode && !propertiesCollapsed && (
-            <PropertiesPanel
-              selectedComponent={selectedComponent}
-              onComponentUpdate={handleComponentUpdate}
-              onComponentDelete={handleComponentDelete}
-              onComponentDuplicate={handleComponentDuplicate}
-              collapsed={propertiesCollapsed}
-              onToggleCollapse={toggleProperties}
-            />
+          {!isPreviewMode && (
+            <div className={`transition-all duration-300 ${propertiesCollapsed ? 'w-12' : 'w-80'} flex-shrink-0`}>
+              <PropertiesPanel
+                selectedComponent={selectedComponent}
+                onComponentUpdate={handleComponentUpdate}
+                onComponentDelete={handleComponentDelete}
+                onComponentDuplicate={handleComponentDuplicate}
+                collapsed={propertiesCollapsed}
+                onToggleCollapse={toggleProperties}
+              />
+            </div>
           )}
         </div>
 

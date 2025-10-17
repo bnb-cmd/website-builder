@@ -365,6 +365,12 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
           {!collapsed && (
             <h3 className="text-lg font-semibold text-gray-900">Add Section</h3>
           )}
+          {collapsed && (
+            <div className="flex flex-col items-center space-y-2">
+              <Palette className="w-5 h-5 text-gray-600" />
+              <span className="text-xs text-gray-500 font-medium">Components</span>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             {!collapsed && (
               <Button
