@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 // Use Railway backend URL for all environments
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://website-builder-production-e38b.up.railway.app/api/v1'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://website-builder-production-e38b.up.railway.app'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
