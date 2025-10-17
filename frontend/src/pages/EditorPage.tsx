@@ -6,12 +6,14 @@ import { Badge } from '../components/ui/badge'
 import { Separator } from '../components/ui/separator'
 import { useRouter } from '../lib/router'
 import { useWebsiteStore, useEditorStore } from '../lib/store'
+import { usePublish } from '../hooks/usePublish'
 import { ComponentPalette } from '../components/editor/ComponentPalette'
 import EditorCanvas from '../components/editor/EditorCanvas'
 import { PropertiesPanel } from '../components/editor/PropertiesPanel'
 import { ComponentMetadata } from '@/lib/component-config'
 import { ComponentNode, PageSchema } from '@/lib/schema'
 import { apiHelpers } from '../lib/api'
+import { toast } from 'sonner'
 // Import website components to ensure they get registered
 import '../components/website'
 import { 
@@ -25,7 +27,8 @@ import {
   Redo,
   Settings,
   Share,
-  Rocket
+  Rocket,
+  Loader
 } from 'lucide-react'
 
 // Remove PageComponent interface - use ComponentNode instead
@@ -36,6 +39,7 @@ const EditorPage: React.FC = () => {
   const { navigate, params, searchParams } = useRouter()
   const { currentWebsite, updateWebsite, createWebsite } = useWebsiteStore()
   const { isPreviewMode, togglePreviewMode } = useEditorStore()
+  const { publish, status, progress, deploymentUrl } = usePublish()
   
   const [components, setComponents] = useState<ComponentNode[]>([])
   const [selectedComponent, setSelectedComponent] = useState<ComponentNode | null>(null)
@@ -220,8 +224,16 @@ const EditorPage: React.FC = () => {
   }
 
   const handlePublish = async () => {
-    console.log('Publishing website:', currentWebsite?.name)
-    // Implement publish logic here
+    if (!currentWebsite) {
+      toast.error('No website selected')
+      return
+    }
+    
+    const result = await publish(currentWebsite.id)
+    
+    if (result.success) {
+      toast.success(`Site published! ${result.deploymentUrl}`)
+    }
   }
 
   const handleComponentDragStart = (component: ComponentMetadata) => {
@@ -376,14 +388,32 @@ const EditorPage: React.FC = () => {
               Share
             </Button>
 
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate(`/dashboard/websites/${currentWebsite?.id}/settings`)}
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Settings
+            </Button>
+
             <Button variant="outline" size="sm" onClick={handleSave}>
               <Save className="w-4 h-4 mr-2" />
               Save
             </Button>
 
-            <Button size="sm" onClick={handlePublish}>
-              <Rocket className="w-4 h-4 mr-2" />
-              Publish
+            <Button size="sm" onClick={handlePublish} disabled={status === 'publishing'}>
+              {status === 'publishing' ? (
+                <>
+                  <Loader className="w-4 h-4 mr-2 animate-spin" />
+                  Publishing... {progress}%
+                </>
+              ) : (
+                <>
+                  <Rocket className="w-4 h-4 mr-2" />
+                  Publish
+                </>
+              )}
             </Button>
           </div>
         </div>

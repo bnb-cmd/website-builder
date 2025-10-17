@@ -1,11 +1,11 @@
 import { registerComponent } from '../registry'
-import { 
-  WebsiteVideo, 
-  VideoConfig,
-  Calendar,
-  CalendarConfig
+import {
+  VideoPlayer,
+  VideoPlayerConfig,
+  AudioPlayer,
+  AudioPlayerConfig
 } from './index'
 
-// Register media components
-registerComponent(VideoConfig, WebsiteVideo)
-registerComponent(CalendarConfig, Calendar)
+// Register new Week 4 media components
+registerComponent(VideoPlayerConfig, VideoPlayer)
+registerComponent(AudioPlayerConfig, AudioPlayer)

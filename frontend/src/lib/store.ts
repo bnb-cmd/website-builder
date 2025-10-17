@@ -19,13 +19,29 @@ interface User {
 interface Website {
   id: string
   name: string
+  description?: string
+  status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
+  content?: string
+  customCSS?: string
+  customJS?: string
+  subdomain?: string
+  customDomain?: string
+  businessType?: string
+  language: string
+  templateId?: string
+  metaTitle?: string
+  metaDescription?: string
+  metaKeywords?: string
+  userId?: string
+  createdAt: string
+  updatedAt: string
+  publishedAt?: string
   domain?: string
   template: string
-  status: 'draft' | 'published' | 'archived'
   thumbnail?: string
   lastModified: string
   pages: WebsitePage[]
-  settings: WebsiteSettings
+  websiteSettings: WebsiteSettings
 }
 
 interface WebsitePage {
@@ -300,11 +316,14 @@ export const useWebsiteStore = create<WebsiteState>((set, get) => ({
             id: '1',
             name: 'My Business Website',
             template: 'business-modern',
-            status: 'published',
+            status: 'PUBLISHED',
             thumbnail: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400',
             lastModified: new Date().toISOString(),
+            language: 'ENGLISH',
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
             pages: [],
-            settings: {
+            websiteSettings: {
               language: 'en',
               rtl: false,
               theme: {
@@ -341,7 +360,7 @@ export const useWebsiteStore = create<WebsiteState>((set, get) => ({
         businessType: (data as any).businessType || 'OTHER',
         language: (data as any).language || 'ENGLISH',
         content: (data as any).content,
-        settings: (data as any).settings
+        websiteSettings: (data as any).settings
       })
       
       console.log('🔧 API response:', response)

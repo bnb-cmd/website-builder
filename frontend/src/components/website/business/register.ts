@@ -39,7 +39,23 @@ import {
   PropertySearch,
   PropertySearchConfig,
   CauseGrid,
-  CauseGridConfig
+  CauseGridConfig,
+  // New Week 3 Components
+  NewsletterSignup,
+  NewsletterSignupConfig,
+  JobApplicationForm,
+  JobApplicationFormConfig,
+  EventRegistrationForm,
+  EventRegistrationFormConfig,
+  FeedbackForm,
+  FeedbackFormConfig,
+  SurveyForm,
+  SurveyFormConfig,
+  LeadCaptureForm,
+  LeadCaptureFormConfig,
+  // New Week 4 Components
+  PricingCard,
+  PricingCardConfig
 } from './index'
 
 // Register business components
@@ -63,3 +79,14 @@ registerComponent(TeamConfig, Team)
 registerComponent(PropertyGridConfig, PropertyGrid)
 registerComponent(PropertySearchConfig, PropertySearch)
 registerComponent(CauseGridConfig, CauseGrid)
+
+// Register new Week 3 components
+registerComponent(NewsletterSignupConfig, NewsletterSignup)
+registerComponent(JobApplicationFormConfig, JobApplicationForm)
+registerComponent(EventRegistrationFormConfig, EventRegistrationForm)
+registerComponent(FeedbackFormConfig, FeedbackForm)
+registerComponent(SurveyFormConfig, SurveyForm)
+registerComponent(LeadCaptureFormConfig, LeadCaptureForm)
+
+// Register new Week 4 components
+registerComponent(PricingCardConfig, PricingCard)

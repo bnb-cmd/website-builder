@@ -18,3 +18,14 @@ export * from './Team'
 export * from './PropertyGrid'
 export * from './PropertySearch'
 export * from './CauseGrid'
+
+// New Week 3 Components
+export * from './NewsletterSignup'
+export * from './JobApplicationForm'
+export * from './EventRegistrationForm'
+export * from './FeedbackForm'
+export * from './SurveyForm'
+export * from './LeadCaptureForm'
+
+// New Week 4 Components
+export * from './PricingCard'

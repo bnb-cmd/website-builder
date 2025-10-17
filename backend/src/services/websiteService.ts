@@ -458,4 +458,36 @@ export class WebsiteService extends BaseService<Website> {
   async createWebsiteAnalytics(websiteId: string, data: any, period: string = 'DAILY', date: Date = new Date()) {
     return this.analyticsService.createAnalytics(websiteId, data, period, date)
   }
+
+  async getWebsiteBySubdomain(subdomain: string): Promise<Website | null> {
+    try {
+      const website = await this.prisma.website.findFirst({
+        where: { subdomain },
+        include: {
+          pages: true,
+          analytics: true
+        }
+      })
+
+      return website
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async getWebsiteByCustomDomain(domain: string): Promise<Website | null> {
+    try {
+      const website = await this.prisma.website.findFirst({
+        where: { customDomain: domain },
+        include: {
+          pages: true,
+          analytics: true
+        }
+      })
+
+      return website
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
 }

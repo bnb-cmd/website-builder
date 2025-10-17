@@ -1,6 +1,7 @@
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { WebsiteService } from '@/services/websiteService'
+import { PublishService } from '@/services/publishService'
 import { authenticate, requireOwnership } from '@/middleware/auth'
 
 // Validation schemas
@@ -45,6 +46,7 @@ const querySchema = z.object({
 
 export async function websiteRoutes(fastify: FastifyInstance) {
   const websiteService = new WebsiteService()
+  const publishService = new PublishService()
 
   // GET /api/v1/websites - List user's websites
   fastify.get('/', {
@@ -392,6 +394,12 @@ export async function websiteRoutes(fastify: FastifyInstance) {
           id: { type: 'string' }
         },
         required: ['id']
+      },
+      body: {
+        type: 'object',
+        properties: {
+          customDomain: { type: 'string' }
+        }
       }
     },
     preHandler: authenticate
@@ -399,36 +407,13 @@ export async function websiteRoutes(fastify: FastifyInstance) {
     try {
       const { id } = request.params as { id: string }
       const userId = (request as any).user.id
+      const { customDomain } = request.body as { customDomain?: string }
       
-      // Check if website exists and user owns it
-      const existingWebsite = await websiteService.findById(id)
-      if (!existingWebsite) {
-        return reply.status(404).send({
-          success: false,
-          error: {
-            message: 'Website not found',
-            code: 'WEBSITE_NOT_FOUND',
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
-
-      if (existingWebsite.userId !== userId) {
-        return reply.status(403).send({
-          success: false,
-          error: {
-            message: 'Forbidden: You do not own this website',
-            code: 'FORBIDDEN',
-            timestamp: new Date().toISOString()
-          }
-        })
-      }
-
-      const website = await websiteService.publish(id)
+      const result = await publishService.publishWebsite(id, userId, customDomain)
 
       return reply.send({
         success: true,
-        data: { website },
+        data: result,
         timestamp: new Date().toISOString()
       })
     } catch (error) {
@@ -436,8 +421,57 @@ export async function websiteRoutes(fastify: FastifyInstance) {
       return reply.status(500).send({
         success: false,
         error: {
-          message: 'Failed to publish website',
+          message: error.message || 'Failed to publish website',
           code: 'PUBLISH_WEBSITE_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // GET /api/v1/publish/:jobId/status - Get publish job status
+  fastify.get('/publish/:jobId/status', {
+    schema: {
+      description: 'Get publish job status',
+      tags: ['Websites'],
+      params: {
+        type: 'object',
+        properties: {
+          jobId: { type: 'string' }
+        },
+        required: ['jobId']
+      }
+    },
+    preHandler: authenticate
+  }, async (request, reply) => {
+    try {
+      const { jobId } = request.params as { jobId: string }
+      
+      const jobStatus = await publishService.getJobStatus(jobId)
+      
+      if (!jobStatus) {
+        return reply.status(404).send({
+          success: false,
+          error: {
+            message: 'Job not found',
+            code: 'JOB_NOT_FOUND',
+            timestamp: new Date().toISOString()
+          }
+        })
+      }
+
+      return reply.send({
+        success: true,
+        data: jobStatus,
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      console.error('Get job status error:', error)
+      return reply.status(500).send({
+        success: false,
+        error: {
+          message: error.message || 'Failed to get job status',
+          code: 'GET_JOB_STATUS_FAILED',
           timestamp: new Date().toISOString()
         }
       })
@@ -772,6 +806,230 @@ export async function websiteRoutes(fastify: FastifyInstance) {
         error: {
           message: 'Failed to create website analytics',
           code: 'ANALYTICS_CREATION_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // GET /api/v1/sites/resolve - Resolve site by hostname (for Site Router Worker)
+  fastify.get('/resolve', {
+    schema: {
+      description: 'Resolve site by hostname',
+      tags: ['Websites'],
+      querystring: {
+        type: 'object',
+        properties: {
+          hostname: { type: 'string' }
+        },
+        required: ['hostname']
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { hostname } = request.query as { hostname: string }
+
+      let siteId: string | null = null
+
+      // Check if it's a subdomain
+      if (hostname.endsWith('.pakistanbuilder.com')) {
+        const subdomain = hostname.replace('.pakistanbuilder.com', '')
+        const website = await websiteService.getWebsiteBySubdomain(subdomain)
+        siteId = website?.id || null
+      } else {
+        // Check if it's a custom domain
+        const website = await websiteService.getWebsiteByCustomDomain(hostname)
+        siteId = website?.id || null
+      }
+
+      if (!siteId) {
+        return reply.status(404).send({
+          success: false,
+          error: {
+            message: 'Site not found',
+            code: 'SITE_NOT_FOUND',
+            timestamp: new Date().toISOString()
+          }
+        })
+      }
+
+      return reply.send({
+        success: true,
+        data: { siteId },
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      console.error('Resolve site error:', error)
+      return reply.status(500).send({
+        success: false,
+        error: {
+          message: (error as Error).message || 'Failed to resolve site',
+          code: 'RESOLVE_SITE_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // GET /api/v1/sites/by-subdomain/:subdomain - Get site by subdomain
+  fastify.get('/by-subdomain/:subdomain', {
+    schema: {
+      description: 'Get site by subdomain',
+      tags: ['Websites'],
+      params: {
+        type: 'object',
+        properties: {
+          subdomain: { type: 'string' }
+        },
+        required: ['subdomain']
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { subdomain } = request.params as { subdomain: string }
+
+      const website = await websiteService.getWebsiteBySubdomain(subdomain)
+
+      if (!website) {
+        return reply.status(404).send({
+          success: false,
+          error: {
+            message: 'Site not found',
+            code: 'SITE_NOT_FOUND',
+            timestamp: new Date().toISOString()
+          }
+        })
+      }
+
+      return reply.send({
+        success: true,
+        data: { siteId: website.id },
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      console.error('Get site by subdomain error:', error)
+      return reply.status(500).send({
+        success: false,
+        error: {
+          message: (error as Error).message || 'Failed to get site by subdomain',
+          code: 'GET_SITE_BY_SUBDOMAIN_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // GET /api/v1/sites/by-domain/:domain - Get site by custom domain
+  fastify.get('/by-domain/:domain', {
+    schema: {
+      description: 'Get site by custom domain',
+      tags: ['Websites'],
+      params: {
+        type: 'object',
+        properties: {
+          domain: { type: 'string' }
+        },
+        required: ['domain']
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { domain } = request.params as { domain: string }
+
+      const website = await websiteService.getWebsiteByCustomDomain(domain)
+
+      if (!website) {
+        return reply.status(404).send({
+          success: false,
+          error: {
+            message: 'Site not found',
+            code: 'SITE_NOT_FOUND',
+            timestamp: new Date().toISOString()
+          }
+        })
+      }
+
+      return reply.send({
+        success: true,
+        data: { siteId: website.id },
+        timestamp: new Date().toISOString()
+      })
+    } catch (error) {
+      console.error('Get site by domain error:', error)
+      return reply.status(500).send({
+        success: false,
+        error: {
+          message: (error as Error).message || 'Failed to get site by domain',
+          code: 'GET_SITE_BY_DOMAIN_FAILED',
+          timestamp: new Date().toISOString()
+        }
+      })
+    }
+  })
+
+  // GET /api/v1/websites/check-subdomain - Check subdomain availability
+  fastify.get('/check-subdomain', {
+    schema: {
+      description: 'Check if subdomain is available',
+      tags: ['Websites'],
+      querystring: {
+        type: 'object',
+        properties: {
+          subdomain: { type: 'string' }
+        },
+        required: ['subdomain']
+      }
+    }
+  }, async (request, reply) => {
+    try {
+      const { subdomain } = request.query as { subdomain: string }
+
+      // Validate subdomain format
+      if (!subdomain || subdomain.length < 3) {
+        return reply.send({
+          success: true,
+          data: { available: false, reason: 'Subdomain must be at least 3 characters long' }
+        })
+      }
+
+      // Check if subdomain contains only valid characters
+      const validSubdomainRegex = /^[a-z0-9-]+$/
+      if (!validSubdomainRegex.test(subdomain)) {
+        return reply.send({
+          success: true,
+          data: { available: false, reason: 'Subdomain can only contain lowercase letters, numbers, and hyphens' }
+        })
+      }
+
+      // Check if subdomain starts or ends with hyphen
+      if (subdomain.startsWith('-') || subdomain.endsWith('-')) {
+        return reply.send({
+          success: true,
+          data: { available: false, reason: 'Subdomain cannot start or end with a hyphen' }
+        })
+      }
+
+      // Check if subdomain is already taken
+      const existingWebsite = await websiteService.getWebsiteBySubdomain(subdomain)
+      
+      if (existingWebsite) {
+        return reply.send({
+          success: true,
+          data: { available: false, reason: 'This subdomain is already taken' }
+        })
+      }
+
+      return reply.send({
+        success: true,
+        data: { available: true, reason: 'Subdomain is available' }
+      })
+    } catch (error) {
+      console.error('Check subdomain error:', error)
+      return reply.status(500).send({
+        success: false,
+        error: {
+          message: (error as Error).message || 'Failed to check subdomain availability',
+          code: 'CHECK_SUBDOMAIN_FAILED',
           timestamp: new Date().toISOString()
         }
       })

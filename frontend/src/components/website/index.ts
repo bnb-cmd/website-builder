@@ -5,6 +5,7 @@ export * from './content/index'
 export * from './business/index'
 export * from './ecommerce/index'
 export * from './media/index'
+export * from './interactive/index'
 
 // Registry and renderer
 export * from './registry'
@@ -17,3 +18,4 @@ import './content/register'
 import './business/register'
 import './ecommerce/register'
 import './media/register'
+import './interactive/register'

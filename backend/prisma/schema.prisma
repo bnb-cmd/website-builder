@@ -3,7 +3,7 @@
 
 generator client {
   provider        = "prisma-client-js"
-  binaryTargets   = ["native", "linux-musl-openssl-3.0.x"]
+  binaryTargets   = ["native", "linux-arm64-openssl-3.0.x"]
 }
 
 datasource db {
@@ -576,6 +576,10 @@ model Website {
   domains Domain[]
   visitors WebsiteVisitor[]
   nftCollections NFTCollection[]
+  
+  // Published Sites Relations
+  publishedSite PublishedSite?
+  websiteVersions WebsiteVersion[]
 
   @@map("websites")
 }
@@ -1916,4 +1920,71 @@ model BrandKit {
   website Website? @relation(fields: [websiteId], references: [id], onDelete: Cascade)
   
   @@map("brand_kits")
+}
+
+// Published Sites Management
+model PublishedSite {
+  id            String   @id @default(cuid())
+  websiteId     String   @unique
+  subdomain     String?  @unique
+  customDomain  String?  @unique
+  r2Path        String
+  version       Int      @default(1)
+  status        String   @default("active")
+  tier          String   @default("free")
+  lastPublished DateTime @default(now())
+  cacheTtl      Int      @default(3600)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  website       Website        @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+  customDomains CustomDomain[]
+  dynamicComponents DynamicComponent[]
+
+  @@map("published_sites")
+}
+
+model CustomDomain {
+  id              String   @id @default(cuid())
+  publishedSiteId String
+  domain          String   @unique
+  verified        Boolean  @default(false)
+  sslEnabled      Boolean  @default(true)
+  dnsRecords      String?
+  verificationToken String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  publishedSite PublishedSite @relation(fields: [publishedSiteId], references: [id], onDelete: Cascade)
+
+  @@map("custom_domains")
+}
+
+model DynamicComponent {
+  id              String   @id @default(cuid())
+  siteId          String
+  componentType   String
+  componentPath   String
+  apiEndpoint     String?
+  cacheStrategy   String?
+  createdAt       DateTime @default(now())
+
+  publishedSite PublishedSite @relation(fields: [siteId], references: [id], onDelete: Cascade)
+
+  @@map("dynamic_components")
+}
+
+model WebsiteVersion {
+  id          String    @id @default(cuid())
+  websiteId   String
+  version     Int
+  content     String?
+  settings    String?
+  publishedAt DateTime?
+  r2Path      String?
+  createdAt   DateTime  @default(now())
+
+  website Website @relation(fields: [websiteId], references: [id], onDelete: Cascade)
+
+  @@map("website_versions")
 }

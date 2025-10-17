@@ -1,6 +1,9 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 
+// Get API base URL for Railway backend
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://website-builder-production-e38b.up.railway.app'
+
 export interface Product {
   id: string
   websiteId: string
@@ -257,7 +260,7 @@ export const useEcommerceStore = create<EcommerceState>()(
           if (productFilters.status) params.append('status', productFilters.status)
           if (productFilters.search) params.append('search', productFilters.search)
 
-          const response = await fetch(`/api/v1/products?${params}`)
+          const response = await fetch(`${API_BASE_URL}/v1/products?${params}`)
           const data = await response.json()
 
           if (data.success) {
@@ -276,7 +279,7 @@ export const useEcommerceStore = create<EcommerceState>()(
           const { selectedWebsite } = get()
           if (!selectedWebsite) throw new Error('No website selected')
 
-          const response = await fetch('/api/v1/products', {
+          const response = await fetch(`${API_BASE_URL}/v1/products`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...productData, websiteId: selectedWebsite })
@@ -302,7 +305,7 @@ export const useEcommerceStore = create<EcommerceState>()(
       updateProduct: async (id, productData) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await fetch(`/api/v1/products/${id}`, {
+          const response = await fetch(`${API_BASE_URL}/v1/products/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(productData)
@@ -328,7 +331,7 @@ export const useEcommerceStore = create<EcommerceState>()(
       deleteProduct: async (id) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await fetch(`/api/v1/products/${id}`, {
+          const response = await fetch(`${API_BASE_URL}/v1/products/${id}`, {
             method: 'DELETE'
           })
 
@@ -350,7 +353,7 @@ export const useEcommerceStore = create<EcommerceState>()(
       bulkUpdateProducts: async (productIds, updates) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await fetch('/api/v1/products/bulk-update', {
+          const response = await fetch(`${API_BASE_URL}/v1/products/bulk-update`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ productIds, updates })
@@ -393,7 +396,7 @@ export const useEcommerceStore = create<EcommerceState>()(
           if (orderFilters.dateFrom) params.append('dateFrom', orderFilters.dateFrom)
           if (orderFilters.dateTo) params.append('dateTo', orderFilters.dateTo)
 
-          const response = await fetch(`/api/v1/orders?${params}`)
+          const response = await fetch(`${API_BASE_URL}/v1/orders?${params}`)
           const data = await response.json()
 
           if (data.success) {
@@ -412,7 +415,7 @@ export const useEcommerceStore = create<EcommerceState>()(
           const { selectedWebsite } = get()
           if (!selectedWebsite) throw new Error('No website selected')
 
-          const response = await fetch('/api/v1/orders', {
+          const response = await fetch(`${API_BASE_URL}/v1/orders`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ...orderData, websiteId: selectedWebsite })
@@ -438,7 +441,7 @@ export const useEcommerceStore = create<EcommerceState>()(
       updateOrderStatus: async (id, status, notes) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await fetch(`/api/v1/orders/${id}/status`, {
+          const response = await fetch(`${API_BASE_URL}/v1/orders/${id}/status`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ status, notes })
@@ -464,7 +467,7 @@ export const useEcommerceStore = create<EcommerceState>()(
       addTracking: async (id, trackingData) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await fetch(`/api/v1/orders/${id}/tracking`, {
+          const response = await fetch(`${API_BASE_URL}/v1/orders/${id}/tracking`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(trackingData)
@@ -497,7 +500,7 @@ export const useEcommerceStore = create<EcommerceState>()(
           }
 
           const params = new URLSearchParams({ websiteId: selectedWebsite })
-          const response = await fetch(`/api/v1/orders/analytics?${params}`)
+          const response = await fetch(`${API_BASE_URL}/v1/orders/analytics?${params}`)
           const data = await response.json()
 
           if (data.success) {
@@ -530,7 +533,7 @@ export const useEcommerceStore = create<EcommerceState>()(
 
           if (customerFilters.search) params.append('search', customerFilters.search)
 
-          const response = await fetch(`/api/v1/customers?${params}`)
+          const response = await fetch(`${API_BASE_URL}/v1/customers?${params}`)
           const data = await response.json()
 
           if (data.success) {
@@ -546,7 +549,7 @@ export const useEcommerceStore = create<EcommerceState>()(
       updateCustomer: async (id, customerData) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await fetch(`/api/v1/customers/${id}`, {
+          const response = await fetch(`${API_BASE_URL}/v1/customers/${id}`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(customerData)
@@ -573,7 +576,7 @@ export const useEcommerceStore = create<EcommerceState>()(
       fetchSettings: async (websiteId) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await fetch(`/api/v1/websites/${websiteId}/ecommerce/settings`)
+          const response = await fetch(`${API_BASE_URL}/v1/websites/${websiteId}/ecommerce/settings`)
           const data = await response.json()
 
           if (data.success) {
@@ -589,7 +592,7 @@ export const useEcommerceStore = create<EcommerceState>()(
       updateSettings: async (websiteId, settingsData) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await fetch(`/api/v1/websites/${websiteId}/ecommerce/settings`, {
+          const response = await fetch(`${API_BASE_URL}/v1/websites/${websiteId}/ecommerce/settings`, {
             method: 'PUT',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(settingsData)
@@ -611,7 +614,7 @@ export const useEcommerceStore = create<EcommerceState>()(
       enableEcommerce: async (websiteId) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await fetch(`/api/v1/websites/${websiteId}/ecommerce/enable`, {
+          const response = await fetch(`${API_BASE_URL}/v1/websites/${websiteId}/ecommerce/enable`, {
             method: 'POST'
           })
 
@@ -630,7 +633,7 @@ export const useEcommerceStore = create<EcommerceState>()(
       disableEcommerce: async (websiteId) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await fetch(`/api/v1/websites/${websiteId}/ecommerce/disable`, {
+          const response = await fetch(`${API_BASE_URL}/v1/websites/${websiteId}/ecommerce/disable`, {
             method: 'POST'
           })
 

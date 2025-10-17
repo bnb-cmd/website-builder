@@ -2,6 +2,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { EditorHistoryManager, PatchManager, ImmerStateManager, KeyboardShortcutsManager } from './history'
 import { ComponentNode, PageSchema, ComponentOperation, PatchOperation } from './schema'
 
+// Get API base URL for Railway backend
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://website-builder-production-e38b.up.railway.app'
+
 export interface UseUndoRedoOptions {
   maxStates?: number
   debounceMs?: number
@@ -319,7 +322,7 @@ export function useVersionHistory(
 
     setIsLoading(true)
     try {
-      const response = await fetch(`/api/v1/versions/pages/${pageId}`)
+      const response = await fetch(`${API_BASE_URL}/v1/versions/pages/${pageId}`)
       const data = await response.json()
       
       if (data.success) {
@@ -340,7 +343,7 @@ export function useVersionHistory(
     if (!pageId) return
 
     try {
-      const response = await fetch(`/api/v1/versions/pages/${pageId}`, {
+      const response = await fetch(`${API_BASE_URL}/v1/versions/pages/${pageId}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -365,7 +368,7 @@ export function useVersionHistory(
 
     try {
       const response = await fetch(
-        `/api/v1/versions/pages/${pageId}/restore/${versionNumber}`,
+        `${API_BASE_URL}/v1/versions/pages/${pageId}/restore/${versionNumber}`,
         {
           method: 'POST'
         }

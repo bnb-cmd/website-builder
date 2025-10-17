@@ -7,6 +7,7 @@ export type ComponentCategory =
   | 'business' 
   | 'ecommerce' 
   | 'media'
+  | 'interactive'
 
 export interface ComponentConfig {
   id: string

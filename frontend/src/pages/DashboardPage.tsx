@@ -230,7 +230,7 @@ const DashboardPage: React.FC = () => {
                             className="w-16 h-12 object-cover rounded"
                           />
                           <Badge 
-                            variant={website.status === 'published' ? 'default' : 'secondary'}
+                            variant={website.status === 'PUBLISHED' ? 'default' : 'secondary'}
                             className="absolute -top-1 -right-1 text-xs px-1"
                           >
                             {website.status}

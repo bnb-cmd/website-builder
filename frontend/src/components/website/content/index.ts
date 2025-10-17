@@ -16,3 +16,11 @@ export * from './BlogGrid'
 export * from './CategoryGrid'
 export * from './Features'
 export * from './MenuSection'
+
+// New Week 4 Components
+export * from './SocialMediaFeed'
+export * from './SocialMediaLinks'
+export * from './BlogPostCard'
+export * from './TestimonialCard'
+export * from './FeatureCard'
+export * from './NotificationCenter'

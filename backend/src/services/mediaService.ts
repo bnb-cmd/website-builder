@@ -1,17 +1,7 @@
 import { MediaAsset, VideoProject, VideoClip, MediaType, AssetStatus, ProjectStatus } from '@prisma/client'
 import { BaseService } from './baseService'
 import { config } from '@/config/environment'
-import { v2 as cloudinary } from 'cloudinary'
 import { r2Storage } from './r2Storage'
-
-// Configure Cloudinary
-if (config.storage.provider === 'cloudinary') {
-  cloudinary.config({
-    cloud_name: config.storage.cloudinary?.cloudName,
-    api_key: config.storage.cloudinary?.apiKey,
-    api_secret: config.storage.cloudinary?.apiSecret
-  })
-}
 
 export interface MediaAssetData {
   name: string
@@ -54,33 +44,39 @@ export class MediaService extends BaseService<MediaAsset> {
     return 'mediaAsset'
   }
 
-  // Media Asset Management
-  async createMediaAsset(websiteId: string, userId: string, data: MediaAssetData): Promise<MediaAsset> {
+  // Implement required BaseService methods
+  async create(data: Partial<MediaAsset>): Promise<MediaAsset> {
+    const assetData: MediaAssetData = {
+      name: data.name || '',
+      type: data.type!,
+      url: data.url || '',
+      size: data.size || 0,
+      width: data.width,
+      height: data.height,
+      duration: data.duration,
+      metadata: data.metadata ? JSON.parse(data.metadata) : undefined,
+      tags: data.tags ? data.tags.split(',') : undefined,
+      aiGenerated: data.aiGenerated,
+      aiPrompt: data.aiPrompt
+    }
+    return this.createMediaAsset(data.websiteId!, data.userId!, assetData)
+  }
+
+  async findById(id: string): Promise<MediaAsset | null> {
     try {
-      this.validateId(websiteId)
-      this.validateId(userId)
-      return await this.prisma.mediaAsset.create({
-        data: {
-          websiteId,
-          userId,
-          ...data,
-          status: AssetStatus.ACTIVE
-        } as any
+      this.validateId(id)
+      return await this.prisma.mediaAsset.findUnique({
+        where: { id }
       })
     } catch (error) {
       this.handleError(error)
     }
   }
 
-  async getMediaAssets(websiteId: string, type?: MediaType): Promise<MediaAsset[]> {
+  async findAll(filters?: any): Promise<MediaAsset[]> {
     try {
-      this.validateId(websiteId)
       return await this.prisma.mediaAsset.findMany({
-        where: {
-          websiteId,
-          ...(type && { type }),
-          status: AssetStatus.ACTIVE
-        },
+        where: filters || {},
         orderBy: { createdAt: 'desc' }
       })
     } catch (error) {
@@ -88,323 +84,53 @@ export class MediaService extends BaseService<MediaAsset> {
     }
   }
 
-  async generateAIMedia(prompt: string, type: MediaType, websiteId: string, userId: string): Promise<MediaAsset> {
-    try {
-      // Mock AI media generation - in reality, you'd integrate with DALL-E, Midjourney, etc.
-      const mockAsset = {
-        name: `AI Generated ${type}`,
-        type,
-        url: `https://api.example.com/generated/${type.toLowerCase()}/${Date.now()}.${type === MediaType.IMAGE ? 'jpg' : 'mp4'}`,
-        thumbnailUrl: type === MediaType.VIDEO ? `https://api.example.com/thumbnails/${Date.now()}.jpg` : undefined,
-        size: type === MediaType.IMAGE ? 1024000 : 10240000, // 1MB for images, 10MB for videos
-        duration: type === MediaType.VIDEO ? 30 : undefined,
-        width: type === MediaType.IMAGE ? 1920 : 1920,
-        height: type === MediaType.IMAGE ? 1080 : 1080,
-        metadata: { generated: true, prompt },
-        tags: ['ai-generated'],
-        aiGenerated: true,
-        aiPrompt: prompt
-      }
-
-      return await this.createMediaAsset(websiteId, userId, mockAsset)
-    } catch (error) {
-      this.handleError(error)
+  async update(id: string, data: Partial<MediaAsset>): Promise<MediaAsset> {
+    const assetData: Partial<MediaAssetData> = {
+      name: data.name,
+      url: data.url,
+      thumbnailUrl: data.thumbnail,
+      metadata: data.metadata ? JSON.parse(data.metadata) : undefined,
+      tags: data.tags ? data.tags.split(',') : undefined
     }
+    return this.updateMediaAsset(id, assetData)
   }
 
-  // Video Project Management
-  async createVideoProject(websiteId: string, userId: string, data: VideoProjectData): Promise<VideoProject> {
+  async delete(id: string): Promise<boolean> {
+    return this.deleteMediaAsset(id)
+  }
+
+  async createMediaAsset(websiteId: string, userId: string, data: MediaAssetData): Promise<MediaAsset> {
     try {
       this.validateId(websiteId)
       this.validateId(userId)
-      return await this.prisma.videoProject.create({
+
+      const mediaAsset = await this.prisma.mediaAsset.create({
         data: {
           websiteId,
           userId,
-          ...data,
-          status: ProjectStatus.DRAFT,
-          timeline: data.timeline || { tracks: [], effects: [] }
-        }
-      })
-    } catch (error) {
-      this.handleError(error)
-    }
-  }
-
-  async getVideoProjects(websiteId: string): Promise<VideoProject[]> {
-    try {
-      this.validateId(websiteId)
-      return await this.prisma.videoProject.findMany({
-        where: { websiteId },
-        include: {
-          clips: {
-            include: {
-              asset: true
-            }
-          }
-        },
-        orderBy: { updatedAt: 'desc' }
-      })
-    } catch (error) {
-      this.handleError(error)
-    }
-  }
-
-  async updateVideoProject(projectId: string, data: Partial<VideoProjectData>): Promise<VideoProject> {
-    try {
-      this.validateId(projectId)
-      return await this.prisma.videoProject.update({
-        where: { id: projectId },
-        data
-      })
-    } catch (error) {
-      this.handleError(error)
-    }
-  }
-
-  // Video Clip Management
-  async addVideoClip(projectId: string, data: VideoClipData): Promise<VideoClip> {
-    try {
-      this.validateId(projectId)
-      return await this.prisma.videoClip.create({
-        data: {
-          projectId,
-          ...data
-        } as any,
-        include: {
-          asset: true
-        }
-      })
-    } catch (error) {
-      this.handleError(error)
-    }
-  }
-
-  async updateVideoClip(clipId: string, data: Partial<VideoClipData>): Promise<VideoClip> {
-    try {
-      this.validateId(clipId)
-      return await this.prisma.videoClip.update({
-        where: { id: clipId },
-        data,
-        include: {
-          asset: true
-        }
-      })
-    } catch (error) {
-      this.handleError(error)
-    }
-  }
-
-  async deleteVideoClip(clipId: string): Promise<boolean> {
-    try {
-      this.validateId(clipId)
-      await this.prisma.videoClip.delete({
-        where: { id: clipId }
-      })
-      return true
-    } catch (error) {
-      this.handleError(error)
-    }
-  }
-
-  // Video Processing
-  async exportVideo(projectId: string, settings: any): Promise<{ success: boolean; downloadUrl?: string; error?: string }> {
-    try {
-      this.validateId(projectId)
-      
-      const project = await this.prisma.videoProject.findUnique({
-        where: { id: projectId },
-        include: {
-          clips: {
-            include: {
-              asset: true
-            }
-          }
+          name: data.name,
+          type: data.type,
+          url: data.url,
+          thumbnail: data.thumbnailUrl,
+          size: data.size,
+          mimeType: this.getMimeType(data.type),
+          width: data.width,
+          height: data.height,
+          duration: data.duration,
+          metadata: JSON.stringify(data.metadata || {}),
+          tags: data.tags ? data.tags.join(',') : null,
+          aiGenerated: data.aiGenerated || false,
+          aiPrompt: data.aiPrompt,
+          status: 'ACTIVE',
+          createdAt: new Date(),
+          updatedAt: new Date()
         }
       })
 
-      if (!project) {
-        throw new Error('Project not found')
-      }
-
-      // Update project status to processing
-      await this.prisma.videoProject.update({
-        where: { id: projectId },
-        data: { status: ProjectStatus.PROCESSING }
-      })
-
-      // Mock video processing - in reality, you'd use FFmpeg or similar
-      console.log('Processing video project:', project.name)
-      console.log('Export settings:', settings)
-      
-      // Simulate processing time
-      setTimeout(async () => {
-        try {
-          const downloadUrl = `https://api.example.com/exports/${projectId}.mp4`
-          
-          await this.prisma.videoProject.update({
-            where: { id: projectId },
-            data: { 
-              status: ProjectStatus.COMPLETED,
-              exportSettings: settings
-            }
-          })
-          
-          console.log('Video export completed:', downloadUrl)
-        } catch (error) {
-          await this.prisma.videoProject.update({
-            where: { id: projectId },
-            data: { status: ProjectStatus.FAILED }
-          })
-        }
-      }, 5000) // 5 second delay
-
-      return { 
-        success: true, 
-        downloadUrl: `https://api.example.com/exports/${projectId}.mp4` 
-      }
+      await this.invalidateCache(`media:website:${websiteId}`)
+      return mediaAsset
     } catch (error) {
-      return { 
-        success: false, 
-        error: error instanceof Error ? error.message : 'Export failed' 
-      }
-    }
-  }
-
-  // Required abstract methods from BaseService
-  override async create(data: any): Promise<MediaAsset> {
-    return this.prisma.mediaAsset.create({ data })
-  }
-  
-  override async findById(id: string): Promise<MediaAsset | null> {
-    return this.prisma.mediaAsset.findUnique({ where: { id } })
-  }
-  
-  override async findAll(filters?: any): Promise<MediaAsset[]> {
-    return this.prisma.mediaAsset.findMany({ where: filters })
-  }
-  
-  override async update(id: string, data: Partial<MediaAsset>): Promise<MediaAsset> {
-    return this.prisma.mediaAsset.update({ where: { id }, data })
-  }
-  
-  override async delete(id: string): Promise<boolean> {
-    await this.prisma.mediaAsset.delete({ where: { id } })
-    return true
-  }
-
-  // Cloudinary Integration Methods
-  async uploadToCloudinary(file: Buffer | string, options: {
-    folder?: string
-    publicId?: string
-    resourceType?: 'image' | 'video' | 'raw' | 'auto'
-    transformation?: any
-  } = {}): Promise<{
-    publicId: string
-    url: string
-    secureUrl: string
-    width?: number
-    height?: number
-    format: string
-    bytes: number
-  }> {
-    try {
-      if (config.storage.provider === 'r2') {
-        // Use R2 storage
-        const filename = options.publicId || `media-${Date.now()}-${Math.random().toString(36).substring(7)}`
-        const folder = options.folder || 'media'
-        const key = `${folder}/${filename}`
-        
-        const result = await r2Storage.uploadFile(Buffer.isBuffer(file) ? file : Buffer.from(file), {
-          folder: folder,
-          filename: filename,
-          contentType: this.getMimeType('IMAGE', 'jpg'),
-          generateThumbnail: false
-        })
-        
-        return {
-          publicId: key,
-          url: result.url,
-          secureUrl: result.url,
-          width: options.transformation?.width,
-          height: options.transformation?.height,
-          format: 'jpg', // Default format
-          bytes: Buffer.isBuffer(file) ? file.length : 0
-        }
-      }
-
-      if (config.storage.provider !== 'cloudinary') {
-        throw new Error('Storage provider not configured')
-      }
-
-      const uploadOptions: any = {
-        resource_type: options.resourceType || 'auto',
-        folder: options.folder || 'website-builder',
-        ...options.transformation
-      }
-
-      if (options.publicId) {
-        uploadOptions.public_id = options.publicId
-      }
-
-      const result = await cloudinary.uploader.upload(file as string, uploadOptions)
-      
-      return {
-        publicId: result.public_id,
-        url: result.url,
-        secureUrl: result.secure_url,
-        width: result.width,
-        height: result.height,
-        format: result.format,
-        bytes: result.bytes
-      }
-    } catch (error) {
-      console.error('Upload error:', error)
-      throw new Error('Failed to upload file')
-    }
-  }
-
-  async deleteFromCloudinary(publicId: string, resourceType: 'image' | 'video' | 'raw' = 'image'): Promise<boolean> {
-    try {
-      if (config.storage.provider === 'r2') {
-        // Use R2 storage
-        await r2Storage.deleteFile(publicId)
-        return true
-      }
-
-      if (config.storage.provider !== 'cloudinary') {
-        throw new Error('Storage provider not configured')
-      }
-
-      const result = await cloudinary.uploader.destroy(publicId, {
-        resource_type: resourceType
-      })
-      
-      return result.result === 'ok'
-    } catch (error) {
-      console.error('Delete error:', error)
-      return false
-    }
-  }
-
-  async generateCloudinaryUrl(publicId: string, transformations: any = {}): Promise<string> {
-    try {
-      if (config.storage.provider === 'r2') {
-        // Use R2 storage - return direct URL
-        return `${config.storage.r2?.publicUrl}/${publicId}`
-      }
-
-      if (config.storage.provider !== 'cloudinary') {
-        throw new Error('Storage provider not configured')
-      }
-
-      return cloudinary.url(publicId, {
-        ...transformations,
-        secure: true
-      })
-    } catch (error) {
-      console.error('URL generation error:', error)
-      throw new Error('Failed to generate URL')
+      this.handleError(error)
     }
   }
 
@@ -413,10 +139,12 @@ export class MediaService extends BaseService<MediaAsset> {
       this.validateId(websiteId)
       this.validateId(userId)
 
-      // Upload to Cloudinary
-      const uploadResult = await this.uploadToCloudinary(file, {
+      // Upload to R2
+      const uploadResult = await r2Storage.uploadFile(file as Buffer, {
         folder: `websites/${websiteId}/media`,
-        resourceType: this.getResourceType(data.type)
+        filename: data.name,
+        contentType: this.getMimeType(data.type),
+        generateThumbnail: data.type === 'IMAGE'
       })
 
       // Create media asset record
@@ -424,21 +152,20 @@ export class MediaService extends BaseService<MediaAsset> {
         data: {
           websiteId,
           userId,
-          name: data.name || uploadResult.publicId,
+          name: data.name || uploadResult.key.split('/').pop() || 'unknown',
           type: data.type,
-          url: uploadResult.secureUrl,
-          thumbnail: this.generateThumbnailUrl(uploadResult.publicId, data.type),
-          size: uploadResult.bytes,
-          mimeType: this.getMimeType(data.type, uploadResult.format),
-          width: uploadResult.width,
-          height: uploadResult.height,
+          url: uploadResult.url,
+          thumbnail: data.type === 'IMAGE' ? uploadResult.url : null,
+          size: uploadResult.size,
+          mimeType: uploadResult.mimeType,
+          width: data.width,
+          height: data.height,
           duration: data.duration,
           metadata: JSON.stringify({
             storage: {
-              provider: config.storage.provider,
-              publicId: uploadResult.publicId,
-              format: uploadResult.format,
-              originalUrl: uploadResult.url
+              provider: 'r2',
+              key: uploadResult.key,
+              bucket: config.storage.r2?.bucket
             },
             ...data.metadata
           }),
@@ -458,68 +185,297 @@ export class MediaService extends BaseService<MediaAsset> {
     }
   }
 
-  private getResourceType(type: MediaType): 'image' | 'video' | 'raw' | 'auto' {
+  async getMediaAssetsByWebsite(websiteId: string, filters?: {
+    type?: MediaType
+    tags?: string[]
+    search?: string
+  }): Promise<MediaAsset[]> {
+    try {
+      this.validateId(websiteId)
+
+      const where: any = {
+        websiteId,
+        status: 'ACTIVE'
+      }
+
+      if (filters?.type) {
+        where.type = filters.type
+      }
+
+      if (filters?.tags && filters.tags.length > 0) {
+        where.tags = {
+          contains: filters.tags.join(',')
+        }
+      }
+
+      if (filters?.search) {
+        where.OR = [
+          { name: { contains: filters.search, mode: 'insensitive' } },
+          { tags: { contains: filters.search, mode: 'insensitive' } }
+        ]
+      }
+
+      return await this.prisma.mediaAsset.findMany({
+        where,
+        orderBy: { createdAt: 'desc' }
+      })
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async updateMediaAsset(id: string, data: Partial<MediaAssetData>): Promise<MediaAsset> {
+    try {
+      this.validateId(id)
+
+      const updateData: any = {
+        updatedAt: new Date()
+      }
+
+      if (data.name) updateData.name = data.name
+      if (data.url) updateData.url = data.url
+      if (data.thumbnailUrl) updateData.thumbnail = data.thumbnailUrl
+      if (data.metadata) updateData.metadata = JSON.stringify(data.metadata)
+      if (data.tags) updateData.tags = data.tags.join(',')
+
+      const mediaAsset = await this.prisma.mediaAsset.update({
+        where: { id },
+        data: updateData
+      })
+
+      await this.invalidateCache(`media:website:${mediaAsset.websiteId}`)
+      return mediaAsset
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async deleteMediaAsset(id: string): Promise<boolean> {
+    try {
+      this.validateId(id)
+
+      const mediaAsset = await this.prisma.mediaAsset.findUnique({
+        where: { id }
+      })
+
+      if (!mediaAsset) {
+        throw new Error('Media asset not found')
+      }
+
+      // Delete from R2 storage
+      await r2Storage.deleteFile(mediaAsset.url)
+
+      // Delete from database
+      await this.prisma.mediaAsset.delete({
+        where: { id }
+      })
+
+      await this.invalidateCache(`media:website:${mediaAsset.websiteId}`)
+      return true
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async generateR2Url(key: string, transformations: any = {}): Promise<string> {
+    try {
+      // Generate R2 public URL
+      const baseUrl = config.storage.r2?.publicUrl || `https://${config.storage.r2?.bucket}.r2.cloudflarestorage.com`
+      const url = `${baseUrl}/${key}`
+      
+      return url
+    } catch (error) {
+      console.error('R2 URL generation error:', error)
+      throw new Error('Failed to generate URL')
+    }
+  }
+
+  private getMimeType(type: MediaType): string {
     switch (type) {
       case 'IMAGE':
       case 'GIF':
-      case 'SVG':
-        return 'image'
+        return 'image/jpeg'
       case 'VIDEO':
-        return 'video'
+        return 'video/mp4'
       case 'AUDIO':
-      case 'PDF':
-        return 'raw'
+        return 'audio/mpeg'
+      case 'DOCUMENT':
+        return 'application/pdf'
       default:
-        return 'auto'
+        return 'application/octet-stream'
     }
   }
 
-  private getMimeType(type: MediaType, format?: string): string {
-    const mimeTypes: Record<MediaType, string> = {
-      IMAGE: 'image/jpeg',
-      VIDEO: 'video/mp4',
-      AUDIO: 'audio/mpeg',
-      GIF: 'image/gif',
-      SVG: 'image/svg+xml',
-      PDF: 'application/pdf',
-      DOCUMENT: 'application/pdf'
+  private generateThumbnailUrl(key: string, type: MediaType): string | null {
+    if (type === 'IMAGE') {
+      return key // R2 URL is the same for thumbnails
     }
-    
-    if (format && type === 'IMAGE') {
-      return `image/${format}`
-    }
-    
-    return mimeTypes[type] || 'application/octet-stream'
-  }
-
-  private generateThumbnailUrl(publicId: string, type: MediaType): string | null {
-    if (config.storage.provider === 'r2') {
-      // For R2, we'll use the same URL for now (no thumbnail generation)
-      // In production, you might want to generate thumbnails server-side
-      return `${config.storage.r2?.publicUrl}/${publicId}`
-    }
-
-    if (type === 'VIDEO') {
-      return cloudinary.url(publicId, {
-        resource_type: 'video',
-        format: 'jpg',
-        transformation: [
-          { width: 300, height: 200, crop: 'fill', quality: 'auto' }
-        ],
-        secure: true
-      })
-    }
-    
-    if (type === 'IMAGE' || type === 'GIF') {
-      return cloudinary.url(publicId, {
-        transformation: [
-          { width: 300, height: 200, crop: 'fill', quality: 'auto' }
-        ],
-        secure: true
-      })
-    }
-    
     return null
+  }
+
+  // Video Project methods
+  async createVideoProject(websiteId: string, userId: string, data: VideoProjectData): Promise<VideoProject> {
+    try {
+      this.validateId(websiteId)
+      this.validateId(userId)
+
+      const videoProject = await this.prisma.videoProject.create({
+        data: {
+          websiteId,
+          userId,
+          name: data.name,
+          description: data.description,
+          resolution: data.resolution || '1920x1080',
+          frameRate: data.frameRate || 30,
+          timeline: JSON.stringify(data.timeline || {}),
+          exportSettings: JSON.stringify(data.exportSettings || {}),
+          status: 'DRAFT',
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      })
+
+      return videoProject
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async getVideoProjectsByWebsite(websiteId: string): Promise<VideoProject[]> {
+    try {
+      this.validateId(websiteId)
+
+      return await this.prisma.videoProject.findMany({
+        where: { websiteId },
+        orderBy: { createdAt: 'desc' }
+      })
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async updateVideoProject(id: string, data: Partial<VideoProjectData>): Promise<VideoProject> {
+    try {
+      this.validateId(id)
+
+      const updateData: any = {
+        updatedAt: new Date()
+      }
+
+      if (data.name) updateData.name = data.name
+      if (data.description) updateData.description = data.description
+      if (data.resolution) updateData.resolution = data.resolution
+      if (data.frameRate) updateData.frameRate = data.frameRate
+      if (data.timeline) updateData.timeline = JSON.stringify(data.timeline)
+      if (data.exportSettings) updateData.exportSettings = JSON.stringify(data.exportSettings)
+
+      return await this.prisma.videoProject.update({
+        where: { id },
+        data: updateData
+      })
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async deleteVideoProject(id: string): Promise<boolean> {
+    try {
+      this.validateId(id)
+
+      await this.prisma.videoProject.delete({
+        where: { id }
+      })
+
+      return true
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  // Video Clip methods
+  async createVideoClip(projectId: string, data: VideoClipData): Promise<VideoClip> {
+    try {
+      this.validateId(projectId)
+
+      const videoClip = await this.prisma.videoClip.create({
+        data: {
+          projectId,
+          name: data.name,
+          assetId: data.assetId,
+          startTime: data.startTime || 0,
+          endTime: data.endTime || 0,
+          position: data.position || 0,
+          effects: JSON.stringify(data.effects || {}),
+          filters: JSON.stringify(data.filters || {}),
+          transform: JSON.stringify(data.transform || {}),
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      })
+
+      return videoClip
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async getVideoClipsByProject(projectId: string): Promise<VideoClip[]> {
+    try {
+      this.validateId(projectId)
+
+      return await this.prisma.videoClip.findMany({
+        where: { projectId },
+        orderBy: { position: 'asc' }
+      })
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  async updateVideoClip(id: string, data: Partial<VideoClipData>): Promise<VideoClip> {
+    try {
+      this.validateId(id)
+
+      const updateData: any = {
+        updatedAt: new Date()
+      }
+
+      if (data.name) updateData.name = data.name
+      if (data.assetId) updateData.assetId = data.assetId
+      if (data.startTime !== undefined) updateData.startTime = data.startTime
+      if (data.endTime !== undefined) updateData.endTime = data.endTime
+      if (data.position !== undefined) updateData.position = data.position
+      if (data.effects) updateData.effects = JSON.stringify(data.effects)
+      if (data.filters) updateData.filters = JSON.stringify(data.filters)
+      if (data.transform) updateData.transform = JSON.stringify(data.transform)
+
+      return await this.prisma.videoClip.update({
+        where: { id },
+        data: updateData
+      })
+    } catch (error) {
+      this.handleError(error)
+    }
+  }
+
+  // Legacy method for backward compatibility
+  async getMediaAssets(websiteId: string, filters?: any): Promise<MediaAsset[]> {
+    return this.getMediaAssetsByWebsite(websiteId, filters)
+  }
+
+  // Legacy method for backward compatibility
+  async addVideoClip(projectId: string, data: VideoClipData): Promise<VideoClip> {
+    return this.createVideoClip(projectId, data)
+  }
+
+  // Legacy method for backward compatibility
+  async uploadToCloudinary(file: Buffer | string, options: any): Promise<any> {
+    return this.createMediaAssetWithUpload('', '', file, options)
+  }
+
+  // Legacy method for backward compatibility
+  async generateCloudinaryUrl(publicId: string, transformations: any = {}): Promise<string> {
+    return this.generateR2Url(publicId, transformations)
   }
 }
 

@@ -1,6 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react'
 import { Search, Filter, X, Download, Heart, Star, Grid, List } from 'lucide-react'
 
+// Get API base URL for Railway backend
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://website-builder-production-e38b.up.railway.app'
+
 interface ImageLibraryItem {
   id: string
   name: string
@@ -88,8 +91,8 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
       params.append('limit', '20')
 
       const endpoint = query 
-        ? `/api/v1/image-library/search?${params}`
-        : `/api/v1/image-library?${params}`
+        ? `${API_BASE_URL}/v1/image-library/search?${params}`
+        : `${API_BASE_URL}/v1/image-library?${params}`
       
       const response = await fetch(endpoint)
       const data = await response.json()
@@ -112,7 +115,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
   // Fetch categories
   const fetchCategories = useCallback(async () => {
     try {
-      const response = await fetch('/api/v1/image-library/categories')
+      const response = await fetch(`${API_BASE_URL}/v1/image-library/categories`)
       const data = await response.json()
       
       if (data.success) {
@@ -152,7 +155,7 @@ const ImagePicker: React.FC<ImagePickerProps> = ({
     onSelect(image)
     
     // Track download
-    fetch(`/api/v1/image-library/${image.id}/download`, {
+    fetch(`${API_BASE_URL}/v1/image-library/${image.id}/download`, {
       method: 'POST'
     }).catch(console.error)
   }, [onSelect])

@@ -85,35 +85,8 @@ export const apiHelpers = {
 
   // Website endpoints
   getWebsites: async () => {
-    // TEMPORARY BYPASS: Return mock data
-    console.log('🚀 BYPASSING API - Returning mock websites')
-    return {
-      success: true,
-      data: [
-        {
-          id: 'mock-website-1',
-          name: 'My First Website',
-          status: 'PUBLISHED',
-          subdomain: 'myfirstsite',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        },
-        {
-          id: 'mock-website-2', 
-          name: 'Business Website',
-          status: 'DRAFT',
-          subdomain: 'businesssite',
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString()
-        }
-      ]
-    }
-    
-    // Original API call (commented out)
-    /*
     const response = await api.get('/v1/websites')
     return response.data
-    */
   },
 
   getWebsite: async (id: string) => {
@@ -143,6 +116,11 @@ export const apiHelpers = {
 
   unpublishWebsite: async (id: string) => {
     const response = await api.post(`/v1/websites/${id}/unpublish`)
+    return response.data
+  },
+
+  getPublishJobStatus: async (jobId: string) => {
+    const response = await api.get(`/v1/websites/publish/${jobId}/status`)
     return response.data
   },
 

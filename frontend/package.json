@@ -5,7 +5,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node clean-mac-files.js && next build && node copy-html-files.js && node clean-for-pages.js",
+    "build": "node clean-mac-files.js && next build && node copy-html-files.js && node optimize-css.js && node clean-for-pages.js",
     "start": "next start",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
@@ -74,6 +74,7 @@
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.0.0",
     "cmdk": "^1.1.1",
+    "critters": "^0.0.23",
     "date-fns": "^2.30.0",
     "embla-carousel-react": "^8.6.0",
     "fast-json-patch": "^3.1.1",

@@ -18,8 +18,8 @@ import type { FastifyServerOptions, FastifyPluginAsync } from 'fastify'
 import type { FastifyJWTOptions } from '@fastify/jwt'
 
 // Import routes - All services enabled
-// import { authRoutes } from '@/routes/auth'
-// import { websiteRoutes } from '@/routes/websites'
+import { authRoutes } from '@/routes/auth'
+import { websiteRoutes } from '@/routes/websites'
 // import { analyticsRoutes } from '@/routes/analytics'
 import { templateRoutes } from '@/routes/templates'
 import { aiRoutes } from '@/routes/ai'
@@ -333,6 +333,8 @@ export async function createServer() {
 
     // API versioning - All services enabled
     await fastify.register(async (scope) => {
+      await scope.register(authRoutes, { prefix: '/auth' })
+      await scope.register(websiteRoutes, { prefix: '/websites' })
       await scope.register(templateRoutes, { prefix: '/templates' })
       await scope.register(aiRoutes, { prefix: '/ai' })
       await scope.register(aiMarketingRoutes, { prefix: '/ai-marketing' })

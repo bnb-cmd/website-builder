@@ -10,7 +10,8 @@ export const componentCategories: ComponentCategory[] = [
   'content',
   'business',
   'ecommerce',
-  'media'
+  'media',
+  'interactive'
 ]
 
 // Register a component
