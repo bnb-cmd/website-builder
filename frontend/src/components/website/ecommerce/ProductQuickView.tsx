@@ -223,7 +223,7 @@ export const ProductQuickView: React.FC<ProductQuickViewProps> = ({
                 {Object.entries(
                   product.variants.reduce((acc, variant) => {
                     if (!acc[variant.name]) acc[variant.name] = []
-                    acc[variant.name].push(variant)
+                    acc[variant.name]!.push(variant)
                     return acc
                   }, {} as Record<string, typeof product.variants>)
                 ).map(([variantName, variants]) => (

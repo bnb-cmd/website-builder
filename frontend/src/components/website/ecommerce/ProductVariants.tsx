@@ -159,7 +159,7 @@ export const ProductVariants: React.FC<ProductVariantsProps> = ({
       if (!groups[variant.name]) {
         groups[variant.name] = []
       }
-      groups[variant.name].push(variant)
+      groups[variant.name]!.push(variant)
     })
     return groups
   }

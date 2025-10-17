@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { ShoppingCart, Plus, Minus, Trash2, ArrowRight, CreditCard } from '@/lib/icons'
+import { ShoppingCart as ShoppingCartIcon, Plus, Minus, Trash2, ArrowRight, CreditCard } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface ShoppingCartProps {
@@ -226,7 +226,7 @@ export const ShoppingCart: React.FC<ShoppingCartProps> = ({
   if (items.length === 0) {
     return (
       <div className="text-center py-12">
-        <ShoppingCart className="w-16 h-16 text-gray-300 mx-auto mb-4" />
+        <ShoppingCartIcon className="w-16 h-16 text-gray-300 mx-auto mb-4" />
         <h3 className="text-lg font-medium text-gray-900 mb-2">Your cart is empty</h3>
         <p className="text-gray-600 mb-6">Add some items to get started!</p>
         <button className="bg-blue-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-700 transition">

@@ -123,6 +123,7 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
   const handleNext = () => {
     if (currentQuestion < questions.length - 1) {
       const currentQ = questions[currentQuestion]
+      if (!currentQ) return;
       if (!validateQuestion(currentQ)) {
         setErrors(prev => ({ ...prev, [currentQ.id]: 'This question is required' }))
         return
@@ -331,6 +332,8 @@ export const SurveyForm: React.FC<SurveyFormProps> = ({
 
   if (layout === 'multi-step') {
     const currentQ = questions[currentQuestion]
+    if (!currentQ) return null
+    
     const progress = ((currentQuestion + 1) / questions.length) * 100
 
     return (

@@ -3,13 +3,15 @@
 import React, { useState } from 'react'
 import { cn } from '@/lib/utils'
 
+export interface TabItem {
+  id: string
+  label: string
+  content: React.ReactNode
+  disabled?: boolean
+}
+
 export interface TabsProps {
-  tabs: Array<{
-    id: string
-    label: string
-    content: React.ReactNode
-    disabled?: boolean
-  }>
+  tabs: TabItem[]
   defaultTab?: string
   orientation?: 'horizontal' | 'vertical'
   variant?: 'default' | 'pills' | 'underline' | 'cards'
@@ -118,14 +120,16 @@ export const Tabs: React.FC<TabsProps> = ({
   return (
     <div className="w-full">
       <div className={getContainerClasses()}>
-        {tabs.map((tab) => (
+        {tabs.map((tab) => {
+          const isDisabled = 'disabled' in tab ? tab.disabled : false
+          return (
           <button
             key={tab.id}
-            onClick={() => !tab.disabled && setActiveTab(tab.id)}
-            disabled={tab.disabled}
+            onClick={() => !isDisabled && setActiveTab(tab.id)}
+            disabled={isDisabled}
             className={cn(
               getTabClasses(tab.id),
-              tab.disabled && 'opacity-50 cursor-not-allowed'
+              isDisabled && 'opacity-50 cursor-not-allowed'
             )}
             role="tab"
             aria-selected={activeTab === tab.id}
@@ -133,7 +137,8 @@ export const Tabs: React.FC<TabsProps> = ({
           >
             {tab.label}
           </button>
-        ))}
+          )
+        })}
       </div>
       
       <div 

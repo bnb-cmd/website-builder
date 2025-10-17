@@ -158,11 +158,11 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
     return (
       <div className="flex gap-4 justify-center">
         {timeUnits.map((unit) => {
-          const percentage = unit.showSeconds ? 
+          const percentage = unit.label === 'Seconds' ? 
             (unit.value / 60) * 100 : 
-            unit.showMinutes ? 
+            unit.label === 'Minutes' ? 
             (unit.value / 60) * 100 :
-            unit.showHours ?
+            unit.label === 'Hours' ?
             (unit.value / 24) * 100 :
             (unit.value / 365) * 100
 

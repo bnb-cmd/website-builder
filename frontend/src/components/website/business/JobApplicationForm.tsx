@@ -537,7 +537,7 @@ export const JobApplicationForm: React.FC<JobApplicationFormProps> = ({
             <input
               type="file"
               accept=".pdf,.doc,.docx"
-              onChange={(e) => handleInputChange('resumeFile', e.target.files?.[0] || null)}
+              onChange={(e) => handleInputChange('resumeFile', e.target.files?.[0] || '')}
               className={inputClass}
             />
           </div>
@@ -866,7 +866,7 @@ export const JobApplicationForm: React.FC<JobApplicationFormProps> = ({
             <input
               type="file"
               accept=".pdf,.doc,.docx"
-              onChange={(e) => handleInputChange('resumeFile', e.target.files?.[0] || null)}
+              onChange={(e) => handleInputChange('resumeFile', e.target.files?.[0] || '')}
               className={inputClass}
             />
           </div>

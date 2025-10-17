@@ -9,21 +9,18 @@ interface AvatarProps extends React.ComponentProps<typeof AvatarPrimitiveRoot> {
   className?: string;
 }
 
-const Avatar = React.forwardRef<React.ElementRef<typeof AvatarPrimitiveRoot>, AvatarProps>(
-  ({ className, ...props }, ref) => {
-    return (
-      <AvatarPrimitiveRoot
-        ref={ref}
-        data-slot="avatar"
-        className={cn(
-          "relative flex size-10 shrink-0 overflow-hidden rounded-full",
-          className,
-        )}
-        {...props}
-      />
-    );
-  }
-);
+const Avatar = ({ className, ...props }: AvatarProps) => {
+  return (
+    <AvatarPrimitiveRoot
+      data-slot="avatar"
+      className={cn(
+        "relative flex size-10 shrink-0 overflow-hidden rounded-full",
+        className,
+      )}
+      {...props}
+    />
+  );
+};
 
 Avatar.displayName = "Avatar";
 
@@ -31,18 +28,15 @@ interface AvatarImageProps extends React.ComponentProps<typeof AvatarPrimitiveIm
   className?: string;
 }
 
-const AvatarImage = React.forwardRef<React.ElementRef<typeof AvatarPrimitiveImage>, AvatarImageProps>(
-  ({ className, ...props }, ref) => {
-    return (
-      <AvatarPrimitiveImage
-        ref={ref}
-        data-slot="avatar-image"
-        className={cn("aspect-square size-full", className)}
-        {...props}
-      />
-    );
-  }
-);
+const AvatarImage = ({ className, ...props }: AvatarImageProps) => {
+  return (
+    <AvatarPrimitiveImage
+      data-slot="avatar-image"
+      className={cn("aspect-square size-full", className)}
+      {...props}
+    />
+  );
+};
 
 AvatarImage.displayName = "AvatarImage";
 
@@ -50,21 +44,18 @@ interface AvatarFallbackProps extends React.ComponentProps<typeof AvatarPrimitiv
   className?: string;
 }
 
-const AvatarFallback = React.forwardRef<React.ElementRef<typeof AvatarPrimitiveFallback>, AvatarFallbackProps>(
-  ({ className, ...props }, ref) => {
-    return (
-      <AvatarPrimitiveFallback
-        ref={ref}
-        data-slot="avatar-fallback"
-        className={cn(
-          "bg-muted flex size-full items-center justify-center rounded-full",
-          className,
-        )}
-        {...props}
-      />
-    );
-  }
-);
+const AvatarFallback = ({ className, ...props }: AvatarFallbackProps) => {
+  return (
+    <AvatarPrimitiveFallback
+      data-slot="avatar-fallback"
+      className={cn(
+        "bg-muted flex size-full items-center justify-center rounded-full",
+        className,
+      )}
+      {...props}
+    />
+  );
+};
 
 AvatarFallback.displayName = "AvatarFallback";
 

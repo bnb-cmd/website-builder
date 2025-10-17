@@ -83,6 +83,8 @@ export const BeforeAfter: React.FC<BeforeAfterProps> = ({
 
     const rect = containerRef.current.getBoundingClientRect()
     const touch = e.touches[0]
+    if (!touch) return
+    
     let newPosition: number
 
     if (orientation === 'horizontal') {

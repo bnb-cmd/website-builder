@@ -26,7 +26,10 @@ export const LazyLoad: React.FC<LazyLoadProps> = ({
 
   useEffect(() => {
     const observer = new IntersectionObserver(
-      ([entry]) => {
+      (entries) => {
+        const entry = entries[0]
+        if (!entry) return
+        
         if (entry.isIntersecting) {
           setIsVisible(true)
           if (once) {

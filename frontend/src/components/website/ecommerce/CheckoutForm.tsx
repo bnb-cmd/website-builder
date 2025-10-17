@@ -98,13 +98,16 @@ export const CheckoutForm: React.FC<CheckoutFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const handleInputChange = (section: string, field: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      [section]: {
-        ...prev[section as keyof typeof prev],
-        [field]: value
+    setFormData(prev => {
+      const sectionData = prev[section as keyof typeof prev] as Record<string, any> || {}
+      return {
+        ...prev,
+        [section]: {
+          ...sectionData,
+          [field]: value
+        }
       }
-    }))
+    })
   }
 
   const handleSameAsShippingChange = (checked: boolean) => {

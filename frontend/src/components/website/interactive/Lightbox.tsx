@@ -39,7 +39,12 @@ export const Lightbox: React.FC<LightboxProps> = ({
   const [zoomLevel, setZoomLevel] = useState(1)
   const [isAutoplaying, setIsAutoplaying] = useState(autoplay)
 
-  const currentImage = images[currentIndex]
+  const currentImage = images[currentIndex] ?? images[0]
+  
+  // Early return if no images
+  if (!currentImage) {
+    return null
+  }
 
   const openLightbox = (index: number) => {
     setCurrentIndex(index)
@@ -71,14 +76,15 @@ export const Lightbox: React.FC<LightboxProps> = ({
   }
 
   const handleDownload = () => {
-    if (currentImage.downloadUrl || currentImage.src) {
-      const link = document.createElement('a')
-      link.href = currentImage.downloadUrl || currentImage.src
-      link.download = currentImage.alt || 'image'
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-    }
+    if (!currentImage) return;
+    if (!currentImage.downloadUrl && !currentImage.src) return;
+    
+    const link = document.createElement('a')
+    link.href = currentImage.downloadUrl || currentImage.src
+    link.download = currentImage.alt || 'image'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
   }
 
   // Keyboard navigation

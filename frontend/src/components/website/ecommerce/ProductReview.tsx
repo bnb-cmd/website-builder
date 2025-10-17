@@ -189,7 +189,7 @@ export const ProductReview: React.FC<ProductReviewProps> = ({
 
           {showImages && review.images && review.images.length > 0 && (
             <div className="flex gap-2 mb-3">
-              {review.images.map((image, index) => (
+              {review.images.map((image: string, index: number) => (
                 <img
                   key={index}
                   src={image}

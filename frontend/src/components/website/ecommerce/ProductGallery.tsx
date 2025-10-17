@@ -118,8 +118,11 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   }
 
   const handleDownload = () => {
+    const currentMedia = displayedMedia[currentIndex]
+    if (!currentMedia) return
+    
     const link = document.createElement('a')
-    link.href = displayedMedia[currentIndex].src
+    link.href = currentMedia.src
     link.download = `${product.name}-${currentIndex + 1}.jpg`
     link.click()
   }
@@ -181,14 +184,14 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
       <div className="relative aspect-square bg-gray-100 rounded-lg overflow-hidden">
         {displayedMedia[currentIndex]?.type === 'image' ? (
           <img
-            src={displayedMedia[currentIndex].src}
+            src={displayedMedia[currentIndex]?.src || ''}
             alt={`${product.name} ${currentIndex + 1}`}
             className="w-full h-full object-cover cursor-pointer"
             onClick={() => handleImageClick(currentIndex)}
           />
         ) : (
           <video
-            src={displayedMedia[currentIndex].src}
+            src={displayedMedia[currentIndex]?.src || ''}
             className="w-full h-full object-cover cursor-pointer"
             onClick={() => handleVideoClick(currentIndex)}
             controls
@@ -324,13 +327,13 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         <div className="max-w-4xl max-h-full p-4">
           {displayedMedia[currentIndex]?.type === 'image' ? (
             <img
-              src={displayedMedia[currentIndex].src}
+              src={displayedMedia[currentIndex]?.src || ''}
               alt={`${product.name} ${currentIndex + 1}`}
               className="max-w-full max-h-full object-contain"
             />
           ) : (
             <video
-              src={displayedMedia[currentIndex].src}
+              src={displayedMedia[currentIndex]?.src || ''}
               className="max-w-full max-h-full"
               controls
               autoPlay
