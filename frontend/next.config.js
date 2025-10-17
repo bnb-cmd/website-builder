@@ -11,12 +11,20 @@ const nextConfig = {
       '.next/server/chunks/**/*',
     ],
   },
-  webpack: (config, { isServer }) => {
+  webpack: (config, { isServer, dev }) => {
     // Ignore macOS metadata files
     config.module.rules.push({
       test: /\._/,
       use: 'ignore-loader',
     })
+    
+    // Fix React Refresh issue with React 19
+    if (dev && !isServer) {
+      config.resolve.alias = {
+        ...config.resolve.alias,
+        'react-refresh': false,
+      }
+    }
     
     // Optimize bundle size for Cloudflare Pages
     if (!isServer) {
