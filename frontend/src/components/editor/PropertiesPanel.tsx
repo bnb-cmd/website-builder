@@ -54,7 +54,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
     return (
       <div className={cn(
         "bg-background border-l transition-all duration-300",
-        collapsed ? "w-16" : "w-64 lg:w-72 xl:w-80"
+        collapsed ? "w-16" : "w-80"
       )}>
         <div className="p-6 text-center">
           <Settings className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
@@ -376,37 +376,44 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   return (
     <div className={cn(
       "bg-background border-l transition-all duration-300",
-      collapsed ? "w-16" : "w-64 lg:w-72 xl:w-80"
+      collapsed ? "w-16" : "w-80"
     )}>
       <div className="p-4 border-b">
-        <div className="flex items-center justify-between">
-          {!collapsed && (
-            <>
-              <div className="flex items-center space-x-2">
-                <Type className="w-4 h-4" />
-                <h2 className="font-semibold">Properties</h2>
-              </div>
-              <Badge variant="outline">{selectedComponent.type}</Badge>
-            </>
-          )}
-          {collapsed && (
-            <div className="flex flex-col items-center space-y-2">
-              <Settings className="w-5 h-5 text-gray-600" />
-              <span className="text-xs text-gray-500 font-medium">Properties</span>
+        {!collapsed ? (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <Type className="w-4 h-4" />
+              <h2 className="font-semibold">Properties</h2>
             </div>
-          )}
-          {onToggleCollapse && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onToggleCollapse}
-              className="h-8 w-8 p-0"
-              title={collapsed ? "Expand properties" : "Collapse properties"}
-            >
-              {collapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-            </Button>
-          )}
-        </div>
+            <Badge variant="outline">{selectedComponent.type}</Badge>
+            {onToggleCollapse && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleCollapse}
+                className="h-8 w-8 p-0"
+                title={collapsed ? "Expand properties" : "Collapse properties"}
+              >
+                {collapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="flex items-center justify-center space-x-2">
+            <Settings className="w-6 h-6 text-blue-600" />
+            {onToggleCollapse && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleCollapse}
+                className="h-6 w-6 p-0"
+                title={collapsed ? "Expand properties" : "Collapse properties"}
+              >
+                {collapsed ? <ChevronLeft className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
+              </Button>
+            )}
+          </div>
+        )}
       </div>
       
       {!collapsed && (

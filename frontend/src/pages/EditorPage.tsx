@@ -675,7 +675,7 @@ const EditorPage: React.FC = () => {
         <div className="flex flex-1 overflow-hidden">
           {/* Component Palette */}
           {!isPreviewMode && (
-            <div className={`transition-all duration-300 ${paletteCollapsed ? 'w-12' : 'w-80'} flex-shrink-0`}>
+            <div className={`transition-all duration-300 ${paletteCollapsed ? 'w-16' : 'w-80'} flex-shrink-0`}>
               <ComponentPalette 
                 onComponentDragStart={handleComponentDragStart} 
                 onSaveAsTemplate={handleSaveAsTemplate} 
@@ -719,7 +719,7 @@ const EditorPage: React.FC = () => {
 
           {/* Properties Panel */}
           {!isPreviewMode && (
-            <div className={`transition-all duration-300 ${propertiesCollapsed ? 'w-12' : 'w-80'} flex-shrink-0`}>
+            <div className={`transition-all duration-300 ${propertiesCollapsed ? 'w-16' : 'w-80'} flex-shrink-0`}>
               <PropertiesPanel
                 selectedComponent={selectedComponent}
                 onComponentUpdate={handleComponentUpdate}
