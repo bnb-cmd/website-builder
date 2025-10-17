@@ -3,7 +3,7 @@ import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
 import { cn } from '@/lib/utils'
 import { getResponsivePadding, getResponsiveTextSize } from '../renderer'
 
-export const TabsConfig: ComponentConfig = {
+export const ContentTabsConfig: ComponentConfig = {
   id: 'tabs',
   name: 'Tabs',
   category: 'content',

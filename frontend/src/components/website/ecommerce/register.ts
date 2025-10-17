@@ -1,16 +1,16 @@
 import { registerComponent } from '../registry'
+
+// Only import components that actually exist and have configs
 import { 
   ProductGrid, 
   ProductGridConfig,
-  WebsiteShoppingCart,
+  ShoppingCart,
   ShoppingCartConfig,
-  PricingCard,
-  PricingCardConfig,
-  WebsiteProductCard,
+  ProductCard,
   ProductCardConfig,
   WebsiteCategoryFilter,
   CategoryFilterConfig,
-  WebsiteWishlist,
+  Wishlist,
   WishlistConfig,
   WebsiteCheckout,
   CheckoutConfig,
@@ -29,8 +29,11 @@ import {
   PaymentMethods,
   PaymentMethodsConfig,
   CourseGrid,
-  CourseGridConfig,
-  // New Week 2 Components
+  CourseGridConfig
+} from './index'
+
+// Import Week 2 components that have configs
+import { 
   ProductFilter,
   ProductFilterConfig,
   ProductQuickView,
@@ -41,14 +44,8 @@ import {
   PaymentMethodConfig,
   OrderTracking,
   OrderTrackingConfig,
-  ProductCard,
-  ProductCardConfig as NewProductCardConfig,
-  Wishlist,
-  WishlistConfig as NewWishlistConfig,
   ProductReview,
   ProductReviewConfig,
-  ShoppingCart,
-  ShoppingCartConfig as NewShoppingCartConfig,
   CheckoutForm,
   CheckoutFormConfig,
   ReviewForm,
@@ -73,11 +70,10 @@ import {
 
 // Register existing ecommerce components
 registerComponent(ProductGridConfig, ProductGrid)
-registerComponent(ShoppingCartConfig, WebsiteShoppingCart)
-registerComponent(PricingCardConfig, PricingCard)
-registerComponent(ProductCardConfig, WebsiteProductCard)
+registerComponent(ShoppingCartConfig, ShoppingCart)
+registerComponent(ProductCardConfig, ProductCard)
 registerComponent(CategoryFilterConfig, WebsiteCategoryFilter)
-registerComponent(WishlistConfig, WebsiteWishlist)
+registerComponent(WishlistConfig, Wishlist)
 registerComponent(CheckoutConfig, WebsiteCheckout)
 registerComponent(OrderSummaryConfig, WebsiteOrderSummary)
 registerComponent(PaymentFormConfig, WebsitePaymentForm)
@@ -94,10 +90,7 @@ registerComponent(ProductQuickViewConfig, ProductQuickView)
 registerComponent(CartItemConfig, CartItem)
 registerComponent(PaymentMethodConfig, PaymentMethod)
 registerComponent(OrderTrackingConfig, OrderTracking)
-registerComponent(NewProductCardConfig, ProductCard)
-registerComponent(NewWishlistConfig, Wishlist)
 registerComponent(ProductReviewConfig, ProductReview)
-registerComponent(NewShoppingCartConfig, ShoppingCart)
 registerComponent(CheckoutFormConfig, CheckoutForm)
 registerComponent(ReviewFormConfig, ReviewForm)
 registerComponent(ProductComparisonConfig, ProductComparison)

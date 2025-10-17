@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useRef, useEffect, useCallback } from 'react'
-import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, DragOverlay, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { DndContext, DragEndEvent, DragOverEvent, DragStartEvent, DragOverlay, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, useDroppable } from '@dnd-kit/core'
 import { SortableContext, sortableKeyboardCoordinates, verticalListSortingStrategy, arrayMove } from '@dnd-kit/sortable'
 import { restrictToWindowEdges, snapCenterToCursor } from '@dnd-kit/modifiers'
 import { Card } from '../ui/card'
@@ -64,6 +64,11 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
   const canvasRef = useRef<HTMLDivElement>(null)
   const [draggedComponent, setDraggedComponent] = useState<ComponentNode | null>(null)
   const [isDragOver, setIsDragOver] = useState(false)
+
+  // Make canvas droppable
+  const { setNodeRef: setDroppableRef, isOver } = useDroppable({
+    id: 'canvas'
+  })
   const [isMovingComponent, setIsMovingComponent] = useState(false)
   const [isResizingComponent, setIsResizingComponent] = useState(false)
   const [resizeHandle, setResizeHandle] = useState<string | null>(null)
@@ -598,11 +603,15 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
           modifiers={[restrictToWindowEdges, snapCenterToCursor]}
         >
           <div
-            ref={canvasRef}
+            ref={(node) => {
+              canvasRef.current = node
+              setDroppableRef(node)
+            }}
             id="canvas"
             className={cn(
               "relative mx-auto bg-white shadow-lg",
               "border border-gray-200",
+              isOver && "border-blue-400 bg-blue-50",
               pageSchema.settings.direction === 'rtl' && "rtl"
             )}
             style={{

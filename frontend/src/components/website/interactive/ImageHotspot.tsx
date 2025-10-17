@@ -32,7 +32,7 @@ export const ImageHotspot: React.FC<ImageHotspotProps> = ({
   imageAlt = 'Interactive image with hotspots'
 }) => {
   const [activeHotspot, setActiveHotspot] = useState<string | null>(null)
-  const [tooltipPosition, setTooltipPosition] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
+  const [tooltipCoords, setTooltipCoords] = useState<{ x: number; y: number }>({ x: 0, y: 0 })
   const imageRef = useRef<HTMLDivElement>(null)
 
   const sizeClasses = {
@@ -47,7 +47,7 @@ export const ImageHotspot: React.FC<ImageHotspotProps> = ({
     
     if (imageRef.current) {
       const rect = imageRef.current.getBoundingClientRect()
-      setTooltipPosition({
+      setTooltipCoords({
         x: event.clientX - rect.left,
         y: event.clientY - rect.top
       })

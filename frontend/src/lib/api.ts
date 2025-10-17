@@ -1,7 +1,7 @@
 import axios from 'axios'
 
-// Use relative URLs in development to leverage Next.js rewrites
-const API_BASE_URL = process.env.NODE_ENV === 'development' ? '' : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005')
+// Use Railway backend URL for all environments
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://website-builder-production-e38b.up.railway.app/api/v1'
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -132,6 +132,11 @@ export const apiHelpers = {
 
   getTemplate: async (id: string) => {
     const response = await api.get(`/v1/templates/${id}`)
+    return response.data
+  },
+
+  createTemplate: async (data: any) => {
+    const response = await api.post('/v1/templates', data)
     return response.data
   },
 
@@ -309,6 +314,27 @@ export const apiHelpers = {
 
   changePassword: async (data: { currentPassword: string; newPassword: string }) => {
     const response = await api.put('/v1/auth/change-password', data)
+    return response.data
+  },
+
+  deleteAccount: async () => {
+    const response = await api.delete('/v1/auth/account')
+    return response.data
+  },
+
+  // OAuth endpoints
+  googleAuth: async (code: string) => {
+    const response = await api.post('/v1/auth/google', { code })
+    return response.data
+  },
+
+  facebookAuth: async (code: string) => {
+    const response = await api.post('/v1/auth/facebook', { code })
+    return response.data
+  },
+
+  getOAuthUrl: async (provider: 'google' | 'facebook') => {
+    const response = await api.get(`/v1/auth/${provider}/url`)
     return response.data
   },
 

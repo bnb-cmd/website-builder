@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from 'react'
+import { useDraggable } from '@dnd-kit/core'
 import { Card } from '../ui/card'
 import { Button } from '../ui/button'
 import { Badge } from '../ui/badge'
@@ -10,14 +11,15 @@ import { Separator } from '../ui/separator'
 import { cn } from '../../lib/utils'
 import { ComponentMetadata } from '@/lib/component-config'
 import { ComponentNode, PageSchema } from '../../lib/schema'
-import { 
+import { getComponentRegistry, getComponentsByCategory } from '../website/registry'
+import {
   Search,
   Plus,
   Layout,
-  Type, 
+  Type,
   ShoppingCart,
   FileText,
-  Image, 
+  Image,
   Video,
   Music,
   MapPin,
@@ -49,13 +51,221 @@ import {
   Edit,
   Save,
   Folder,
-  Tag
+  Tag,
+  Building,
+  ChevronDown,
+  ChevronRight,
+  Image as Images,
+  Timer,
+  Layers,
+  Square,
+  BarChart3,
+  Star as StarIcon,
+  Share2,
+  ArrowUp,
+  StickyNote,
+  ScrollText,
+  MousePointer,
+  Loader,
+  Grid3X3 as Grid3X3Icon,
+  CreditCard,
+  Package,
+  Filter,
+  Eye as EyeIcon,
+  ShoppingBag,
+  Star as Review,
+  GitCompare as Compare,
+  Search as SearchIcon,
+  Lightbulb,
+  Gift,
+  Palette as PaletteIcon,
+  FileText as FileTextIcon,
+  Truck,
+  CheckCircle,
+  ShoppingCart as ShoppingCartIcon,
+  User,
+  Clock,
+  MapPin as MapPinIcon,
+  Phone as PhoneIcon,
+  Mail as MailIcon,
+  Globe as GlobeIcon,
+  Calendar as CalendarIcon,
+  Users as UsersIcon,
+  MessageCircle as MessageCircleIcon,
+  Heart as HeartIcon,
+  Star as StarIcon2,
+  Music as MusicIcon,
+  Video as VideoIcon,
+  Image as ImageIcon,
+  FileText as FileTextIcon2,
+  Plus as PlusIcon,
+  Download as DownloadIcon,
+  Upload as UploadIcon,
+  Settings as SettingsIcon,
+  Code as CodeIcon,
+  Database as DatabaseIcon,
+  BarChart as BarChartIcon,
+  PieChart as PieChartIcon,
+  TrendingUp as TrendingUpIcon,
+  Shield as ShieldIcon,
+  Lock as LockIcon,
+  Unlock as UnlockIcon,
+  Eye as EyeIcon2,
+  EyeOff as EyeOffIcon,
+  Copy as CopyIcon,
+  Trash2 as Trash2Icon,
+  Edit as EditIcon,
+  Save as SaveIcon,
+  Folder as FolderIcon,
+  Tag as TagIcon,
+  Building as BuildingIcon,
+  DollarSign,
+  Play
 } from 'lucide-react'
 
 interface ComponentPaletteProps {
   onComponentDragStart: (component: ComponentMetadata) => void
   onSaveAsTemplate: (components: ComponentNode[]) => void
   pageSchema: PageSchema
+}
+
+// Icon mapping function
+const getIconComponent = (iconName: string) => {
+  const iconMap: Record<string, React.ComponentType<any>> = {
+    // Layout icons
+    'layout': Layout,
+    'grid': Grid3X3Icon,
+    'container': Square,
+    'section': Layers,
+    
+    // Content icons
+    'text': Type,
+    'heading': Type,
+    'paragraph': FileText,
+    'list': FileText,
+    'quote': MessageCircle,
+    'accordion': Layers,
+    'tabs': Layers,
+    'timeline': Clock,
+    'faq': MessageCircle,
+    
+    // Business icons
+    'contact': Phone,
+    'form': FileText,
+    'team': Users,
+    'service': Settings,
+    'pricing': DollarSign,
+    'about': User,
+    'testimonial': Star,
+    'feature': CheckCircle,
+    'cta': ArrowUp,
+    'stats': BarChart3,
+    'map': MapPin,
+    'hours': Clock,
+    'reviews': Star,
+    'location': MapPin,
+    'appointment': Calendar,
+    'newsletter': Mail,
+    'job': Users,
+    'event': Calendar,
+    'feedback': MessageCircle,
+    'survey': FileText,
+    'lead': User,
+    
+    // E-commerce icons
+    'product': Package,
+    'cart': ShoppingCart,
+    'checkout': CreditCard,
+    'payment': CreditCard,
+    'shipping': Truck,
+    'order': Package,
+    'wishlist': Heart,
+    'review': Star,
+    'filter': Filter,
+    'search': Search,
+    'comparison': Compare,
+    'recommendation': Lightbulb,
+    'bundle': Gift,
+    'variant': Settings,
+    'gallery': Images,
+    'specification': FileText,
+    'category': Tag,
+    
+    // Media icons
+    'image': Image,
+    'video': Video,
+    'audio': Music,
+    'gallery': Images,
+    'player': Play,
+    'lightbox': Eye,
+    'carousel': Images,
+    'slider': Images,
+    
+    // Interactive icons
+    'carousel': Images,
+    'timer': Timer,
+    'tabs': Layers,
+    'modal': Square,
+    'lightbox': Eye,
+    'beforeafter': Compare,
+    'progress': BarChart3,
+    'rating': Star,
+    'share': Share2,
+    'backtotop': ArrowUp,
+    'sticky': StickyNote,
+    'scroll': ScrollText,
+    'hotspot': MousePointer,
+    'parallax': Layers,
+    'lazy': Loader,
+    
+    // Default fallback
+    'default': Square
+  }
+  
+  return iconMap[iconName] || iconMap['default']
+}
+
+// Draggable Component Item
+const DraggableComponent: React.FC<{ component: ComponentMetadata }> = ({ component }) => {
+  const { attributes, listeners, setNodeRef, transform, isDragging } = useDraggable({
+    id: `palette-${component.config.id}`,
+    data: {
+      fromPalette: true,
+      id: component.config.id,
+      config: component.config
+    }
+  })
+
+  const style = transform ? {
+    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+  } : undefined
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...listeners}
+      {...attributes}
+      className={cn(
+        "p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 cursor-move transition-colors",
+        isDragging && "opacity-50"
+      )}
+    >
+      <div className="flex items-start space-x-3">
+        <div className="flex-shrink-0">
+          {React.createElement(getIconComponent(component.config.icon), { className: "w-5 h-5 text-gray-600" })}
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="text-sm font-medium text-gray-900 truncate">
+            {component.config.name}
+          </h4>
+          <p className="text-xs text-gray-500 mt-1 line-clamp-2">
+            {component.config.description}
+          </p>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 interface ComponentCategory {
@@ -71,305 +281,50 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
   pageSchema
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState<string>('layout')
   const [isExpanded, setIsExpanded] = useState(true)
+  const [collapsedCategories, setCollapsedCategories] = useState<Set<string>>(new Set())
 
-  // Component categories with enhanced metadata
+  // Get all registered components dynamically
+  const registry = getComponentRegistry()
+  const allComponents = Object.values(registry)
+  
+  // Group components by category
   const categories: ComponentCategory[] = [
     {
       id: 'layout',
       name: 'Layout',
-      icon: 'layout',
-      components: [
-        {
-          config: {
-            id: 'container',
-            name: 'Container',
-            description: 'Flexible container for grouping elements',
-            category: 'layout',
-            icon: 'layout',
-            defaultProps: {
-              padding: 20,
-              backgroundColor: '#ffffff',
-              borderRadius: 0,
-              maxWidth: 1200
-            },
-            defaultSize: { width: 100, height: 200 },
-            editableFields: ['padding', 'backgroundColor', 'borderRadius', 'maxWidth']
-          },
-          component: () => null
-        },
-        {
-          config: {
-            id: 'grid',
-            name: 'Grid',
-            description: 'CSS Grid layout system',
-            category: 'layout',
-            icon: 'layout',
-            defaultProps: {
-              columns: 3,
-              gap: 20,
-              alignItems: 'stretch'
-            },
-            defaultSize: { width: 100, height: 300 },
-            editableFields: ['columns', 'gap', 'alignItems']
-          },
-          component: () => null
-        },
-        {
-          config: {
-            id: 'flexbox',
-            name: 'Flexbox',
-            description: 'Flexible box layout',
-            category: 'layout',
-            icon: 'layout',
-            defaultProps: {
-              direction: 'row',
-              justifyContent: 'flex-start',
-              alignItems: 'stretch',
-              gap: 20
-            },
-            defaultSize: { width: 100, height: 200 },
-            editableFields: ['direction', 'justifyContent', 'alignItems', 'gap']
-          },
-          component: () => null
-        }
-      ]
+      icon: <Layout className="w-4 h-4" />,
+      components: getComponentsByCategory('layout')
     },
     {
       id: 'content',
       name: 'Content',
-      icon: 'type',
-      components: [
-        {
-          config: {
-            id: 'hero',
-            name: 'Hero Section',
-            description: 'Eye-catching hero section with title and CTA',
-            category: 'content',
-            icon: 'star',
-            defaultProps: {
-              title: 'Welcome to Our Website',
-              subtitle: 'Create amazing experiences',
-              buttonText: 'Get Started',
-              buttonUrl: '#',
-              backgroundImage: '',
-              textColor: '#ffffff',
-              buttonColor: '#3b82f6'
-            },
-            defaultSize: { width: 100, height: 400 },
-            editableFields: ['title', 'subtitle', 'buttonText', 'buttonUrl', 'backgroundImage', 'textColor', 'buttonColor']
-          },
-          component: () => null
-        },
-        {
-          config: {
-            id: 'features',
-            name: 'Features Grid',
-            description: 'Showcase your key features',
-            category: 'content',
-            icon: 'zap',
-            defaultProps: {
-              title: 'Our Features',
-              features: [
-                { title: 'Feature 1', description: 'Description of feature 1', icon: 'star' },
-                { title: 'Feature 2', description: 'Description of feature 2', icon: 'heart' },
-                { title: 'Feature 3', description: 'Description of feature 3', icon: 'shield' }
-              ],
-              columns: 3
-            },
-            defaultSize: { width: 100, height: 500 },
-            editableFields: ['title', 'features', 'columns']
-          },
-          component: () => null
-        },
-        {
-          config: {
-            id: 'testimonials',
-            name: 'Testimonials',
-            description: 'Customer testimonials and reviews',
-            category: 'content',
-            icon: 'message-circle',
-            defaultProps: {
-              title: 'What Our Customers Say',
-              testimonials: [
-                { name: 'John Doe', role: 'CEO', company: 'Company Inc.', content: 'Amazing service!', rating: 5 },
-                { name: 'Jane Smith', role: 'Manager', company: 'Corp Ltd.', content: 'Highly recommended!', rating: 5 }
-              ]
-            },
-            defaultSize: { width: 100, height: 400 },
-            editableFields: ['title', 'testimonials']
-          },
-          component: () => null
-        },
-        {
-          config: {
-            id: 'blog',
-            name: 'Blog Grid',
-            description: 'Display blog posts in a grid layout',
-            category: 'content',
-            icon: 'file-text',
-            defaultProps: {
-              title: 'Latest Blog Posts',
-              posts: [
-                { title: 'Post 1', excerpt: 'Excerpt of post 1', date: '2024-01-01', image: '' },
-                { title: 'Post 2', excerpt: 'Excerpt of post 2', date: '2024-01-02', image: '' }
-              ],
-              columns: 3
-            },
-            defaultSize: { width: 100, height: 600 },
-            editableFields: ['title', 'posts', 'columns']
-          },
-          component: () => null
-        }
-      ]
+      icon: <Type className="w-4 h-4" />,
+      components: getComponentsByCategory('content')
+    },
+    {
+      id: 'business',
+      name: 'Business',
+      icon: <Building className="w-4 h-4" />,
+      components: getComponentsByCategory('business')
     },
     {
       id: 'ecommerce',
       name: 'E-commerce',
-      icon: 'shopping-cart',
-      components: [
-        {
-          config: {
-            id: 'product-grid',
-            name: 'Product Grid',
-            description: 'Display products in a grid layout',
-            category: 'ecommerce',
-            icon: 'shopping-cart',
-            defaultProps: {
-              title: 'Our Products',
-              products: [
-                { name: 'Product 1', price: 99, image: '', description: 'Product description' },
-                { name: 'Product 2', price: 149, image: '', description: 'Product description' }
-              ],
-              columns: 3,
-              showPrices: true,
-              showAddToCart: true
-            },
-            defaultSize: { width: 100, height: 600 },
-            editableFields: ['title', 'products', 'columns', 'showPrices', 'showAddToCart']
-          },
-          component: () => null
-        },
-        {
-          config: {
-            id: 'pricing-table',
-            name: 'Pricing Table',
-            description: 'Display pricing plans',
-            category: 'ecommerce',
-            icon: 'bar-chart',
-            defaultProps: {
-              title: 'Choose Your Plan',
-              plans: [
-                { name: 'Basic', price: 29, features: ['Feature 1', 'Feature 2'], popular: false },
-                { name: 'Pro', price: 59, features: ['Feature 1', 'Feature 2', 'Feature 3'], popular: true },
-                { name: 'Enterprise', price: 99, features: ['All Features'], popular: false }
-              ]
-            },
-            defaultSize: { width: 100, height: 500 },
-            editableFields: ['title', 'plans']
-          },
-          component: () => null
-        }
-      ]
-    },
-    {
-      id: 'forms',
-      name: 'Forms',
-      icon: 'file-text',
-      components: [
-        {
-          config: {
-            id: 'contact-form',
-            name: 'Contact Form',
-            description: 'Contact form with validation',
-            category: 'content',
-            icon: 'mail',
-            defaultProps: {
-              title: 'Get In Touch',
-              fields: [
-                { name: 'name', label: 'Name', type: 'text', required: true },
-                { name: 'email', label: 'Email', type: 'email', required: true },
-                { name: 'message', label: 'Message', type: 'textarea', required: true }
-              ],
-              submitText: 'Send Message',
-              successMessage: 'Thank you for your message!'
-            },
-            defaultSize: { width: 100, height: 400 },
-            editableFields: ['title', 'fields', 'submitText', 'successMessage']
-          },
-          component: () => null
-        },
-        {
-          config: {
-            id: 'newsletter',
-            name: 'Newsletter Signup',
-            description: 'Email newsletter subscription form',
-            category: 'content',
-            icon: 'mail',
-            defaultProps: {
-              title: 'Subscribe to Our Newsletter',
-              description: 'Get the latest updates and news',
-              placeholder: 'Enter your email',
-              buttonText: 'Subscribe',
-              successMessage: 'Thank you for subscribing!'
-            },
-            defaultSize: { width: 100, height: 200 },
-            editableFields: ['title', 'description', 'placeholder', 'buttonText', 'successMessage']
-          },
-          component: () => null
-        }
-      ]
+      icon: <ShoppingCart className="w-4 h-4" />,
+      components: getComponentsByCategory('ecommerce')
     },
     {
       id: 'media',
       name: 'Media',
-      icon: 'image',
-      components: [
-        {
-          config: {
-            id: 'gallery',
-            name: 'Image Gallery',
-            description: 'Responsive image gallery with lightbox',
-            category: 'media',
-            icon: 'image',
-            defaultProps: {
-              title: 'Our Gallery',
-              images: [
-                { src: '', alt: 'Image 1', caption: 'Caption 1' },
-                { src: '', alt: 'Image 2', caption: 'Caption 2' }
-              ],
-              columns: 3,
-              aspectRatio: '4:3',
-              showCaptions: true,
-              lightbox: true
-            },
-            defaultSize: { width: 100, height: 500 },
-            editableFields: ['title', 'images', 'columns', 'aspectRatio', 'showCaptions', 'lightbox']
-          },
-          component: () => null
-        },
-        {
-          config: {
-            id: 'video',
-            name: 'Video Player',
-            description: 'Embedded video player',
-            category: 'media',
-            icon: 'video',
-            defaultProps: {
-              title: 'Watch Our Video',
-              videoUrl: '',
-              posterImage: '',
-              autoplay: false,
-              controls: true,
-              loop: false
-            },
-            defaultSize: { width: 100, height: 400 },
-            editableFields: ['title', 'videoUrl', 'posterImage', 'autoplay', 'controls', 'loop']
-          },
-          component: () => null
-        }
-      ]
+      icon: <Image className="w-4 h-4" />,
+      components: getComponentsByCategory('media')
+    },
+    {
+      id: 'interactive',
+      name: 'Interactive',
+      icon: <Zap className="w-4 h-4" />,
+      components: getComponentsByCategory('interactive')
     }
   ]
 
@@ -382,15 +337,23 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
     )
   })).filter(category => category.components.length > 0)
 
-  const handleDragStart = (component: ComponentMetadata) => {
-    onComponentDragStart(component)
-  }
-
   const handleSaveAsTemplate = () => {
     onSaveAsTemplate(pageSchema.components)
   }
+
+  const toggleCategory = (categoryId: string) => {
+    setCollapsedCategories(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(categoryId)) {
+        newSet.delete(categoryId)
+      } else {
+        newSet.add(categoryId)
+      }
+      return newSet
+    })
+  }
             
-            return (
+  return (
     <Card className={cn(
       "w-80 bg-white border-r border-gray-200 flex flex-col transition-all duration-300",
       isExpanded ? "translate-x-0" : "translate-x-full"
@@ -434,61 +397,45 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
       {/* Categories */}
       <ScrollArea className="flex-1">
         <div className="p-4">
-          {/* Category Tabs */}
-          <div className="flex space-x-1 mb-4">
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? "default" : "ghost"}
-                size="sm"
-                onClick={() => setSelectedCategory(category.id)}
-                className="flex-1"
-              >
-                {category.icon}
-                <span className="ml-1 hidden sm:inline">{category.name}</span>
-              </Button>
-            ))}
-                              </div>
-                              
-          {/* Components */}
-          {filteredCategories
-            .filter(category => category.id === selectedCategory)
-            .map((category) => (
-              <div key={category.id} className="space-y-2">
-                <div className="flex items-center space-x-2 text-sm font-medium text-gray-700 mb-3">
-                  {category.icon}
-                  <span>{category.name}</span>
-                  <Badge variant="secondary" className="text-xs">
-                    {category.components.length}
-                                    </Badge>
-                                </div>
-                                
-                <div className="grid grid-cols-1 gap-2">
-                  {category.components.map((component) => (
-                    <div
-                      key={component.config.id}
-                      className="p-3 border border-gray-200 rounded-lg hover:border-blue-300 hover:bg-blue-50 cursor-move transition-colors"
-                      draggable
-                      onDragStart={() => handleDragStart(component)}
-                    >
-                      <div className="flex items-start space-x-3">
-                        <div className="flex-shrink-0">
-                          {component.config.icon}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <h4 className="text-sm font-medium text-gray-900 truncate">
-                            {component.config.name}
-                          </h4>
-                          <p className="text-xs text-gray-500 mt-1 line-clamp-2">
-                            {component.config.description}
-                                </p>
-                              </div>
-                            </div>
+          {/* Vertical Category List */}
+          <div className="space-y-4">
+            {filteredCategories.map((category) => {
+              const isCollapsed = collapsedCategories.has(category.id)
+              
+              return (
+                <div key={category.id} className="space-y-2">
+                  <div 
+                    className="flex items-center justify-between text-sm font-medium text-gray-700 mb-3 cursor-pointer hover:text-gray-900 transition-colors"
+                    onClick={() => toggleCategory(category.id)}
+                  >
+                    <div className="flex items-center space-x-2">
+                      {category.icon}
+                      <span>{category.name}</span>
+                      <Badge variant="secondary" className="text-xs">
+                        {category.components.length}
+                      </Badge>
                     </div>
-                  ))}
-                </div>
+                    {isCollapsed ? (
+                      <ChevronRight className="w-4 h-4" />
+                    ) : (
+                      <ChevronDown className="w-4 h-4" />
+                    )}
                   </div>
-            ))}
+                  
+                  {!isCollapsed && (
+                    <div className="grid grid-cols-1 gap-2">
+                      {category.components.map((component) => (
+                        <DraggableComponent 
+                          key={component.config.id}
+                          component={component}
+                        />
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
 
           {/* Empty State */}
           {filteredCategories.length === 0 && (

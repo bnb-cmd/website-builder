@@ -12,10 +12,10 @@ CREATE TABLE IF NOT EXISTS published_sites (
   version INTEGER DEFAULT 1,
   status TEXT DEFAULT 'active',
   tier TEXT DEFAULT 'free',
-  last_published DATETIME DEFAULT CURRENT_TIMESTAMP,
+  last_published TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   cache_ttl INTEGER DEFAULT 3600,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (website_id) REFERENCES websites(id) ON DELETE CASCADE
 );
 
@@ -28,8 +28,8 @@ CREATE TABLE IF NOT EXISTS custom_domains (
   ssl_enabled BOOLEAN DEFAULT true,
   dns_records TEXT,
   verification_token TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-  updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (published_site_id) REFERENCES published_sites(id) ON DELETE CASCADE
 );
 
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS dynamic_components (
   component_path TEXT NOT NULL,
   api_endpoint TEXT,
   cache_strategy TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (site_id) REFERENCES published_sites(id) ON DELETE CASCADE
 );
 
@@ -52,9 +52,9 @@ CREATE TABLE IF NOT EXISTS website_versions (
   version INTEGER NOT NULL,
   content TEXT,
   settings TEXT,
-  published_at DATETIME,
+  published_at TIMESTAMP,
   r2_path TEXT,
-  created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   FOREIGN KEY (website_id) REFERENCES websites(id) ON DELETE CASCADE
 );
 

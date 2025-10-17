@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react'
+import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
 import { Separator } from '../components/ui/separator'
@@ -47,6 +48,17 @@ const EditorPage: React.FC = () => {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [isLoadingTemplate, setIsLoadingTemplate] = useState(false)
   const [templateName, setTemplateName] = useState<string>('')
+  const [activeId, setActiveId] = useState<string | null>(null)
+
+  // DnD Kit sensors
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor)
+  )
   
   // Initialize pageSchema with default values
   const [pageSchema, setPageSchema] = useState<PageSchema>({
@@ -238,11 +250,96 @@ const EditorPage: React.FC = () => {
 
   const handleComponentDragStart = (component: ComponentMetadata) => {
     console.log('EditorPage: Dragging component:', component.config.name)
+    // The drag data will be set by the ComponentPalette component
   }
 
-  const handleSaveAsTemplate = (components: ComponentNode[]) => {
-    // TODO: Implement save as template functionality
-    console.log('Save as template:', components)
+  const handleDragStart = (event: DragStartEvent) => {
+    setActiveId(event.active.id as string)
+  }
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event
+    setActiveId(null)
+
+    if (!over) return
+
+    // Handle dropping from palette to canvas
+    if (active.data.current?.fromPalette && over.id === 'canvas') {
+      const componentData = active.data.current
+      const newComponent: ComponentNode = {
+        id: `${componentData.id}_${Date.now()}`,
+        type: componentData.id,
+        props: componentData.config.defaultProps || {},
+        layout: {
+          default: {
+            x: 50,
+            y: 50,
+            width: componentData.config.defaultSize?.width || 300,
+            height: componentData.config.defaultSize?.height || 200,
+            zIndex: components.length + 1,
+            locked: false,
+            visible: true
+          }
+        },
+        styles: {
+          default: {
+            position: 'absolute',
+            display: 'block'
+          }
+        },
+        visible: true,
+        locked: false,
+        language: pageSchema.settings.language,
+        direction: pageSchema.settings.direction
+      }
+
+      const newComponents = [...components, newComponent]
+      setComponents(newComponents)
+      setSelectedComponent(newComponent)
+      setHasUnsavedChanges(true)
+    }
+  }
+
+  const handleSaveAsTemplate = async (components: ComponentNode[]) => {
+    try {
+      const templateName = prompt('Enter template name:')
+      if (!templateName) return
+
+      const templateData = {
+        name: templateName,
+        description: `Custom template created from ${currentWebsite?.name || 'website'}`,
+        category: 'custom',
+        thumbnail: '', // Will be generated
+        elements: components.map(comp => ({
+          id: comp.id,
+          type: comp.type,
+          props: comp.props,
+          position: {
+            x: comp.layout.default.x,
+            y: comp.layout.default.y
+          },
+          width: comp.layout.default.width,
+          height: comp.layout.default.height,
+          style: comp.styles.default,
+          locked: comp.locked,
+          visible: comp.visible,
+          children: comp.children || []
+        })),
+        tags: ['custom', 'user-created'],
+        isPublic: false
+      }
+
+      const response = await apiHelpers.createTemplate(templateData)
+      
+      if (response.success) {
+        toast.success(`Template "${templateName}" saved successfully!`)
+      } else {
+        toast.error('Failed to save template')
+      }
+    } catch (error) {
+      console.error('Error saving template:', error)
+      toast.error('Error saving template')
+    }
   }
 
   const handleComponentUpdate = useCallback((updatedComponent: ComponentNode) => {
@@ -420,38 +517,55 @@ const EditorPage: React.FC = () => {
       </div>
 
       {/* Editor Content */}
-      <div className="flex flex-1 overflow-hidden">
-        {/* Component Palette */}
-        {!isPreviewMode && (
-          <ComponentPalette onComponentDragStart={handleComponentDragStart} onSaveAsTemplate={handleSaveAsTemplate} pageSchema={pageSchema} />
-        )}
+      <DndContext
+        sensors={sensors}
+        collisionDetection={closestCenter}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="flex flex-1 overflow-hidden">
+          {/* Component Palette */}
+          {!isPreviewMode && (
+            <ComponentPalette onComponentDragStart={handleComponentDragStart} onSaveAsTemplate={handleSaveAsTemplate} pageSchema={pageSchema} />
+          )}
 
-        {/* Main Canvas Area */}
-        <div className="flex-1 flex flex-col">
-          <div className={`flex-1 ${getDeviceClass()} flex justify-center items-start overflow-auto`}>
-            <EditorCanvas
-              components={components}
-              onComponentsChange={setComponents}
-              onComponentSelect={setSelectedComponent}
-              selectedComponent={selectedComponent}
-              deviceMode={deviceMode}
-              deviceDimensions={deviceDimensions}
-              pageSchema={pageSchema}
-              onPageSchemaChange={setPageSchema}
-            />
+          {/* Main Canvas Area */}
+          <div className="flex-1 flex flex-col">
+            <div className={`flex-1 ${getDeviceClass()} flex justify-center items-start overflow-auto`}>
+              <EditorCanvas
+                components={components}
+                onComponentsChange={setComponents}
+                onComponentSelect={setSelectedComponent}
+                selectedComponent={selectedComponent}
+                deviceMode={deviceMode}
+                deviceDimensions={deviceDimensions}
+                pageSchema={pageSchema}
+                onPageSchemaChange={setPageSchema}
+              />
+            </div>
           </div>
+
+          {/* Properties Panel */}
+          {!isPreviewMode && (
+            <PropertiesPanel
+              selectedComponent={selectedComponent}
+              onComponentUpdate={handleComponentUpdate}
+              onComponentDelete={handleComponentDelete}
+              onComponentDuplicate={handleComponentDuplicate}
+            />
+          )}
         </div>
 
-        {/* Properties Panel */}
-        {!isPreviewMode && (
-          <PropertiesPanel
-            selectedComponent={selectedComponent}
-            onComponentUpdate={handleComponentUpdate}
-            onComponentDelete={handleComponentDelete}
-            onComponentDuplicate={handleComponentDuplicate}
-          />
-        )}
-      </div>
+        <DragOverlay>
+          {activeId ? (
+            <div className="p-3 border border-blue-300 rounded-lg bg-blue-50 shadow-lg">
+              <div className="text-sm font-medium text-gray-900">
+                Dragging component...
+              </div>
+            </div>
+          ) : null}
+        </DragOverlay>
+      </DndContext>
 
       {/* Bottom Status Bar */}
       <div className="border-t bg-muted/50 px-4 py-2">

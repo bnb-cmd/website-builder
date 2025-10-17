@@ -201,3 +201,5 @@ export const WebsiteRelatedProducts: React.FC<RelatedProductsProps> = ({
     </div>
   )
 }
+
+export { WebsiteRelatedProducts as RelatedProducts }

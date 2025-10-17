@@ -171,3 +171,5 @@ export const WebsitePaymentForm: React.FC<PaymentFormProps> = ({
     </div>
   )
 }
+
+export { WebsitePaymentForm as PaymentForm }

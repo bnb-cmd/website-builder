@@ -44,9 +44,9 @@ export function getComponent(id: string): React.ComponentType<any> | undefined {
   return componentRegistry.get(id)?.component
 }
 
-// Check if component exists
-export function hasComponent(id: string): boolean {
-  return componentRegistry.has(id)
+// Get component registry (for debugging/inspection)
+export function getComponentRegistry(): Map<string, ComponentMetadata> {
+  return componentRegistry
 }
 
 // Get components organized by category

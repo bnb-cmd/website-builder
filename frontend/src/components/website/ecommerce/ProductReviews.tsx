@@ -215,3 +215,5 @@ export const WebsiteProductReviews: React.FC<ProductReviewsProps> = ({
     </div>
   )
 }
+
+export { WebsiteProductReviews as ProductReviews }

@@ -466,11 +466,21 @@ model User {
   id       String @id @default(cuid())
   email    String @unique
   name     String
-  password String
+  password String? // Made optional for OAuth users
   phone    String?
   avatar   String?
   role     UserRole @default(USER)
   status   UserStatus @default(ACTIVE)
+
+  // OAuth Integration
+  oauthProvider     String? // 'google', 'facebook', 'email'
+  oauthProviderId   String? // External provider user ID
+  avatarUrl         String? // Profile picture from OAuth provider
+  emailVerified     Boolean @default(false) // Email verification status
+  passwordResetToken String?
+  passwordResetExpires DateTime?
+  emailVerificationToken String?
+  emailVerificationExpires DateTime?
 
   // Business Information
   businessType BusinessType?
@@ -507,6 +517,7 @@ model User {
   videoProjects VideoProject[]
   sessions UserSession[]
 
+  @@unique([oauthProvider, oauthProviderId], name: "oauth_unique")
   @@map("users")
 }
 

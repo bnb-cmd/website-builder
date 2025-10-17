@@ -1,7 +1,8 @@
 'use client'
 
 import React, { useState } from 'react'
-import { User, Mail, Phone, MapPin, Building, Globe, Calendar, Clock, CheckCircle, Star, DollarSign, CreditCard, MessageSquare, FileText, Shield, Lock, Heart, ThumbsUp, Share2, Bookmark, Play, Pause, Volume2, VolumeX, Music, Mic, MicOff, Headphones, Instagram, Facebook, Twitter, Linkedin, Youtube, TikTok, Pinterest, Snapchat } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Building, Globe, Calendar, Clock, CheckCircle, Star, DollarSign, CreditCard, MessageSquare, FileText, Shield, Lock, Heart, ThumbsUp, Share2, Bookmark, Play, Pause, Volume2, VolumeX, Music, Mic, MicOff, Headphones } from 'lucide-react'
+import { getIcon as getCustomIcon } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface SocialMediaLinksProps {
@@ -82,18 +83,7 @@ export const SocialMediaLinks: React.FC<SocialMediaLinksProps> = ({
   onPlatformClick
 }) => {
   const getIcon = (iconName: string) => {
-    const iconMap: Record<string, React.ComponentType<any>> = {
-      facebook: Facebook,
-      instagram: Instagram,
-      twitter: Twitter,
-      linkedin: Linkedin,
-      youtube: Youtube,
-      tiktok: TikTok,
-      pinterest: Pinterest,
-      snapchat: Snapchat
-    }
-    
-    const IconComponent = iconMap[iconName.toLowerCase()]
+    const IconComponent = getCustomIcon(iconName.toLowerCase())
     return IconComponent ? <IconComponent className="w-5 h-5" /> : null
   }
 

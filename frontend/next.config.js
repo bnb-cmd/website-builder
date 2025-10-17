@@ -46,9 +46,9 @@ const nextConfig = {
       }
     }
     
-    // Reduce bundle size
-    config.optimization.usedExports = true
-    config.optimization.sideEffects = false
+    // Reduce bundle size - removed conflicting settings
+    // config.optimization.usedExports = true  // Conflicts with cacheUnaffected
+    // config.optimization.sideEffects = false // Conflicts with cacheUnaffected
     
     return config
   },

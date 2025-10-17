@@ -184,3 +184,5 @@ export const WebsiteShippingInfo: React.FC<ShippingInfoProps> = ({
     </div>
   )
 }
+
+export { WebsiteShippingInfo as ShippingInfo }

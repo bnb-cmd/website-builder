@@ -113,6 +113,8 @@ interface AuthState {
   logout: () => void
   autoLogin: () => Promise<{ success: boolean; user?: User }>
   updateUser: (user: Partial<User>) => void
+  googleLogin: () => Promise<{ success: boolean; user?: any; error?: any }>
+  facebookLogin: () => Promise<{ success: boolean; user?: any; error?: any }>
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -264,7 +266,163 @@ export const useAuthStore = create<AuthState>()(
         if (currentUser) {
           set({ user: { ...currentUser, ...userData } })
         }
-      }
+      },
+
+      googleLogin: async () => {
+        set({ isLoading: true })
+        
+        try {
+          // Get OAuth URL from backend
+          const urlResponse = await apiHelpers.getOAuthUrl('google')
+          
+          if (urlResponse.success) {
+            // Open OAuth popup
+            const popup = window.open(
+              urlResponse.data.url,
+              'google-auth',
+              'width=500,height=600,scrollbars=yes,resizable=yes'
+            )
+            
+            // Listen for the popup to close and get the auth code
+            const authCode = await new Promise<string>((resolve, reject) => {
+              const checkClosed = setInterval(() => {
+                if (popup?.closed) {
+                  clearInterval(checkClosed)
+                  reject(new Error('Popup closed without authentication'))
+                }
+              }, 1000)
+              
+              // Listen for message from popup
+              const messageListener = (event: MessageEvent) => {
+                if (event.origin !== window.location.origin) return
+                
+                if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
+                  clearInterval(checkClosed)
+                  window.removeEventListener('message', messageListener)
+                  popup?.close()
+                  resolve(event.data.code)
+                } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
+                  clearInterval(checkClosed)
+                  window.removeEventListener('message', messageListener)
+                  popup?.close()
+                  reject(new Error(event.data.error))
+                }
+              }
+              
+              window.addEventListener('message', messageListener)
+            })
+            
+            // Exchange code for tokens
+            const response = await apiHelpers.googleAuth(authCode)
+            
+            if (response.success) {
+              const { user, accessToken, refreshToken } = response.data
+              
+              // Store tokens
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('auth-token', accessToken)
+                localStorage.setItem('refresh-token', refreshToken)
+              }
+              
+              set({ 
+                user, 
+                token: accessToken,
+                isLoading: false 
+              })
+              
+              return { success: true, user }
+            } else {
+              set({ isLoading: false })
+              return { success: false, error: response.error?.message || 'Google login failed' }
+            }
+          } else {
+            set({ isLoading: false })
+            return { success: false, error: 'Failed to get Google OAuth URL' }
+          }
+        } catch (error: any) {
+          console.error('Google login error:', error)
+          set({ isLoading: false })
+          return { success: false, error: error.message || 'Google login failed' }
+        }
+      },
+
+      facebookLogin: async () => {
+        set({ isLoading: true })
+        
+        try {
+          // Get OAuth URL from backend
+          const urlResponse = await apiHelpers.getOAuthUrl('facebook')
+          
+          if (urlResponse.success) {
+            // Open OAuth popup
+            const popup = window.open(
+              urlResponse.data.url,
+              'facebook-auth',
+              'width=500,height=600,scrollbars=yes,resizable=yes'
+            )
+            
+            // Listen for the popup to close and get the auth code
+            const authCode = await new Promise<string>((resolve, reject) => {
+              const checkClosed = setInterval(() => {
+                if (popup?.closed) {
+                  clearInterval(checkClosed)
+                  reject(new Error('Popup closed without authentication'))
+                }
+              }, 1000)
+              
+              // Listen for message from popup
+              const messageListener = (event: MessageEvent) => {
+                if (event.origin !== window.location.origin) return
+                
+                if (event.data.type === 'FACEBOOK_AUTH_SUCCESS') {
+                  clearInterval(checkClosed)
+                  window.removeEventListener('message', messageListener)
+                  popup?.close()
+                  resolve(event.data.code)
+                } else if (event.data.type === 'FACEBOOK_AUTH_ERROR') {
+                  clearInterval(checkClosed)
+                  window.removeEventListener('message', messageListener)
+                  popup?.close()
+                  reject(new Error(event.data.error))
+                }
+              }
+              
+              window.addEventListener('message', messageListener)
+            })
+            
+            // Exchange code for tokens
+            const response = await apiHelpers.facebookAuth(authCode)
+            
+            if (response.success) {
+              const { user, accessToken, refreshToken } = response.data
+              
+              // Store tokens
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('auth-token', accessToken)
+                localStorage.setItem('refresh-token', refreshToken)
+              }
+              
+              set({ 
+                user, 
+                token: accessToken,
+                isLoading: false 
+              })
+              
+              return { success: true, user }
+            } else {
+              set({ isLoading: false })
+              return { success: false, error: response.error?.message || 'Facebook login failed' }
+            }
+          } else {
+            set({ isLoading: false })
+            return { success: false, error: 'Failed to get Facebook OAuth URL' }
+          }
+        } catch (error: any) {
+          console.error('Facebook login error:', error)
+          set({ isLoading: false })
+          return { success: false, error: error.message || 'Facebook login failed' }
+        }
+      },
     }),
     {
       name: 'auth-store',

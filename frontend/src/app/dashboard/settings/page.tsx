@@ -112,10 +112,23 @@ export default function SettingsPage() {
   const handleSaveAppearance = async () => {
     setIsLoading(true)
     try {
-      // TODO: Implement API call to update appearance
-      await new Promise(resolve => setTimeout(resolve, 1000)) // Mock delay
-      toast.success('Appearance settings updated')
+      const response = await apiHelpers.updateProfile({
+        ...profileData,
+        preferences: {
+          theme: appearance.theme,
+          language: appearance.language,
+          timezone: appearance.timezone,
+          dateFormat: appearance.dateFormat,
+          currency: appearance.currency
+        }
+      })
+      if (response.success) {
+        toast.success('Appearance settings updated')
+      } else {
+        toast.error('Failed to update appearance settings')
+      }
     } catch (error) {
+      console.error('Appearance update error:', error)
       toast.error('Failed to update appearance settings')
     } finally {
       setIsLoading(false)
@@ -154,10 +167,19 @@ export default function SettingsPage() {
     if (window.confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
       setIsLoading(true)
       try {
-        // TODO: Implement account deletion
-        await new Promise(resolve => setTimeout(resolve, 1000)) // Mock delay
-        toast.success('Account deleted successfully')
+        const response = await apiHelpers.deleteAccount()
+        if (response.success) {
+          toast.success('Account deleted successfully')
+          // Clear auth data and redirect to login
+          localStorage.removeItem('auth-token')
+          localStorage.removeItem('refresh-token')
+          localStorage.removeItem('auth-store')
+          window.location.href = '/login'
+        } else {
+          toast.error('Failed to delete account')
+        }
       } catch (error) {
+        console.error('Account deletion error:', error)
         toast.error('Failed to delete account')
       } finally {
         setIsLoading(false)

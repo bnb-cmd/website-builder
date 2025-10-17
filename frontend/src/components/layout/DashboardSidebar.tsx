@@ -1,8 +1,8 @@
 "use client";
 
 import React from 'react'
-import { Link, useRouter } from '../../lib/router'
-import { cn } from '../../lib/utils'
+import { Link, useRouter } from '@/lib/router'
+import { cn } from '@/lib/utils'
 import { Button } from '../ui/button'
 import { ScrollArea } from '../ui/scroll-area'
 import { Separator } from '../ui/separator'
