@@ -6,7 +6,7 @@ import { Button } from '../../ui/button'
 import { Badge } from '../../ui/badge'
 import { ImageWithFallback } from '../../figma/ImageWithFallback'
 import { cn } from '../../../lib/utils'
-import { ShoppingCart, ExternalLink, Heart } from 'lucide-react'
+import { ShoppingCart, ExternalLink, Heart } from '@/lib/icons'
 
 export interface ProductCardProps {
   id: string

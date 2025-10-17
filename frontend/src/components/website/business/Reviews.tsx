@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Star, Quote } from 'lucide-react'
+import { Star, Quote } from '@/lib/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar'
 import { cn } from '@/lib/utils'
 import { getResponsivePadding, getResponsiveTextSize } from '../renderer'

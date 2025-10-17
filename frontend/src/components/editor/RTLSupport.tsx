@@ -54,7 +54,7 @@ import {
   Unlock,
   Move,
   RotateCcw as RotateIcon
-} from 'lucide-react'
+} from '@/lib/icons'
 
 interface RTLSupportProps {
   components: ComponentNode[]

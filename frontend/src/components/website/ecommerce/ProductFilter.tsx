@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Filter, X, ChevronDown } from 'lucide-react'
+import { Filter, X, ChevronDown } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface ProductFilterProps {

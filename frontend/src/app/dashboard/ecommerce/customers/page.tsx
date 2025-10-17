@@ -19,7 +19,7 @@ import {
   ShoppingCart,
   TrendingUp,
   ArrowLeft
-} from 'lucide-react'
+} from '@/lib/icons'
 import Link from 'next/link'
 
 export default function CustomersPage() {

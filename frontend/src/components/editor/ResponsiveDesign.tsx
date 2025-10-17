@@ -52,7 +52,7 @@ import {
   Shield,
   Folder,
   Tag
-} from 'lucide-react'
+} from '@/lib/icons'
 
 interface ResponsiveDesignProps {
   components: ComponentNode[]

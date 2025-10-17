@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Search, Filter } from 'lucide-react'
+import { Search, Filter } from '@/lib/icons'
 import { Button } from '../../ui/button'
 import { Input } from '../../ui/input'
 import { cn } from '@/lib/utils'

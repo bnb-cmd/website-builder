@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Star, ThumbsUp, ThumbsDown, Flag, CheckCircle } from 'lucide-react'
+import { Star, ThumbsUp, ThumbsDown, Flag, CheckCircle } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface ProductReviewProps {

@@ -24,7 +24,7 @@ import {
   TestTube,
   Shield,
   Globe
-} from 'lucide-react'
+} from '@/lib/icons'
 import { toast } from 'sonner'
 
 export default function EcommerceSettingsPage() {

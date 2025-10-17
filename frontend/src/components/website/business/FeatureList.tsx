@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { CheckCircle, Star, Zap, Shield } from 'lucide-react'
+import { CheckCircle, Star, Zap, Shield } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { getResponsivePadding, getResponsiveTextSize } from '../renderer'
 

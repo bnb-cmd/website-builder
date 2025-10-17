@@ -18,7 +18,7 @@ import {
   Calendar,
   Download,
   RefreshCw
-} from 'lucide-react';
+} from '@/lib/icons';
 
 // Sample analytics data
 const analyticsData = {

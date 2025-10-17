@@ -20,7 +20,7 @@ import {
   Clock,
   Download,
   Upload
-} from 'lucide-react'
+} from '@/lib/icons'
 
 export const IconConfig: ComponentConfig = {
   id: 'icon',

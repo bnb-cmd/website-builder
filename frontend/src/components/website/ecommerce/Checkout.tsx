@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { CreditCard, Lock, ArrowRight } from 'lucide-react'
+import { CreditCard, Lock, ArrowRight } from '@/lib/icons'
 import { Button } from '../../ui/button'
 import { Input } from '../../ui/input'
 import { Label } from '../../ui/label'

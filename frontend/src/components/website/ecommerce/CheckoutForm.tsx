@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { MapPin, Phone, Mail, User, CreditCard, Lock, CheckCircle } from 'lucide-react'
+import { MapPin, Phone, Mail, User, CreditCard, Lock, CheckCircle } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface CheckoutFormProps {

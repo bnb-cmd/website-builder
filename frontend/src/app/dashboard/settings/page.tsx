@@ -24,7 +24,7 @@ import {
   Key,
   Trash2,
   Download
-} from 'lucide-react'
+} from '@/lib/icons'
 import { useAuthStore } from '@/lib/store'
 import { apiHelpers } from '@/lib/api'
 import { toast } from 'sonner'

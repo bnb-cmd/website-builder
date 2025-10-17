@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Quote as QuoteIcon } from 'lucide-react'
+import { Quote as QuoteIcon } from '@/lib/icons'
 import { getResponsiveTextSize, getResponsivePadding } from '../renderer'
 
 export const QuoteConfig: ComponentConfig = {

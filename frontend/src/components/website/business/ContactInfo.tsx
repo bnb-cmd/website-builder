@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Phone, Mail, MapPin, Clock } from 'lucide-react'
+import { Phone, Mail, MapPin, Clock } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { getResponsivePadding, getResponsiveTextSize } from '../renderer'
 

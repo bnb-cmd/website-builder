@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { ShoppingCart, Heart, Star } from 'lucide-react'
+import { ShoppingCart, Heart, Star } from '@/lib/icons'
 import { Button } from '../../ui/button'
 import { Badge } from '../../ui/badge'
 import { cn } from '@/lib/utils'

@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { MapPin } from 'lucide-react'
+import { MapPin } from '@/lib/icons'
 import { getResponsiveTextSize } from '../renderer'
 
 export const MapConfig: ComponentConfig = {

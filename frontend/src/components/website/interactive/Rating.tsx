@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Star } from 'lucide-react'
+import { Star } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface RatingProps {

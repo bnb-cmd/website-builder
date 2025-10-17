@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { ShoppingBag, Package, Grid, List, Tag, TrendingUp } from 'lucide-react'
+import { ShoppingBag, Package, Grid, List, Tag, TrendingUp } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface ProductCategoriesProps {

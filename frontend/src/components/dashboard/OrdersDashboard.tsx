@@ -11,7 +11,7 @@ import { Label } from '../ui/label'
 import { Textarea } from '../ui/textarea'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { cn } from '../../lib/utils'
-import { Eye, Phone, Mail, MapPin, Calendar, DollarSign, Package, Truck, CheckCircle, XCircle, Clock } from 'lucide-react'
+import { Eye, Phone, Mail, MapPin, Calendar, DollarSign, Package, Truck, CheckCircle, XCircle, Clock } from '@/lib/icons'
 
 export interface Order {
   id: string

@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Phone } from 'lucide-react'
+import { Phone } from '@/lib/icons'
 import { getResponsiveTextSize } from '../renderer'
 
 export const PhoneConfig: ComponentConfig = {

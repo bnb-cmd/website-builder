@@ -1,7 +1,7 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../ui/tooltip'
-import { Info } from 'lucide-react'
+import { Info } from '@/lib/icons'
 import { getResponsiveTextSize } from '../renderer'
 
 export const TooltipConfig: ComponentConfig = {

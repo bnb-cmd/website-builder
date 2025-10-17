@@ -30,7 +30,7 @@ import {
   Calendar,
   CheckCircle,
   AlertCircle
-} from 'lucide-react';
+} from '@/lib/icons';
 
 // Sample brand kit data
 const sampleGlobalBrandKit = {

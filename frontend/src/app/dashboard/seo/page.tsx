@@ -46,7 +46,7 @@ import {
   Pause,
   Clock,
   X
-} from 'lucide-react';
+} from '@/lib/icons';
 
 // Sample data for demonstration
 const seoData = {

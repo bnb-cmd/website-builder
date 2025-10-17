@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { User, Mail, Phone, MapPin, Building, Globe, Calendar, Clock, CheckCircle, Star, DollarSign, CreditCard, MessageSquare, FileText, Shield, Lock, Heart, ThumbsUp, Share2, Bookmark, Play, Pause, Volume2, VolumeX } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Building, Globe, Calendar, Clock, CheckCircle, Star, DollarSign, CreditCard, MessageSquare, FileText, Shield, Lock, Heart, ThumbsUp, Share2, Bookmark, Play, Pause, Volume2, VolumeX } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface VideoPlayerProps {

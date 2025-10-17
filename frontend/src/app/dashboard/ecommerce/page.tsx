@@ -22,7 +22,7 @@ import {
   Filter,
   Settings,
   BarChart3
-} from 'lucide-react'
+} from '@/lib/icons'
 import Link from 'next/link'
 
 export default function EcommerceDashboard() {

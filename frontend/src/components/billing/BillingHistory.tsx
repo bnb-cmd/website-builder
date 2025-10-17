@@ -17,7 +17,7 @@ import {
   CreditCard,
   FileText,
   Calendar
-} from 'lucide-react'
+} from '@/lib/icons'
 import { apiHelpers } from '@/lib/api'
 import { toast } from 'sonner'
 

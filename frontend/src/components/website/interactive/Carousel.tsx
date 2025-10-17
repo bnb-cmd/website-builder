@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect, useCallback } from 'react'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface CarouselProps {

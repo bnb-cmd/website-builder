@@ -50,7 +50,7 @@ import {
   Shield,
   Folder,
   Tag
-} from 'lucide-react'
+} from '@/lib/icons'
 
 // Lazy load heavy components
 const EditorCanvas = lazy(() => import('./EditorCanvas'))

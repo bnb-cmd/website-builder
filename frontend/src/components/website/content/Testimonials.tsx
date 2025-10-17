@@ -1,7 +1,7 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
 import { Card } from '../../ui/card'
-import { Star } from 'lucide-react'
+import { Star } from '@/lib/icons'
 import { getResponsiveTextSize, getResponsivePadding } from '../renderer'
 
 export const TestimonialsConfig: ComponentConfig = {

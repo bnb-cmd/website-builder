@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { ChevronLeft, ChevronRight } from '@/lib/icons'
 import { Button } from '../../ui/button'
 import { cn } from '@/lib/utils'
 import { getResponsiveTextSize } from '../renderer'

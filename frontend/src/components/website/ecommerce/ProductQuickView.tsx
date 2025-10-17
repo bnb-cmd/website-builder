@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { X, ShoppingCart, Heart, Eye, Star } from 'lucide-react'
+import { X, ShoppingCart, Heart, Eye, Star } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface ProductQuickViewProps {

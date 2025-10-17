@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
-import { CheckCircle, XCircle, Loader } from 'lucide-react'
+import { CheckCircle, XCircle, Loader } from '@/lib/icons'
 import { toast } from 'sonner'
 
 export function SubdomainSettings({ websiteId, currentSubdomain }: { 

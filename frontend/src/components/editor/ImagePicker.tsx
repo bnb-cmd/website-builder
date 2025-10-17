@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react'
-import { Search, Filter, X, Download, Heart, Star, Grid, List } from 'lucide-react'
+import { Search, Filter, X, Download, Heart, Star, Grid, List } from '@/lib/icons'
 
 // Get API base URL for Railway backend
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://website-builder-production-e38b.up.railway.app'

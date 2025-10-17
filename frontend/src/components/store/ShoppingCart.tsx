@@ -7,7 +7,7 @@ import { Badge } from '../ui/badge'
 import { Separator } from '../ui/separator'
 import { Input } from '../ui/input'
 import { cn } from '../../lib/utils'
-import { ShoppingCart as ShoppingCartIcon, Plus, Minus, Trash2, X } from 'lucide-react'
+import { ShoppingCart as ShoppingCartIcon, Plus, Minus, Trash2, X } from '@/lib/icons'
 
 export interface CartItem {
   id: string

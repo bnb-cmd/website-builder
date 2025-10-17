@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { ArrowUp } from 'lucide-react'
+import { ArrowUp } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface BackToTopProps {

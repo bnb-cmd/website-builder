@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Star, ThumbsUp, ThumbsDown, Flag, CheckCircle, User, Calendar } from 'lucide-react'
+import { Star, ThumbsUp, ThumbsDown, Flag, CheckCircle, User, Calendar } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface ReviewFormProps {

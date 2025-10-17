@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { CreditCard, Smartphone, Wallet, Shield, CheckCircle } from 'lucide-react'
+import { CreditCard, Smartphone, Wallet, Shield, CheckCircle } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface PaymentMethodProps {

@@ -24,7 +24,7 @@ import {
   Pause,
   Activity,
   Zap
-} from 'lucide-react';
+} from '@/lib/icons';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { apiHelpers } from '@/lib/api';
 

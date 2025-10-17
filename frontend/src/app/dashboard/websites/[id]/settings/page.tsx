@@ -19,7 +19,7 @@ import {
   CheckCircle,
   XCircle,
   Loader
-} from 'lucide-react'
+} from '@/lib/icons'
 import { useRouter } from '@/lib/router'
 import { useWebsiteStore } from '@/lib/store'
 import { apiHelpers } from '@/lib/api'

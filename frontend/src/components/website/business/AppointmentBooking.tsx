@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Calendar, Clock, User, Mail, Phone, MapPin, CheckCircle } from 'lucide-react'
+import { Calendar, Clock, User, Mail, Phone, MapPin, CheckCircle } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface AppointmentBookingProps {

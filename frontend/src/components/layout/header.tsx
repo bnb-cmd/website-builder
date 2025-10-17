@@ -8,7 +8,7 @@ import { Badge } from '../ui/badge'
 import { ThemeToggle } from '../ui/theme-toggle'
 import { Link, useRouter } from '../../lib/router'
 import { useAuthStore } from '../../lib/store'
-import { User, LogOut, Settings, CreditCard, Menu, PanelLeftClose, PanelLeftOpen } from 'lucide-react'
+import { User, LogOut, Settings, CreditCard, Menu, PanelLeftClose, PanelLeftOpen } from '@/lib/icons'
 
 interface HeaderProps {
   variant?: 'landing' | 'dashboard'

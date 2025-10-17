@@ -24,7 +24,7 @@ import {
   X,
   Printer,
   Download
-} from 'lucide-react'
+} from '@/lib/icons'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { toast } from 'sonner'

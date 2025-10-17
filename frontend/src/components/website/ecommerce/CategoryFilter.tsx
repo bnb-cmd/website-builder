@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Filter, X } from 'lucide-react'
+import { Filter, X } from '@/lib/icons'
 import { Button } from '../../ui/button'
 import { cn } from '@/lib/utils'
 import { getResponsivePadding, getResponsiveTextSize } from '../renderer'

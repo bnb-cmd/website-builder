@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Search, Filter, Grid, List, SlidersHorizontal, Star, Heart, ShoppingCart } from 'lucide-react'
+import { Search, Filter, Grid, List, SlidersHorizontal, Star, Heart, ShoppingCart } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface ProductGridProps {

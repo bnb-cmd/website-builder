@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { MapPin, Phone, Mail, Clock, CheckCircle, AlertCircle } from 'lucide-react'
+import { MapPin, Phone, Mail, Clock, CheckCircle, AlertCircle } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface OrderTrackingProps {

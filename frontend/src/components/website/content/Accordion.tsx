@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { ChevronDown, ChevronRight } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { getResponsivePadding, getResponsiveTextSize } from '../renderer'
 

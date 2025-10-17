@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Mail } from 'lucide-react'
+import { Mail } from '@/lib/icons'
 import { getResponsiveTextSize } from '../renderer'
 
 export const EmailConfig: ComponentConfig = {

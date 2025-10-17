@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink } from '@/lib/icons'
 import { getResponsiveTextSize } from '../renderer'
 
 export const LinkConfig: ComponentConfig = {

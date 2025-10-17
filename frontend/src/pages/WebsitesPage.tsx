@@ -19,7 +19,7 @@ import {
   Users,
   TrendingUp,
   AlertCircle
-} from 'lucide-react'
+} from '@/lib/icons'
 
 interface Website {
   id: string

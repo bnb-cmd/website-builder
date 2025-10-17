@@ -20,7 +20,7 @@ import {
   TrendingUp,
   Clock,
   Zap
-} from 'lucide-react'
+} from '@/lib/icons'
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../components/ui/dropdown-menu'
 
 const stats = [

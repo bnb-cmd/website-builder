@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Truck, MapPin, Clock, Package } from 'lucide-react'
+import { Truck, MapPin, Clock, Package } from '@/lib/icons'
 import { Button } from '../../ui/button'
 import { Input } from '../../ui/input'
 import { Label } from '../../ui/label'

@@ -17,7 +17,7 @@ import {
   BarChart3,
   ArrowRight,
   RefreshCw
-} from 'lucide-react'
+} from '@/lib/icons'
 
 interface SubscriptionPlanProps {
   subscription: {

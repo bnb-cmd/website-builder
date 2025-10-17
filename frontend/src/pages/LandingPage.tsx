@@ -8,28 +8,28 @@ import { Link } from '../lib/router'
 import { formatPKR } from '../lib/utils'
 import { ImageWithFallback } from '../components/figma/ImageWithFallback'
 import { 
-  Palette, 
-  Smartphone, 
-  Zap, 
-  Shield, 
-  Users, 
-  BarChart3,
+  Layout,
+  Smartphone,
+  Zap,
+  Shield,
   Globe,
-  CreditCard,
-  Check,
-  Star,
+  DollarSign,
   ArrowRight,
   Play,
   Sparkles,
-  Award,
-  ShoppingCart,
+  Check,
+  Crown,
+  Star,
+  Facebook,
+  Twitter,
   Instagram,
-  Download
-} from 'lucide-react'
+  Palette,
+  CheckCircle
+} from '@/lib/icons'
 
 const features = [
   {
-    icon: Palette,
+    icon: Layout,
     title: 'Drag & Drop Builder',
     description: 'Create beautiful websites with our intuitive drag and drop interface. No coding required.',
   },
@@ -54,7 +54,7 @@ const features = [
     description: 'Full support for Urdu language with RTL text direction for Pakistani audience.',
   },
   {
-    icon: CreditCard,
+    icon: DollarSign,
     title: 'Local Payments',
     description: 'Integrated with JazzCash, EasyPaisa, and other Pakistani payment methods.',
   }
@@ -174,7 +174,7 @@ const testimonials = [
   },
   {
     name: 'Sara Ahmed',
-    business: 'Sara\'s Handmade Jewelry, Instagram',
+    business: 'Sara\'s Handmade Jewelry, Islamabad',
     content: 'The Micro Store template is perfect! I can import my Instagram posts directly and my customers can buy through Easypaisa. My sales doubled!',
     rating: 5
   },
@@ -217,7 +217,7 @@ const LandingPage: React.FC = () => {
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center mb-12">
               <Link href="/register">
                 <Button size="lg" className="w-full sm:w-auto px-8 py-3">
-                  Start Building Free
+                  Get Started Building Free
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </Link>
@@ -309,7 +309,7 @@ const LandingPage: React.FC = () => {
                   />
                   {template.isPremium && (
                     <Badge className="absolute top-3 right-3 bg-primary text-primary-foreground">
-                      <Award className="mr-1 h-3 w-3" />
+                      <Crown className="mr-1 h-3 w-3" />
                       Premium
                     </Badge>
                   )}
@@ -369,13 +369,13 @@ const LandingPage: React.FC = () => {
               <div className="space-y-4 mb-8">
                 <div className="flex items-center space-x-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-                    <ShoppingCart className="h-4 w-4 text-green-600" />
+                    <Zap className="h-4 w-4 text-green-600" />
                   </div>
                   <span className="text-sm font-medium">Import products from Instagram, TikTok, Facebook</span>
                 </div>
                 <div className="flex items-center space-x-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-green-100">
-                    <CreditCard className="h-4 w-4 text-green-600" />
+                    <DollarSign className="h-4 w-4 text-green-600" />
                   </div>
                   <span className="text-sm font-medium">Pakistani payments: Easypaisa, JazzCash, COD</span>
                 </div>
@@ -427,7 +427,7 @@ const LandingPage: React.FC = () => {
                     </div>
                     <div className="flex items-center space-x-2">
                       <Button size="sm" className="bg-green-500 hover:bg-green-600">
-                        <Download className="h-4 w-4 mr-1" />
+                        <Zap className="h-4 w-4 mr-1" />
                         Import to Store
                       </Button>
                     </div>
@@ -436,7 +436,7 @@ const LandingPage: React.FC = () => {
                   <div className="bg-green-50 rounded-lg p-4 border-2 border-green-200">
                     <div className="flex items-center space-x-3 mb-3">
                       <div className="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center">
-                        <ShoppingCart className="h-6 w-6 text-white" />
+                        <CheckCircle className="h-6 w-6 text-white" />
                       </div>
                       <div>
                         <h4 className="font-medium text-green-800">Product Added!</h4>
@@ -460,7 +460,7 @@ const LandingPage: React.FC = () => {
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center mb-16">
             <Badge variant="secondary" className="mb-4 px-4 py-2">
-              <CreditCard className="mr-2 h-4 w-4" />
+              <DollarSign className="mr-2 h-4 w-4" />
               Pricing
             </Badge>
             <h2 className="mb-6 text-3xl lg:text-4xl font-semibold">
@@ -512,7 +512,7 @@ const LandingPage: React.FC = () => {
                       className="w-full py-2"
                       variant={plan.popular ? "default" : "outline"}
                     >
-                      {plan.price === 0 ? 'Start Free' : 'Choose Plan'}
+                      {plan.price === 0 ? 'Get Started Free' : 'Choose Plan'}
                     </Button>
                   </Link>
                 </CardContent>
@@ -527,7 +527,7 @@ const LandingPage: React.FC = () => {
         <div className="container mx-auto px-4">
           <div className="mx-auto max-w-3xl text-center mb-16">
             <Badge variant="secondary" className="mb-4 px-4 py-2">
-              <Users className="mr-2 h-4 w-4" />
+              <Star className="mr-2 h-4 w-4" />
               Testimonials
             </Badge>
             <h2 className="mb-6 text-3xl lg:text-4xl font-semibold">
@@ -608,10 +608,10 @@ const LandingPage: React.FC = () => {
               </p>
               <div className="flex space-x-3">
                 <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
-                  <Globe className="h-4 w-4" />
+                  <Facebook className="h-4 w-4" />
                 </div>
                 <div className="w-8 h-8 bg-muted rounded-lg flex items-center justify-center hover:bg-primary hover:text-primary-foreground transition-colors cursor-pointer">
-                  <Users className="h-4 w-4" />
+                  <Twitter className="h-4 w-4" />
                 </div>
               </div>
             </div>

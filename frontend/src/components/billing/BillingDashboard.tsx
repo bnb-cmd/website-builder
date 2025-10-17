@@ -15,7 +15,7 @@ import {
   Users,
   Zap,
   Globe
-} from 'lucide-react'
+} from '@/lib/icons'
 import { SubscriptionPlan } from '@/components/billing/SubscriptionPlan'
 import { PaymentMethodForm } from '@/components/billing/PaymentMethodForm'
 import { BillingHistory } from '@/components/billing/BillingHistory'

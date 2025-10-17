@@ -19,7 +19,7 @@ import {
   X,
   Plus,
   Minus
-} from 'lucide-react'
+} from '@/lib/icons'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'

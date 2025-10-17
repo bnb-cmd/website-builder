@@ -9,7 +9,7 @@ import { Textarea } from '../ui/textarea'
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { cn } from '../../lib/utils'
-import { CreditCard, Smartphone, Truck } from 'lucide-react'
+import { CreditCard, Smartphone, Truck } from '@/lib/icons'
 
 export interface CheckoutFormProps {
   items: Array<{

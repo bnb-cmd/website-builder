@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { User, Mail, Phone, MapPin, Building, Globe, Calendar, Clock, CheckCircle, Star } from 'lucide-react'
+import { User, Mail, Phone, MapPin, Building, Globe, Calendar, Clock, CheckCircle, Star } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface NewsletterSignupProps {

@@ -36,7 +36,7 @@ import {
   Ruler,
   MousePointer,
   Square
-} from 'lucide-react'
+} from '@/lib/icons'
 
 interface EditorCanvasProps {
   components: ComponentNode[]

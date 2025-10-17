@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState, useEffect } from 'react'
-import { X } from 'lucide-react'
+import { X } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface ModalProps {

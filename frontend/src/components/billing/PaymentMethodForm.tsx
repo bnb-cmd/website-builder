@@ -18,7 +18,7 @@ import {
   AlertCircle,
   Banknote,
   Smartphone
-} from 'lucide-react'
+} from '@/lib/icons'
 import { toast } from 'sonner'
 
 interface PaymentMethod {

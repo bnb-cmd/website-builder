@@ -13,120 +13,122 @@ import { ComponentMetadata } from '@/lib/component-config'
 import { ComponentNode, PageSchema } from '../../lib/schema'
 import { getComponentRegistry, getComponentsByCategory } from '../website/registry'
 import {
-  Search,
-  Plus,
-  Layout,
-  Type,
-  ShoppingCart,
-  FileText,
-  Image,
-  Video,
-  Music,
-  MapPin,
-  Calendar,
-  Users,
-  Star,
-  Heart,
-  MessageCircle,
-  Mail,
-  Phone,
-  Globe,
-  Download,
-  Upload,
-  Settings,
-  Palette,
-  Code,
-  Database,
-  BarChart,
-  PieChart,
-  TrendingUp,
-  Zap,
-  Shield,
-  Lock,
-  Unlock,
-  Eye,
-  EyeOff,
-  Copy,
-  Trash2,
-  Edit,
-  Save,
-  Folder,
-  Tag,
-  Building,
-  ChevronDown,
-  ChevronRight,
-  Image as Images,
-  Timer,
-  Layers,
-  Square,
-  BarChart3,
-  Star as StarIcon,
-  Share2,
-  ArrowUp,
-  StickyNote,
-  ScrollText,
-  MousePointer,
-  Loader,
-  Grid3X3 as Grid3X3Icon,
-  CreditCard,
-  Package,
-  Filter,
-  Eye as EyeIcon,
-  ShoppingBag,
-  Star as Review,
-  GitCompare as Compare,
-  Search as SearchIcon,
-  Lightbulb,
-  Gift,
-  Palette as PaletteIcon,
-  FileText as FileTextIcon,
-  Truck,
-  CheckCircle,
-  ShoppingCart as ShoppingCartIcon,
-  User,
-  Clock,
-  MapPin as MapPinIcon,
-  Phone as PhoneIcon,
-  Mail as MailIcon,
-  Globe as GlobeIcon,
-  Calendar as CalendarIcon,
-  Users as UsersIcon,
-  MessageCircle as MessageCircleIcon,
-  Heart as HeartIcon,
-  Star as StarIcon2,
-  Music as MusicIcon,
-  Video as VideoIcon,
-  Image as ImageIcon,
-  FileText as FileTextIcon2,
-  Plus as PlusIcon,
-  Download as DownloadIcon,
-  Upload as UploadIcon,
-  Settings as SettingsIcon,
-  Code as CodeIcon,
-  Database as DatabaseIcon,
-  BarChart as BarChartIcon,
-  PieChart as PieChartIcon,
-  TrendingUp as TrendingUpIcon,
-  Shield as ShieldIcon,
-  Lock as LockIcon,
-  Unlock as UnlockIcon,
-  Eye as EyeIcon2,
-  EyeOff as EyeOffIcon,
-  Copy as CopyIcon,
-  Trash2 as Trash2Icon,
-  Edit as EditIcon,
-  Save as SaveIcon,
-  Folder as FolderIcon,
-  Tag as TagIcon,
-  Building as BuildingIcon,
-  DollarSign,
-  Play
-} from 'lucide-react'
+  FiSearch as Search,
+  FiPlus as Plus,
+  FiLayout as Layout,
+  FiType as Type,
+  FiShoppingCart as ShoppingCart,
+  FiFileText as FileText,
+  FiImage as Image,
+  FiVideo as Video,
+  FiMusic as Music,
+  FiMapPin as MapPin,
+  FiCalendar as Calendar,
+  FiUsers as Users,
+  FiStar as Star,
+  FiHeart as Heart,
+  FiMessageCircle as MessageCircle,
+  FiMail as Mail,
+  FiPhone as Phone,
+  FiGlobe as Globe,
+  FiDownload as Download,
+  FiUpload as Upload,
+  FiSettings as Settings,
+  FiCode as Code,
+  FiDatabase as Database,
+  FiBarChart as BarChart,
+  FiPieChart as PieChart,
+  FiTrendingUp as TrendingUp,
+  FiZap as Zap,
+  FiShield as Shield,
+  FiLock as Lock,
+  FiUnlock as Unlock,
+  FiEye as Eye,
+  FiEyeOff as EyeOff,
+  FiCopy as Copy,
+  FiTrash2 as Trash2,
+  FiEdit as Edit,
+  FiSave as Save,
+  FiFolder as Folder,
+  FiTag as Tag,
+  FiHome as Building,
+  FiChevronDown as ChevronDown,
+  FiChevronRight as ChevronRight,
+  FiChevronLeft as ChevronLeft,
+  FiImage as Images,
+  FiClock as Timer,
+  FiLayers as Layers,
+  FiSquare as Square,
+  FiBarChart as BarChart3,
+  FiStar as StarIcon,
+  FiShare2 as Share2,
+  FiArrowUp as ArrowUp,
+  FiFileText as StickyNote,
+  FiFileText as ScrollText,
+  FiMousePointer as MousePointer,
+  FiLoader as Loader,
+  FiGrid as Grid3X3Icon,
+  FiCreditCard as CreditCard,
+  FiPackage as Package,
+  FiFilter as Filter,
+  FiEye as EyeIcon,
+  FiShoppingBag as ShoppingBag,
+  FiStar as Review,
+  FiGitBranch as Compare,
+  FiSearch as SearchIcon,
+  FiSun as Lightbulb,
+  FiGift as Gift,
+  FiFileText as FileTextIcon,
+  FiTruck as Truck,
+  FiCheckCircle as CheckCircle,
+  FiShoppingCart as ShoppingCartIcon,
+  FiUser as User,
+  FiClock as Clock,
+  FiMapPin as MapPinIcon,
+  FiPhone as PhoneIcon,
+  FiMail as MailIcon,
+  FiGlobe as GlobeIcon,
+  FiCalendar as CalendarIcon,
+  FiUsers as UsersIcon,
+  FiMessageCircle as MessageCircleIcon,
+  FiHeart as HeartIcon,
+  FiStar as StarIcon2,
+  FiMusic as MusicIcon,
+  FiVideo as VideoIcon,
+  FiImage as ImageIcon,
+  FiFileText as FileTextIcon2,
+  FiPlus as PlusIcon,
+  FiDownload as DownloadIcon,
+  FiUpload as UploadIcon,
+  FiSettings as SettingsIcon,
+  FiCode as CodeIcon,
+  FiDatabase as DatabaseIcon,
+  FiBarChart as BarChartIcon,
+  FiPieChart as PieChartIcon,
+  FiTrendingUp as TrendingUpIcon,
+  FiShield as ShieldIcon,
+  FiLock as LockIcon,
+  FiUnlock as UnlockIcon,
+  FiEye as EyeIcon2,
+  FiEyeOff as EyeOffIcon,
+  FiCopy as CopyIcon,
+  FiTrash2 as Trash2Icon,
+  FiEdit as EditIcon,
+  FiSave as SaveIcon,
+  FiFolder as FolderIcon,
+  FiTag as TagIcon,
+  FiHome as BuildingIcon,
+  FiDollarSign as DollarSign,
+  FiPlay as Play
+} from 'react-icons/fi'
+import { MdPalette as Palette, MdPalette as PaletteIcon } from 'react-icons/md'
 
 interface ComponentPaletteProps {
   onComponentDragStart: (component: ComponentMetadata) => void
   onSaveAsTemplate: (components: ComponentNode[]) => void
   pageSchema: PageSchema
+  collapsed?: boolean
+  onToggleCollapse?: () => void
 }
 
 // Icon mapping function
@@ -145,7 +147,6 @@ const getIconComponent = (iconName: string) => {
     'list': FileText,
     'quote': MessageCircle,
     'accordion': Layers,
-    'tabs': Layers,
     'timeline': Clock,
     'faq': MessageCircle,
     
@@ -195,18 +196,15 @@ const getIconComponent = (iconName: string) => {
     'image': Image,
     'video': Video,
     'audio': Music,
-    'gallery': Images,
     'player': Play,
     'lightbox': Eye,
     'carousel': Images,
     'slider': Images,
     
     // Interactive icons
-    'carousel': Images,
     'timer': Timer,
     'tabs': Layers,
     'modal': Square,
-    'lightbox': Eye,
     'beforeafter': Compare,
     'progress': BarChart3,
     'rating': Star,
@@ -253,7 +251,7 @@ const DraggableComponent: React.FC<{ component: ComponentMetadata }> = ({ compon
     >
       <div className="flex items-start space-x-3">
         <div className="flex-shrink-0">
-          {React.createElement(getIconComponent(component.config.icon), { className: "w-5 h-5 text-gray-600" })}
+          {React.createElement(getIconComponent(component.config.icon) || Square, { className: "w-5 h-5 text-gray-600" })}
         </div>
         <div className="flex-1 min-w-0">
           <h4 className="text-sm font-medium text-gray-900 truncate">
@@ -278,7 +276,9 @@ interface ComponentCategory {
 const ComponentPalette: React.FC<ComponentPaletteProps> = ({
   onComponentDragStart,
   onSaveAsTemplate,
-  pageSchema
+  pageSchema,
+  collapsed = false,
+  onToggleCollapse
 }) => {
   const [searchQuery, setSearchQuery] = useState('')
   const [isExpanded, setIsExpanded] = useState(true)
@@ -355,52 +355,92 @@ const ComponentPalette: React.FC<ComponentPaletteProps> = ({
             
   return (
     <Card className={cn(
-      "w-80 bg-white border-r border-gray-200 flex flex-col transition-all duration-300",
+      "bg-white border-r border-gray-200 flex flex-col transition-all duration-300",
+      collapsed ? "w-16" : "w-64 lg:w-72 xl:w-80",
       isExpanded ? "translate-x-0" : "translate-x-full"
     )}>
       {/* Header */}
       <div className="p-4 border-b border-gray-200">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-900">Add Section</h3>
-                <Button
-                  variant="ghost"
-            size="sm"
-            onClick={() => setIsExpanded(!isExpanded)}
-          >
-            {isExpanded ? '←' : '→'}
-          </Button>
+          {!collapsed && (
+            <h3 className="text-lg font-semibold text-gray-900">Add Section</h3>
+          )}
+          <div className="flex items-center gap-2">
+            {!collapsed && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsExpanded(!isExpanded)}
+                className="h-8 w-8 p-0"
+              >
+                {isExpanded ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+              </Button>
+            )}
+            {onToggleCollapse && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onToggleCollapse}
+                className="h-8 w-8 p-0"
+                title={collapsed ? "Expand palette" : "Collapse palette"}
+              >
+                {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              </Button>
+            )}
+          </div>
         </div>
 
         {/* Search */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <Input
-            placeholder="Search components..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-                  </div>
+        {!collapsed && (
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Search components..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        )}
 
         {/* Save as Template */}
-        <Button
-          variant="outline"
-          size="sm"
-          className="w-full mt-3"
-          onClick={handleSaveAsTemplate}
-        >
-          <Save className="w-4 h-4 mr-2" />
-          Save as Template
-                </Button>
+        {!collapsed && (
+          <Button
+            variant="outline"
+            size="sm"
+            className="w-full mt-3"
+            onClick={handleSaveAsTemplate}
+          >
+            <Save className="w-4 h-4 mr-2" />
+            Save as Template
+          </Button>
+        )}
       </div>
 
       {/* Categories */}
       <ScrollArea className="flex-1">
         <div className="p-4">
           {/* Vertical Category List */}
-          <div className="space-y-4">
+          <div className={cn("space-y-4", collapsed && "space-y-2")}>
             {filteredCategories.map((category) => {
               const isCollapsed = collapsedCategories.has(category.id)
+              
+              if (collapsed) {
+                // Show only icons when palette is collapsed
+                return (
+                  <div key={category.id} className="flex justify-center">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-10 w-10 p-0"
+                      onClick={() => toggleCategory(category.id)}
+                      title={category.name}
+                    >
+                      {category.icon}
+                    </Button>
+                  </div>
+                )
+              }
               
               return (
                 <div key={category.id} className="space-y-2">

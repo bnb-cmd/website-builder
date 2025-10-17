@@ -25,7 +25,7 @@ import {
   FolderOpen,
   ChevronRight,
   ChevronDown
-} from 'lucide-react'
+} from '@/lib/icons'
 
 interface ComponentGroupingProps {
   components: ComponentNode[]

@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Video } from 'lucide-react'
+import { Video } from '@/lib/icons'
 import { getResponsiveTextSize } from '../renderer'
 
 export const VideoConfig: ComponentConfig = {

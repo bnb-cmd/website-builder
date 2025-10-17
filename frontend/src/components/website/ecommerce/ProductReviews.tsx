@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Star, ThumbsUp, ThumbsDown } from 'lucide-react'
+import { Star, ThumbsUp, ThumbsDown } from '@/lib/icons'
 import { Avatar, AvatarFallback, AvatarImage } from '../../ui/avatar'
 import { Button } from '../../ui/button'
 import { cn } from '@/lib/utils'

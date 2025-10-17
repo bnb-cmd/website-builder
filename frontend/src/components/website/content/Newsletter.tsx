@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Mail, Send } from 'lucide-react'
+import { Mail, Send } from '@/lib/icons'
 import { Button } from '../../ui/button'
 import { Input } from '../../ui/input'
 import { cn } from '@/lib/utils'

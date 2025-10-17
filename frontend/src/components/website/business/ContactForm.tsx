@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Mail, User, Phone, MapPin, Building, Globe, Calendar, Clock } from 'lucide-react'
+import { Mail, User, Phone, MapPin, Building, Globe, Calendar, Clock } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface ContactFormProps {

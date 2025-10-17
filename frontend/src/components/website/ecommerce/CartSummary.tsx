@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { ShoppingCart, Plus, Minus, Trash2 } from 'lucide-react'
+import { ShoppingCart, Plus, Minus, Trash2 } from '@/lib/icons'
 import { Button } from '../../ui/button'
 import { cn } from '@/lib/utils'
 import { getResponsivePadding, getResponsiveTextSize } from '../renderer'

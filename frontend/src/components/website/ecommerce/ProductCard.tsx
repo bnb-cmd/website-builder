@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useState } from 'react'
-import { Star, Heart, ShoppingCart, Eye, Share2, Check } from 'lucide-react'
+import { Star, Heart, ShoppingCart, Eye, Share2, Check } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 
 export interface ProductCardProps {

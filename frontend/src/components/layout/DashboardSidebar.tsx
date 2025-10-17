@@ -21,8 +21,10 @@ import {
   Zap,
   X,
   Link2,
-  ShoppingBag
-} from 'lucide-react'
+  ShoppingBag,
+  ChevronLeft,
+  ChevronRight
+} from '@/lib/icons'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../ui/tooltip'
 
 interface SidebarProps {
@@ -30,6 +32,7 @@ interface SidebarProps {
   isOpen?: boolean
   onClose?: () => void
   collapsed?: boolean
+  onToggleCollapse?: () => void
 }
 
 const navigation = [
@@ -111,7 +114,8 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
   className, 
   isOpen = true, 
   onClose,
-  collapsed = false
+  collapsed = false,
+  onToggleCollapse
 }) => {
   const { currentPath, navigate } = useRouter()
 
@@ -189,12 +193,15 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
       )}
       
       {/* Sidebar */}
-      <div className={cn(
-        "fixed left-0 top-0 z-50 h-full transform border-r bg-sidebar transition-all duration-200 ease-in-out md:relative md:translate-x-0 border-sidebar-border",
-        collapsed ? "w-16" : "w-64",
-        isOpen ? "translate-x-0" : "-translate-x-full",
-        className
-      )}>
+      <div 
+        data-testid="sidebar"
+        className={cn(
+          "fixed left-0 top-0 z-50 h-full transform border-r bg-sidebar transition-all duration-200 ease-in-out md:relative md:translate-x-0 border-sidebar-border",
+          collapsed ? "w-16" : "w-64",
+          isOpen ? "translate-x-0" : "-translate-x-full",
+          className
+        )}
+      >
         <div className="flex h-full flex-col">
           {/* Mobile close button */}
           <div className="flex h-14 items-center justify-end border-b border-sidebar-border px-4 md:hidden">
@@ -206,6 +213,32 @@ export const DashboardSidebar: React.FC<SidebarProps> = ({
             >
               <X className="h-4 w-4" />
             </Button>
+          </div>
+
+          {/* Desktop collapse toggle button */}
+          <div className="hidden md:flex h-14 items-center justify-end border-b border-sidebar-border px-4">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    data-testid="sidebar-collapse"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    onClick={onToggleCollapse}
+                  >
+                    {collapsed ? (
+                      <ChevronRight className="h-4 w-4" />
+                    ) : (
+                      <ChevronLeft className="h-4 w-4" />
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent side="right" className="ml-2">
+                  <p>{collapsed ? 'Expand sidebar' : 'Collapse sidebar'}</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           <ScrollArea className="flex-1 px-3 py-4">

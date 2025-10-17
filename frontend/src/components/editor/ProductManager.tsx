@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../ui/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select'
 import { cn } from '../../lib/utils'
-import { Plus, Edit, Trash2, Upload, Link, Instagram, Facebook, RefreshCw } from 'lucide-react'
+import { Plus, Edit, Trash2, Upload, Link, Instagram, Facebook, RefreshCw } from '@/lib/icons'
 
 export interface Product {
   id: string

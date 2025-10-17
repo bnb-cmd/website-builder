@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Package, Truck, CheckCircle } from 'lucide-react'
+import { Package, Truck, CheckCircle } from '@/lib/icons'
 import { Badge } from '../../ui/badge'
 import { cn } from '@/lib/utils'
 import { getResponsivePadding, getResponsiveTextSize } from '../renderer'

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react'
 import { Button } from './button'
-import { Moon, Sun } from 'lucide-react'
+import { Moon, Sun } from '@/lib/icons'
 
 export const ThemeToggle: React.FC = () => {
   const [theme, setTheme] = useState<'light' | 'dark'>('light')

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { DndContext, DragEndEvent, DragStartEvent, DragOverlay, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { Button } from '../components/ui/button'
 import { Badge } from '../components/ui/badge'
@@ -29,8 +29,10 @@ import {
   Settings,
   Share,
   Rocket,
-  Loader
-} from 'lucide-react'
+  Loader,
+  ZoomIn,
+  ZoomOut
+} from '@/lib/icons'
 
 // Remove PageComponent interface - use ComponentNode instead
 
@@ -49,6 +51,37 @@ const EditorPage: React.FC = () => {
   const [isLoadingTemplate, setIsLoadingTemplate] = useState(false)
   const [templateName, setTemplateName] = useState<string>('')
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [canvasZoom, setCanvasZoom] = useState(100)
+  const [paletteCollapsed, setPaletteCollapsed] = useState(false)
+  const [propertiesCollapsed, setPropertiesCollapsed] = useState(false)
+  const canvasContainerRef = useRef<HTMLDivElement>(null)
+
+  // Load panel states from localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const savedPaletteState = localStorage.getItem('palette-collapsed')
+      const savedPropertiesState = localStorage.getItem('properties-collapsed')
+      if (savedPaletteState !== null) {
+        setPaletteCollapsed(JSON.parse(savedPaletteState))
+      }
+      if (savedPropertiesState !== null) {
+        setPropertiesCollapsed(JSON.parse(savedPropertiesState))
+      }
+    }
+  }, [])
+
+  // Save panel states to localStorage
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('palette-collapsed', JSON.stringify(paletteCollapsed))
+    }
+  }, [paletteCollapsed])
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('properties-collapsed', JSON.stringify(propertiesCollapsed))
+    }
+  }, [propertiesCollapsed])
 
   // DnD Kit sensors
   const sensors = useSensors(
@@ -399,6 +432,82 @@ const EditorPage: React.FC = () => {
 
   const deviceDimensions = getDeviceDimensions();
 
+  // Zoom and panel control functions
+  const handleWheel = (e: React.WheelEvent) => {
+    // Pinch-to-zoom (Ctrl/Cmd + scroll) or trackpad pinch gesture
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault()
+      
+      // Calculate smooth zoom change based on delta
+      // deltaY is typically -100 to 100 per scroll event
+      const sensitivity = 0.002 // Adjust for smoothness
+      const delta = -e.deltaY * sensitivity
+      const zoomMultiplier = 1 + delta
+      
+      // Apply zoom with smooth continuous values
+      const newZoom = canvasZoom * zoomMultiplier
+      
+      // Clamp between 25% and 400%
+      const clampedZoom = Math.max(25, Math.min(400, newZoom))
+      
+      // Round to 1 decimal place for cleaner display
+      setCanvasZoom(Math.round(clampedZoom * 10) / 10)
+    } else {
+      // Allow normal scrolling for pan when zoomed
+      // Default browser behavior handles this
+    }
+  }
+
+  const handleFitToScreen = () => {
+    if (!canvasContainerRef.current) return
+    
+    const container = canvasContainerRef.current
+    const availableWidth = container.clientWidth - 40 // Padding
+    const availableHeight = container.clientHeight - 40
+    
+    const widthZoom = (availableWidth / 1200) * 100
+    const heightZoom = (availableHeight / 1200) * 100
+    
+    // Use the smaller zoom to ensure it fits both dimensions
+    const fitZoom = Math.min(widthZoom, heightZoom)
+    setCanvasZoom(Math.max(25, Math.min(400, Math.round(fitZoom))))
+  }
+
+  const togglePalette = () => {
+    setPaletteCollapsed(!paletteCollapsed)
+  }
+
+  const toggleProperties = () => {
+    setPropertiesCollapsed(!propertiesCollapsed)
+  }
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey)) {
+        if (e.key === '0') {
+          e.preventDefault()
+          setCanvasZoom(100)
+        } else if (e.key === '=' || e.key === '+') {
+          e.preventDefault()
+          setCanvasZoom(prev => Math.min(400, prev + 10))
+        } else if (e.key === '-') {
+          e.preventDefault()
+          setCanvasZoom(prev => Math.max(25, prev - 10))
+        } else if (e.key === 'b') {
+          e.preventDefault()
+          togglePalette()
+        } else if (e.key === 'p') {
+          e.preventDefault()
+          toggleProperties()
+        }
+      }
+    }
+    
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [paletteCollapsed, propertiesCollapsed])
+
   // Show loading overlay when initializing template
   if (isLoadingTemplate) {
     return (
@@ -455,6 +564,46 @@ const EditorPage: React.FC = () => {
                 title="Mobile View"
               >
                 <Smartphone className="w-4 h-4" />
+              </Button>
+            </div>
+
+            {/* Zoom Controls */}
+            <div className="flex items-center gap-2 px-3 border-l">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCanvasZoom(prev => Math.max(25, prev - 10))}
+                title="Zoom Out (Ctrl + -)"
+              >
+                <ZoomOut className="h-4 w-4" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCanvasZoom(100)}
+                className="min-w-[60px]"
+                title="Reset Zoom (Ctrl + 0)"
+              >
+                {Math.round(canvasZoom)}%
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setCanvasZoom(prev => Math.min(400, prev + 10))}
+                title="Zoom In (Ctrl + +)"
+              >
+                <ZoomIn className="h-4 w-4" />
+              </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleFitToScreen}
+                title="Fit to Screen"
+              >
+                Fit
               </Button>
             </div>
 
@@ -525,33 +674,56 @@ const EditorPage: React.FC = () => {
       >
         <div className="flex flex-1 overflow-hidden">
           {/* Component Palette */}
-          {!isPreviewMode && (
-            <ComponentPalette onComponentDragStart={handleComponentDragStart} onSaveAsTemplate={handleSaveAsTemplate} pageSchema={pageSchema} />
+          {!isPreviewMode && !paletteCollapsed && (
+            <ComponentPalette 
+              onComponentDragStart={handleComponentDragStart} 
+              onSaveAsTemplate={handleSaveAsTemplate} 
+              pageSchema={pageSchema}
+              collapsed={paletteCollapsed}
+              onToggleCollapse={togglePalette}
+            />
           )}
 
           {/* Main Canvas Area */}
-          <div className="flex-1 flex flex-col">
-            <div className={`flex-1 ${getDeviceClass()} flex justify-center items-start overflow-auto`}>
-              <EditorCanvas
-                components={components}
-                onComponentsChange={setComponents}
-                onComponentSelect={setSelectedComponent}
-                selectedComponent={selectedComponent}
-                deviceMode={deviceMode}
-                deviceDimensions={deviceDimensions}
-                pageSchema={pageSchema}
-                onPageSchemaChange={setPageSchema}
-              />
+          <div className="flex-1 flex flex-col relative">
+            <div 
+              ref={canvasContainerRef}
+              className={`flex-1 ${getDeviceClass()} flex justify-center items-start overflow-auto`}
+              onWheel={handleWheel}
+              style={{
+                cursor: 'default',
+                touchAction: 'none' // Prevent browser zoom
+              }}
+            >
+              <div 
+                style={{ 
+                  transform: `scale(${canvasZoom / 100})`,
+                  transformOrigin: 'center top'
+                }}
+              >
+                <EditorCanvas
+                  components={components}
+                  onComponentsChange={setComponents}
+                  onComponentSelect={setSelectedComponent}
+                  selectedComponent={selectedComponent}
+                  deviceMode={deviceMode}
+                  deviceDimensions={deviceDimensions}
+                  pageSchema={pageSchema}
+                  onPageSchemaChange={setPageSchema}
+                />
+              </div>
             </div>
           </div>
 
           {/* Properties Panel */}
-          {!isPreviewMode && (
+          {!isPreviewMode && !propertiesCollapsed && (
             <PropertiesPanel
               selectedComponent={selectedComponent}
               onComponentUpdate={handleComponentUpdate}
               onComponentDelete={handleComponentDelete}
               onComponentDuplicate={handleComponentDuplicate}
+              collapsed={propertiesCollapsed}
+              onToggleCollapse={toggleProperties}
             />
           )}
         </div>

@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { Facebook, Twitter, Instagram, Linkedin, Youtube } from 'lucide-react'
+import { Facebook, Twitter, Instagram, Linkedin, Youtube } from '@/lib/icons'
 import { cn } from '@/lib/utils'
 import { getResponsivePadding, getResponsiveTextSize } from '../renderer'
 

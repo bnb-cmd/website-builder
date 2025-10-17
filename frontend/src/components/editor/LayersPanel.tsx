@@ -30,7 +30,7 @@ import {
   Filter,
   SortAsc,
   SortDesc
-} from 'lucide-react'
+} from '@/lib/icons'
 
 interface LayersPanelProps {
   components: ComponentNode[]

@@ -20,7 +20,7 @@ import {
   Zap,
   Brain,
   Wand2
-} from 'lucide-react'
+} from '@/lib/icons'
 
 const OnboardingPage: React.FC = () => {
   const router = useRouter()

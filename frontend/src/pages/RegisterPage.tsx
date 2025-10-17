@@ -9,7 +9,7 @@ import { Label } from '@/components/ui/label'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Separator } from '@/components/ui/separator'
 import { useAuthStore } from '@/lib/store'
-import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check } from 'lucide-react'
+import { Eye, EyeOff, Mail, Lock, User, ArrowRight, Check } from '@/lib/icons'
 
 const RegisterPage: React.FC = () => {
   const router = useRouter()

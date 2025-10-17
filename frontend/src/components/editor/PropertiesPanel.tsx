@@ -10,6 +10,7 @@ import { Separator } from '../ui/separator'
 import { Badge } from '../ui/badge'
 import { ScrollArea } from '../ui/scroll-area'
 import { Slider } from '../ui/slider'
+import { cn } from '../../lib/utils'
 import { 
   Type, 
   Palette, 
@@ -22,8 +23,10 @@ import {
   Lock,
   Unlock,
   Image as ImageIcon,
-  Upload
-} from 'lucide-react'
+  Upload,
+  ChevronLeft,
+  ChevronRight
+} from '@/lib/icons'
 import ImagePicker from './ImagePicker'
 import { ComponentNode } from '../../lib/schema'
 
@@ -32,26 +35,48 @@ interface PropertiesPanelProps {
   onComponentUpdate: (component: ComponentNode) => void
   onComponentDelete: () => void
   onComponentDuplicate: () => void
+  collapsed?: boolean
+  onToggleCollapse?: () => void
 }
 
 export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   selectedComponent,
   onComponentUpdate,
   onComponentDelete,
-  onComponentDuplicate
+  onComponentDuplicate,
+  collapsed = false,
+  onToggleCollapse
 }) => {
   const [imagePickerOpen, setImagePickerOpen] = useState(false)
   const [imagePickerCategory, setImagePickerCategory] = useState<string | undefined>()
   const [imagePickerTitle, setImagePickerTitle] = useState('Choose Image')
   if (!selectedComponent) {
     return (
-      <div className="w-80 bg-background border-l">
+      <div className={cn(
+        "bg-background border-l transition-all duration-300",
+        collapsed ? "w-16" : "w-64 lg:w-72 xl:w-80"
+      )}>
         <div className="p-6 text-center">
           <Settings className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="font-semibold mb-2">No Selection</h3>
-          <p className="text-sm text-muted-foreground">
-            Select a component to edit its properties
-          </p>
+          {!collapsed && (
+            <>
+              <h3 className="font-semibold mb-2">No Selection</h3>
+              <p className="text-sm text-muted-foreground">
+                Select a component to edit its properties
+              </p>
+            </>
+          )}
+          {onToggleCollapse && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleCollapse}
+              className="mt-4 h-8 w-8 p-0"
+              title={collapsed ? "Expand properties" : "Collapse properties"}
+            >
+              {collapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            </Button>
+          )}
         </div>
       </div>
     )
@@ -349,19 +374,38 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
   }
 
   return (
-    <div className="w-80 bg-background border-l">
+    <div className={cn(
+      "bg-background border-l transition-all duration-300",
+      collapsed ? "w-16" : "w-64 lg:w-72 xl:w-80"
+    )}>
       <div className="p-4 border-b">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-2">
-            <Type className="w-4 h-4" />
-            <h2 className="font-semibold">Properties</h2>
-          </div>
-          <Badge variant="outline">{selectedComponent.type}</Badge>
+          {!collapsed && (
+            <>
+              <div className="flex items-center space-x-2">
+                <Type className="w-4 h-4" />
+                <h2 className="font-semibold">Properties</h2>
+              </div>
+              <Badge variant="outline">{selectedComponent.type}</Badge>
+            </>
+          )}
+          {onToggleCollapse && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={onToggleCollapse}
+              className="h-8 w-8 p-0"
+              title={collapsed ? "Expand properties" : "Collapse properties"}
+            >
+              {collapsed ? <ChevronLeft className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+            </Button>
+          )}
         </div>
       </div>
       
-      <ScrollArea className="h-[calc(100vh-8rem)]">
-        <div className="p-4 space-y-6">
+      {!collapsed && (
+        <ScrollArea className="h-[calc(100vh-8rem)]">
+          <div className="p-4 space-y-6">
           {/* Component Actions */}
           <Card>
             <CardHeader className="pb-3">
@@ -524,6 +568,7 @@ export const PropertiesPanel: React.FC<PropertiesPanelProps> = ({
           </Card>
         </div>
       </ScrollArea>
+      )}
       
       {/* Image Picker Modal */}
       <ImagePicker

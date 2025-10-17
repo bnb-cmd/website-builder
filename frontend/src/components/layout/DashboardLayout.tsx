@@ -1,9 +1,10 @@
 "use client";
 
 import React, { useState, useEffect } from 'react'
-// import { Header } from './Header'
+import { Header } from './Header'
 import { DashboardSidebar } from './DashboardSidebar'
 import { useAuthStore } from '@/lib/store'
+import { useRouter } from '@/lib/router'
 
 interface DashboardLayoutProps {
   children: React.ReactNode
@@ -14,6 +15,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [isHydrated, setIsHydrated] = useState(false)
   const { user, autoLogin, _hasHydrated } = useAuthStore()
+  const { currentPath } = useRouter()
 
   // Auto-login on mount if not already logged in and store is hydrated
   useEffect(() => {
@@ -45,18 +47,26 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
     }
   }, [sidebarCollapsed, isHydrated])
 
+  // Auto-collapse sidebar when editor is open
+  useEffect(() => {
+    const isEditorRoute = currentPath.includes('/edit') || currentPath.includes('/websites/new')
+    if (isEditorRoute && !sidebarCollapsed) {
+      setSidebarCollapsed(true)
+    }
+  }, [currentPath, sidebarCollapsed])
+
   const toggleSidebarCollapse = () => {
     setSidebarCollapsed(!sidebarCollapsed)
   }
 
   return (
     <div className="h-screen bg-background">
-      {/* <Header 
+      <Header 
         variant="dashboard" 
         onMenuClick={() => setSidebarOpen(true)}
         onToggleSidebar={toggleSidebarCollapse}
         sidebarCollapsed={sidebarCollapsed}
-      /> */}
+      />
       
       <div className="flex h-[calc(100vh-4rem)]">
         {isHydrated && _hasHydrated ? (
@@ -64,6 +74,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({ children }) =>
             isOpen={sidebarOpen} 
             onClose={() => setSidebarOpen(false)}
             collapsed={sidebarCollapsed}
+            onToggleCollapse={toggleSidebarCollapse}
           />
         ) : (
           <div className="w-64 border-r bg-sidebar border-sidebar-border" />

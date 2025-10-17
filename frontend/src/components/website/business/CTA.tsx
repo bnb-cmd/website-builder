@@ -1,6 +1,6 @@
 import React from 'react'
 import { ComponentConfig, WebsiteComponentProps } from '@/lib/component-config'
-import { ArrowRight, Phone, Mail } from 'lucide-react'
+import { ArrowRight, Phone, Mail } from '@/lib/icons'
 import { Button } from '../../ui/button'
 import { cn } from '@/lib/utils'
 import { getResponsivePadding, getResponsiveTextSize } from '../renderer'

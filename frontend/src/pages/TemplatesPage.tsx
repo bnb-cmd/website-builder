@@ -29,7 +29,7 @@ import {
   Play,
   Pause,
   RotateCcw
-} from 'lucide-react'
+} from '@/lib/icons'
 
 // Types for template data
 interface Template {

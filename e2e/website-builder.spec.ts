@@ -162,4 +162,44 @@ test.describe('Website Builder E2E Tests', () => {
     
     await expect(page.locator('text=Payment successful')).toBeVisible()
   })
+
+  test('should have collapsible sidebar', async ({ page }) => {
+    // Login and navigate to dashboard
+    await page.click('text=Sign In')
+    await page.fill('input[name="email"]', 'test@example.com')
+    await page.fill('input[name="password"]', 'password123')
+    await page.click('button[type="submit"]')
+    
+    // Check if sidebar is visible
+    await expect(page.locator('[data-testid="sidebar"]')).toBeVisible()
+    
+    // Click collapse button
+    await page.click('button[data-testid="sidebar-collapse"]')
+    
+    // Check if sidebar is collapsed
+    await expect(page.locator('[data-testid="sidebar"]')).toHaveClass(/w-16/)
+    
+    // Click expand button
+    await page.click('button[data-testid="sidebar-collapse"]')
+    
+    // Check if sidebar is expanded
+    await expect(page.locator('[data-testid="sidebar"]')).toHaveClass(/w-64/)
+  })
+
+  test('should auto-collapse sidebar when editor opens', async ({ page }) => {
+    // Login and navigate to dashboard
+    await page.click('text=Sign In')
+    await page.fill('input[name="email"]', 'test@example.com')
+    await page.fill('input[name="password"]', 'password123')
+    await page.click('button[type="submit"]')
+    
+    // Ensure sidebar is expanded
+    await expect(page.locator('[data-testid="sidebar"]')).toHaveClass(/w-64/)
+    
+    // Navigate to editor
+    await page.click('text=Create Website')
+    
+    // Check if sidebar is auto-collapsed
+    await expect(page.locator('[data-testid="sidebar"]')).toHaveClass(/w-16/)
+  })
 })
