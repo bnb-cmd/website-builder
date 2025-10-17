@@ -82,6 +82,16 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
   const [multiSelect, setMultiSelect] = useState<string[]>([])
   const { isPreviewMode } = useEditorStore()
 
+  // Refs to prevent unnecessary effect re-runs during drag operations
+  const moveStartPosRef = useRef({ x: 0, y: 0 })
+  const resizeStartPosRef = useRef({ x: 0, y: 0, width: 0, height: 0 })
+  const componentsRef = useRef(components)
+
+  // Sync componentsRef with components state
+  useEffect(() => {
+    componentsRef.current = components
+  }, [components])
+
   // DnD Kit sensors
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -308,10 +318,12 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     e.stopPropagation()
     
     setIsMovingComponent(true)
-    setMoveStartPos({
+    const startPos = {
       x: e.clientX - getLayout(component.layout, deviceMode).x,
       y: e.clientY - getLayout(component.layout, deviceMode).y
-    })
+    }
+    setMoveStartPos(startPos)
+    moveStartPosRef.current = startPos
     
     onComponentSelect(component)
   }
@@ -327,12 +339,14 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
     setResizeHandle(handle)
     
     const layout = getLayout(selectedComponent.layout, deviceMode)
-    setResizeStartPos({
+    const startPos = {
       x: e.clientX,
       y: e.clientY,
       width: layout.width,
       height: layout.height
-    })
+    }
+    setResizeStartPos(startPos)
+    resizeStartPosRef.current = startPos
   }
 
   // Handle mouse move for dragging/resizing
@@ -345,8 +359,8 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
       const y = e.clientY - rect.top
 
       if (isMovingComponent && selectedComponent) {
-        const newX = snapToGrid(x - moveStartPos.x)
-        const newY = snapToGrid(y - moveStartPos.y)
+        const newX = snapToGrid(x - moveStartPosRef.current.x)
+        const newY = snapToGrid(y - moveStartPosRef.current.y)
 
         updateState((draft) => {
           const component = draft.components.find(c => c.id === selectedComponent.id)
@@ -370,8 +384,8 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
       }
 
       if (isResizingComponent && selectedComponent && resizeHandle) {
-        const deltaX = e.clientX - resizeStartPos.x
-        const deltaY = e.clientY - resizeStartPos.y
+        const deltaX = e.clientX - resizeStartPosRef.current.x
+        const deltaY = e.clientY - resizeStartPosRef.current.y
 
         updateState((draft) => {
           const component = draft.components.find(c => c.id === selectedComponent.id)
@@ -381,24 +395,24 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
               
               switch (resizeHandle) {
                 case 'se':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width + deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height + deltaY))
+                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width + deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height + deltaY))
                   break
                 case 'sw':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width - deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height + deltaY))
-                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPos.width - layout.width))
+                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width - deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height + deltaY))
+                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPosRef.current.width - layout.width))
                   break
                 case 'ne':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width + deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height - deltaY))
-                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPos.height - layout.height))
+                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width + deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height - deltaY))
+                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPosRef.current.height - layout.height))
                   break
                 case 'nw':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width - deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height - deltaY))
-                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPos.width - layout.width))
-                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPos.height - layout.height))
+                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width - deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height - deltaY))
+                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPosRef.current.width - layout.width))
+                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPosRef.current.height - layout.height))
                   break
               }
             } else {
@@ -410,24 +424,24 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
               
               switch (resizeHandle) {
                 case 'se':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width + deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height + deltaY))
+                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width + deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height + deltaY))
                   break
                 case 'sw':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width - deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height + deltaY))
-                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPos.width - layout.width))
+                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width - deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height + deltaY))
+                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPosRef.current.width - layout.width))
                   break
                 case 'ne':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width + deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height - deltaY))
-                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPos.height - layout.height))
+                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width + deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height - deltaY))
+                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPosRef.current.height - layout.height))
                   break
                 case 'nw':
-                  layout.width = Math.max(50, snapToGrid(resizeStartPos.width - deltaX))
-                  layout.height = Math.max(50, snapToGrid(resizeStartPos.height - deltaY))
-                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPos.width - layout.width))
-                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPos.height - layout.height))
+                  layout.width = Math.max(50, snapToGrid(resizeStartPosRef.current.width - deltaX))
+                  layout.height = Math.max(50, snapToGrid(resizeStartPosRef.current.height - deltaY))
+                  layout.x = snapToGrid(component.layout.default.x + (resizeStartPosRef.current.width - layout.width))
+                  layout.y = snapToGrid(component.layout.default.y + (resizeStartPosRef.current.height - layout.height))
                   break
               }
             }
@@ -464,7 +478,7 @@ const EditorCanvas: React.FC<EditorCanvasProps> = ({
       document.removeEventListener('mousemove', handleMouseMove)
       document.removeEventListener('mouseup', handleMouseUp)
     }
-  }, [isMovingComponent, isResizingComponent, selectedComponent, moveStartPos, resizeStartPos, resizeHandle, snapToGrid, updateState, addState, components])
+  }, [isMovingComponent, isResizingComponent, selectedComponent, resizeHandle, deviceMode, snapToGrid, updateState, addState])
 
   // Handle component deletion
   const handleDeleteComponent = (componentId: string) => {
