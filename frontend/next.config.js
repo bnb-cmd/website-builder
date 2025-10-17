@@ -18,10 +18,17 @@ const nextConfig = {
       use: 'ignore-loader',
     })
     
-    // Fix React Refresh issue with React 19
+    // Fix React Refresh issue with React 19 - More comprehensive approach
     if (dev && !isServer) {
+      // Disable React Refresh by removing the plugin
+      config.plugins = config.plugins.filter(
+        (plugin) => plugin.constructor.name !== 'ReactRefreshPlugin'
+      )
+      
+      // Also alias react-refresh to false
       config.resolve.alias = {
         ...config.resolve.alias,
+        'react-refresh/runtime': false,
         'react-refresh': false,
       }
     }
