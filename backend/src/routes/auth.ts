@@ -91,14 +91,11 @@ export async function authRoutes(fastify: FastifyInstance) {
         })
       }
 
-      // Hash password
-      const hashedPassword = await authService.hashPassword(validatedData.password)
-
-      // Create user
+      // Create user (password will be hashed in userService.create)
       const user = await userService.create({
         email: validatedData.email,
         name: validatedData.name,
-        password: hashedPassword,
+        password: validatedData.password, // Pass plain password - userService will hash it
         phone: validatedData.phone,
         businessType: validatedData.businessType,
         city: validatedData.city,
@@ -173,8 +170,8 @@ export async function authRoutes(fastify: FastifyInstance) {
         })
       }
 
-      // Verify password
-      const isPasswordValid = await authService.verifyPassword(validatedData.password, user.password)
+      // Verify password using UserService method
+      const isPasswordValid = await userService.validatePassword(user, validatedData.password)
       if (!isPasswordValid) {
         return reply.status(401).send({
           success: false,
@@ -461,8 +458,8 @@ export async function authRoutes(fastify: FastifyInstance) {
         })
       }
 
-      // Verify current password
-      const isCurrentPasswordValid = await authService.verifyPassword(validatedData.currentPassword, user.password)
+      // Verify current password using UserService method
+      const isCurrentPasswordValid = await userService.validatePassword(user, validatedData.currentPassword)
       if (!isCurrentPasswordValid) {
         return reply.status(400).send({
           success: false,
@@ -488,11 +485,8 @@ export async function authRoutes(fastify: FastifyInstance) {
         })
       }
 
-      // Hash new password
-      const hashedNewPassword = await authService.hashPassword(validatedData.newPassword)
-
-      // Update password
-      await userService.update(userId, { password: hashedNewPassword })
+      // Update password using UserService method (will hash the password)
+      await userService.updatePassword(userId, validatedData.newPassword)
 
       return reply.status(200).send({
         success: true,
