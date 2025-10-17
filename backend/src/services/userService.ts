@@ -152,26 +152,7 @@ export class UserService extends BaseService<User> {
         where,
         skip,
         take,
-        orderBy: { [sortBy]: sortOrder },
-        select: {
-          id: true,
-          email: true,
-          name: true,
-          password: true,
-          phone: true,
-          avatar: true,
-          role: true,
-          status: true,
-          businessType: true,
-          city: true,
-          companyName: true,
-          createdAt: true,
-          updatedAt: true,
-          lastLoginAt: true,
-          preferredLanguage: true,
-          aiQuotaUsed: true,
-          aiQuotaResetAt: true
-        }
+        orderBy: { [sortBy]: sortOrder }
       })
       
       return users

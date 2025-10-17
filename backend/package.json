@@ -5,10 +5,8 @@
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/index.js",
-    "dev": "wrangler dev",
+    "dev": "tsx watch src/index.ts",
     "build": "tsc && tsc-alias",
-    "build:workers": "tsc && wrangler deploy",
-    "deploy": "wrangler deploy",
     "test": "vitest",
     "test:watch": "vitest --watch",
     "test:coverage": "vitest --coverage",
@@ -16,14 +14,15 @@
     "lint:fix": "eslint src --ext .ts --fix",
     "format": "prettier --write src/**/*.ts",
     "type-check": "tsc --noEmit",
-    "db:migrate": "wrangler d1 migrations apply pakistan-website-builder",
-    "db:migrate:local": "wrangler d1 migrations apply pakistan-website-builder --local"
+    "db:migrate": "prisma migrate deploy",
+    "db:migrate:dev": "prisma migrate dev",
+    "db:generate": "prisma generate",
+    "db:studio": "prisma studio"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.9.1",
     "@aws-sdk/client-s3": "^3.450.0",
     "@aws-sdk/s3-request-presigner": "^3.450.0",
-    "@cloudflare/workers-types": "^4.20231218.0",
     "@fastify/cors": "^8.4.0",
     "@fastify/jwt": "^7.2.4",
     "@fastify/multipart": "^8.0.0",
@@ -70,7 +69,7 @@
     "typescript": "^5.3.3",
     "tsc-alias": "^1.8.8",
     "vitest": "^3.2.4",
-    "wrangler": "^3.22.1"
+    "tsx": "^4.6.2"
   },
   "engines": {
     "node": ">=20.0.0",
