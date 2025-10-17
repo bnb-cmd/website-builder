@@ -11,6 +11,8 @@ const nextConfig = {
       '.next/server/chunks/**/*',
     ],
   },
+  // Disable React Refresh completely
+  reactStrictMode: false,
   webpack: (config, { isServer, dev }) => {
     // Ignore macOS metadata files
     config.module.rules.push({
@@ -18,18 +20,37 @@ const nextConfig = {
       use: 'ignore-loader',
     })
     
-    // Fix React Refresh issue with React 19 - More comprehensive approach
+    // Fix React Refresh issue with React 19 - Complete disable
     if (dev && !isServer) {
-      // Disable React Refresh by removing the plugin
+      // Remove React Refresh plugin completely
       config.plugins = config.plugins.filter(
-        (plugin) => plugin.constructor.name !== 'ReactRefreshPlugin'
+        (plugin) => {
+          const pluginName = plugin.constructor.name
+          return !pluginName.includes('ReactRefresh') && !pluginName.includes('Refresh')
+        }
       )
       
-      // Also alias react-refresh to false
+      // Disable React Refresh in babel loader
+      config.module.rules.forEach((rule) => {
+        if (rule.use && Array.isArray(rule.use)) {
+          rule.use.forEach((use) => {
+            if (use.loader && use.loader.includes('babel-loader')) {
+              if (use.options && use.options.plugins) {
+                use.options.plugins = use.options.plugins.filter(
+                  (plugin) => !plugin.includes('react-refresh')
+                )
+              }
+            }
+          })
+        }
+      })
+      
+      // Alias react-refresh to false
       config.resolve.alias = {
         ...config.resolve.alias,
         'react-refresh/runtime': false,
         'react-refresh': false,
+        'react-refresh/babel': false,
       }
     }
     
@@ -60,10 +81,6 @@ const nextConfig = {
         },
       }
     }
-    
-    // Reduce bundle size - removed conflicting settings
-    // config.optimization.usedExports = true  // Conflicts with cacheUnaffected
-    // config.optimization.sideEffects = false // Conflicts with cacheUnaffected
     
     return config
   },
